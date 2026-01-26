@@ -2,7 +2,6 @@ import { Box, Typography, CircularProgress, LinearProgress, Paper } from "@mui/m
 import { useNutrition } from "../context/NutritionContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CircularProgress, Box, Typography } from "@mui/material";
 
 const CircularScore = ({ value }) => {
   const getColor = (value) => {
