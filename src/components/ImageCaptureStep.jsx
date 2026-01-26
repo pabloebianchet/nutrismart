@@ -1,64 +1,138 @@
-import { useState } from "react";
-import { Box, Button, Typography, CircularProgress } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Stack,
+  Paper,
+} from "@mui/material";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import { useNutrition } from "../context/NutritionContext";
-import Tesseract from "tesseract.js";
 import { useNavigate } from "react-router-dom";
 
 const ImageCaptureStep = () => {
-  const { updateOcrText } = useNutrition();
-  const [imageFile, setImageFile] = useState(null);
+  const [tablaImage, setTablaImage] = useState(null);
+  const [ingredientesImage, setIngredientesImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { setOcrText } = useNutrition();
   const navigate = useNavigate();
 
-  const handleImageChange = async (e) => {
+  const handleFileChange = (e, setImage) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (file) {
+      setImage(file);
+    }
+  };
 
-    setImageFile(URL.createObjectURL(file));
+  const applyOCR = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const response = await fetch("/api/ocr", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+    return data.text;
+  };
+
+  const handleContinue = async () => {
+    if (!tablaImage || !ingredientesImage) return;
+
     setLoading(true);
-
     try {
-      const result = await Tesseract.recognize(file, "spa", {
-        logger: (m) => console.log(m),
-      });
-
-      updateOcrText(result.data.text);
+      const tablaText = await applyOCR(tablaImage);
+      const ingredientesText = await applyOCR(ingredientesImage);
+      const combinedText = `${tablaText}\n\n${ingredientesText}`;
+      setOcrText(combinedText);
       navigate("/result");
-    } catch (err) {
-      console.error("OCR Error:", err);
-      alert("Error al leer la imagen");
+    } catch (error) {
+      console.error("OCR error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box p={4} textAlign="center">
-      <Typography variant="h6" mb={2}>
-        Capturá o subí la imagen del producto
-      </Typography>
-
-      <Button
-        variant="contained"
-        component="label"
-        sx={{ mb: 2 }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#d5ede4",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        px: 2,
+      }}
+    >
+      <Paper
+        sx={{
+          width: "100%",
+          maxWidth: 500,
+          p: 4,
+          borderRadius: 4,
+          boxShadow: 3,
+        }}
       >
-        Usar cámara o galería
-        <input
-          hidden
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleImageChange}
-        />
-      </Button>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Subí las imágenes del producto
+        </Typography>
 
-      {loading && <CircularProgress sx={{ mt: 2 }} />}
-      {imageFile && !loading && (
-        <Box mt={2}>
-          <img src={imageFile} alt="Preview" style={{ maxWidth: "100%" }} />
-        </Box>
-      )}
+        <Stack spacing={3} mt={3}>
+          {/* Tabla Nutricional */}
+          <Box>
+            <Typography variant="subtitle1">Tabla nutricional</Typography>
+            <input
+              accept="image/*"
+              capture="environment"
+              type="file"
+              style={{ display: "none" }}
+              id="tabla-input"
+              onChange={(e) => handleFileChange(e, setTablaImage)}
+            />
+            <label htmlFor="tabla-input">
+              <IconButton color="primary" component="span">
+                <PhotoCameraIcon />
+              </IconButton>
+            </label>
+            {tablaImage && (
+              <Typography variant="body2">{tablaImage.name}</Typography>
+            )}
+          </Box>
+
+          {/* Ingredientes */}
+          <Box>
+            <Typography variant="subtitle1">Lista de ingredientes</Typography>
+            <input
+              accept="image/*"
+              capture="environment"
+              type="file"
+              style={{ display: "none" }}
+              id="ingredientes-input"
+              onChange={(e) => handleFileChange(e, setIngredientesImage)}
+            />
+            <label htmlFor="ingredientes-input">
+              <IconButton color="primary" component="span">
+                <PhotoCameraIcon />
+              </IconButton>
+            </label>
+            {ingredientesImage && (
+              <Typography variant="body2">{ingredientesImage.name}</Typography>
+            )}
+          </Box>
+
+          <Button
+            variant="contained"
+            color="success"
+            disabled={!tablaImage || !ingredientesImage || loading}
+            onClick={handleContinue}
+            sx={{ borderRadius: 3, mt: 2 }}
+          >
+            {loading ? "Analizando..." : "Continuar"}
+          </Button>
+        </Stack>
+      </Paper>
     </Box>
   );
 };
