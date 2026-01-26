@@ -3,37 +3,17 @@ import { createContext, useContext, useState } from "react";
 const NutritionContext = createContext();
 
 export const NutritionProvider = ({ children }) => {
-  const [userData, setUserData] = useState({
-    sexo: "",
-    edad: "",
-    actividad: "",
-    peso: "",
-    altura: "",
-  });
+  const [userData, setUserData] = useState(null);
+  const [ocrText, setOcrText] = useState("");
 
-  const [images, setImages] = useState({
-    ingredientes: null,
-    tabla: null,
-    soloUna: false, // si el usuario indica que tiene una imagen con todo
-  });
-
-  const [result, setResult] = useState(null); // para la respuesta de la IA
+  const updateUserData = (data) => setUserData(data);
+  const updateOcrText = (text) => setOcrText(text);
 
   return (
-    <NutritionContext.Provider
-      value={{
-        userData,
-        setUserData,
-        images,
-        setImages,
-        result,
-        setResult,
-      }}
-    >
+    <NutritionContext.Provider value={{ userData, updateUserData, ocrText, updateOcrText }}>
       {children}
     </NutritionContext.Provider>
   );
 };
 
-// Hook para usar fácilmente el contexto en cualquier componente
 export const useNutrition = () => useContext(NutritionContext);

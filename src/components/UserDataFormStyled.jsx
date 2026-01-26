@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Typography, TextField, MenuItem, Button } from "@mui/material";
+import { useNutrition } from "../context/NutritionContext";
+import { useNavigate } from "react-router-dom";
 
-const UserDataFormStyled = ({ onSubmit }) => {
+const UserDataFormStyled = () => {
   const [form, setForm] = useState({
     sexo: "",
     edad: "",
@@ -10,7 +12,8 @@ const UserDataFormStyled = ({ onSubmit }) => {
     altura: "",
   });
 
-  // const isMobile = useMediaQuery("(max-width:600px)");
+  const { updateUserData } = useNutrition();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,7 +21,8 @@ const UserDataFormStyled = ({ onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit?.(form);
+    updateUserData(form);
+    navigate("/capture"); // redirige al paso siguiente
   };
 
   return (
