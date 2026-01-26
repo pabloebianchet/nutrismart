@@ -39,21 +39,31 @@ const ImageCaptureStep = () => {
   };
 
   const handleContinue = async () => {
-    if (!tablaImage || !ingredientesImage) return;
+  if (!tablaImage || !ingredientesImage) return;
 
-    setLoading(true);
-    try {
-      const tablaText = await applyOCR(tablaImage);
-      const ingredientesText = await applyOCR(ingredientesImage);
-      const combinedText = `${tablaText}\n\n${ingredientesText}`;
-      setOcrText(combinedText);
-      navigate("/result");
-    } catch (error) {
-      console.error("OCR error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append("tabla", tablaImage);
+    formData.append("ingredientes", ingredientesImage);
+
+    const response = await fetch("/api/ocr", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!data.text) throw new Error("No se obtuvo texto OCR");
+    
+    setOcrText(data.text);
+    navigate("/result");
+  } catch (error) {
+    console.error("OCR error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box
