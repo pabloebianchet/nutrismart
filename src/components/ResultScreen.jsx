@@ -2,6 +2,51 @@ import { Box, Typography, CircularProgress, LinearProgress, Paper } from "@mui/m
 import { useNutrition } from "../context/NutritionContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CircularProgress, Box, Typography } from "@mui/material";
+
+const CircularScore = ({ value }) => {
+  const getColor = (value) => {
+    if (value >= 90) return "#2e7d32";
+    if (value >= 75) return "#66bb6a";
+    if (value >= 60) return "#ffa726";
+    if (value >= 45) return "#fb8c00";
+    return "#e53935";
+  };
+
+  return (
+    <Box sx={{ position: "relative", display: "inline-flex" }}>
+      <CircularProgress
+        variant="determinate"
+        value={value}
+        size={130}
+        thickness={5}
+        sx={{
+          color: getColor(value),
+        }}
+      />
+      <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: "absolute",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold">
+          {value}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          / 100
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
 
 const ResultScreen = () => {
   const { userData, ocrText } = useNutrition();
@@ -92,20 +137,9 @@ const ResultScreen = () => {
 
         {/* Puntaje */}
         <Box sx={{ my: 3 }}>
-          <Typography>Puntaje global: {score} / 100</Typography>
-          <LinearProgress
-            variant="determinate"
-            value={score}
-            sx={{
-              height: 12,
-              borderRadius: 6,
-              mt: 1,
-              backgroundColor: "#e0e0e0",
-              "& .MuiLinearProgress-bar": {
-                backgroundColor: getColor(score),
-              },
-            }}
-          />
+          <Box sx={{ my: 4, display: "flex", justifyContent: "center" }}>
+  <CircularScore value={score} />
+</Box>
         </Box>
 
         {/* Resultado completo */}
