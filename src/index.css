@@ -1,0 +1,14 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Nunito", system-ui, -apple-system, sans-serif;
+  background: #e6f5ef;
+  color: #102a23;
+}
+
+#root {
+  min-height: 100vh;
+}
