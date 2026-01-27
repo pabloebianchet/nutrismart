@@ -12,6 +12,62 @@ import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 import heic2any from "heic2any";
 
+const MAX_IMAGE_DIMENSION = 1600;
+const JPEG_QUALITY = 0.85;
+
+const loadImageBitmap = async (blob) => {
+  if (typeof createImageBitmap === "function") {
+    return createImageBitmap(blob);
+  }
+
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(blob);
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("No se pudo cargar la imagen."));
+    };
+    image.src = objectUrl;
+  });
+};
+
+const resizeToJpeg = async (blob, filename) => {
+  const bitmap = await loadImageBitmap(blob);
+  const { width, height } = bitmap;
+  const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(width, height));
+  const targetWidth = Math.round(width * scale);
+  const targetHeight = Math.round(height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+
+  const resizedBlob = await new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (output) => {
+        if (!output) {
+          reject(new Error("No se pudo generar la imagen comprimida."));
+          return;
+        }
+        resolve(output);
+      },
+      "image/jpeg",
+      JPEG_QUALITY
+    );
+  });
+
+  if (bitmap.close) {
+    bitmap.close();
+  }
+
+  return new File([resizedBlob], filename, { type: "image/jpeg" });
+};
 
 const ImageCaptureStep = () => {
   const [tablaImage, setTablaImage] = useState(null);
@@ -34,73 +90,70 @@ const ImageCaptureStep = () => {
       file.name.toLowerCase().endsWith(".heic") ||
       file.name.toLowerCase().endsWith(".heif");
 
-    if (isHEIC) {
-      try {
+    try {
+      let normalizedBlob = file;
+      let normalizedName = file.name;
+
+      if (isHEIC) {
         const convertedBlob = await heic2any({
           blob: file,
           toType: "image/jpeg",
-          quality: 0.8,
+          quality: JPEG_QUALITY,
         });
-        const normalizedBlob = Array.isArray(convertedBlob)
+        normalizedBlob = Array.isArray(convertedBlob)
           ? convertedBlob[0]
           : convertedBlob;
-
-        const convertedFile = new File(
-          [normalizedBlob],
-          file.name.replace(/\.(heic|heif)$/i, ".jpg"),
-          { type: "image/jpeg" }
-        );
-
-        setImage(convertedFile);
-      } catch (error) {
-        console.error("Error al convertir HEIC:", error);
-        setErrorMessage(
-          "No se pudo convertir la imagen HEIC. Probá tomando la foto en formato JPG."
-        );
-        setImage(null);
+        normalizedName = file.name.replace(/\.(heic|heif)$/i, ".jpg");
       }
-    } else {
-      setImage(file);
+
+      const resizedFile = await resizeToJpeg(normalizedBlob, normalizedName);
+      setImage(resizedFile);
+    } catch (error) {
+      console.error("Error al procesar la imagen:", error);
+      setErrorMessage(
+        "No pudimos preparar la imagen. Probá con otra foto o en formato JPG."
+      );
+      setImage(null);
     }
   };
 
 
   const handleContinue = async () => {
-  if (!tablaImage || !ingredientesImage) return;
+    if (!tablaImage || !ingredientesImage) return;
 
-  setLoading(true);
-  setErrorMessage("");
-  try {
-    const formData = new FormData();
-    formData.append("tabla", tablaImage);
-    formData.append("ingredientes", ingredientesImage);
+    setLoading(true);
+    setErrorMessage("");
+    try {
+      const formData = new FormData();
+      formData.append("tabla", tablaImage);
+      formData.append("ingredientes", ingredientesImage);
 
-    const response = await fetch("/api/ocr", {
-      method: "POST",
-      body: formData,
-    });
+      const response = await fetch("/api/ocr", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Error al procesar las imágenes");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error al procesar las imágenes");
+      }
+
+      const data = await response.json();
+
+      if (!data.text) throw new Error("No se obtuvo texto OCR");
+
+      updateOcrText(data.text);
+
+      navigate("/result");
+    } catch (error) {
+      console.error("OCR error:", error);
+      setErrorMessage(
+        "No pudimos leer las imágenes. Intentá con fotos más nítidas o en formato JPG."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-
-    if (!data.text) throw new Error("No se obtuvo texto OCR");
-    
-    updateOcrText(data.text);
-
-    navigate("/result");
-  } catch (error) {
-    console.error("OCR error:", error);
-    setErrorMessage(
-      "No pudimos leer las imágenes. Intentá con fotos más nítidas o en formato JPG."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <Box
