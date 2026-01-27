@@ -15,7 +15,8 @@ const ImageCaptureStep = () => {
   const [tablaImage, setTablaImage] = useState(null);
   const [ingredientesImage, setIngredientesImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { setOcrText } = useNutrition();
+  const { updateOcrText } = useNutrition();
+
   const navigate = useNavigate();
 
   const handleFileChange = (e, setImage) => {
@@ -61,7 +62,8 @@ const data = await response.json();
 
     if (!data.text) throw new Error("No se obtuvo texto OCR");
     
-    setOcrText(data.text);
+    updateOcrText(data.text);
+
     navigate("/result");
   } catch (error) {
     console.error("OCR error:", error);
