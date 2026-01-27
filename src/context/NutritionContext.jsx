@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-const NutritionContext = createContext();
+export const NutritionContext = createContext(); // 
 
 export const NutritionProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);

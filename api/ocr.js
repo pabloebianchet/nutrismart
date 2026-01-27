@@ -1,5 +1,6 @@
+import vision from "@google-cloud/vision";
 import formidable from "formidable";
-import { createWorker } from "tesseract.js";
+import fs from "fs";
 
 export const config = {
   api: {
@@ -7,50 +8,39 @@ export const config = {
   },
 };
 
+const client = new vision.ImageAnnotatorClient({
+  keyFilename: "clave-nutrismart.json",
+});
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  const form = formidable({ multiples: true });
+  const form = new formidable.IncomingForm({ multiples: true });
 
   form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error("❌ Error al leer archivos:", err);
-      return res.status(500).json({ error: "Error al leer archivos" });
-    }
-
-    console.log("📦 Archivos recibidos:", files);
+    if (err) return res.status(500).json({ error: "Error al procesar archivos" });
 
     const tablaFile = files.tabla?.[0] || files.tabla;
     const ingredientesFile = files.ingredientes?.[0] || files.ingredientes;
 
     if (!tablaFile || !ingredientesFile) {
-      console.error("⚠️ Faltan archivos (tabla o ingredientes)");
       return res.status(400).json({ error: "Faltan archivos" });
     }
 
-    console.log("📄 Procesando archivos:");
-    console.log("- Tabla:", tablaFile.filepath);
-    console.log("- Ingredientes:", ingredientesFile.filepath);
-
-    const worker = await createWorker("spa");
-
     try {
-      const tablaResult = await worker.recognize(tablaFile.filepath);
-      const ingredientesResult = await worker.recognize(ingredientesFile.filepath);
+      const [tablaResult] = await client.textDetection(tablaFile.filepath);
+      const [ingredientesResult] = await client.textDetection(ingredientesFile.filepath);
 
-      await worker.terminate();
+      const tablaText = tablaResult.textAnnotations?.[0]?.description || "";
+      const ingredientesText = ingredientesResult.textAnnotations?.[0]?.description || "";
 
-      const fullText = `${tablaResult.data.text}\n\n${ingredientesResult.data.text}`;
-
-      console.log("✅ Texto OCR combinado:");
-      console.log(fullText);
-
+      const fullText = `${tablaText}\n\n${ingredientesText}`;
       return res.status(200).json({ text: fullText });
     } catch (error) {
-      console.error("❌ Error en el OCR:", error);
-      return res.status(500).json({ error: "Fallo en el OCR" });
+      console.error("OCR error:", error);
+      return res.status(500).json({ error: "Fallo en el OCR con Google Vision" });
     }
   });
 }
