@@ -1,5 +1,20 @@
 import { useState } from "react";
-import { Box, Typography, TextField, MenuItem, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  MenuItem,
+  Button,
+  Paper,
+  InputAdornment,
+  Stack,
+} from "@mui/material";
+import WcRoundedIcon from "@mui/icons-material/WcRounded";
+import CakeRoundedIcon from "@mui/icons-material/CakeRounded";
+import DirectionsRunRoundedIcon from "@mui/icons-material/DirectionsRunRounded";
+import MonitorWeightRoundedIcon from "@mui/icons-material/MonitorWeightRounded";
+import HeightRoundedIcon from "@mui/icons-material/HeightRounded";
+import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 
@@ -28,40 +43,46 @@ const UserDataFormStyled = () => {
   return (
     <Box
       sx={{
-        height: "100vh",
-        bgcolor: "#d5ede4", // fondo base suave
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        px: 2,
+        width: "100%",
+        minHeight: { xs: "auto", md: "70vh" },
       }}
     >
-      <Box
+      <Paper
         sx={{
           width: "100%",
-          maxWidth: 400,
+          maxWidth: 520,
           bgcolor: "#ffffff",
-          borderRadius: 5,
+          borderRadius: 6,
           overflow: "hidden",
-          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 20px 60px rgba(15, 59, 47, 0.18)",
         }}
       >
         {/* Header decorativo */}
         <Box
           sx={{
-            bgcolor: "#0e6253",
+            background:
+              "linear-gradient(135deg, rgba(14, 98, 83, 0.95), rgba(38, 166, 154, 0.9))",
             color: "#fff",
             py: 4,
-            px: 3,
-            textAlign: "center",
-            borderBottomLeftRadius: 50,
-            borderBottomRightRadius: 50,
+            px: 4,
+            textAlign: "left",
           }}
         >
-          <Typography variant="h5" fontWeight="bold">
-            ¡Hola!
+          <Typography variant="h4" fontWeight={800}>
+            Personalizá tu análisis
           </Typography>
-          <Typography variant="subtitle2">Bienvenido a NutriSmart</Typography>
+          <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+            Completá tus datos para obtener resultados precisos y prácticos.
+          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center" mt={2}>
+            <ShieldRoundedIcon fontSize="small" />
+            <Typography variant="caption">
+              Tu información se usa solo para este análisis.
+            </Typography>
+          </Stack>
         </Box>
 
         {/* Formulario */}
@@ -69,7 +90,7 @@ const UserDataFormStyled = () => {
           component="form"
           onSubmit={handleSubmit}
           sx={{
-            px: 3,
+            px: 4,
             py: 4,
             display: "flex",
             flexDirection: "column",
@@ -84,7 +105,14 @@ const UserDataFormStyled = () => {
             onChange={handleChange}
             fullWidth
             variant="outlined"
-            InputProps={{ sx: { borderRadius: 4, bgcolor: "#f5f5f5" } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <WcRoundedIcon color="success" />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+            }}
           >
             {["Femenino", "Masculino", "Otro"].map((option) => (
               <MenuItem key={option} value={option}>
@@ -100,7 +128,14 @@ const UserDataFormStyled = () => {
             value={form.edad}
             onChange={handleChange}
             fullWidth
-            InputProps={{ sx: { borderRadius: 4, bgcolor: "#f5f5f5" } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CakeRoundedIcon color="success" />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+            }}
           />
 
           <TextField
@@ -110,7 +145,14 @@ const UserDataFormStyled = () => {
             value={form.actividad}
             onChange={handleChange}
             fullWidth
-            InputProps={{ sx: { borderRadius: 4, bgcolor: "#f5f5f5" } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <DirectionsRunRoundedIcon color="success" />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+            }}
           >
             {["Nula", "Moderada", "Intensa", "Profesional"].map((option) => (
               <MenuItem key={option} value={option}>
@@ -126,7 +168,14 @@ const UserDataFormStyled = () => {
             value={form.peso}
             onChange={handleChange}
             fullWidth
-            InputProps={{ sx: { borderRadius: 4, bgcolor: "#f5f5f5" } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <MonitorWeightRoundedIcon color="success" />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+            }}
           />
 
           <TextField
@@ -136,7 +185,14 @@ const UserDataFormStyled = () => {
             value={form.altura}
             onChange={handleChange}
             fullWidth
-            InputProps={{ sx: { borderRadius: 4, bgcolor: "#f5f5f5" } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <HeightRoundedIcon color="success" />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+            }}
           />
 
           <Button
@@ -145,19 +201,20 @@ const UserDataFormStyled = () => {
             fullWidth
             sx={{
               mt: 1,
-              py: 1.5,
+              py: 1.6,
               fontWeight: "bold",
-              borderRadius: 4,
+              borderRadius: 999,
               bgcolor: "#0e6253",
+              boxShadow: "0 12px 25px rgba(14, 98, 83, 0.25)",
               "&:hover": {
                 bgcolor: "#09493e",
               },
             }}
           >
-            CONTINUAR
+            Continuar al análisis
           </Button>
         </Box>
-      </Box>
+      </Paper>
     </Box>
   );
 };
