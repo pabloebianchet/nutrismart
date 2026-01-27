@@ -3,6 +3,7 @@ import {
   AppBar,
   Avatar,
   Box,
+  Button,
   IconButton,
   Menu,
   MenuItem,
@@ -11,13 +12,21 @@ import {
   Typography,
 } from "@mui/material";
 import SpaOutlinedIcon from "@mui/icons-material/SpaOutlined";
+import GoogleIcon from "@mui/icons-material/Google";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNutrition } from "../context/NutritionContext";
 import { Outlet } from "react-router-dom";
 
 const AppLayout = () => {
-  const { user, clearUser } = useNutrition();
+  const { user, setUser, clearUser } = useNutrition();
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMockGoogleLogin = () => {
+    setUser({
+      name: "Ana Martínez",
+      email: "ana.martinez@gmail.com",
+    });
+  };
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -93,7 +102,21 @@ const AppLayout = () => {
               </Menu>
             </Stack>
           ) : (
-            <Box sx={{ width: 48 }} />
+            <Button
+              onClick={handleMockGoogleLogin}
+              variant="contained"
+              startIcon={<GoogleIcon />}
+              sx={{
+                textTransform: "none",
+                bgcolor: "#1b5e4b",
+                px: 2.5,
+                borderRadius: 999,
+                boxShadow: "0 10px 20px rgba(27, 94, 75, 0.3)",
+                "&:hover": { bgcolor: "#154437" },
+              }}
+            >
+              Continuar con Google
+            </Button>
           )}
         </Toolbar>
       </AppBar>
