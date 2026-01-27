@@ -30,12 +30,17 @@ const ImageCaptureStep = () => {
     formData.append("image", imageFile);
 
     const response = await fetch("/api/ocr", {
-      method: "POST",
-      body: formData,
-    });
+  method: "POST",
+  body: formData,
+});
 
-    const data = await response.json();
-    return data.text;
+if (!response.ok) {
+  const errorText = await response.text(); // <-- lee como texto si hay error
+  console.error("OCR error (500):", errorText);
+  return;
+}
+
+const data = await response.json();
   };
 
   const handleContinue = async () => {
