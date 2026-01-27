@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node server/index.js",
+    "start": "node server/index.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -16,6 +18,9 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/lab": "^7.0.1-beta.21",
     "@mui/material": "^7.3.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
     "formidable": "^3.5.4",
     "heic2any": "^0.0.4",
     "react": "^19.2.0",
