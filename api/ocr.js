@@ -8,10 +8,6 @@ export const config = {
   },
 };
 
-const client = new vision.ImageAnnotatorClient({
-  keyFilename: "clave-nutrismart.json",
-});
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
@@ -28,6 +24,13 @@ export default async function handler(req, res) {
     if (!tablaFile || !ingredientesFile) {
       return res.status(400).json({ error: "Faltan archivos" });
     }
+
+    // ✅ Cargar credenciales desde variable de entorno
+    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+
+    const client = new vision.ImageAnnotatorClient({
+      credentials,
+    });
 
     try {
       const [tablaResult] = await client.textDetection(tablaFile.filepath);
