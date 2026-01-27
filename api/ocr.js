@@ -8,12 +8,16 @@ export const config = {
   },
 };
 
+const client = new vision.ImageAnnotatorClient({
+  credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
+});
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  const form = new formidable.IncomingForm({ multiples: true });
+  const form = formidable({ multiples: true }); // ✅ CORRECTO AHORA
 
   form.parse(req, async (err, fields, files) => {
     if (err) return res.status(500).json({ error: "Error al procesar archivos" });
@@ -24,13 +28,6 @@ export default async function handler(req, res) {
     if (!tablaFile || !ingredientesFile) {
       return res.status(400).json({ error: "Faltan archivos" });
     }
-
-    // ✅ Cargar credenciales desde variable de entorno
-    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-
-    const client = new vision.ImageAnnotatorClient({
-      credentials,
-    });
 
     try {
       const [tablaResult] = await client.textDetection(tablaFile.filepath);
