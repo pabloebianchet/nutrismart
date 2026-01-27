@@ -10,6 +10,8 @@ import {
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
+import heic2any from "heic2any";
+
 
 const ImageCaptureStep = () => {
   const [tablaImage, setTablaImage] = useState(null);
@@ -19,12 +21,39 @@ const ImageCaptureStep = () => {
 
   const navigate = useNavigate();
 
-  const handleFileChange = (e, setImage) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
+  const handleFileChange = async (e, setImage) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const isHEIC =
+    file.type === "image/heic" ||
+    file.type === "image/heif" ||
+    file.name.toLowerCase().endsWith(".heic") ||
+    file.name.toLowerCase().endsWith(".heif");
+
+  if (isHEIC) {
+    try {
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.8,
+      });
+
+      const convertedFile = new File(
+        [convertedBlob],
+        file.name.replace(/\.(heic|heif)$/i, ".jpg"),
+        { type: "image/jpeg" }
+      );
+
+      setImage(convertedFile);
+    } catch (error) {
+      console.error("Error al convertir HEIC:", error);
     }
-  };
+  } else {
+    setImage(file);
+  }
+};
+
 
   const applyOCR = async (imageFile) => {
     const formData = new FormData();
