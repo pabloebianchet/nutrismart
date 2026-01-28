@@ -25,3 +25,7 @@ dist-ssr
 
 # 🔐 Credenciales sensibles
 clave-nutrismart.json
+
+# Env files
+.env
+backend/.env

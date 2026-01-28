@@ -131,10 +131,10 @@ const ImageCaptureStep = () => {
       formData.append("tabla", tablaImage);
       formData.append("ingredientes", ingredientesImage);
 
-      const response = await fetch("/api/ocr", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch("http://localhost:3001/api/ocr", {
+  method: "POST",
+  body: formData,
+});
 
       if (!response.ok) {
         const errorText = await response.text();

@@ -30,9 +30,7 @@ const CircularScore = ({ value }) => {
         value={value}
         size={130}
         thickness={5}
-        sx={{
-          color: getColor(value),
-        }}
+        sx={{ color: getColor(value) }}
       />
       <Box
         sx={{
@@ -60,28 +58,48 @@ const CircularScore = ({ value }) => {
 
 const ResultScreen = () => {
   const { userData, ocrText, clearOcrText } = useNutrition();
-  const [analysis, setAnalysis] = useState(null);
+  const [analysis, setAnalysis] = useState("");
+  const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!ocrText || !userData) {
-      navigate("/"); // Redirige si falta info
+      navigate("/");
       return;
     }
 
     const fetchAnalysis = async () => {
       try {
-        const response = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userData, productText: ocrText }),
-        });
+        setLoading(true);
 
-        const result = await response.json();
-        setAnalysis(result.analysis);
+        const response = await fetch(
+          "http://localhost:3001/api/analyze",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userData,
+              productText: ocrText,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error en análisis");
+        }
+
+        const data = await response.json();
+
+        setAnalysis(data.analysis);
+        setScore(data.score ?? 0);
+
       } catch (err) {
         console.error("Error al obtener análisis:", err);
+        setAnalysis(
+          "No se pudo generar el análisis. Intentá nuevamente."
+        );
+        setScore(0);
       } finally {
         setLoading(false);
       }
@@ -90,9 +108,20 @@ const ResultScreen = () => {
     fetchAnalysis();
   }, [ocrText, userData, navigate]);
 
-  const extractScore = (text) => {
-    const match = text.match(/Puntaje global:\s*(\d+)\s*\/\s*100/i);
-    return match ? parseInt(match[1], 10) : 0;
+  const scoreColor =
+    score >= 90
+      ? "#2e7d32"
+      : score >= 75
+      ? "#43a047"
+      : score >= 60
+      ? "#f9a825"
+      : score >= 45
+      ? "#fb8c00"
+      : "#e53935";
+
+  const handleNewAnalysis = () => {
+    clearOcrText();
+    navigate("/capture");
   };
 
   if (loading) {
@@ -109,23 +138,6 @@ const ResultScreen = () => {
       </Box>
     );
   }
-
-  const score = extractScore(analysis);
-  const scoreColor =
-    score >= 90
-      ? "#2e7d32"
-      : score >= 75
-      ? "#43a047"
-      : score >= 60
-      ? "#f9a825"
-      : score >= 45
-      ? "#fb8c00"
-      : "#e53935";
-
-  const handleNewAnalysis = () => {
-    clearOcrText();
-    navigate("/capture");
-  };
 
   return (
     <Box
@@ -174,15 +186,11 @@ const ResultScreen = () => {
               color: "#1b5e4b",
             }}
           >
-            Nuevo análisis desde imágenes
+            Nuevo análisis!
           </Button>
         </Stack>
 
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={3}
-          mt={4}
-        >
+        <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={4}>
           <Paper
             variant="outlined"
             sx={{
@@ -223,9 +231,26 @@ const ResultScreen = () => {
               Detalle del análisis
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-              {analysis}
-            </Typography>
+            <Box
+  sx={{
+    bgcolor: "#f9fbfa",
+    p: 2.5,
+    borderRadius: 3,
+  }}
+>
+  <Typography
+    variant="body1"
+    sx={{
+      whiteSpace: "pre-wrap",
+      fontSize: "1.05rem",
+      lineHeight: 1.7,
+      color: "#2f3e3b",
+      fontWeight: 500,
+    }}
+  >
+    {analysis}
+  </Typography>
+</Box>
           </Paper>
         </Stack>
       </Paper>
