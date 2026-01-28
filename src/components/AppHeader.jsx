@@ -62,6 +62,46 @@ const AppHeader = () => {
             NutriSmart
           </Typography>
 
+{/* ---------- DESKTOP NAV ---------- */}
+<Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, mr: 2 }}>
+
+
+<Typography
+  component={Link}
+  to="/"
+  sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
+>
+  Inicio
+</Typography>
+  
+
+  <Typography
+    component={Link}
+    to="/about"
+    sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
+  >
+    Quiénes somos
+  </Typography>
+
+  <Typography
+    component={Link}
+    to="/how-it-works"
+    sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
+  >
+    Cómo funciona
+  </Typography>
+
+  <Typography
+    component={Link}
+    to="/contact"
+    sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
+  >
+    Contacto
+  </Typography>
+
+
+  
+</Box>
           {/* RIGHT SIDE */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             {/* ---------- DESKTOP ---------- */}
@@ -106,7 +146,7 @@ const AppHeader = () => {
 
       {/* ---------- MOBILE DRAWER ---------- */}
       <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
-        <Box sx={{ width: 280, p: 2 }}>
+        <Box sx={{ width: 280, p: 2, mt: 10 }}>
           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
             <Avatar src={user.picture} sx={{ width: 48, height: 48 }} />
             <Box>
@@ -120,16 +160,22 @@ const AppHeader = () => {
           <Divider />
 
           <List>
-            <ListItemButton component={Link} to="/about" onClick={handleDrawerClose}>
-              <ListItemText primary="Quiénes somos" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/how-it-works" onClick={handleDrawerClose}>
-              <ListItemText primary="Cómo funciona" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/contact" onClick={handleDrawerClose}>
-              <ListItemText primary="Contacto" />
-            </ListItemButton>
-          </List>
+  <ListItemButton component={Link} to="/" onClick={handleDrawerClose}>
+    <ListItemText primary="Inicio" />
+  </ListItemButton>
+
+  <ListItemButton component={Link} to="/about" onClick={handleDrawerClose}>
+    <ListItemText primary="Quiénes somos" />
+  </ListItemButton>
+
+  <ListItemButton component={Link} to="/how-it-works" onClick={handleDrawerClose}>
+    <ListItemText primary="Cómo funciona" />
+  </ListItemButton>
+
+  <ListItemButton component={Link} to="/contact" onClick={handleDrawerClose}>
+    <ListItemText primary="Contacto" />
+  </ListItemButton>
+</List>
 
           <Divider />
 
