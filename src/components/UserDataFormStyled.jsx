@@ -37,40 +37,43 @@ const UserDataFormStyled = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     updateUserData(form);
-    navigate("/capture"); // redirige al paso siguiente
+    navigate("/capture");
   };
 
   return (
     <Box
       sx={{
+        minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        width: "100%",
-        minHeight: { xs: "auto", md: "70vh" },
+        px: { xs: 2, sm: 3 },
+        boxSizing: "border-box",
       }}
     >
       <Paper
-        sx={{
-          width: "100%",
-          maxWidth: 520,
-          bgcolor: "#ffffff",
-          borderRadius: 6,
-          overflow: "hidden",
-          boxShadow: "0 20px 60px rgba(15, 59, 47, 0.18)",
-        }}
-      >
-        {/* Header decorativo */}
-        <Box
-          sx={{
-            background:
-              "linear-gradient(135deg, rgba(14, 98, 83, 0.95), rgba(38, 166, 154, 0.9))",
-            color: "#fff",
-            py: 4,
-            px: 4,
-            textAlign: "left",
-          }}
-        >
+  sx={{
+    width: "100%",
+    maxWidth: 520,
+    height: "calc(100vh - 32px)", // 👈 altura fija visible
+    display: "flex",
+    flexDirection: "column",
+    borderRadius: 6,
+    overflow: "hidden",
+    boxShadow: "0 20px 60px rgba(15, 59, 47, 0.18)",
+  }}
+>
+        {/* Header */}
+       <Box
+  sx={{
+    background:
+      "linear-gradient(135deg, rgba(14, 98, 83, 0.95), rgba(38, 166, 154, 0.9))",
+    color: "#fff",
+    py: 4,
+    px: 4,
+    flexShrink: 0, // 👈 importante
+  }}
+>
           <Typography variant="h4" fontWeight={800}>
             Personalizá tu análisis
           </Typography>
@@ -87,16 +90,18 @@ const UserDataFormStyled = () => {
 
         {/* Formulario */}
         <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{
-            px: 4,
-            py: 4,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
+  component="form"
+  onSubmit={handleSubmit}
+  sx={{
+    px: 4,
+    py: 4,
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    overflowY: "auto",   // 👈 scroll interno
+    flexGrow: 1,         // 👈 ocupa el resto del alto
+  }}
+>
           <TextField
             select
             name="sexo"
@@ -104,7 +109,6 @@ const UserDataFormStyled = () => {
             value={form.sexo}
             onChange={handleChange}
             fullWidth
-            variant="outlined"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -200,7 +204,7 @@ const UserDataFormStyled = () => {
             variant="contained"
             fullWidth
             sx={{
-              mt: 1,
+              mt: 4,
               py: 1.6,
               fontWeight: "bold",
               borderRadius: 999,

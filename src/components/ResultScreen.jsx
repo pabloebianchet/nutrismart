@@ -14,53 +14,12 @@ import { useNutrition } from "../context/NutritionContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
-const CircularScore = ({ value }) => {
-  const getColor = (value) => {
-    if (value >= 90) return "#2e7d32";
-    if (value >= 75) return "#66bb6a";
-    if (value >= 60) return "#ffa726";
-    if (value >= 45) return "#fb8c00";
-    return "#e53935";
-  };
-
-  return (
-    <Box sx={{ position: "relative", display: "inline-flex" }}>
-      <CircularProgress
-        variant="determinate"
-        value={value}
-        size={130}
-        thickness={5}
-        sx={{ color: getColor(value) }}
-      />
-      <Box
-        sx={{
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          position: "absolute",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-        }}
-      >
-        <Typography variant="h5" fontWeight="bold">
-          {value}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          / 100
-        </Typography>
-      </Box>
-    </Box>
-  );
-};
+import ScoreDonut from "./ScoreDonut";
 
 const ResultScreen = () => {
   const { userData, ocrText, clearOcrText } = useNutrition();
   const [analysis, setAnalysis] = useState("");
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -74,17 +33,14 @@ const ResultScreen = () => {
       try {
         setLoading(true);
 
-        const response = await fetch(
-          "http://localhost:3001/api/analyze",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userData,
-              productText: ocrText,
-            }),
-          }
-        );
+        const response = await fetch("http://localhost:3001/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userData,
+            productText: ocrText,
+          }),
+        });
 
         if (!response.ok) {
           throw new Error("Error en análisis");
@@ -93,13 +49,10 @@ const ResultScreen = () => {
         const data = await response.json();
 
         setAnalysis(data.analysis);
-        setScore(data.score ?? 0);
-
+        setScore(typeof data.score === "number" ? data.score : 0);
       } catch (err) {
         console.error("Error al obtener análisis:", err);
-        setAnalysis(
-          "No se pudo generar el análisis. Intentá nuevamente."
-        );
+        setAnalysis("No se pudo generar el análisis. Intentá nuevamente.");
         setScore(0);
       } finally {
         setLoading(false);
@@ -143,10 +96,13 @@ const ResultScreen = () => {
   return (
     <Box
       sx={{
+        minHeight: "100dvh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        width: "100%",
+        px: { xs: 2, sm: 3 },
+        py: { xs: 3, md: 4 },
+        boxSizing: "border-box",
       }}
     >
       <Paper
@@ -157,8 +113,10 @@ const ResultScreen = () => {
           borderRadius: 6,
           p: { xs: 3, md: 4 },
           boxShadow: "0 20px 50px rgba(15, 59, 47, 0.18)",
+          my: "auto",
         }}
       >
+        {/* Header */}
         <Stack
           direction={{ xs: "column", md: "row" }}
           justifyContent="space-between"
@@ -176,6 +134,7 @@ const ResultScreen = () => {
               Diagnóstico nutrimental claro y accionable.
             </Typography>
           </Box>
+
           <Button
             variant="outlined"
             onClick={handleNewAnalysis}
@@ -187,11 +146,13 @@ const ResultScreen = () => {
               color: "#1b5e4b",
             }}
           >
-            Nuevo análisis!
+            Nuevo análisis
           </Button>
         </Stack>
 
+        {/* Content */}
         <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={4}>
+          {/* Score */}
           <Paper
             variant="outlined"
             sx={{
@@ -205,9 +166,19 @@ const ResultScreen = () => {
             <Typography variant="subtitle1" fontWeight={700}>
               Puntaje global
             </Typography>
+
             <Box sx={{ my: 3, display: "flex", justifyContent: "center" }}>
-              <CircularScore value={score} />
+              {score !== null && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                  <ScoreDonut score={score} />
+                </motion.div>
+              )}
             </Box>
+
             <Chip
               label={`Nivel ${score >= 75 ? "saludable" : "mejorable"}`}
               sx={{
@@ -218,6 +189,7 @@ const ResultScreen = () => {
             />
           </Paper>
 
+          {/* Analysis */}
           <Paper
             variant="outlined"
             sx={{
@@ -229,28 +201,28 @@ const ResultScreen = () => {
             }}
           >
             <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-  Evaluación del producto
-</Typography>
+              Evaluación del producto
+            </Typography>
 
-<Divider sx={{ mb: 2 }} />
+            <Divider sx={{ mb: 2 }} />
 
-<motion.div
-  key={analysis}
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.35, ease: "easeOut" }}
->
-  <Typography
-    variant="body1"
-    sx={{
-      whiteSpace: "pre-wrap",
-      lineHeight: 1.6,
-      maxWidth: 520,
-    }}
-  >
-    {analysis}
-  </Typography>
-</motion.div>
+            <motion.div
+              key={analysis}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  whiteSpace: "pre-wrap",
+                  lineHeight: 1.6,
+                  maxWidth: 520,
+                }}
+              >
+                {analysis}
+              </Typography>
+            </motion.div>
           </Paper>
         </Stack>
       </Paper>

@@ -34,11 +34,11 @@ const UserDataPage = () => {
           justifyContent: "center",
         }}
       >
-        <Stack spacing={2} alignItems="center">
+        <Stack spacing={3} alignItems="center">
           <Box
             sx={{
-              width: 96,
-              height: 96,
+              width: 100,
+              height: 100,
               borderRadius: "32px",
               bgcolor: "#1b5e4b",
               display: "grid",
