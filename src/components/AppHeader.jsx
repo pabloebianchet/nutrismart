@@ -13,17 +13,13 @@ import {
   Toolbar,
   Typography,
   Divider,
-  useMediaQuery,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useTheme } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 
 const AppHeader = () => {
   const { user, logout } = useNutrition();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -55,20 +51,31 @@ const AppHeader = () => {
   return (
     <>
       {/* ---------- HEADER ---------- */}
-      <AppBar position="fixed" color="default" elevation={1}>
+      <AppBar
+        position="fixed"
+        color="default"
+        elevation={1}
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Typography variant="h6" fontWeight={700}>
             NutriSmart
           </Typography>
 
-          {isMobile ? (
-            <IconButton onClick={handleDrawerOpen} aria-label="Abrir menú">
-              <MenuIcon />
-            </IconButton>
-          ) : (
-            <>
+          {/* RIGHT SIDE */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {/* ---------- DESKTOP ---------- */}
+            <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <IconButton onClick={handleMenuOpen}>
-                <Avatar src={user.picture} alt={user.name} />
+                <Avatar
+                  src={user.picture}
+                  alt={user.name}
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    border: "2px solid #1b5e4b",
+                  }}
+                />
               </IconButton>
 
               <Menu
@@ -82,8 +89,15 @@ const AppHeader = () => {
                   Cerrar sesión
                 </MenuItem>
               </Menu>
-            </>
-          )}
+            </Box>
+
+            {/* ---------- MOBILE ---------- */}
+            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+              <IconButton onClick={handleDrawerOpen}>
+                <MenuIcon />
+              </IconButton>
+            </Box>
+          </Box>
         </Toolbar>
       </AppBar>
 
