@@ -29,3 +29,7 @@ clave-nutrismart.json
 # Env files
 .env
 backend/.env
+
+# Environment variables
+.env
+.env.*
