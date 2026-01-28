@@ -30,12 +30,12 @@ const inputSx = {
 
 const UserDataFormStyled = () => {
   const [form, setForm] = useState({
-    sexo: "",
-    edad: "",
-    actividad: "",
-    peso: "",
-    altura: "",
-  });
+  sexo: "Femenino",
+  edad: "",
+  actividad: "Moderada",
+  peso: "",
+  altura: "",
+});
 
   const { updateUserData } = useNutrition();
   const navigate = useNavigate();
