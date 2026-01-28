@@ -20,7 +20,6 @@ function cleanText(text) {
 
 dotenv.config();
 
-import cors from "cors";
 
 const app = express();
 
@@ -217,7 +216,9 @@ return res.json({
 // =====================
 // 🚀 START SERVER
 // =====================
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
-  console.log(`✅ Backend corriendo en http://localhost:${PORT}`);
+  console.log(`Backend corriendo en puerto ${PORT}`);
 });
+
