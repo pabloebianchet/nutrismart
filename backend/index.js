@@ -20,8 +20,20 @@ function cleanText(text) {
 
 dotenv.config();
 
+import cors from "cors";
+
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://nutrismart-orcin.vercel.app/"
+    ],
+    methods: ["GET", "POST"],
+  })
+);
+
 app.use(express.json({ limit: "2mb" }));
 
 // =====================
