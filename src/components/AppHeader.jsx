@@ -4,7 +4,6 @@ import {
   Avatar,
   Box,
   Drawer,
-  Button,
   IconButton,
   List,
   ListItemButton,
@@ -55,73 +54,37 @@ const AppHeader = () => {
   };
 
   return (
-    <>
-      <AppBar
-        position="fixed"
-        elevation={0}
-        sx={{
-          bgcolor: "white",
-          color: "text.primary",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            NutriSmart
-          </Typography>
-          {isMobile ? (
-            <IconButton
-              color="inherit"
-              edge="end"
-              onClick={handleDrawerOpen}
-              aria-label="Abrir menú"
-            >
-              <MenuIcon />
+    <AppBar position="fixed" color="default" elevation={1}>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Typography variant="h6" color="textPrimary">
+          NutriSmart
+        </Typography>
+        {isMobile ? (
+          <IconButton
+            color="inherit"
+            edge="end"
+            onClick={handleDrawerOpen}
+            aria-label="Abrir menú"
+          >
+            <MenuIcon />
+          </IconButton>
+        ) : (
+          <>
+            <IconButton onClick={handleMenuOpen} aria-label="Abrir menú de usuario">
+              <Avatar src={user.picture} alt={user.name} />
             </IconButton>
-          ) : (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/about"
-                sx={{ textTransform: "none", fontWeight: 600 }}
-              >
-                Quiénes somos
-              </Button>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/how-it-works"
-                sx={{ textTransform: "none", fontWeight: 600 }}
-              >
-                Cómo funciona
-              </Button>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/contact"
-                sx={{ textTransform: "none", fontWeight: 600 }}
-              >
-                Contacto
-              </Button>
-              <IconButton onClick={handleMenuOpen} aria-label="Abrir menú de usuario">
-                <Avatar src={user.picture} alt={user.name} />
-              </IconButton>
-              <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-              >
-                <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
-              </Menu>
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
-      <Toolbar />
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
+            </Menu>
+          </>
+        )}
+      </Toolbar>
       <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
         <Box sx={{ width: 280, p: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
@@ -165,7 +128,7 @@ const AppHeader = () => {
           </List>
         </Box>
       </Drawer>
-    </>
+    </AppBar>
   );
 };
 
