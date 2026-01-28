@@ -105,30 +105,33 @@ const UserDataFormStyled = () => {
           }}
         >
           <TextField
-            select
-            name="sexo"
-            value={form.sexo}
-            onChange={handleChange}
-            placeholder="Sexo"
-            hiddenLabel
-            variant="filled"
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <WcRoundedIcon />
-                </InputAdornment>
-              ),
-              disableUnderline: true,
-            }}
-            sx={inputSx}
-          >
-            {["Femenino", "Masculino", "Otro"].map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
+  select
+  name="sexo"
+  value={form.sexo}
+  onChange={handleChange}
+  variant="filled"
+  fullWidth
+  hiddenLabel
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <WcRoundedIcon />
+      </InputAdornment>
+    ),
+    disableUnderline: true,
+  }}
+  sx={inputSx}
+>
+  <MenuItem value="" disabled>
+    Género
+  </MenuItem>
+
+  {["Femenino", "Masculino", "Otro"].map((option) => (
+    <MenuItem key={option} value={option}>
+      {option}
+    </MenuItem>
+  ))}
+</TextField>
 
           <TextField
             name="edad"
