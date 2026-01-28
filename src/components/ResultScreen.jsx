@@ -13,6 +13,7 @@ import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const CircularScore = ({ value }) => {
   const getColor = (value) => {
@@ -228,29 +229,28 @@ const ResultScreen = () => {
             }}
           >
             <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-              Detalle del análisis
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Box
-  sx={{
-    bgcolor: "#f9fbfa",
-    p: 2.5,
-    borderRadius: 3,
-  }}
+  Evaluación del producto
+</Typography>
+
+<Divider sx={{ mb: 2 }} />
+
+<motion.div
+  key={analysis}
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.35, ease: "easeOut" }}
 >
   <Typography
     variant="body1"
     sx={{
       whiteSpace: "pre-wrap",
-      fontSize: "1.05rem",
-      lineHeight: 1.7,
-      color: "#2f3e3b",
-      fontWeight: 500,
+      lineHeight: 1.6,
+      maxWidth: 520,
     }}
   >
     {analysis}
   </Typography>
-</Box>
+</motion.div>
           </Paper>
         </Stack>
       </Paper>

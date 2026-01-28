@@ -5,6 +5,19 @@ import dotenv from "dotenv";
 import vision from "@google-cloud/vision";
 import OpenAI from "openai";
 
+
+function cleanText(text) {
+  if (!text) return "";
+
+  return text
+    .replace(/[*_#>`~]/g, "")          // elimina markdown básico
+    .replace(/-{2,}/g, "")             // elimina separadores tipo ----
+    .replace(/\n{3,}/g, "\n\n")        // normaliza saltos de línea
+    .replace(/\s+\n/g, "\n")           // espacios antes de saltos
+    .trim();
+}
+
+
 dotenv.config();
 
 const app = express();
@@ -98,43 +111,91 @@ app.post("/api/analyze", async (req, res) => {
     }
 
     const prompt = `
-Actuá como un nutricionista experto basado en guías europeas.
+Rol:
+Sos un nutricionista experto en alimentación saludable, con formación basada en guías europeas
+(OMS Europa, EFSA, dieta mediterránea).
 
-Usuario:
-- Sexo: ${userData.sexo}
-- Edad: ${userData.edad}
-- Actividad: ${userData.actividad}
-- Peso: ${userData.peso} kg
-- Altura: ${userData.altura} cm
+Contexto:
+Estás escribiendo el resultado que va a leer un usuario dentro de una app.
+No es un informe técnico ni una respuesta de chat.
 
-Producto:
+Datos del usuario:
+Sexo: ${userData.sexo}
+Edad: ${userData.edad}
+Nivel de actividad física: ${userData.actividad}
+Peso: ${userData.peso} kg
+Altura: ${userData.altura} cm
+
+Producto analizado:
 ${productText}
 
-Evaluá y devolvé un análisis claro.
-Terminá con:
+REGLAS OBLIGATORIAS (si no se cumplen, la respuesta es incorrecta):
+
+- NO uses markdown.
+- NO uses títulos, subtítulos, listas, viñetas ni numeraciones.
+- NO uses asteriscos, símbolos especiales ni emojis.
+- NO hagas introducciones largas.
+- NO expliques paso a paso.
+- NO repitas los datos del usuario.
+- NO escribas más de 120 palabras en total.
+
+FORMATO OBLIGATORIO DE LA RESPUESTA:
+
+Primero, una frase corta que indique claramente:
+- si el producto es ultraprocesado, procesado o no procesado
+- si es o no recomendable para consumo habitual
+
+Luego, en una línea separada, escribí EXACTAMENTE:
 Puntaje global: XX / 100
+
+Después, un breve párrafo (máximo 3 líneas) explicando el motivo principal del puntaje.
+
+Por último, una recomendación práctica y concreta para el usuario.
+
+ESTILO:
+- natural
+- claro
+- humano
+- directo
+- como una nota breve dentro de una app de nutrición
 `;
 
+
+
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.4,
-      messages: [
-        { role: "system", content: "Sos un nutricionista clínico." },
-        { role: "user", content: prompt },
-      ],
-    });
+  model: "gpt-4o-mini",
+  messages: [
+    {
+      role: "system",
+      content:
+        "Respondé SOLO en texto plano. No uses markdown, listas, títulos, asteriscos, emojis ni símbolos especiales.",
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ],
+  temperature: 0.4,
+});
 
-    const analysis =
-      completion.choices?.[0]?.message?.content ??
-      "No se pudo generar análisis";
+    const rawAnalysis =
+  completion.choices?.[0]?.message?.content ??
+  "No se pudo generar análisis";
 
-    const match = analysis.match(
-      /Puntaje global:\s*(\d+)\s*\/\s*100/i
-    );
+// 🔥 LIMPIEZA CLAVE
+const analysis = cleanText(rawAnalysis);
 
-    const score = match ? parseInt(match[1], 10) : 0;
+// Extraer puntaje (ya sobre texto limpio)
+const match = analysis.match(
+  /Puntaje global:\s*(\d+)\s*\/\s*100/i
+);
 
-    return res.json({ score, analysis });
+const score = match ? parseInt(match[1], 10) : 0;
+
+return res.json({
+  score,
+  analysis,
+});
   } catch (err) {
     console.error("Analyze error:", err);
     return res.status(500).json({ error: "Error en análisis IA" });
