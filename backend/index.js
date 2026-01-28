@@ -27,11 +27,13 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      process.env.FRONTEND_URL
+      "https://nutrismart-orcin.vercel.app",
+      "https://nutrismart-1u7u7x32m-pablo-bianchet-martinezs-projects.vercel.app"
     ],
     methods: ["GET", "POST"],
   })
 );
+
 
 app.use(express.json({ limit: "2mb" }));
 
