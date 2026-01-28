@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
+import { Box, Paper, Stack, Typography } from "@mui/material";
 import SpaOutlinedIcon from "@mui/icons-material/SpaOutlined";
 import UserDataFormStyled from "../components/UserDataFormStyled";
 import { useNutrition } from "../context/NutritionContext";
+import { GoogleLogin } from "@react-oauth/google";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const UserDataPage = () => {
   const { user, setUser } = useNutrition();
@@ -17,13 +19,26 @@ const UserDataPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleMockGoogleLogin = () => {
-    setUser({
-      name: "Ana Martínez",
-      email: "ana.martinez@gmail.com",
-    });
+  const handleGoogleSuccess = async (credential) => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error autenticando con Google");
+      }
+
+      const data = await res.json();
+      setUser(data.user);
+    } catch (err) {
+      console.error("Google login error:", err);
+    }
   };
 
+  /* ---------------- SPLASH ---------------- */
   if (showSplash) {
     return (
       <Box
@@ -55,9 +70,11 @@ const UserDataPage = () => {
           >
             <SpaOutlinedIcon sx={{ fontSize: 48 }} />
           </Box>
+
           <Typography variant="h4" fontWeight={800}>
             NutriSmart
           </Typography>
+
           <Typography variant="body1" color="text.secondary">
             Preparando tu experiencia saludable...
           </Typography>
@@ -66,6 +83,7 @@ const UserDataPage = () => {
     );
   }
 
+  /* ---------------- LOGIN ---------------- */
   if (!user) {
     return (
       <Box
@@ -86,38 +104,36 @@ const UserDataPage = () => {
             bgcolor: "#ffffff",
           }}
         >
-          <Stack spacing={2}>
+          <Stack spacing={2} alignItems="center">
             <Typography variant="h4" fontWeight={800}>
               Iniciá sesión para continuar
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              textAlign="center"
+            >
               Conectate con Google para guardar tu progreso y acceder a futuros
               beneficios.
             </Typography>
-            <Button
-              onClick={handleMockGoogleLogin}
-              variant="contained"
-              startIcon={<GoogleIcon />}
-              sx={{
-                textTransform: "none",
-                bgcolor: "#1b5e4b",
-                px: 3,
-                py: 1.4,
-                borderRadius: 999,
-                boxShadow: "0 12px 25px rgba(27, 94, 75, 0.25)",
-                "&:hover": { bgcolor: "#154437" },
-              }}
-            >
-              Continuar con Google
-            </Button>
+
+            <Box mt={2}>
+              <GoogleLogin
+                onSuccess={(res) => handleGoogleSuccess(res.credential)}
+                onError={() => {
+                  console.error("Error en login con Google");
+                }}
+              />
+            </Box>
           </Stack>
         </Paper>
       </Box>
     );
   }
 
+  /* ---------------- FORMULARIO ---------------- */
   return <UserDataFormStyled />;
 };
 
 export default UserDataPage;
-
