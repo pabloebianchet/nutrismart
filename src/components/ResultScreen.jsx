@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const ResultScreen = () => {
   const { userData, ocrText, clearOcrText } = useNutrition();
   const [analysis, setAnalysis] = useState("");
@@ -33,14 +34,14 @@ const ResultScreen = () => {
       try {
         setLoading(true);
 
-        const response = await fetch("http://localhost:3001/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userData,
-            productText: ocrText,
-          }),
-        });
+        const response = await fetch(`${API_URL}/api/analyze`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userData,
+    productText: ocrText,
+  }),
+});
 
         if (!response.ok) {
           throw new Error("Error en análisis");
