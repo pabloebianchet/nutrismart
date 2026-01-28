@@ -4,6 +4,8 @@ import multer from "multer";
 import dotenv from "dotenv";
 import vision from "@google-cloud/vision";
 import OpenAI from "openai";
+import { OAuth2Client } from "google-auth-library";
+
 
 
 function cleanText(text) {
@@ -19,6 +21,12 @@ function cleanText(text) {
 
 
 dotenv.config();
+
+if (!process.env.GOOGLE_CLIENT_ID) {
+  throw new Error("Falta GOOGLE_CLIENT_ID en .env");
+}
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 const app = express();
@@ -214,6 +222,41 @@ return res.json({
     return res.status(500).json({ error: "Error en análisis IA" });
   }
 });
+
+
+// =====================
+// 🔐 GOOGLE AUTH
+// =====================
+app.post("/api/auth/google", async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({ error: "Missing Google credential" });
+  }
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const user = {
+      googleId: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+    };
+
+    return res.json({ user });
+  } catch (err) {
+    console.error("Google auth error:", err);
+    return res.status(401).json({ error: "Invalid Google token" });
+  }
+});
+
+
 
 // =====================
 // 🚀 START SERVER
