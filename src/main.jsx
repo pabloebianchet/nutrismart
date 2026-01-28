@@ -4,6 +4,8 @@ import App from "./App";
 import { NutritionProvider } from "./context/NutritionContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./index.css";
+console.log("GOOGLE CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
