@@ -4,7 +4,6 @@ import {
   Avatar,
   Box,
   Drawer,
-  Button,
   IconButton,
   List,
   ListItemButton,
@@ -70,31 +69,7 @@ const AppHeader = () => {
             <MenuIcon />
           </IconButton>
         ) : (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/about"
-              sx={{ textTransform: "none" }}
-            >
-              Quiénes somos
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/how-it-works"
-              sx={{ textTransform: "none" }}
-            >
-              Cómo funciona
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/contact"
-              sx={{ textTransform: "none" }}
-            >
-              Contacto
-            </Button>
+          <>
             <IconButton onClick={handleMenuOpen} aria-label="Abrir menú de usuario">
               <Avatar src={user.picture} alt={user.name} />
             </IconButton>
@@ -107,7 +82,7 @@ const AppHeader = () => {
             >
               <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
             </Menu>
-          </Box>
+          </>
         )}
       </Toolbar>
       <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
