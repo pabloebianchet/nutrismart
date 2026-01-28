@@ -16,6 +16,9 @@ import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 import heic2any from "heic2any";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 const ImageCaptureStep = () => {
   const [tablaImage, setTablaImage] = useState(null);
   const [ingredientesImage, setIngredientesImage] = useState(null);
@@ -57,10 +60,10 @@ const ImageCaptureStep = () => {
       formData.append("tabla", tablaImage);
       formData.append("ingredientes", ingredientesImage);
 
-      const res = await fetch("http://localhost:3001/api/ocr", {
-        method: "POST",
-        body: formData,
-      });
+    const res = await fetch(`${API_URL}/api/ocr`, {
+  method: "POST",
+  body: formData,
+});
 
       const data = await res.json();
       updateOcrText(data.text);
