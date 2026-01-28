@@ -27,7 +27,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://nutrismart-orcin.vercel.app/"
+      process.env.FRONTEND_URL
     ],
     methods: ["GET", "POST"],
   })
