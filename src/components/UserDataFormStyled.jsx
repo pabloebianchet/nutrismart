@@ -9,14 +9,24 @@ import {
   InputAdornment,
   Stack,
 } from "@mui/material";
+
 import WcRoundedIcon from "@mui/icons-material/WcRounded";
 import CakeRoundedIcon from "@mui/icons-material/CakeRounded";
 import DirectionsRunRoundedIcon from "@mui/icons-material/DirectionsRunRounded";
 import MonitorWeightRoundedIcon from "@mui/icons-material/MonitorWeightRounded";
 import HeightRoundedIcon from "@mui/icons-material/HeightRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
+
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
+
+const inputSx = {
+  "& .MuiFilledInput-root": {
+    borderRadius: 999,
+    backgroundColor: "#f1f1f1",
+    overflow: "hidden",
+  },
+};
 
 const UserDataFormStyled = () => {
   const [form, setForm] = useState({
@@ -44,79 +54,74 @@ const UserDataFormStyled = () => {
     <Box
       sx={{
         minHeight: "100vh",
+        bgcolor: "#a7dcd2",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        px: { xs: 2, sm: 3 },
-        boxSizing: "border-box",
+        p: 2,
       }}
     >
       <Paper
-  sx={{
-    width: "100%",
-    maxWidth: 520,
-    height: "calc(100vh - 32px)", // 👈 altura fija visible
-    display: "flex",
-    flexDirection: "column",
-    borderRadius: 6,
-    overflow: "hidden",
-    boxShadow: "0 20px 60px rgba(15, 59, 47, 0.18)",
-  }}
->
-        {/* Header */}
-       <Box
-  sx={{
-    background:
-      "linear-gradient(135deg, rgba(14, 98, 83, 0.95), rgba(38, 166, 154, 0.9))",
-    color: "#fff",
-    py: 4,
-    px: 4,
-    flexShrink: 0, // 👈 importante
-  }}
->
-          <Typography variant="h4" fontWeight={800}>
+        elevation={6}
+        sx={{
+          width: "100%",
+          maxWidth: 380,
+          borderRadius: 5,
+          overflow: "hidden",
+        }}
+      >
+        {/* HEADER */}
+        <Box
+          sx={{
+            bgcolor: "#0f6d63",
+            color: "white",
+            p: 3,
+          }}
+        >
+          <Typography variant="h5" fontWeight={700}>
             Personalizá tu análisis
           </Typography>
-          <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
-            Completá tus datos para obtener resultados precisos y prácticos.
+          <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            Completá tus datos
           </Typography>
+
           <Stack direction="row" spacing={1} alignItems="center" mt={2}>
             <ShieldRoundedIcon fontSize="small" />
             <Typography variant="caption">
-              Tu información se usa solo para este análisis.
+              Tus datos se usan solo para este análisis
             </Typography>
           </Stack>
         </Box>
 
-        {/* Formulario */}
+        {/* FORM */}
         <Box
-  component="form"
-  onSubmit={handleSubmit}
-  sx={{
-    px: 4,
-    py: 4,
-    display: "flex",
-    flexDirection: "column",
-    gap: 2,
-    overflowY: "auto",   // 👈 scroll interno
-    flexGrow: 1,         // 👈 ocupa el resto del alto
-  }}
->
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            p: 3,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
           <TextField
             select
             name="sexo"
-            label="Sexo"
             value={form.sexo}
             onChange={handleChange}
+            placeholder="Sexo"
+            hiddenLabel
+            variant="filled"
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <WcRoundedIcon color="success" />
+                  <WcRoundedIcon />
                 </InputAdornment>
               ),
-              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+              disableUnderline: true,
             }}
+            sx={inputSx}
           >
             {["Femenino", "Masculino", "Otro"].map((option) => (
               <MenuItem key={option} value={option}>
@@ -127,36 +132,42 @@ const UserDataFormStyled = () => {
 
           <TextField
             name="edad"
-            label="Edad"
             type="number"
             value={form.edad}
             onChange={handleChange}
+            placeholder="Edad"
+            hiddenLabel
+            variant="filled"
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <CakeRoundedIcon color="success" />
+                  <CakeRoundedIcon />
                 </InputAdornment>
               ),
-              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+              disableUnderline: true,
             }}
+            sx={inputSx}
           />
 
           <TextField
             select
             name="actividad"
-            label="Actividad física"
             value={form.actividad}
             onChange={handleChange}
+            placeholder="Actividad física"
+            hiddenLabel
+            variant="filled"
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <DirectionsRunRoundedIcon color="success" />
+                  <DirectionsRunRoundedIcon />
                 </InputAdornment>
               ),
-              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+              disableUnderline: true,
             }}
+            sx={inputSx}
           >
             {["Nula", "Moderada", "Intensa", "Profesional"].map((option) => (
               <MenuItem key={option} value={option}>
@@ -167,55 +178,61 @@ const UserDataFormStyled = () => {
 
           <TextField
             name="peso"
-            label="Peso (kg)"
             type="number"
             value={form.peso}
             onChange={handleChange}
+            placeholder="Peso (kg)"
+            hiddenLabel
+            variant="filled"
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <MonitorWeightRoundedIcon color="success" />
+                  <MonitorWeightRoundedIcon />
                 </InputAdornment>
               ),
-              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+              disableUnderline: true,
             }}
+            sx={inputSx}
           />
 
           <TextField
             name="altura"
-            label="Altura (cm)"
             type="number"
             value={form.altura}
             onChange={handleChange}
+            placeholder="Altura (cm)"
+            hiddenLabel
+            variant="filled"
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <HeightRoundedIcon color="success" />
+                  <HeightRoundedIcon />
                 </InputAdornment>
               ),
-              sx: { borderRadius: 4, bgcolor: "#f4fbf7" },
+              disableUnderline: true,
             }}
+            sx={inputSx}
           />
 
           <Button
             type="submit"
-            variant="contained"
             fullWidth
             sx={{
-              mt: 4,
-              py: 1.6,
-              fontWeight: "bold",
+              mt: 3,
+              py: 1.4,
               borderRadius: 999,
-              bgcolor: "#0e6253",
-              boxShadow: "0 12px 25px rgba(14, 98, 83, 0.25)",
+              bgcolor: "#0f6d63",
+              color: "white",
+              fontWeight: 600,
+              textTransform: "none",
               "&:hover": {
-                bgcolor: "#09493e",
+                bgcolor: "#0c5a52",
               },
             }}
           >
-            Continuar al análisis
+            Continuar
           </Button>
         </Box>
       </Paper>
