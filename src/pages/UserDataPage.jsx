@@ -55,7 +55,7 @@ if (showSplash) {
         src="/img/logo.png"
         alt="Nutrismart logo"
         sx={{
-          width: 140,
+          width: 200,
           animation: "pulse 1.6s ease-in-out infinite",
           "@keyframes pulse": {
             "0%": {
