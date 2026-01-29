@@ -132,6 +132,7 @@ app.post("/api/analyze", async (req, res) => {
     }
 
     const prompt = `
+    
 Rol:
 Sos un nutricionista experto en alimentación saludable, con formación basada en guías europeas
 (OMS Europa, EFSA, dieta mediterránea).
@@ -149,6 +150,32 @@ Altura: ${userData.altura} cm
 
 Producto analizado:
 ${productText}
+
+VALIDACIÓN OBLIGATORIA ANTES DE ANALIZAR:
+
+Antes de realizar cualquier análisis, evaluá si el producto es un ALIMENTO destinado al consumo humano.
+
+Si el texto del producto corresponde a productos de limpieza, cosméticos, higiene personal, medicamentos, suplementos no alimentarios, químicos o cualquier producto no comestible:
+
+- NO realices análisis nutricional.
+- NO asignes puntaje.
+- NO clasifiques el producto.
+- NO hagas recomendaciones alimentarias.
+
+En ese caso, respondé únicamente con:
+El producto identificado no es un alimento destinado al consumo humano y no puede ser evaluado desde el punto de vista nutricional.
+
+REGLAS OBLIGATORIAS (si no se cumplen, la respuesta es incorrecta):
+
+- NO uses markdown.
+- NO uses títulos, subtítulos, listas, viñetas ni numeraciones.
+- NO uses asteriscos, símbolos especiales ni emojis.
+- NO hagas introducciones largas.
+- NO expliques paso a paso.
+- NO repitas los datos del usuario.
+- NO escribas más de 120 palabras en total.
+
+FORMATO OBLIGATORIO DE LA RESPUESTA (solo si es un alimento):
 
 REGLAS OBLIGATORIAS (si no se cumplen, la respuesta es incorrecta):
 
