@@ -39,49 +39,43 @@ const UserDataPage = () => {
   };
 
   /* ---------------- SPLASH ---------------- */
-  if (showSplash) {
-    return (
+if (showSplash) {
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#a7dcd2",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Box
+        component="img"
+        src="/img/logo.png"
+        alt="Nutrismart logo"
         sx={{
-          minHeight: "70vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          width: 140,
+          animation: "pulse 1.6s ease-in-out infinite",
+          "@keyframes pulse": {
+            "0%": {
+              opacity: 0.6,
+              transform: "scale(0.96)",
+            },
+            "50%": {
+              opacity: 1,
+              transform: "scale(1.04)",
+            },
+            "100%": {
+              opacity: 0.6,
+              transform: "scale(0.96)",
+            },
+          },
         }}
-      >
-        <Stack spacing={3} alignItems="center">
-          <Box
-            sx={{
-              width: 100,
-              height: 100,
-              borderRadius: "32px",
-              bgcolor: "#1b5e4b",
-              display: "grid",
-              placeItems: "center",
-              color: "#fff",
-              boxShadow: "0 20px 40px rgba(27, 94, 75, 0.35)",
-              animation: "pulseIn 2.2s ease-in-out",
-              "@keyframes pulseIn": {
-                "0%": { opacity: 0, transform: "scale(0.85)" },
-                "60%": { opacity: 1, transform: "scale(1.05)" },
-                "100%": { opacity: 1, transform: "scale(1)" },
-              },
-            }}
-          >
-            <SpaOutlinedIcon sx={{ fontSize: 48 }} />
-          </Box>
-
-          <Typography variant="h4" fontWeight={800}>
-            NutriSmart
-          </Typography>
-
-          <Typography variant="body1" color="text.secondary">
-            Preparando tu experiencia saludable...
-          </Typography>
-        </Stack>
-      </Box>
-    );
-  }
+      />
+    </Box>
+  );
+}
 
   /* ---------------- LOGIN ---------------- */
   if (!user) {

@@ -58,9 +58,25 @@ const AppHeader = () => {
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h6" fontWeight={700}>
-            NutriSmart
-          </Typography>
+          <Box
+  component={Link}
+  to="/"
+  sx={{
+    display: "flex",
+    alignItems: "center",
+    textDecoration: "none",
+  }}
+>
+  <Box
+    component="img"
+    src="/img/logo.png"
+    alt="Nutrismart logo"
+    sx={{
+      height: 36,
+      width: "auto",
+    }}
+  />
+</Box>
 
 {/* ---------- DESKTOP NAV ---------- */}
 <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, mr: 2 }}>
