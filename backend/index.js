@@ -5,6 +5,9 @@ import dotenv from "dotenv";
 import vision from "@google-cloud/vision";
 import OpenAI from "openai";
 import { OAuth2Client } from "google-auth-library";
+import { connectDB } from "./db.js";
+
+connectDB();
 
 
 
