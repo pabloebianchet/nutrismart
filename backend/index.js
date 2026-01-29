@@ -6,6 +6,8 @@ import vision from "@google-cloud/vision";
 import OpenAI from "openai";
 import { OAuth2Client } from "google-auth-library";
 import { connectDB } from "./db.js";
+import User from "./models/User.js";
+
 
 connectDB();
 
@@ -255,13 +257,18 @@ app.post("/api/auth/google", async (req, res) => {
     });
 
     const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
 
-    const user = {
-      googleId: payload.sub,
-      email: payload.email,
-      name: payload.name,
-      picture: payload.picture,
-    };
+    let user = await User.findOne({ googleId });
+
+    if (!user) {
+      user = await User.create({
+        googleId,
+        email,
+        name,
+        picture,
+      });
+    }
 
     return res.json({ user });
   } catch (err) {
@@ -269,6 +276,7 @@ app.post("/api/auth/google", async (req, res) => {
     return res.status(401).json({ error: "Invalid Google token" });
   }
 });
+
 
 
 
