@@ -8,7 +8,7 @@ import Dashboard from "../components/Dashboard.jsx";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const UserDataPage = () => {
-  const { user, setUser } = useNutrition();
+  const { user, userData, setUser } = useNutrition();
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -117,4 +117,12 @@ const UserDataPage = () => {
     );
   }
 
-  /* -*
+  /* ---------------- PROFILE ---------------- */
+  if (!userData) {
+    return <UserDataFormStyled />;
+  }
+
+  return <Dashboard />;
+};
+
+export default UserDataPage;
