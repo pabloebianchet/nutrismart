@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema(
     actividad: { type: String },
     peso: { type: Number },
     altura: { type: Number },
+
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

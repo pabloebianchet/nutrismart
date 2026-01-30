@@ -292,10 +292,18 @@ app.put("/api/user/profile", async (req, res) => {
 
   try {
     const user = await User.findOneAndUpdate(
-      { googleId },
-      { sexo, edad, actividad, peso, altura },
-      { new: true }
-    );
+  { googleId },
+  {
+    sexo,
+    edad,
+    actividad,
+    peso,
+    altura,
+    profileCompleted: true, // 🔥 CLAVE
+  },
+  { new: true }
+);
+
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
