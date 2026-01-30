@@ -1,12 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+
+  // ⚠️ solo para desarrollo local
   server: {
     proxy: {
-      "/api": "http://localhost:8787",
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
     },
   },
-})
+
+  // ✅ CLAVE para Vercel
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
+  },
+});
+
