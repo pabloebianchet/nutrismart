@@ -3,8 +3,6 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-
-  // ⚠️ solo para desarrollo local
   server: {
     proxy: {
       "/api": {
@@ -13,11 +11,8 @@ export default defineConfig({
       },
     },
   },
-
-  // ✅ CLAVE para Vercel
   build: {
     outDir: "dist",
     emptyOutDir: true,
   },
 });
-
