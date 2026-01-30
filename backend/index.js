@@ -280,6 +280,33 @@ app.post("/api/auth/google", async (req, res) => {
 });
 
 
+// =====================
+// 👤 UPDATE USER PROFILE
+// =====================
+app.put("/api/user/profile", async (req, res) => {
+  const { googleId, sexo, edad, actividad, peso, altura } = req.body;
+
+  if (!googleId) {
+    return res.status(400).json({ error: "Missing googleId" });
+  }
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { googleId },
+      { sexo, edad, actividad, peso, altura },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({ user });
+  } catch (err) {
+    console.error("Update profile error:", err);
+    return res.status(500).json({ error: "Error updating profile" });
+  }
+});
 
 
 
