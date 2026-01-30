@@ -20,6 +20,11 @@ import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 
+import { useNutrition } from "../context/NutritionContext";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 const inputSx = {
   "& .MuiFilledInput-root": {
     borderRadius: 999,
@@ -37,6 +42,31 @@ const UserDataFormStyled = () => {
     altura: "",
   });
 
+  useEffect(() => {
+  if (!user?.googleId) return;
+
+  fetch(`${API_URL}/api/user/profile/${user.googleId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("No profile");
+      return res.json();
+    })
+    .then((data) => {
+      if (!data.user) return;
+
+      setForm({
+        sexo: data.user.sexo || "Femenino",
+        edad: data.user.edad || "",
+        actividad: data.user.actividad || "Moderada",
+        peso: data.user.peso || "",
+        altura: data.user.altura || "",
+      });
+    })
+    .catch(() => {
+      // usuario nuevo → dejamos defaults
+    });
+}, [user]);
+
+
   const { updateUserData, user } = useNutrition();
   const navigate = useNavigate();
 
@@ -45,38 +75,22 @@ const UserDataFormStyled = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!user?.googleId) {
-      console.error("No hay usuario autenticado");
-      return;
-    }
+  await fetch(`${API_URL}/api/user/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      googleId: user.googleId,
+      ...form,
+    }),
+  });
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/user/profile`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            googleId: user.googleId,
-            ...form,
-          }),
-        }
-      );
+  navigate("/capture");
+};
 
-      if (!res.ok) {
-        throw new Error("Error guardando perfil");
-      }
 
-      const data = await res.json();
-
-      updateUserData(data.user); // refresca context
-      navigate("/capture");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const { user } = useNutrition();
 
 
   return (
