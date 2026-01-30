@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Box, Paper, Stack, Typography } from "@mui/material";
-import UserDataFormStyled from "../components/UserDataFormStyled";
+import UserDataFormStyled from "../components/UserDataFormStyled.jsx";
 import { useNutrition } from "../context/NutritionContext";
 import { GoogleLogin } from "@react-oauth/google";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../components/Dashboard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

@@ -1,4 +1,4 @@
-import ImageCaptureStep from "../components/ImageCaptureStep";
+import ImageCaptureStep from "../components/ImageCaptureStep.jsx";
 
 const CapturePage = () => {
   return <ImageCaptureStep />;

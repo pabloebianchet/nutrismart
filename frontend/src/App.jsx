@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import UserDataPage from "./pages/UserDataPage";
-import CapturePage from "./pages/CapturePage";
-import ResultScreen from "./components/ResultScreen";
-import AppHeader from "./components/AppHeader";
-import AboutPage from "./pages/AboutPage";
-import HowItWorksPage from "./pages/HowItWorksPage";
-import ContactPage from "./pages/ContactPage";
+import UserDataPage from "./pages/UserDataPage.jsx";
+import CapturePage from "./pages/CapturePage.jsx";
+import ResultScreen from "./components/ResultScreen.jsx";
+import AppHeader from "./components/AppHeader.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import HowItWorksPage from "./pages/HowItWorksPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 
 
 
