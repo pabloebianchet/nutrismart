@@ -30,14 +30,14 @@ const inputSx = {
 
 const UserDataFormStyled = () => {
   const [form, setForm] = useState({
-  sexo: "Femenino",
-  edad: "",
-  actividad: "Moderada",
-  peso: "",
-  altura: "",
-});
+    sexo: "Femenino",
+    edad: "",
+    actividad: "Moderada",
+    peso: "",
+    altura: "",
+  });
 
-  const { updateUserData } = useNutrition();
+  const { updateUserData, user } = useNutrition();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -45,30 +45,38 @@ const UserDataFormStyled = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        googleId: user.googleId,
-        ...form,
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error("Error guardando perfil");
+    if (!user?.googleId) {
+      console.error("No hay usuario autenticado");
+      return;
     }
 
-    const data = await res.json();
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/user/profile`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            googleId: user.googleId,
+            ...form,
+          }),
+        }
+      );
 
-    updateUserData(data.user); // refresca context
-    navigate("/capture");
-  } catch (err) {
-    console.error(err);
-  }
-};
+      if (!res.ok) {
+        throw new Error("Error guardando perfil");
+      }
+
+      const data = await res.json();
+
+      updateUserData(data.user); // refresca context
+      navigate("/capture");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
   return (
@@ -126,33 +134,33 @@ const UserDataFormStyled = () => {
           }}
         >
           <TextField
-  select
-  name="sexo"
-  value={form.sexo}
-  onChange={handleChange}
-  variant="filled"
-  fullWidth
-  hiddenLabel
-  InputProps={{
-    startAdornment: (
-      <InputAdornment position="start">
-        <WcRoundedIcon />
-      </InputAdornment>
-    ),
-    disableUnderline: true,
-  }}
-  sx={inputSx}
->
-  <MenuItem value="" disabled>
-    Género
-  </MenuItem>
+            select
+            name="sexo"
+            value={form.sexo}
+            onChange={handleChange}
+            variant="filled"
+            fullWidth
+            hiddenLabel
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <WcRoundedIcon />
+                </InputAdornment>
+              ),
+              disableUnderline: true,
+            }}
+            sx={inputSx}
+          >
+            <MenuItem value="" disabled>
+              Género
+            </MenuItem>
 
-  {["Femenino", "Masculino", "Otro"].map((option) => (
-    <MenuItem key={option} value={option}>
-      {option}
-    </MenuItem>
-  ))}
-</TextField>
+            {["Femenino", "Masculino", "Otro"].map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             name="edad"
