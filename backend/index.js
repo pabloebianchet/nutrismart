@@ -43,9 +43,11 @@ app.use(
       "https://nutrismart-orcin.vercel.app",
       "https://nutrismart-1u7u7x32m-pablo-bianchet-martinezs-projects.vercel.app"
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 
 app.use(express.json({ limit: "2mb" }));
