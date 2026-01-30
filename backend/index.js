@@ -308,6 +308,25 @@ app.put("/api/user/profile", async (req, res) => {
   }
 });
 
+// =====================
+// 👤 GET USER PROFILE
+// =====================
+app.get("/api/user/profile/:googleId", async (req, res) => {
+  const { googleId } = req.params;
+
+  try {
+    const user = await User.findOne({ googleId });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({ user });
+  } catch (err) {
+    console.error("Get profile error:", err);
+    return res.status(500).json({ error: "Error fetching profile" });
+  }
+});
 
 
 // =====================
