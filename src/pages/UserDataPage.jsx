@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Box, Paper, Stack, Typography } from "@mui/material";
-import SpaOutlinedIcon from "@mui/icons-material/SpaOutlined";
 import UserDataFormStyled from "../components/UserDataFormStyled";
 import { useNutrition } from "../context/NutritionContext";
 import { GoogleLogin } from "@react-oauth/google";
+import Dashboard from "../components/Dashboard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -39,43 +39,34 @@ const UserDataPage = () => {
   };
 
   /* ---------------- SPLASH ---------------- */
-if (showSplash) {
-  return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#a7dcd2",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+  if (showSplash) {
+    return (
       <Box
-        component="img"
-        src="/img/logo.png"
-        alt="Nutrismart logo"
         sx={{
-          width: 200,
-          animation: "pulse 1.6s ease-in-out infinite",
-          "@keyframes pulse": {
-            "0%": {
-              opacity: 0.6,
-              transform: "scale(0.96)",
-            },
-            "50%": {
-              opacity: 1,
-              transform: "scale(1.04)",
-            },
-            "100%": {
-              opacity: 0.6,
-              transform: "scale(0.96)",
-            },
-          },
+          minHeight: "100vh",
+          bgcolor: "#a7dcd2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
-      />
-    </Box>
-  );
-}
+      >
+        <Box
+          component="img"
+          src="/img/logo.png"
+          alt="Nutrismart logo"
+          sx={{
+            width: 200,
+            animation: "pulse 1.6s ease-in-out infinite",
+            "@keyframes pulse": {
+              "0%": { opacity: 0.6, transform: "scale(0.96)" },
+              "50%": { opacity: 1, transform: "scale(1.04)" },
+              "100%": { opacity: 0.6, transform: "scale(0.96)" },
+            },
+          }}
+        />
+      </Box>
+    );
+  }
 
   /* ---------------- LOGIN ---------------- */
   if (!user) {
@@ -126,8 +117,4 @@ if (showSplash) {
     );
   }
 
-  /* ---------------- FORMULARIO ---------------- */
-  return <UserDataFormStyled />;
-};
-
-export default UserDataPage;
+  /* -*

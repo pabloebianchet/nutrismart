@@ -44,11 +44,32 @@ const UserDataFormStyled = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    updateUserData(form);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        googleId: user.googleId,
+        ...form,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Error guardando perfil");
+    }
+
+    const data = await res.json();
+
+    updateUserData(data.user); // refresca context
     navigate("/capture");
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   return (
     <Box
