@@ -4,6 +4,7 @@ import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import ScoreDonut from "./ScoreDonut";
 
 const Dashboard = () => {
   const { user } = useNutrition();
@@ -11,6 +12,26 @@ const Dashboard = () => {
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const averageScore =
+    history.length > 0
+      ? Math.round(
+          history.reduce((sum, item) => sum + (item.score ?? 0), 0) /
+            history.length
+        )
+      : 0;
+
+  const formatDateTime = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    return date.toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   useEffect(() => {
     if (!user?.googleId) return;
@@ -121,30 +142,70 @@ const Dashboard = () => {
             </Typography>
           </Paper>
         ) : (
-          <Stack spacing={2}>
-            {history.map((item) => (
-              <Paper
-                key={item._id}
-                sx={{
-                  p: 3,
-                  borderRadius: 4,
-                  bgcolor: "#ffffff",
-                  boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
-                }}
-              >
-                <Typography variant="body1" fontWeight={700}>
-                  Puntaje: {item.score} / 100
+          <Stack spacing={3}>
+            <Paper
+              sx={{
+                p: { xs: 3, md: 4 },
+                borderRadius: 4,
+                bgcolor: "#ffffff",
+                boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 3,
+              }}
+            >
+              <Box>
+                <Typography variant="h6" fontWeight={700}>
+                  Promedio de tus análisis
                 </Typography>
+                <Typography variant="body2" color="text.secondary" mt={1}>
+                  Basado en {history.length} productos analizados.
+                </Typography>
+              </Box>
+              <ScoreDonut score={averageScore} />
+            </Paper>
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  mt={1}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                },
+                gap: 2,
+              }}
+            >
+              {history.map((item) => (
+                <Paper
+                  key={item._id}
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    bgcolor: "#ffffff",
+                    boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                    minHeight: 210,
+                  }}
                 >
-                  {item.analysisText}
-                </Typography>
-              </Paper>
-            ))}
+                  <Typography variant="caption" color="text.secondary">
+                    {formatDateTime(item.createdAt)}
+                  </Typography>
+
+                  <Typography variant="h6" fontWeight={700}>
+                    Puntaje: {item.score} / 100
+                  </Typography>
+
+                  <Typography variant="body2" color="text.secondary">
+                    {item.analysisText}
+                  </Typography>
+                </Paper>
+              ))}
+            </Box>
           </Stack>
         )}
       </Box>
