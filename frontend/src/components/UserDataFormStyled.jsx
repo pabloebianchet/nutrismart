@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -20,8 +20,6 @@ import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 
-import { useNutrition } from "../context/NutritionContext";
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -42,55 +40,55 @@ const UserDataFormStyled = () => {
     altura: "",
   });
 
-  useEffect(() => {
-  if (!user?.googleId) return;
-
-  fetch(`${API_URL}/api/user/profile/${user.googleId}`)
-    .then((res) => {
-      if (!res.ok) throw new Error("No profile");
-      return res.json();
-    })
-    .then((data) => {
-      if (!data.user) return;
-
-      setForm({
-        sexo: data.user.sexo || "Femenino",
-        edad: data.user.edad || "",
-        actividad: data.user.actividad || "Moderada",
-        peso: data.user.peso || "",
-        altura: data.user.altura || "",
-      });
-    })
-    .catch(() => {
-      // usuario nuevo → dejamos defaults
-    });
-}, [user]);
-
-
   const { updateUserData, user } = useNutrition();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.googleId) return;
+
+    fetch(`${API_URL}/api/user/profile/${user.googleId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("No profile");
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.user) return;
+
+        const nextForm = {
+          sexo: data.user.sexo || "Femenino",
+          edad: data.user.edad || "",
+          actividad: data.user.actividad || "Moderada",
+          peso: data.user.peso || "",
+          altura: data.user.altura || "",
+        };
+
+        setForm(nextForm);
+        updateUserData(nextForm);
+      })
+      .catch(() => {
+        // usuario nuevo → dejamos defaults
+      });
+  }, [user, updateUserData]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  await fetch(`${API_URL}/api/user/profile`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      googleId: user.googleId,
-      ...form,
-    }),
-  });
+    await fetch(`${API_URL}/api/user/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        googleId: user.googleId,
+        ...form,
+      }),
+    });
 
-  navigate("/capture");
-};
-
-
-  const { user } = useNutrition();
+    updateUserData(form);
+    navigate("/capture");
+  };
 
 
   return (
