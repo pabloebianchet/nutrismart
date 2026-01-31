@@ -5,10 +5,32 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-
 const Dashboard = () => {
   const { user } = useNutrition();
   const navigate = useNavigate();
+
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.googleId) return;
+
+    const fetchHistory = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/user/analysis/${user.googleId}`
+        );
+
+        setHistory(res.data.history || []);
+      } catch (err) {
+        console.error("Error cargando historial:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [user?.googleId]);
 
   return (
     <Box
@@ -72,60 +94,60 @@ const Dashboard = () => {
       </Paper>
 
       {/* HISTORIAL */}
-<Box>
-  <Typography variant="h6" fontWeight={700} mb={2}>
-    Tus análisis recientes
-  </Typography>
+      <Box>
+        <Typography variant="h6" fontWeight={700} mb={2}>
+          Tus análisis recientes
+        </Typography>
 
-  {loading ? (
-    <Typography variant="body2" color="text.secondary">
-      Cargando historial...
-    </Typography>
-  ) : history.length === 0 ? (
-    <Paper
-      sx={{
-        p: 4,
-        borderRadius: 4,
-        textAlign: "center",
-        bgcolor: "#ffffff",
-        boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
-      }}
-    >
-      <Typography variant="body1" fontWeight={600}>
-        Todavía no realizaste análisis
-      </Typography>
-      <Typography variant="body2" color="text.secondary" mt={1}>
-        Cuando analices productos, los vas a ver acá durante 30 días.
-      </Typography>
-    </Paper>
-  ) : (
-    <Stack spacing={2}>
-      {history.map((item) => (
-        <Paper
-          key={item._id}
-          sx={{
-            p: 3,
-            borderRadius: 4,
-            bgcolor: "#ffffff",
-            boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
-          }}
-        >
-          <Typography variant="body1" fontWeight={700}>
-            Puntaje: {item.score} / 100
+        {loading ? (
+          <Typography variant="body2" color="text.secondary">
+            Cargando historial...
           </Typography>
-
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            mt={1}
+        ) : history.length === 0 ? (
+          <Paper
+            sx={{
+              p: 4,
+              borderRadius: 4,
+              textAlign: "center",
+              bgcolor: "#ffffff",
+              boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
+            }}
           >
-            {item.analysisText}
-          </Typography>
-        </Paper>
-      ))}
-    </Stack>
-  )}
-</Box>
+            <Typography variant="body1" fontWeight={600}>
+              Todavía no realizaste análisis
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              Cuando analices productos, los vas a ver acá durante 30 días.
+            </Typography>
+          </Paper>
+        ) : (
+          <Stack spacing={2}>
+            {history.map((item) => (
+              <Paper
+                key={item._id}
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  bgcolor: "#ffffff",
+                  boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
+                }}
+              >
+                <Typography variant="body1" fontWeight={700}>
+                  Puntaje: {item.score} / 100
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  mt={1}
+                >
+                  {item.analysisText}
+                </Typography>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </Box>
     </Box>
   );
 };

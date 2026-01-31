@@ -236,14 +236,19 @@ const score = match ? parseInt(match[1], 10) : 0;
 
 const user = await User.findOne({ googleId });
 
-if (user) {
-  await Analysis.create({
-    user: user._id,
-    score,
-    analysisText: analysis,
-    productText,
+if (!user) {
+  return res.status(404).json({
+    error: "User not found. Analysis was not saved.",
   });
 }
+
+await Analysis.create({
+  user: user._id,
+  score,
+  analysisText: analysis,
+  productText,
+});
+
 
 
 return res.json({
