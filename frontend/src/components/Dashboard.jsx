@@ -15,8 +15,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 const Dashboard = () => {
   const { user, userData, updateUserData } = useNutrition();
   const navigate = useNavigate();
@@ -63,6 +61,26 @@ const Dashboard = () => {
       altura: userData.altura || "",
     });
   }, [userData]);
+
+  const averageScore =
+    history.length > 0
+      ? Math.round(
+          history.reduce((sum, item) => sum + (item.score ?? 0), 0) /
+            history.length
+        )
+      : 0;
+
+  const formatDateTime = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    return date.toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   useEffect(() => {
     if (!user?.googleId) return;
