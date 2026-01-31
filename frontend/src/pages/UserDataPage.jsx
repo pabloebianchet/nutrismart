@@ -139,7 +139,7 @@ const UserDataPage = () => {
   }
 
   /* ---------------- PROFILE ---------------- */
-  if (!userData) {
+  if (!userData?.profileCompleted) {
     return (
       <Box
         sx={{
