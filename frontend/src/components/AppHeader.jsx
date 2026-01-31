@@ -15,11 +15,12 @@ import {
   Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 
 const AppHeader = () => {
   const { user, logout } = useNutrition();
+  const navigate = useNavigate();
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -46,6 +47,7 @@ const AppHeader = () => {
     logout();
     handleMenuClose();
     handleDrawerClose();
+    navigate("/");
   };
 
   return (
