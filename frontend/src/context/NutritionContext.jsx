@@ -16,8 +16,16 @@ export const NutritionProvider = ({ children }) => {
   const updateUserData = (data) => setUserData(data);
   const updateOcrText = (text) => setOcrText(text);
   const clearOcrText = () => setOcrText("");
-  const clearUser = () => setUser(null);
-  const logout = () => setUser(null);
+  const clearUser = () => {
+    setUser(null);
+    setUserData(null);
+    setOcrText("");
+  };
+  const logout = () => {
+    setUser(null);
+    setUserData(null);
+    setOcrText("");
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") {
