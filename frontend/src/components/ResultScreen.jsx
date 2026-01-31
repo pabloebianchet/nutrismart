@@ -16,6 +16,9 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
 
+console.log("USER EN RESULT:", user);
+
+
 const API_URL = import.meta.env.VITE_API_URL;
 const ResultScreen = () => {
   const { user, userData, ocrText, clearOcrText } = useNutrition();
