@@ -16,21 +16,20 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
 
-console.log("USER EN RESULT:", user);
-
-
 const API_URL = import.meta.env.VITE_API_URL;
+
 const ResultScreen = () => {
   const { user, userData, ocrText, clearOcrText } = useNutrition();
 
   const [analysis, setAnalysis] = useState("");
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!ocrText || !userData) {
-      navigate("/");
+    // 🔒 Guardia absoluta: no ejecutar sin usuario ni datos
+    if (!user?.googleId || !ocrText || !userData) {
       return;
     }
 
@@ -39,15 +38,14 @@ const ResultScreen = () => {
         setLoading(true);
 
         const response = await fetch(`${API_URL}/api/analyze`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    googleId: user.googleId, // 🔥 ESTA LÍNEA ES LA SOLUCIÓN
-    userData,
-    productText: ocrText,
-  }),
-});
-
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            googleId: user.googleId,
+            userData,
+            productText: ocrText,
+          }),
+        });
 
         if (!response.ok) {
           throw new Error("Error en análisis");
@@ -67,7 +65,7 @@ const ResultScreen = () => {
     };
 
     fetchAnalysis();
-  }, [ocrText, userData, navigate]);
+  }, [user, ocrText, userData]);
 
   const scoreColor =
     score >= 90
