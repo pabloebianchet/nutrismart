@@ -18,7 +18,7 @@ import ScoreDonut from "./ScoreDonut";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const ResultScreen = () => {
-  const { userData, ocrText, clearOcrText } = useNutrition();
+  const { user, userData, ocrText, clearOcrText } = useNutrition();
   const [analysis, setAnalysis] = useState("");
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,9 +38,11 @@ const ResultScreen = () => {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    userData,
-    productText: ocrText,
-  }),
+  userData,
+  productText: ocrText,
+  googleId: user.googleId, // 🔥 CLAVE
+}),
+
 });
 
         if (!response.ok) {

@@ -7,6 +7,8 @@ import OpenAI from "openai";
 import { OAuth2Client } from "google-auth-library";
 import { connectDB } from "./db.js";
 import User from "./models/User.js";
+import Analysis from "./models/Analysis.js";
+
 
 
 connectDB();
@@ -132,7 +134,8 @@ app.post(
 // =====================
 app.post("/api/analyze", async (req, res) => {
   try {
-    const { userData, productText } = req.body;
+    const { userData, productText, googleId } = req.body;
+
 
     if (!userData || !productText) {
       return res.status(400).json({ error: "Faltan datos requeridos" });
@@ -230,6 +233,18 @@ const match = analysis.match(
 );
 
 const score = match ? parseInt(match[1], 10) : 0;
+
+const user = await User.findOne({ googleId });
+
+if (user) {
+  await Analysis.create({
+    user: user._id,
+    score,
+    analysisText: analysis,
+    productText,
+  });
+}
+
 
 return res.json({
   score,
@@ -346,3 +361,29 @@ app.listen(PORT, () => {
   console.log(`Backend corriendo en puerto ${PORT}`);
 });
 
+// =====================
+// 📊 USER ANALYSIS HISTORY
+// =====================
+app.get("/api/user/analysis/:googleId", async (req, res) => {
+  const { googleId } = req.params;
+
+  try {
+    const user = await User.findOne({ googleId });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const history = await Analysis.find({
+      user: user._id,
+      createdAt: { $gte: thirtyDaysAgo },
+    }).sort({ createdAt: -1 });
+
+    return res.json({ history });
+  } catch (err) {
+    console.error("History error:", err);
+    return res.status(500).json({ error: "Error fetching history" });
+  }
+});
