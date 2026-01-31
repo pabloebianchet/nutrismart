@@ -2,6 +2,9 @@ import { Box, Typography, Button, Paper, Stack } from "@mui/material";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 
 const Dashboard = () => {
   const { user } = useNutrition();
@@ -69,33 +72,60 @@ const Dashboard = () => {
       </Paper>
 
       {/* HISTORIAL */}
-      <Box>
-        <Typography variant="h6" fontWeight={700} mb={2}>
-          Tus análisis recientes
-        </Typography>
+<Box>
+  <Typography variant="h6" fontWeight={700} mb={2}>
+    Tus análisis recientes
+  </Typography>
 
-        {/* Estado vacío (por ahora) */}
+  {loading ? (
+    <Typography variant="body2" color="text.secondary">
+      Cargando historial...
+    </Typography>
+  ) : history.length === 0 ? (
+    <Paper
+      sx={{
+        p: 4,
+        borderRadius: 4,
+        textAlign: "center",
+        bgcolor: "#ffffff",
+        boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
+      }}
+    >
+      <Typography variant="body1" fontWeight={600}>
+        Todavía no realizaste análisis
+      </Typography>
+      <Typography variant="body2" color="text.secondary" mt={1}>
+        Cuando analices productos, los vas a ver acá durante 30 días.
+      </Typography>
+    </Paper>
+  ) : (
+    <Stack spacing={2}>
+      {history.map((item) => (
         <Paper
+          key={item._id}
           sx={{
-            p: 4,
+            p: 3,
             borderRadius: 4,
-            textAlign: "center",
             bgcolor: "#ffffff",
             boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
           }}
         >
-          <Typography variant="body1" fontWeight={600}>
-            Todavía no realizaste análisis
+          <Typography variant="body1" fontWeight={700}>
+            Puntaje: {item.score} / 100
           </Typography>
+
           <Typography
             variant="body2"
             color="text.secondary"
             mt={1}
           >
-            Cuando analices productos, los vas a ver acá durante 30 días.
+            {item.analysisText}
           </Typography>
         </Paper>
-      </Box>
+      ))}
+    </Stack>
+  )}
+</Box>
     </Box>
   );
 };
