@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const lastHistoryUserRef = useRef(null);
+  const historyFetchedRef = useRef(false);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -81,29 +81,28 @@ const Dashboard = () => {
   }, [userData]);
 
   useEffect(() => {
-    if (!user?.googleId) {
-      lastHistoryUserRef.current = null;
-      setHistory([]);
-      setLoading(false);
-      return;
-    }
-    if (loadingUserData) return;
-    if (!userData) return;
+    if (!user?.googleId) return;
 
     // Si el usuario no completó perfil o falta en Mongo, mandarlo al formulario.
-    if (userData.profileCompleted !== true) {
+    if (userData?.profileCompleted !== true) {
       navigate("/profile", { replace: true });
       return;
     }
 
-    if (lastHistoryUserRef.current === user.googleId) {
+    // Evitar múltiples fetch del historial durante la sesión.
+    const sessionKey = `analysisFetched:${user.googleId}`;
+    const alreadyFetched =
+      historyFetchedRef.current ||
+      window.sessionStorage.getItem(sessionKey) === "true";
+
+    if (alreadyFetched) {
       setLoading(false);
       return;
     }
 
     const fetchHistory = async () => {
-      setLoading(true);
-      lastHistoryUserRef.current = user.googleId;
+      historyFetchedRef.current = true;
+      window.sessionStorage.setItem(sessionKey, "true");
 
       try {
         const res = await axios.get(
@@ -118,7 +117,7 @@ const Dashboard = () => {
     };
 
     fetchHistory();
-  }, [loadingUserData, navigate, user?.googleId, userData]);
+  }, [navigate, user?.googleId, userData?.profileCompleted]);
 
 
   /* ======================
@@ -149,9 +148,7 @@ const Dashboard = () => {
         throw new Error(data?.error || "Error guardando perfil");
       }
 
-      updateUserData(
-        data?.user || { ...profileForm, profileCompleted: true },
-      );
+      updateUserData({ ...profileForm, profileCompleted: true });
       setEditingProfile(false);
     } catch (err) {
       console.error("Error guardando perfil:", err);
