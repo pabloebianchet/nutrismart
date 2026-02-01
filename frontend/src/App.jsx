@@ -6,6 +6,7 @@ import AppHeader from "./components/AppHeader.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import HowItWorksPage from "./pages/HowItWorksPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 
 
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/" element={<UserDataPage />} />
         <Route path="/capture" element={<CapturePage />} />
         <Route path="/result" element={<ResultScreen />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/contact" element={<ContactPage />} />
@@ -27,4 +29,3 @@ const App = () => {
 };
 
 export default App;
-

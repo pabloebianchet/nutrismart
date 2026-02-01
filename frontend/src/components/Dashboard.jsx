@@ -79,29 +79,38 @@ const Dashboard = () => {
     });
   }, [userData]);
 
-  // useEffect(() => {
-  //   if (!user?.googleId) return;
+  useEffect(() => {
+    if (!user?.googleId) {
+      setHistory([]);
+      setLoading(false);
+      return;
+    }
+    if (loadingUserData) return;
+    if (!userData) return;
 
-  //   let fetched = false;
+    // Si el usuario no completó perfil o falta en Mongo, mandarlo al formulario.
+    if (userData.profileCompleted !== true) {
+      navigate("/profile", { replace: true });
+      return;
+    }
 
-  //   const fetchHistory = async () => {
-  //     if (fetched) return;
-  //     fetched = true;
+    const fetchHistory = async () => {
+      setLoading(true);
 
-  //     try {
-  //       const res = await axios.get(
-  //         `${API_URL}/api/user/analysis/${user.googleId}`,
-  //       );
-  //       setHistory(res.data.history || []);
-  //     } catch (err) {
-  //       console.error("Error cargando historial:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+      try {
+        const res = await axios.get(
+          `${API_URL}/api/user/analysis/${user.googleId}`,
+        );
+        setHistory(res.data.history || []);
+      } catch (err) {
+        console.error("Error cargando historial:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchHistory();
-  // }, [user?.googleId]);
+    fetchHistory();
+  }, [loadingUserData, navigate, user?.googleId, userData]);
 
 
   /* ======================
@@ -118,7 +127,7 @@ const Dashboard = () => {
 
     setSavingProfile(true);
     try {
-      await fetch(`${API_URL}/api/user/profile`, {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -126,8 +135,15 @@ const Dashboard = () => {
           ...profileForm,
         }),
       });
+      const data = await response.json();
 
-      updateUserData(profileForm);
+      if (!response.ok) {
+        throw new Error(data?.error || "Error guardando perfil");
+      }
+
+      updateUserData(
+        data?.user || { ...profileForm, profileCompleted: true },
+      );
       setEditingProfile(false);
     } catch (err) {
       console.error("Error guardando perfil:", err);
