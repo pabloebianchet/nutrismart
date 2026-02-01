@@ -26,6 +26,7 @@ const Dashboard = () => {
   const { user, userData, updateUserData, loadingUserData } = useNutrition();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,6 +156,7 @@ const Dashboard = () => {
 
       updateUserData({ ...profileForm, profileCompleted: true });
       setEditingProfile(false);
+      setHistoryRefreshKey((prev) => prev + 1);
     } catch (err) {
       console.error("Error guardando perfil:", err);
     } finally {
