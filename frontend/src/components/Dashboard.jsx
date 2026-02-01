@@ -17,8 +17,12 @@ import ScoreDonut from "./ScoreDonut";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+
+
+
 const Dashboard = () => {
-  const { user, userData, updateUserData } = useNutrition();
+  const { user, userData, updateUserData, loadingUserData } = useNutrition();
+
   const navigate = useNavigate();
 
   const [history, setHistory] = useState([]);
@@ -38,7 +42,6 @@ const Dashboard = () => {
   /* ======================
      Helpers
   ====================== */
-
 
   const averageScore =
     history.length > 0
@@ -130,6 +133,13 @@ const Dashboard = () => {
   /* ======================
      Render
   ====================== */
+  if (loadingUserData) {
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h6">Cargando datos de tu perfil...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
