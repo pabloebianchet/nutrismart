@@ -7,8 +7,10 @@ import {
   TextField,
   MenuItem,
   Divider,
+  IconButton,
 } from "@mui/material";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
@@ -55,13 +57,16 @@ const Dashboard = () => {
   const formatDateTime = (value) => {
     if (!value) return "";
     const date = new Date(value);
-    return date.toLocaleString("es-AR", {
+    const datePart = date.toLocaleDateString("es-AR", {
       day: "2-digit",
-      month: "2-digit",
+      month: "short",
       year: "numeric",
+    });
+    const timePart = date.toLocaleTimeString("es-AR", {
       hour: "2-digit",
       minute: "2-digit",
     });
+    return `${datePart} · ${timePart}`;
   };
 
   /* ======================
@@ -154,6 +159,28 @@ const Dashboard = () => {
       console.error("Error guardando perfil:", err);
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  const handleDeleteAnalysis = async (analysisId) => {
+    if (!analysisId) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/user/analysis/${analysisId}`,
+        { method: "DELETE" },
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Error eliminando análisis");
+      }
+
+      setHistory((prev) =>
+        prev.filter((item) => item._id !== analysisId),
+      );
+    } catch (err) {
+      console.error("Error eliminando historial:", err);
     }
   };
 
@@ -431,12 +458,30 @@ const Dashboard = () => {
           >
             {history.map((item) => (
               <Paper key={item._id} sx={{ p: 3, borderRadius: 4 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {formatDateTime(item.createdAt)}
-                </Typography>
-                <Typography fontWeight={700}>
-                  Puntaje: {item.score}/100
-                </Typography>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                >
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {formatDateTime(item.createdAt)}
+                    </Typography>
+                    <Typography fontWeight={700}>
+                      Puntaje: {item.score}/100
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    aria-label="Eliminar análisis"
+                    onClick={() => handleDeleteAnalysis(item._id)}
+                    size="small"
+                  >
+                    <DeleteOutlineRoundedIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
                 <Typography
                   variant="body2"
                   sx={{
