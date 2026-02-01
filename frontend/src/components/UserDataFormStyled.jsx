@@ -68,7 +68,7 @@ const UserDataFormStyled = () => {
       .catch(() => {
         // usuario nuevo → dejamos defaults
       });
-  }, [user, updateUserData]);
+  }, [user]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
