@@ -63,12 +63,12 @@ const UserDataFormStyled = () => {
         };
 
         setForm(nextForm);
-        updateUserData(nextForm);
+        updateUserData(data.user);
       })
       .catch(() => {
         // usuario nuevo → dejamos defaults
       });
-  }, [user, updateUserData]);
+  }, [user]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,7 +77,7 @@ const UserDataFormStyled = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await fetch(`${API_URL}/api/user/profile`, {
+    const res = await fetch(`${API_URL}/api/user/profile`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -86,7 +86,8 @@ const UserDataFormStyled = () => {
       }),
     });
 
-    updateUserData(form);
+    const data = await res.json();
+    updateUserData(data.user ?? { ...form, profileCompleted: true });
     navigate("/capture");
   };
 
