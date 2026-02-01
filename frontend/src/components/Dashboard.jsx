@@ -81,11 +81,10 @@ const Dashboard = () => {
   }, [userData]);
 
   useEffect(() => {
-    if (!user?.googleId || loadingUserData) return;
-    if (!userData) return;
+    if (!user?.googleId) return;
 
     // Si el usuario no completó perfil o falta en Mongo, mandarlo al formulario.
-    if (userData.profileCompleted !== true) {
+    if (userData?.profileCompleted !== true) {
       navigate("/profile", { replace: true });
       return;
     }
@@ -118,12 +117,7 @@ const Dashboard = () => {
     };
 
     fetchHistory();
-  }, [
-    loadingUserData,
-    navigate,
-    user?.googleId,
-    userData,
-  ]);
+  }, [navigate, user?.googleId, userData?.profileCompleted]);
 
 
   /* ======================
