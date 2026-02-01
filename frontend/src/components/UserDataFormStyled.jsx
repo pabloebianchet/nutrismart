@@ -63,10 +63,7 @@ const UserDataFormStyled = () => {
         };
 
         setForm(nextForm);
-
-        if (data.user.profileCompleted) {
-          updateUserData({ ...nextForm, profileCompleted: true });
-        }
+        updateUserData(nextForm);
       })
       .catch(() => {
         // usuario nuevo → dejamos defaults
@@ -80,7 +77,7 @@ const UserDataFormStyled = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch(`${API_URL}/api/user/profile`, {
+    await fetch(`${API_URL}/api/user/profile`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -89,9 +86,7 @@ const UserDataFormStyled = () => {
       }),
     });
 
-    if (response.ok) {
-      updateUserData({ ...form, profileCompleted: true });
-    }
+    updateUserData(form);
     navigate("/capture");
   };
 

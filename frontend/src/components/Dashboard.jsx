@@ -15,8 +15,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 const Dashboard = () => {
   const { user, userData, updateUserData } = useNutrition();
   const navigate = useNavigate();
@@ -64,40 +62,25 @@ const Dashboard = () => {
     });
   }, [userData]);
 
-  useEffect(() => {
-    if (!user?.googleId || editingProfile) return;
+  const averageScore =
+    history.length > 0
+      ? Math.round(
+          history.reduce((sum, item) => sum + (item.score ?? 0), 0) /
+            history.length
+        )
+      : 0;
 
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/user/profile/${user.googleId}`
-        );
-        if (!response.ok) {
-          return;
-        }
-        const data = await response.json();
-        if (!data.user) return;
-
-        const nextForm = {
-          sexo: data.user.sexo || "Femenino",
-          edad: data.user.edad || "",
-          actividad: data.user.actividad || "Moderada",
-          peso: data.user.peso || "",
-          altura: data.user.altura || "",
-        };
-
-        setProfileForm(nextForm);
-        updateUserData({
-          ...nextForm,
-          profileCompleted: Boolean(data.user.profileCompleted),
-        });
-      } catch (err) {
-        console.error("Error cargando perfil:", err);
-      }
-    };
-
-    fetchProfile();
-  }, [user?.googleId, editingProfile, updateUserData]);
+  const formatDateTime = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    return date.toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   useEffect(() => {
     if (!user?.googleId) return;
@@ -149,7 +132,7 @@ const Dashboard = () => {
           ...profileForm,
         }),
       });
-      updateUserData({ ...profileForm, profileCompleted: true });
+      updateUserData(profileForm);
       setEditingProfile(false);
     } catch (err) {
       console.error("Error guardando perfil:", err);
