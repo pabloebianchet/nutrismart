@@ -11,7 +11,7 @@ import {
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 
@@ -27,6 +27,7 @@ const Dashboard = () => {
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const lastHistoryUserRef = useRef(null);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -79,29 +80,45 @@ const Dashboard = () => {
     });
   }, [userData]);
 
-  // useEffect(() => {
-  //   if (!user?.googleId) return;
+  useEffect(() => {
+    if (!user?.googleId) {
+      lastHistoryUserRef.current = null;
+      setHistory([]);
+      setLoading(false);
+      return;
+    }
+    if (loadingUserData) return;
+    if (!userData) return;
 
-  //   let fetched = false;
+    // Si el usuario no completó perfil o falta en Mongo, mandarlo al formulario.
+    if (userData.profileCompleted !== true) {
+      navigate("/profile", { replace: true });
+      return;
+    }
 
-  //   const fetchHistory = async () => {
-  //     if (fetched) return;
-  //     fetched = true;
+    if (lastHistoryUserRef.current === user.googleId) {
+      setLoading(false);
+      return;
+    }
 
-  //     try {
-  //       const res = await axios.get(
-  //         `${API_URL}/api/user/analysis/${user.googleId}`,
-  //       );
-  //       setHistory(res.data.history || []);
-  //     } catch (err) {
-  //       console.error("Error cargando historial:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+    const fetchHistory = async () => {
+      setLoading(true);
+      lastHistoryUserRef.current = user.googleId;
 
-  //   fetchHistory();
-  // }, [user?.googleId]);
+      try {
+        const res = await axios.get(
+          `${API_URL}/api/user/analysis/${user.googleId}`,
+        );
+        setHistory(res.data.history || []);
+      } catch (err) {
+        console.error("Error cargando historial:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [loadingUserData, navigate, user?.googleId, userData]);
 
 
   /* ======================
@@ -118,7 +135,7 @@ const Dashboard = () => {
 
     setSavingProfile(true);
     try {
-      await fetch(`${API_URL}/api/user/profile`, {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -126,8 +143,15 @@ const Dashboard = () => {
           ...profileForm,
         }),
       });
+      const data = await response.json();
 
-      updateUserData(profileForm);
+      if (!response.ok) {
+        throw new Error(data?.error || "Error guardando perfil");
+      }
+
+      updateUserData(
+        data?.user || { ...profileForm, profileCompleted: true },
+      );
       setEditingProfile(false);
     } catch (err) {
       console.error("Error guardando perfil:", err);
