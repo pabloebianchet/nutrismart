@@ -143,7 +143,7 @@ const Dashboard = () => {
         }),
       });
 
-      updateUserData(profileForm);
+      updateUserData({ ...profileForm, profileCompleted: true });
       setEditingProfile(false);
     } catch (err) {
       console.error("Error guardando perfil:", err);
