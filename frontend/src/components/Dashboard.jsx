@@ -15,12 +15,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Dashboard = () => {
   const { user, userData, updateUserData } = useNutrition();
   const navigate = useNavigate();
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [profileForm, setProfileForm] = useState({
     sexo: "Femenino",
     edad: "",
@@ -28,14 +31,19 @@ const Dashboard = () => {
     peso: "",
     altura: "",
   });
+
   const [editingProfile, setEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+
+  /* =========================
+     Helpers
+  ========================== */
 
   const averageScore =
     history.length > 0
       ? Math.round(
           history.reduce((sum, item) => sum + (item.score ?? 0), 0) /
-            history.length
+            history.length,
         )
       : 0;
 
@@ -51,8 +59,13 @@ const Dashboard = () => {
     });
   };
 
+  /* =========================
+     Effects
+  ========================== */
+
   useEffect(() => {
     if (!userData) return;
+
     setProfileForm({
       sexo: userData.sexo || "Femenino",
       edad: userData.edad || "",
@@ -62,35 +75,14 @@ const Dashboard = () => {
     });
   }, [userData]);
 
-  const averageScore =
-    history.length > 0
-      ? Math.round(
-          history.reduce((sum, item) => sum + (item.score ?? 0), 0) /
-            history.length
-        )
-      : 0;
-
-  const formatDateTime = (value) => {
-    if (!value) return "";
-    const date = new Date(value);
-    return date.toLocaleString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   useEffect(() => {
     if (!user?.googleId) return;
 
     const fetchHistory = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/user/analysis/${user.googleId}`
+          `${API_URL}/api/user/analysis/${user.googleId}`,
         );
-
         setHistory(res.data.history || []);
       } catch (err) {
         console.error("Error cargando historial:", err);
@@ -102,8 +94,12 @@ const Dashboard = () => {
     fetchHistory();
   }, [user?.googleId]);
 
-  const handleProfileChange = (event) => {
-    const { name, value } = event.target;
+  /* =========================
+     Handlers
+  ========================== */
+
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
     setProfileForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -122,6 +118,7 @@ const Dashboard = () => {
 
   const handleProfileSave = async () => {
     if (!user?.googleId) return;
+
     setSavingProfile(true);
     try {
       await fetch(`${API_URL}/api/user/profile`, {
@@ -132,6 +129,7 @@ const Dashboard = () => {
           ...profileForm,
         }),
       });
+
       updateUserData(profileForm);
       setEditingProfile(false);
     } catch (err) {
@@ -140,6 +138,10 @@ const Dashboard = () => {
       setSavingProfile(false);
     }
   };
+
+  /* =========================
+     Render
+  ========================== */
 
   return (
     <Box
@@ -155,12 +157,12 @@ const Dashboard = () => {
         <Typography variant="h4" fontWeight={800}>
           Hola{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
         </Typography>
-
         <Typography variant="body1" color="text.secondary" mt={1}>
           Este es tu panel personal de NutriSmart.
         </Typography>
       </Box>
 
+      {/* PERFIL */}
       <Paper
         sx={{
           p: { xs: 3, md: 4 },
@@ -175,118 +177,34 @@ const Dashboard = () => {
       >
         <Box>
           <Typography variant="h6" fontWeight={700}>
-            Tus datos personales
-          </Typography>
-          <Typography variant="body2" color="text.secondary" mt={1}>
-            Ajustá tus datos para mejorar el análisis nutricional.
+            Tu perfil
           </Typography>
 
-          <Stack spacing={2} mt={3}>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                select
-                name="sexo"
-                label="Género"
-                value={profileForm.sexo}
-                onChange={handleProfileChange}
-                disabled={!editingProfile}
-                fullWidth
-              >
-                {["Femenino", "Masculino", "Otro"].map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                name="edad"
-                label="Edad"
-                type="number"
-                value={profileForm.edad}
-                onChange={handleProfileChange}
-                disabled={!editingProfile}
-                fullWidth
-              />
-            </Stack>
+          {!editingProfile && (
+            <Paper
+              sx={{
+                p: 3,
+                mt: 3,
+                borderRadius: 4,
+                bgcolor: "#f7fcfa",
+                border: "1px solid rgba(15,109,99,0.15)",
+              }}
+            >
+              <Stack spacing={1}>
+                <Typography>👤 {profileForm.sexo}</Typography>
+                <Typography>🎂 {profileForm.edad || "—"} años</Typography>
+                <Typography>⚡ Actividad {profileForm.actividad}</Typography>
+                <Typography>
+                  ⚖️ {profileForm.peso || "—"} kg · 📏{" "}
+                  {profileForm.altura || "—"} cm
+                </Typography>
+              </Stack>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                select
-                name="actividad"
-                label="Actividad física"
-                value={profileForm.actividad}
-                onChange={handleProfileChange}
-                disabled={!editingProfile}
-                fullWidth
-              >
-                {["Nula", "Moderada", "Intensa", "Profesional"].map(
-                  (option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  )
-                )}
-              </TextField>
-              <TextField
-                name="peso"
-                label="Peso (kg)"
-                type="number"
-                value={profileForm.peso}
-                onChange={handleProfileChange}
-                disabled={!editingProfile}
-                fullWidth
-              />
-            </Stack>
-
-            <TextField
-              name="altura"
-              label="Altura (cm)"
-              type="number"
-              value={profileForm.altura}
-              onChange={handleProfileChange}
-              disabled={!editingProfile}
-              fullWidth
-            />
-          </Stack>
-
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            mt={3}
-          >
-            {editingProfile ? (
-              <>
-                <Button
-                  variant="contained"
-                  onClick={handleProfileSave}
-                  disabled={savingProfile}
-                  sx={{
-                    borderRadius: 999,
-                    textTransform: "none",
-                    bgcolor: "#0f6d63",
-                    "&:hover": { bgcolor: "#0c5a52" },
-                  }}
-                >
-                  {savingProfile ? "Guardando..." : "Guardar cambios"}
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleProfileCancel}
-                  sx={{
-                    borderRadius: 999,
-                    textTransform: "none",
-                    borderColor: "#0f6d63",
-                    color: "#0f6d63",
-                  }}
-                >
-                  Cancelar
-                </Button>
-              </>
-            ) : (
               <Button
                 variant="outlined"
                 onClick={() => setEditingProfile(true)}
                 sx={{
+                  mt: 2,
                   borderRadius: 999,
                   textTransform: "none",
                   borderColor: "#0f6d63",
@@ -295,77 +213,141 @@ const Dashboard = () => {
               >
                 Editar datos
               </Button>
-            )}
-          </Stack>
-        </Box>
+            </Paper>
+          )}
 
-        <Box>
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 3,
-              borderRadius: 4,
-              bgcolor: "#f7fcfa",
-              borderColor: "rgba(27, 94, 75, 0.2)",
-              height: "100%",
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight={700} mb={2}>
-              Resumen rápido
-            </Typography>
-            <Stack spacing={2}>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Género</Typography>
-                <Typography fontWeight={600}>
-                  {profileForm.sexo || "Sin datos"}
-                </Typography>
+          {editingProfile && (
+            <Stack spacing={2} mt={3}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <TextField
+                  select
+                  name="sexo"
+                  label="Género"
+                  value={profileForm.sexo}
+                  onChange={handleProfileChange}
+                  fullWidth
+                >
+                  {["Femenino", "Masculino", "Otro"].map((opt) => (
+                    <MenuItem key={opt} value={opt}>
+                      {opt}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  name="edad"
+                  label="Edad"
+                  type="number"
+                  value={profileForm.edad}
+                  onChange={handleProfileChange}
+                  fullWidth
+                />
               </Stack>
-              <Divider />
-              <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Edad</Typography>
-                <Typography fontWeight={600}>
-                  {profileForm.edad ? `${profileForm.edad} años` : "Sin datos"}
-                </Typography>
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <TextField
+                  select
+                  name="actividad"
+                  label="Actividad física"
+                  value={profileForm.actividad}
+                  onChange={handleProfileChange}
+                  fullWidth
+                >
+                  {["Nula", "Moderada", "Intensa", "Profesional"].map((opt) => (
+                    <MenuItem key={opt} value={opt}>
+                      {opt}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  name="peso"
+                  label="Peso (kg)"
+                  type="number"
+                  value={profileForm.peso}
+                  onChange={handleProfileChange}
+                  fullWidth
+                />
               </Stack>
-              <Divider />
-              <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">
-                  Actividad física
-                </Typography>
-                <Typography fontWeight={600}>
-                  {profileForm.actividad || "Sin datos"}
-                </Typography>
-              </Stack>
-              <Divider />
-              <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Peso</Typography>
-                <Typography fontWeight={600}>
-                  {profileForm.peso ? `${profileForm.peso} kg` : "Sin datos"}
-                </Typography>
-              </Stack>
-              <Divider />
-              <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Altura</Typography>
-                <Typography fontWeight={600}>
-                  {profileForm.altura
-                    ? `${profileForm.altura} cm`
-                    : "Sin datos"}
-                </Typography>
+
+              <TextField
+                name="altura"
+                label="Altura (cm)"
+                type="number"
+                value={profileForm.altura}
+                onChange={handleProfileChange}
+                fullWidth
+              />
+
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="contained"
+                  onClick={handleProfileSave}
+                  disabled={savingProfile}
+                  sx={{
+                    borderRadius: 999,
+                    bgcolor: "#0f6d63",
+                    textTransform: "none",
+                  }}
+                >
+                  {savingProfile ? "Guardando..." : "Guardar"}
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  onClick={handleProfileCancel}
+                  sx={{
+                    borderRadius: 999,
+                    textTransform: "none",
+                  }}
+                >
+                  Cancelar
+                </Button>
               </Stack>
             </Stack>
-          </Paper>
+          )}
         </Box>
+
+        {/* RESUMEN */}
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 4,
+            bgcolor: "#f7fcfa",
+            border: "1px solid rgba(27,94,75,0.2)",
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight={700} mb={2}>
+            Resumen rápido
+          </Typography>
+
+          {[
+            ["Género", profileForm.sexo],
+            ["Edad", profileForm.edad ? `${profileForm.edad} años` : "—"],
+            ["Actividad", profileForm.actividad],
+            ["Peso", profileForm.peso ? `${profileForm.peso} kg` : "—"],
+            ["Altura", profileForm.altura ? `${profileForm.altura} cm` : "—"],
+          ].map(([label, value]) => (
+            <Box key={label}>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography color="text.secondary">{label}</Typography>
+                <Typography fontWeight={600}>{value}</Typography>
+              </Stack>
+              <Divider sx={{ my: 1 }} />
+            </Box>
+          ))}
+        </Paper>
       </Paper>
 
-      {/* CTA NUEVO ANÁLISIS */}
+      {/* CTA */}
       <Paper
         sx={{
           p: 3,
           mb: 4,
           borderRadius: 4,
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
+          alignItems: "center",
           boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
         }}
       >
@@ -374,125 +356,82 @@ const Dashboard = () => {
             Nuevo análisis
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Analizá un producto escaneando su etiqueta.
+            Escaneá un producto y analizalo.
           </Typography>
         </Box>
 
         <Button
           variant="contained"
           startIcon={<AddCircleOutlineRoundedIcon />}
+          onClick={() => navigate("/capture")}
           sx={{
             bgcolor: "#0f6d63",
             borderRadius: 999,
             px: 3,
-            py: 1.2,
-            fontWeight: 600,
             textTransform: "none",
-            "&:hover": {
-              bgcolor: "#0c5a52",
-            },
           }}
-          onClick={() => navigate("/capture")}
         >
           Analizar
         </Button>
       </Paper>
 
       {/* HISTORIAL */}
-      <Box>
-        <Typography variant="h6" fontWeight={700} mb={2}>
-          Tus análisis recientes
-        </Typography>
+      <Typography variant="h6" fontWeight={700} mb={2}>
+        Tus análisis recientes
+      </Typography>
 
-        {loading ? (
-          <Typography variant="body2" color="text.secondary">
-            Cargando historial...
+      {loading ? (
+        <Typography color="text.secondary">Cargando historial...</Typography>
+      ) : history.length === 0 ? (
+        <Paper sx={{ p: 4, borderRadius: 4, textAlign: "center" }}>
+          <Typography fontWeight={600}>
+            Todavía no realizaste análisis
           </Typography>
-        ) : history.length === 0 ? (
-          <Paper
+        </Paper>
+      ) : (
+        <Stack spacing={3}>
+          <Paper sx={{ p: 3, borderRadius: 4 }}>
+            <Typography fontWeight={700}>
+              Promedio de análisis ({history.length})
+            </Typography>
+            <ScoreDonut score={averageScore} />
+          </Paper>
+
+          <Box
             sx={{
-              p: 4,
-              borderRadius: 4,
-              textAlign: "center",
-              bgcolor: "#ffffff",
-              boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(3, 1fr)",
+              },
+              gap: 2,
             }}
           >
-            <Typography variant="body1" fontWeight={600}>
-              Todavía no realizaste análisis
-            </Typography>
-            <Typography variant="body2" color="text.secondary" mt={1}>
-              Cuando analices productos, los vas a ver acá durante 30 días.
-            </Typography>
-          </Paper>
-        ) : (
-          <Stack spacing={3}>
-            <Paper
-              sx={{
-                p: { xs: 3, md: 4 },
-                borderRadius: 4,
-                bgcolor: "#ffffff",
-                boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 3,
-              }}
-            >
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  Promedio de tus análisis
+            {history.map((item) => (
+              <Paper key={item._id} sx={{ p: 3, borderRadius: 4 }}>
+                <Typography variant="caption" color="text.secondary">
+                  {formatDateTime(item.createdAt)}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" mt={1}>
-                  Basado en {history.length} productos analizados.
+                <Typography fontWeight={700}>
+                  Puntaje: {item.score}/100
                 </Typography>
-              </Box>
-              <ScoreDonut score={averageScore} />
-            </Paper>
-
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(2, 1fr)",
-                  md: "repeat(3, 1fr)",
-                },
-                gap: 2,
-              }}
-            >
-              {history.map((item) => (
-                <Paper
-                  key={item._id}
+                <Typography
+                  variant="body2"
                   sx={{
-                    p: 3,
-                    borderRadius: 4,
-                    bgcolor: "#ffffff",
-                    boxShadow: "0 10px 25px rgba(15, 59, 47, 0.08)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 1,
-                    minHeight: 210,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
                   }}
                 >
-                  <Typography variant="caption" color="text.secondary">
-                    {formatDateTime(item.createdAt)}
-                  </Typography>
-
-                  <Typography variant="h6" fontWeight={700}>
-                    Puntaje: {item.score} / 100
-                  </Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    {item.analysisText}
-                  </Typography>
-                </Paper>
-              ))}
-            </Box>
-          </Stack>
-        )}
-      </Box>
+                  {item.analysisText}
+                </Typography>
+              </Paper>
+            ))}
+          </Box>
+        </Stack>
+      )}
     </Box>
   );
 };
