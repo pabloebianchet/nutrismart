@@ -79,29 +79,29 @@ const Dashboard = () => {
     });
   }, [userData]);
 
-  useEffect(() => {
-    if (!user?.googleId) return;
+  // useEffect(() => {
+  //   if (!user?.googleId) return;
 
-    let fetched = false;
+  //   let fetched = false;
 
-    const fetchHistory = async () => {
-      if (fetched) return;
-      fetched = true;
+  //   const fetchHistory = async () => {
+  //     if (fetched) return;
+  //     fetched = true;
 
-      try {
-        const res = await axios.get(
-          `${API_URL}/api/user/analysis/${user.googleId}`,
-        );
-        setHistory(res.data.history || []);
-      } catch (err) {
-        console.error("Error cargando historial:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //     try {
+  //       const res = await axios.get(
+  //         `${API_URL}/api/user/analysis/${user.googleId}`,
+  //       );
+  //       setHistory(res.data.history || []);
+  //     } catch (err) {
+  //       console.error("Error cargando historial:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchHistory();
-  }, [user?.googleId]);
+  //   fetchHistory();
+  // }, [user?.googleId]);
 
 
   /* ======================
