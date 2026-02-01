@@ -1,10 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 export const NutritionContext = createContext(); // 
 
 export const NutritionProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [ocrText, setOcrText] = useState("");
+  const lastUserIdRef = useRef(null);
   const [user, setUser] = useState(() => {
     if (typeof window === "undefined") {
       return null;
@@ -36,6 +37,15 @@ export const NutritionProvider = ({ children }) => {
     } else {
       window.localStorage.removeItem("nutrismartUser");
     }
+  }, [user]);
+
+  useEffect(() => {
+    const currentId = user?.googleId || null;
+    if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
+      setUserData(null);
+      setOcrText("");
+    }
+    lastUserIdRef.current = currentId;
   }, [user]);
 
   return (
