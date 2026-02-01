@@ -82,7 +82,12 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user?.googleId) return;
 
+    let fetched = false;
+
     const fetchHistory = async () => {
+      if (fetched) return;
+      fetched = true;
+
       try {
         const res = await axios.get(
           `${API_URL}/api/user/analysis/${user.googleId}`,
@@ -97,6 +102,7 @@ const Dashboard = () => {
 
     fetchHistory();
   }, [user?.googleId]);
+
 
   /* ======================
      Handlers
