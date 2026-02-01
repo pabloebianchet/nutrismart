@@ -24,6 +24,9 @@ const Dashboard = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+
   const [profileForm, setProfileForm] = useState({
     sexo: "Femenino",
     edad: "",
@@ -32,12 +35,10 @@ const Dashboard = () => {
     altura: "",
   });
 
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [savingProfile, setSavingProfile] = useState(false);
-
-  /* =========================
+  /* ======================
      Helpers
-  ========================== */
+  ====================== */
+
 
   const averageScore =
     history.length > 0
@@ -59,9 +60,9 @@ const Dashboard = () => {
     });
   };
 
-  /* =========================
+  /* ======================
      Effects
-  ========================== */
+  ====================== */
 
   useEffect(() => {
     if (!userData) return;
@@ -94,29 +95,16 @@ const Dashboard = () => {
     fetchHistory();
   }, [user?.googleId]);
 
-  /* =========================
+  /* ======================
      Handlers
-  ========================== */
+  ====================== */
 
-  const handleProfileChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setProfileForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleProfileCancel = () => {
-    setEditingProfile(false);
-    if (userData) {
-      setProfileForm({
-        sexo: userData.sexo || "Femenino",
-        edad: userData.edad || "",
-        actividad: userData.actividad || "Moderada",
-        peso: userData.peso || "",
-        altura: userData.altura || "",
-      });
-    }
-  };
-
-  const handleProfileSave = async () => {
+  const handleSaveProfile = async () => {
     if (!user?.googleId) return;
 
     setSavingProfile(true);
@@ -139,9 +127,9 @@ const Dashboard = () => {
     }
   };
 
-  /* =========================
+  /* ======================
      Render
-  ========================== */
+  ====================== */
 
   return (
     <Box
@@ -175,12 +163,13 @@ const Dashboard = () => {
           gap: 3,
         }}
       >
+        {/* IZQUIERDA */}
         <Box>
           <Typography variant="h6" fontWeight={700}>
-            Tu perfil
+            Tus datos personales
           </Typography>
 
-          {!editingProfile && (
+          {!editingProfile ? (
             <Paper
               sx={{
                 p: 3,
@@ -214,9 +203,7 @@ const Dashboard = () => {
                 Editar datos
               </Button>
             </Paper>
-          )}
-
-          {editingProfile && (
+          ) : (
             <Stack spacing={2} mt={3}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                 <TextField
@@ -224,7 +211,7 @@ const Dashboard = () => {
                   name="sexo"
                   label="Género"
                   value={profileForm.sexo}
-                  onChange={handleProfileChange}
+                  onChange={handleChange}
                   fullWidth
                 >
                   {["Femenino", "Masculino", "Otro"].map((opt) => (
@@ -239,7 +226,7 @@ const Dashboard = () => {
                   label="Edad"
                   type="number"
                   value={profileForm.edad}
-                  onChange={handleProfileChange}
+                  onChange={handleChange}
                   fullWidth
                 />
               </Stack>
@@ -250,7 +237,7 @@ const Dashboard = () => {
                   name="actividad"
                   label="Actividad física"
                   value={profileForm.actividad}
-                  onChange={handleProfileChange}
+                  onChange={handleChange}
                   fullWidth
                 >
                   {["Nula", "Moderada", "Intensa", "Profesional"].map((opt) => (
@@ -265,7 +252,7 @@ const Dashboard = () => {
                   label="Peso (kg)"
                   type="number"
                   value={profileForm.peso}
-                  onChange={handleProfileChange}
+                  onChange={handleChange}
                   fullWidth
                 />
               </Stack>
@@ -275,14 +262,14 @@ const Dashboard = () => {
                 label="Altura (cm)"
                 type="number"
                 value={profileForm.altura}
-                onChange={handleProfileChange}
+                onChange={handleChange}
                 fullWidth
               />
 
               <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
-                  onClick={handleProfileSave}
+                  onClick={handleSaveProfile}
                   disabled={savingProfile}
                   sx={{
                     borderRadius: 999,
@@ -295,11 +282,8 @@ const Dashboard = () => {
 
                 <Button
                   variant="outlined"
-                  onClick={handleProfileCancel}
-                  sx={{
-                    borderRadius: 999,
-                    textTransform: "none",
-                  }}
+                  onClick={() => setEditingProfile(false)}
+                  sx={{ borderRadius: 999, textTransform: "none" }}
                 >
                   Cancelar
                 </Button>
