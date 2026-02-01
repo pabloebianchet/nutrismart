@@ -14,14 +14,59 @@ import { useNutrition } from "../context/NutritionContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const UserDataPage = () => {
-  const { user, userData, setUser } = useNutrition();
+  const { user, userData, setUser, updateUserData } = useNutrition();
   const [showSplash, setShowSplash] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   /* ---------------- SPLASH ---------------- */
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  /* ---------------- PROFILE FETCH ---------------- */
+  useEffect(() => {
+    if (!user?.googleId) {
+      setProfileLoading(false);
+      return;
+    }
+
+    let isActive = true;
+    const fetchProfile = async () => {
+      setProfileLoading(true);
+      try {
+        const res = await fetch(
+          `${API_URL}/api/user/profile/${user.googleId}`,
+        );
+        if (!res.ok) {
+          if (res.status === 404) {
+            if (isActive) {
+              updateUserData({ profileCompleted: false });
+            }
+            return;
+          }
+          throw new Error("Error cargando perfil");
+        }
+
+        const data = await res.json();
+        if (isActive) {
+          updateUserData(data.user);
+        }
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+      } finally {
+        if (isActive) {
+          setProfileLoading(false);
+        }
+      }
+    };
+
+    fetchProfile();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user?.googleId, updateUserData]);
 
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleSuccess = async (credential) => {
@@ -139,6 +184,24 @@ const UserDataPage = () => {
   }
 
   /* ---------------- PROFILE ---------------- */
+  if (profileLoading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100dvh",
+          bgcolor: "#f4fbf7",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography color="text.secondary">
+          Cargando tu perfil...
+        </Typography>
+      </Box>
+    );
+  }
+
   if (!userData?.profileCompleted) {
     return (
       <Box
