@@ -134,7 +134,7 @@ const Dashboard = () => {
 
     setSavingProfile(true);
     try {
-      await fetch(`${API_URL}/api/user/profile`, {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -142,6 +142,11 @@ const Dashboard = () => {
           ...profileForm,
         }),
       });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Error guardando perfil");
+      }
 
       updateUserData({ ...profileForm, profileCompleted: true });
       setEditingProfile(false);

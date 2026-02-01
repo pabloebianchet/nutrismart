@@ -79,7 +79,13 @@ export const NutritionProvider = ({ children }) => {
   }, [user?.googleId]);
 
   // Funciones públicas
-  const updateUserData = (data) => setUserData(data);
+  const updateUserData = (data) => {
+    if (data === null) {
+      setUserData(null);
+      return;
+    }
+    setUserData((prev) => ({ ...(prev || {}), ...data }));
+  };
   const updateOcrText = (text) => setOcrText(text);
   const clearOcrText = () => setOcrText("");
   const clearUser = () => {
