@@ -392,3 +392,23 @@ app.get("/api/user/analysis/:googleId", async (req, res) => {
     return res.status(500).json({ error: "Error fetching history" });
   }
 });
+
+// =====================
+// 🗑️ DELETE ANALYSIS
+// =====================
+app.delete("/api/user/analysis/:analysisId", async (req, res) => {
+  const { analysisId } = req.params;
+
+  try {
+    const analysis = await Analysis.findByIdAndDelete(analysisId);
+
+    if (!analysis) {
+      return res.status(404).json({ error: "Analysis not found" });
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("Delete analysis error:", err);
+    return res.status(500).json({ error: "Error deleting analysis" });
+  }
+});
