@@ -66,7 +66,7 @@ const UserDataPage = () => {
     return () => {
       isActive = false;
     };
-  }, [user?.googleId]);
+  }, [user?.googleId, updateUserData]);
 
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleSuccess = async (credential) => {
