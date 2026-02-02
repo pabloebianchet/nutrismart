@@ -115,7 +115,7 @@ const UserDataFormStyled = () => {
         {/* HEADER */}
         <Box
           sx={{
-            bgcolor: "#0f6d63",
+            bgcolor: "#9ec6c2",
             color: "white",
             p: 3,
           }}
