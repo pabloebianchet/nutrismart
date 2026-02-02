@@ -7,11 +7,13 @@ import {
   TextField,
   MenuItem,
   Divider,
+  IconButton,
 } from "@mui/material";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 import { useLocation } from "react-router-dom";
@@ -26,9 +28,11 @@ const Dashboard = () => {
   const { user, userData, updateUserData, loadingUserData } = useNutrition();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [historyRefreshToken, setHistoryRefreshToken] = useState(0);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -56,13 +60,16 @@ const Dashboard = () => {
   const formatDateTime = (value) => {
     if (!value) return "";
     const date = new Date(value);
-    return date.toLocaleString("es-AR", {
+    const datePart = date.toLocaleDateString("es-AR", {
       day: "2-digit",
-      month: "2-digit",
+      month: "short",
       year: "numeric",
+    });
+    const timePart = date.toLocaleTimeString("es-AR", {
       hour: "2-digit",
       minute: "2-digit",
     });
+    return `${datePart} · ${timePart}`;
   };
 
   /* ======================
@@ -81,29 +88,40 @@ const Dashboard = () => {
     });
   }, [userData]);
 
-  // useEffect(() => {
-  //   if (!user?.googleId) return;
+  const fetchHistory = useCallback(async () => {
+    if (!user?.googleId) return;
 
-  //   let fetched = false;
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${API_URL}/api/user/analysis/${user.googleId}`,
+      );
+      setHistory(res.data.history || []);
+    } catch (err) {
+      console.error("Error cargando historial:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.googleId]);
 
-  //   const fetchHistory = async () => {
-  //     if (fetched) return;
-  //     fetched = true;
+  useEffect(() => {
+    if (!user?.googleId) return;
 
-  //     try {
-  //       const res = await axios.get(
-  //         `${API_URL}/api/user/analysis/${user.googleId}`,
-  //       );
-  //       setHistory(res.data.history || []);
-  //     } catch (err) {
-  //       console.error("Error cargando historial:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+    // Si el usuario no completó perfil o falta en Mongo, mandarlo al formulario.
+    if (userData?.profileCompleted !== true) {
+      navigate("/profile", { replace: true });
+      return;
+    }
 
-  //   fetchHistory();
-  // }, [user?.googleId]);
+    fetchHistory();
+  }, [
+    fetchHistory,
+    navigate,
+    user?.googleId,
+    userData?.profileCompleted,
+    location.key,
+    historyRefreshToken,
+  ]);
 
 
   /* ======================
@@ -120,7 +138,7 @@ const Dashboard = () => {
 
     setSavingProfile(true);
     try {
-      await fetch(`${API_URL}/api/user/profile`, {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,13 +146,41 @@ const Dashboard = () => {
           ...profileForm,
         }),
       });
+      const data = await response.json();
 
-      updateUserData(profileForm);
+      if (!response.ok) {
+        throw new Error(data?.error || "Error guardando perfil");
+      }
+
+      updateUserData({ ...profileForm, profileCompleted: true });
       setEditingProfile(false);
+      setHistoryRefreshToken((prev) => prev + 1);
     } catch (err) {
       console.error("Error guardando perfil:", err);
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  const handleDeleteAnalysis = async (analysisId) => {
+    if (!analysisId) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/user/analysis/${analysisId}`,
+        { method: "DELETE" },
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Error eliminando análisis");
+      }
+
+      setHistory((prev) =>
+        prev.filter((item) => item._id !== analysisId),
+      );
+    } catch (err) {
+      console.error("Error eliminando historial:", err);
     }
   };
 
@@ -412,12 +458,30 @@ const Dashboard = () => {
           >
             {history.map((item) => (
               <Paper key={item._id} sx={{ p: 3, borderRadius: 4 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {formatDateTime(item.createdAt)}
-                </Typography>
-                <Typography fontWeight={700}>
-                  Puntaje: {item.score}/100
-                </Typography>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                >
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {formatDateTime(item.createdAt)}
+                    </Typography>
+                    <Typography fontWeight={700}>
+                      Puntaje: {item.score}/100
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    aria-label="Eliminar análisis"
+                    onClick={() => handleDeleteAnalysis(item._id)}
+                    size="small"
+                  >
+                    <DeleteOutlineRoundedIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
                 <Typography
                   variant="body2"
                   sx={{

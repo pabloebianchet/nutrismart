@@ -21,9 +21,15 @@ export const NutritionProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const stored = window.localStorage.getItem("nutrismartUser");
+    const nextValue = user ? JSON.stringify(user) : null;
+
+    // Evita escrituras innecesarias en cada render.
     if (user) {
-      window.localStorage.setItem("nutrismartUser", JSON.stringify(user));
-    } else {
+      if (stored !== nextValue) {
+        window.localStorage.setItem("nutrismartUser", nextValue);
+      }
+    } else if (stored) {
       window.localStorage.removeItem("nutrismartUser");
     }
   }, [user]);
@@ -50,6 +56,15 @@ export const NutritionProvider = ({ children }) => {
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/api/user/profile/${user.googleId}`,
         );
+
+        if (!res.ok) {
+          if (res.status === 404) {
+            setUserData({ profileCompleted: false });
+            return;
+          }
+          throw new Error("Error cargando perfil");
+        }
+
         const data = await res.json();
 
         if (data?.user) {
@@ -66,7 +81,13 @@ export const NutritionProvider = ({ children }) => {
   }, [user?.googleId]);
 
   // Funciones públicas
-  const updateUserData = (data) => setUserData(data);
+  const updateUserData = (data) => {
+    if (data === null) {
+      setUserData(null);
+      return;
+    }
+    setUserData((prev) => ({ ...(prev || {}), ...data }));
+  };
   const updateOcrText = (text) => setOcrText(text);
   const clearOcrText = () => setOcrText("");
   const clearUser = () => {

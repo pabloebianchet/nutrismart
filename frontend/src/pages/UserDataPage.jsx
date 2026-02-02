@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Box, Paper, Stack, Typography, Divider } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
-import UserDataFormStyled from "../components/UserDataFormStyled.jsx";
+import { useNavigate } from "react-router-dom";
 import Dashboard from "../components/Dashboard.jsx";
 import { useNutrition } from "../context/NutritionContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const UserDataPage = () => {
-  const { user, userData, setUser, updateUserData } = useNutrition();
+  const { user, userData, setUser, loadingUserData } = useNutrition();
   const [showSplash, setShowSplash] = useState(true);
-  const [profileLoading, setProfileLoading] = useState(false);
+  const navigate = useNavigate();
 
   /* ---------------- SPLASH ---------------- */
   useEffect(() => {
@@ -18,12 +18,11 @@ const UserDataPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  /* ---------------- PROFILE FETCH ---------------- */
   useEffect(() => {
-    if (!user?.googleId) {
-      setProfileLoading(false);
-      return;
+    if (user && userData?.profileCompleted === false) {
+      navigate("/profile", { replace: true });
     }
+<<<<<<< HEAD
 
     let isActive = true;
     const fetchProfile = async () => {
@@ -59,6 +58,9 @@ const UserDataPage = () => {
       isActive = false;
     };
   }, [user?.googleId, updateUserData]);
+=======
+  }, [navigate, user, userData?.profileCompleted]);
+>>>>>>> 37ef353173a3c0ae6701a817c51f2e05ac4518ce
 
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleSuccess = async (credential) => {
@@ -167,7 +169,7 @@ const UserDataPage = () => {
   }
 
   /* ---------------- PROFILE ---------------- */
-  if (profileLoading) {
+  if (loadingUserData) {
     return (
       <Box
         sx={{
@@ -184,23 +186,7 @@ const UserDataPage = () => {
   }
 
   if (!userData?.profileCompleted) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100dvh",
-          bgcolor: "#f4fbf7",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          py: { xs: 3, md: 6 },
-          px: 2,
-        }}
-      >
-        <Box sx={{ width: "100%", maxWidth: 640 }}>
-          <UserDataFormStyled />
-        </Box>
-      </Box>
-    );
+    return null;
   }
 
   /* ---------------- DASHBOARD ---------------- */
