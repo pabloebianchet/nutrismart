@@ -50,7 +50,7 @@ const UserDataPage = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: "#e6f6f2",
+          bgcolor: "#c9f3ea",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
