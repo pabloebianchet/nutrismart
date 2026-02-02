@@ -22,45 +22,7 @@ const UserDataPage = () => {
     if (user && userData?.profileCompleted === false) {
       navigate("/profile", { replace: true });
     }
-<<<<<<< HEAD
-
-    let isActive = true;
-    const fetchProfile = async () => {
-      setProfileLoading(true);
-      try {
-        const res = await fetch(`${API_URL}/api/user/profile/${user.googleId}`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            if (isActive) {
-              updateUserData({ profileCompleted: false });
-            }
-            return;
-          }
-          throw new Error("Error cargando perfil");
-        }
-
-        const data = await res.json();
-        if (isActive) {
-          updateUserData(data.user);
-        }
-      } catch (err) {
-        console.error("Profile fetch error:", err);
-      } finally {
-        if (isActive) {
-          setProfileLoading(false);
-        }
-      }
-    };
-
-    fetchProfile();
-
-    return () => {
-      isActive = false;
-    };
-  }, [user?.googleId, updateUserData]);
-=======
   }, [navigate, user, userData?.profileCompleted]);
->>>>>>> 37ef353173a3c0ae6701a817c51f2e05ac4518ce
 
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleSuccess = async (credential) => {
