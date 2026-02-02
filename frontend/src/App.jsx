@@ -6,6 +6,8 @@ import AppHeader from "./components/AppHeader.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import HowItWorksPage from "./pages/HowItWorksPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
+import { useLocation } from "react-router-dom";
+
 
 
 

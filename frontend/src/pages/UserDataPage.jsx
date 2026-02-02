@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Paper,
-  Stack,
-  Typography,
-  Divider,
-} from "@mui/material";
+import { Box, Paper, Stack, Typography, Divider } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
 import UserDataFormStyled from "../components/UserDataFormStyled.jsx";
 import Dashboard from "../components/Dashboard.jsx";
@@ -35,9 +29,7 @@ const UserDataPage = () => {
     const fetchProfile = async () => {
       setProfileLoading(true);
       try {
-        const res = await fetch(
-          `${API_URL}/api/user/profile/${user.googleId}`,
-        );
+        const res = await fetch(`${API_URL}/api/user/profile/${user.googleId}`);
         if (!res.ok) {
           if (res.status === 404) {
             if (isActive) {
@@ -94,7 +86,7 @@ const UserDataPage = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: "#0f6d63",
+          bgcolor: "#dad0b7",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -141,11 +133,7 @@ const UserDataPage = () => {
           }}
         >
           <Stack spacing={3} alignItems="center">
-            <Typography
-              variant="h4"
-              fontWeight={800}
-              textAlign="center"
-            >
+            <Typography variant="h4" fontWeight={800} textAlign="center">
               Bienvenido a NutriSmart
             </Typography>
 
@@ -154,20 +142,15 @@ const UserDataPage = () => {
               color="text.secondary"
               textAlign="center"
             >
-              Iniciá sesión con Google para analizar productos,
-              guardar tu historial y recibir recomendaciones
-              nutricionales claras.
+              Iniciá sesión con Google para analizar productos, guardar tu
+              historial y recibir recomendaciones nutricionales claras.
             </Typography>
 
             <Divider flexItem />
 
             <GoogleLogin
-              onSuccess={(res) =>
-                handleGoogleSuccess(res.credential)
-              }
-              onError={() =>
-                console.error("Error en login con Google")
-              }
+              onSuccess={(res) => handleGoogleSuccess(res.credential)}
+              onError={() => console.error("Error en login con Google")}
             />
 
             <Typography
@@ -195,9 +178,7 @@ const UserDataPage = () => {
           alignItems: "center",
         }}
       >
-        <Typography color="text.secondary">
-          Cargando tu perfil...
-        </Typography>
+        <Typography color="text.secondary">Cargando tu perfil...</Typography>
       </Box>
     );
   }

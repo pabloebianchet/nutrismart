@@ -4,6 +4,8 @@ import App from "./App.jsx";
 import { NutritionProvider } from "./context/NutritionContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./index.css";
+import { useLocation } from "react-router-dom";
+
 console.log("GOOGLE CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 
