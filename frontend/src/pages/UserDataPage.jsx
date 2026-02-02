@@ -93,7 +93,7 @@ const UserDataPage = () => {
             maxWidth: 420,
             p: { xs: 3, sm: 4 },
             borderRadius: 6,
-            boxShadow: "0 20px 60px rgba(15, 59, 47, 0.15)",
+            boxShadow: "0 20px 60px rgba(163, 203, 193, 0.15)",
           }}
         >
           <Stack spacing={3} alignItems="center">
