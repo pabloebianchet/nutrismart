@@ -431,7 +431,7 @@ const Dashboard = () => {
       ) : (
         <Stack spacing={3}>
           <Paper sx={{ p: 3, borderRadius: 4 }}>
-            <Typography fontWeight={700} mt={4}>
+            <Typography fontWeight={700} mt={4} mb={4}>
               Promedio de análisis ({history.length})
             </Typography>
             <ScoreDonut score={averageScore} />
