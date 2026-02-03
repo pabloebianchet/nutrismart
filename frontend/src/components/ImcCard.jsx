@@ -3,13 +3,13 @@ import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 Chart.register(ArcElement, Tooltip, Legend);
 
-const calculateImc = (peso, alturaCm) => {
+const calculateIMC = (peso, alturaCm) => {
   const alturaM = alturaCm / 100;
   if (!peso || !alturaM) return null;
   return +(peso / (alturaM * alturaM)).toFixed(1);
 };
 
-const getImcRiskLevel = (imc) => {
+const getIMCRiskLevel = (imc) => {
   if (imc < 18.5) return { label: "Bajo peso", risk: "Moderado", level: 2 };
   if (imc < 25) return { label: "Normal", risk: "Bajo", level: 1 };
   if (imc < 30) return { label: "Sobrepeso", risk: "Moderado", level: 2 };
@@ -18,11 +18,11 @@ const getImcRiskLevel = (imc) => {
   return { label: "Obesidad III", risk: "Extremo", level: 5 };
 };
 
-const ImcCard = ({ peso, altura }) => {
-  const imc = calculateImc(peso, altura);
+const IMCCard = ({ peso, altura }) => {
+  const imc = calculateIMC(peso, altura);
   if (!imc) return null;
 
-  const { label, risk, level } = getImcRiskLevel(imc);
+  const { label, risk, level } = getIMCRiskLevel(imc);
 
   const data = {
     labels: ["Nivel de riesgo"],
@@ -71,4 +71,4 @@ const ImcCard = ({ peso, altura }) => {
   );
 };
 
-export default ImcCard;
+export default IMCCard;
