@@ -349,8 +349,6 @@ const Dashboard = () => {
           )}
         </Box>
 
-        <ImcCard peso={profileForm.peso} altura={profileForm.altura} />
-
         {/* RESUMEN */}
         <Paper
           sx={{
@@ -383,6 +381,8 @@ const Dashboard = () => {
       </Paper>
 
       {/* CTA */}
+      <ImcCard peso={profileForm.peso} altura={profileForm.altura} />
+
       <Paper
         sx={{
           p: 3,
