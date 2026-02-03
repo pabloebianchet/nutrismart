@@ -17,12 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 
-
-
 const API_URL = import.meta.env.VITE_API_URL;
-
-
-
 
 const Dashboard = () => {
   const { user, userData, updateUserData, loadingUserData } = useNutrition();
@@ -123,7 +118,6 @@ const Dashboard = () => {
     historyRefreshToken,
   ]);
 
-
   /* ======================
      Handlers
   ====================== */
@@ -176,9 +170,7 @@ const Dashboard = () => {
         throw new Error(data?.error || "Error eliminando análisis");
       }
 
-      setHistory((prev) =>
-        prev.filter((item) => item._id !== analysisId),
-      );
+      setHistory((prev) => prev.filter((item) => item._id !== analysisId));
     } catch (err) {
       console.error("Error eliminando historial:", err);
     }
@@ -439,7 +431,7 @@ const Dashboard = () => {
       ) : (
         <Stack spacing={3}>
           <Paper sx={{ p: 3, borderRadius: 4 }}>
-            <Typography fontWeight={700}>
+            <Typography fontWeight={700} mt={4}>
               Promedio de análisis ({history.length})
             </Typography>
             <ScoreDonut score={averageScore} />
@@ -464,10 +456,7 @@ const Dashboard = () => {
                   alignItems="flex-start"
                 >
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       {formatDateTime(item.createdAt)}
                     </Typography>
                     <Typography fontWeight={700}>
