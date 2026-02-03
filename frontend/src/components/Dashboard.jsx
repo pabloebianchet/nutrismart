@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
-import ImcCard from "./components/ImcCard.jsx";
+import ImcCard from "./ImcCard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
