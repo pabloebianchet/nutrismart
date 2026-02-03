@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
-import IMCCard from "./IMCCard.jsx";
+import TestCard from "./TestCard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -381,7 +381,8 @@ const Dashboard = () => {
       </Paper>
 
       {/* CTA */}
-      <IMCCard peso={profileForm.peso} altura={profileForm.altura} />
+
+      <TestCard peso={profileForm.peso} altura={profileForm.altura} />
 
       <Paper
         sx={{

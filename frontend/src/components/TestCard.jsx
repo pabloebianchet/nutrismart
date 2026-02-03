@@ -18,7 +18,7 @@ const getIMCRiskLevel = (imc) => {
   return { label: "Obesidad III", risk: "Extremo", level: 5 };
 };
 
-const IMCCard = ({ peso, altura }) => {
+const TestCard = ({ peso, altura }) => {
   const imc = calculateIMC(peso, altura);
   if (!imc) return null;
 
@@ -71,4 +71,4 @@ const IMCCard = ({ peso, altura }) => {
   );
 };
 
-export default IMCCard;
+export default TestCard;
