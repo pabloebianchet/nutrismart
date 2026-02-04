@@ -25,9 +25,7 @@ import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import WavingHandOutlinedIcon from "@mui/icons-material/WavingHandOutlined";
 
-
 const API_URL = import.meta.env.VITE_API_URL;
-
 
 const Dashboard = () => {
   const { user, userData, updateUserData, loadingUserData } = useNutrition();
@@ -219,13 +217,11 @@ const Dashboard = () => {
       {/* HEADER */}
       <Box mb={4}>
         <Stack direction="row" spacing={2} alignItems="center">
-          <WavingHandOutlinedIcon sx={{ color: "#0f6d63" }} />
-
           <Box>
             <Typography variant="h5" fontWeight={700}>
               Bienvenido{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
             </Typography>
-
+            <WavingHandOutlinedIcon sx={{ color: "#0f6d63" }} />
             <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
               <AccessTimeRoundedIcon
                 sx={{ fontSize: 16, color: "text.secondary" }}
