@@ -17,11 +17,6 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 import TestCard from "./TestCard";
-import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
-import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
-import FlashOnOutlinedIcon from "@mui/icons-material/FlashOnOutlined";
-import MonitorWeightOutlinedIcon from "@mui/icons-material/MonitorWeightOutlined";
-import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -241,48 +236,25 @@ const Dashboard = () => {
                 border: "1px solid rgba(15,109,99,0.15)",
               }}
             >
-              <Stack spacing={1.5}>
-                <InfoRow
-                  icon={<PersonOutlineRoundedIcon />}
-                  label="Género"
-                  value={profileForm.sexo}
-                />
-
-                <InfoRow
-                  icon={<CakeOutlinedIcon />}
-                  label="Edad"
-                  value={profileForm.edad ? `${profileForm.edad} años` : "—"}
-                />
-
-                <InfoRow
-                  icon={<FlashOnOutlinedIcon />}
-                  label="Actividad"
-                  value={profileForm.actividad}
-                />
-
-                <InfoRow
-                  icon={<MonitorWeightOutlinedIcon />}
-                  label="Peso"
-                  value={profileForm.peso ? `${profileForm.peso} kg` : "—"}
-                />
-
-                <InfoRow
-                  icon={<HeightOutlinedIcon />}
-                  label="Altura"
-                  value={profileForm.altura ? `${profileForm.altura} cm` : "—"}
-                />
+              <Stack spacing={1}>
+                <Typography>👤 {profileForm.sexo}</Typography>
+                <Typography>🎂 {profileForm.edad || "—"} años</Typography>
+                <Typography>⚡ Actividad {profileForm.actividad}</Typography>
+                <Typography>
+                  ⚖️ {profileForm.peso || "—"} kg · 📏{" "}
+                  {profileForm.altura || "—"} cm
+                </Typography>
               </Stack>
 
               <Button
                 variant="outlined"
                 onClick={() => setEditingProfile(true)}
                 sx={{
-                  mt: 3,
+                  mt: 2,
                   borderRadius: 999,
                   textTransform: "none",
                   borderColor: "#0f6d63",
                   color: "#0f6d63",
-                  alignSelf: "flex-start",
                 }}
               >
                 Editar datos
