@@ -197,7 +197,7 @@ const Dashboard = () => {
   /* ======================
      Render
   ====================== */
-  if (loadingUserData) {
+  if (!userData || loading) {
     return <DashboardSkeleton />;
   }
 
