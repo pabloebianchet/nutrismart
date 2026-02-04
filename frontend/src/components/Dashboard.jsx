@@ -23,7 +23,6 @@ import FlashOnOutlinedIcon from "@mui/icons-material/FlashOnOutlined";
 import MonitorWeightOutlinedIcon from "@mui/icons-material/MonitorWeightOutlined";
 import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
 
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Dashboard = () => {
@@ -198,7 +197,7 @@ const Dashboard = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#fcfcfc",
+        bgcolor: "#86d694",
         px: { xs: 2, md: 4 },
         py: 4,
       }}
@@ -219,7 +218,7 @@ const Dashboard = () => {
           p: { xs: 3, md: 4 },
           mb: 4,
           borderRadius: 4,
-          bgcolor: "#ffffff",
+          bgcolor: "#86d694",
           boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "1.4fr 1fr" },
@@ -542,6 +541,5 @@ const InfoRow = ({ icon, label, value }) => (
     </Typography>
   </Box>
 );
-
 
 export default Dashboard;
