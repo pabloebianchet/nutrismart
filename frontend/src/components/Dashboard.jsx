@@ -218,7 +218,9 @@ const Dashboard = () => {
           p: { xs: 3, md: 4 },
           mb: 4,
           borderRadius: 4,
-          bgcolor: "#86d694",
+          
+          // Fondo Dashboard
+          bgcolor: "#d1d1d1",
           boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "1.4fr 1fr" },
