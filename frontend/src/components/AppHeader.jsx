@@ -204,4 +204,30 @@ const AppHeader = () => {
   );
 };
 
+const NavLink = ({ to, icon, label }) => (
+  <Box
+    component={Link}
+    to={to}
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      gap: 0.6,
+      textDecoration: "none",
+      color: "text.primary",
+      fontWeight: 500,
+      px: 1,
+      py: 0.5,
+      borderRadius: 2,
+      transition: "all 0.2s ease",
+      "&:hover": {
+        color: "primary.main",
+        bgcolor: "rgba(15,109,99,0.08)",
+      },
+    }}
+  >
+    {icon}
+    <Typography variant="body2">{label}</Typography>
+  </Box>
+);
+
 export default AppHeader;
