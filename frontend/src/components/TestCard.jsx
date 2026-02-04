@@ -1,8 +1,14 @@
-import { Paper, Typography, Stack, Box } from "@mui/material";
-import { Pie } from "react-chartjs-2";
-import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
+import { Paper, Typography, Stack, Box, Chip } from "@mui/material";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+} from "chart.js";
 
-Chart.register(ArcElement, Tooltip, Legend);
+Chart.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
 const calculateIMC = (peso, alturaCm) => {
   const alturaM = alturaCm / 100;
@@ -12,21 +18,14 @@ const calculateIMC = (peso, alturaCm) => {
 
 const getIMCRiskLevel = (imc) => {
   if (imc < 18.5)
-    return { label: "Bajo peso", risk: "Moderado", level: 2, color: "#fdd835" };
-  if (imc < 25)
-    return { label: "Normal", risk: "Bajo", level: 1, color: "#43a047" };
+    return { label: "Bajo peso", risk: "Moderado", color: "#fdd835" };
+  if (imc < 25) return { label: "Normal", risk: "Bajo", color: "#43a047" };
   if (imc < 30)
-    return { label: "Sobrepeso", risk: "Moderado", level: 2, color: "#fb8c00" };
-  if (imc < 35)
-    return { label: "Obesidad I", risk: "Alto", level: 3, color: "#f4511e" };
+    return { label: "Sobrepeso", risk: "Moderado", color: "#fb8c00" };
+  if (imc < 35) return { label: "Obesidad I", risk: "Alto", color: "#f4511e" };
   if (imc < 40)
-    return {
-      label: "Obesidad II",
-      risk: "Muy alto",
-      level: 4,
-      color: "#e53935",
-    };
-  return { label: "Obesidad III", risk: "Extremo", level: 5, color: "#b71c1c" };
+    return { label: "Obesidad II", risk: "Muy alto", color: "#e53935" };
+  return { label: "Obesidad III", risk: "Extremo", color: "#b71c1c" };
 };
 
 const getPesoIdeal = (alturaCm) => {
@@ -36,22 +35,69 @@ const getPesoIdeal = (alturaCm) => {
   return `${min} – ${max} kg`;
 };
 
+
 const ImcCard = ({ peso, altura }) => {
   const imc = calculateIMC(peso, altura);
   if (!imc) return null;
 
-  const { label, risk, level, color } = getIMCRiskLevel(imc);
+  const { label, risk, color } = getIMCRiskLevel(imc);
   const pesoIdeal = getPesoIdeal(altura);
 
   const data = {
-    labels: ["Nivel de riesgo", "Resto"],
+    labels: ["IMC"],
     datasets: [
       {
-        data: [level * 20, 100 - level * 20],
-        backgroundColor: [color, "#e0e0e0"],
-        borderWidth: 2,
+        label: "Rango IMC",
+        data: [40],
+        backgroundColor: [
+          "#fdd835", // bajo peso
+          "#43a047", // normal
+          "#fb8c00", // sobrepeso
+          "#f4511e", // obesidad I
+          "#e53935", // obesidad II+
+        ],
+        borderRadius: 999,
+        barThickness: 18,
+      },
+      {
+        label: "Tu IMC",
+        data: [imc],
+        backgroundColor: color,
+        barThickness: 6,
+        borderRadius: 999,
       },
     ],
+  };
+
+  const options = {
+    indexAxis: "y",
+    responsive: true,
+    animation: {
+      duration: 1200,
+      easing: "easeOutCubic",
+    },
+    scales: {
+      x: {
+        min: 0,
+        max: 40,
+        grid: { display: false },
+        ticks: {
+          stepSize: 5,
+        },
+      },
+      y: {
+        grid: { display: false },
+        ticks: { display: false },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: () => `Tu IMC: ${imc}`,
+        },
+      },
+    },
   };
 
   return (
@@ -59,75 +105,68 @@ const ImcCard = ({ peso, altura }) => {
       sx={{
         p: { xs: 3, md: 4 },
         borderRadius: 4,
-        bgcolor: "#ffffff",
-        border: "1px solid #e0e0e0",
         mb: 4,
-        boxShadow: "0 12px 24px rgba(0,0,0,0.05)",
+        boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
       }}
     >
       <Typography variant="h6" fontWeight={700} gutterBottom>
-        Tu IMC (Índice de Masa Corporal)
+        Índice de Masa Corporal (IMC)
       </Typography>
 
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={3}
-        alignItems="center"
-      >
-        {/* TEXTO INFORMATIVO */}
-        <Box flex={1}>
-          <Typography variant="body1">
-            <strong>IMC:</strong> {imc}
+      <Stack spacing={2}>
+        {/* ESTADO */}
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography fontSize={28} fontWeight={800}>
+            {imc}
           </Typography>
-          <Typography variant="body1">
-            <strong>Clasificación:</strong> {label}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Riesgo de enfermedades:</strong> {risk}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Peso saludable sugerido:</strong> {pesoIdeal}
-          </Typography>
-        </Box>
 
-        {/* GRÁFICO CIRCULAR */}
-        <Box width={140} height={140}>
-          <Pie
-            data={data}
-            options={{
-              animation: {
-                animateRotate: true,
-                duration: 1000,
-              },
-              plugins: {
-                tooltip: {
-                  callbacks: {
-                    label: (ctx) =>
-                      ctx.label === "Nivel de riesgo"
-                        ? `Riesgo: ${risk}`
-                        : "Sin riesgo",
-                  },
-                },
-                legend: { display: false },
-              },
+          <Chip
+            label={label}
+            sx={{
+              bgcolor: `${color}20`,
+              color,
+              fontWeight: 600,
             }}
           />
-        </Box>
-      </Stack>
 
-      {/* DESCRIPCIÓN UX */}
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        mt={3}
-        sx={{ maxWidth: 600 }}
-      >
-        El IMC es un indicador utilizado para estimar si tu peso es saludable en
-        relación con tu altura. Ayuda a identificar riesgos generales para la
-        salud, pero no reemplaza una evaluación médica profesional.
-      </Typography>
+          <Typography color="text.secondary">
+            Riesgo: <strong>{risk}</strong>
+          </Typography>
+        </Stack>
+
+        {/* BARRA */}
+        <Box mt={2}>
+          <Bar data={data} options={options} />
+        </Box>
+
+        {/* REFERENCIAS */}
+        <Stack direction="row" spacing={2} flexWrap="wrap">
+          <LegendItem color="#43a047" label="Normal (18.5 – 24.9)" />
+          <LegendItem color="#fb8c00" label="Sobrepeso" />
+          <LegendItem color="#e53935" label="Obesidad" />
+        </Stack>
+
+        {/* INFO */}
+        <Typography variant="body2" color="text.secondary" mt={1}>
+          Peso saludable estimado para tu altura: <strong>{pesoIdeal}</strong>
+        </Typography>
+      </Stack>
     </Paper>
   );
 };
+
+const LegendItem = ({ color, label }) => (
+  <Stack direction="row" spacing={1} alignItems="center">
+    <Box
+      sx={{
+        width: 10,
+        height: 10,
+        borderRadius: "50%",
+        bgcolor: color,
+      }}
+    />
+    <Typography variant="caption">{label}</Typography>
+  </Stack>
+);
 
 export default ImcCard;
