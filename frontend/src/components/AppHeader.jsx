@@ -24,13 +24,14 @@ import ContactMailOutlinedIcon from "@mui/icons-material/ContactMailOutlined";
 import { ListItemIcon } from "@mui/material";
 
 const AppHeader = () => {
-  const { user, logout } = useNutrition();
+  const { user, logout, authLoading } = useNutrition();
   const navigate = useNavigate();
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  if (!user) return null;
+  if (authLoading) return null; // ⛔ splash
+  if (!user) return null; // ⛔ no logueado
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);

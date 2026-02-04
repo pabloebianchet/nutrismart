@@ -1,15 +1,23 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-
 
 export const NutritionContext = createContext();
 
 export const NutritionProvider = ({ children }) => {
+  /* ======================
+     AUTH STATE
+  ====================== */
+
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [user, setUser] = useState(() => {
     if (typeof window === "undefined") return null;
     const stored = window.localStorage.getItem("nutrismartUser");
     return stored ? JSON.parse(stored) : null;
   });
+
+  /* ======================
+     USER DATA
+  ====================== */
 
   const [userData, setUserData] = useState(null);
   const [ocrText, setOcrText] = useState("");
@@ -17,14 +25,26 @@ export const NutritionProvider = ({ children }) => {
 
   const lastUserIdRef = useRef(null);
 
-  // Sync usuario en localStorage
+  /* ======================
+     AUTH BOOTSTRAP
+  ====================== */
+
+  // 🔑 Marca cuándo la app terminó de resolver auth (localStorage / Google)
+  useEffect(() => {
+    // Si necesitás validar token / Google session, este es el lugar
+    setAuthLoading(false);
+  }, []);
+
+  /* ======================
+     LOCAL STORAGE SYNC
+  ====================== */
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const stored = window.localStorage.getItem("nutrismartUser");
     const nextValue = user ? JSON.stringify(user) : null;
 
-    // Evita escrituras innecesarias en cada render.
     if (user) {
       if (stored !== nextValue) {
         window.localStorage.setItem("nutrismartUser", nextValue);
@@ -34,7 +54,10 @@ export const NutritionProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Limpiar datos si cambia usuario
+  /* ======================
+     USER SWITCH CLEANUP
+  ====================== */
+
   useEffect(() => {
     const currentId = user?.googleId || null;
 
@@ -46,7 +69,10 @@ export const NutritionProvider = ({ children }) => {
     lastUserIdRef.current = currentId;
   }, [user]);
 
-  // Cargar datos de perfil desde la API
+  /* ======================
+     FETCH USER PROFILE
+  ====================== */
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user?.googleId) return;
@@ -66,7 +92,6 @@ export const NutritionProvider = ({ children }) => {
         }
 
         const data = await res.json();
-
         if (data?.user) {
           setUserData(data.user);
         }
@@ -80,7 +105,10 @@ export const NutritionProvider = ({ children }) => {
     fetchUserData();
   }, [user?.googleId]);
 
-  // Funciones públicas
+  /* ======================
+     PUBLIC ACTIONS
+  ====================== */
+
   const updateUserData = (data) => {
     if (data === null) {
       setUserData(null);
@@ -88,28 +116,43 @@ export const NutritionProvider = ({ children }) => {
     }
     setUserData((prev) => ({ ...(prev || {}), ...data }));
   };
+
   const updateOcrText = (text) => setOcrText(text);
   const clearOcrText = () => setOcrText("");
+
   const clearUser = () => {
     setUser(null);
     setUserData(null);
     setOcrText("");
   };
+
   const logout = () => clearUser();
+
+  /* ======================
+     PROVIDER
+  ====================== */
 
   return (
     <NutritionContext.Provider
       value={{
+        // auth
+        authLoading,
         user,
         setUser,
+
+        // profile
         userData,
         updateUserData,
+        loadingUserData,
+
+        // ocr
         ocrText,
         updateOcrText,
         clearOcrText,
+
+        // actions
         clearUser,
         logout,
-        loadingUserData, // ⚡ para mostrar "cargando datos"
       }}
     >
       {children}
