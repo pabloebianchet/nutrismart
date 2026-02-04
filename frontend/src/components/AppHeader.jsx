@@ -162,33 +162,33 @@ const AppHeader = () => {
           <Divider />
 
           <List>
-            <ListItemButton component={Link} to="/" onClick={handleDrawerClose}>
-              <ListItemText primary="Home" />
-            </ListItemButton>
+            <DrawerNavItem
+              to="/"
+              icon={<HomeRoundedIcon />}
+              label="Home"
+              onClick={handleDrawerClose}
+            />
 
-            <ListItemButton
-              component={Link}
+            <DrawerNavItem
               to="/about"
+              icon={<InfoOutlinedIcon />}
+              label="Quiénes somos"
               onClick={handleDrawerClose}
-            >
-              <ListItemText primary="Quiénes somos" />
-            </ListItemButton>
+            />
 
-            <ListItemButton
-              component={Link}
+            <DrawerNavItem
               to="/how-it-works"
+              icon={<AutoAwesomeOutlinedIcon />}
+              label="Cómo funciona"
               onClick={handleDrawerClose}
-            >
-              <ListItemText primary="Cómo funciona" />
-            </ListItemButton>
+            />
 
-            <ListItemButton
-              component={Link}
+            <DrawerNavItem
               to="/contact"
+              icon={<ContactMailOutlinedIcon />}
+              label="Contacto"
               onClick={handleDrawerClose}
-            >
-              <ListItemText primary="Contacto" />
-            </ListItemButton>
+            />
           </List>
 
           <Divider />
@@ -228,6 +228,27 @@ const NavLink = ({ to, icon, label }) => (
     {icon}
     <Typography variant="body2">{label}</Typography>
   </Box>
+);
+
+const DrawerNavItem = ({ to, icon, label, onClick }) => (
+  <ListItemButton
+    component={Link}
+    to={to}
+    onClick={onClick}
+    sx={{
+      borderRadius: 2,
+      mb: 0.5,
+      "&:hover": {
+        bgcolor: "rgba(15,109,99,0.08)",
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: "#0f6d63", minWidth: 36 }}>{icon}</ListItemIcon>
+    <ListItemText
+      primary={label}
+      primaryTypographyProps={{ fontWeight: 500 }}
+    />
+  </ListItemButton>
 );
 
 export default AppHeader;
