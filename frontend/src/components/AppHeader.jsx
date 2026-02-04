@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AppBar,
   Avatar,
@@ -7,6 +7,7 @@ import {
   IconButton,
   List,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
@@ -15,6 +16,12 @@ import {
   Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import ContactMailOutlinedIcon from "@mui/icons-material/ContactMailOutlined";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+
 import { Link, useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 
@@ -24,29 +31,23 @@ const AppHeader = () => {
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   if (!user) return null;
 
-  const handleMenuOpen = (event) => {
-    setMenuAnchor(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
-  };
-
-  const handleDrawerOpen = () => {
-    setDrawerOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-  };
+  /* ---------- SCROLL EFFECT ---------- */
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
-    handleMenuClose();
-    handleDrawerClose();
+    setMenuAnchor(null);
+    setDrawerOpen(false);
     navigate("/");
   };
 
@@ -55,108 +56,96 @@ const AppHeader = () => {
       {/* ---------- HEADER ---------- */}
       <AppBar
         position="fixed"
-        color="default"
-        elevation={1}
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        elevation={scrolled ? 0 : 1}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: scrolled
+            ? "rgba(255,255,255,0.75)"
+            : "rgba(255,255,255,1)",
+          backdropFilter: scrolled ? "blur(8px)" : "none",
+          transition: "all 0.3s ease",
+        }}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* LOGO */}
           <Box
             component={Link}
             to="/"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              textDecoration: "none",
-            }}
+            sx={{ display: "flex", alignItems: "center" }}
           >
             <Box
               component="img"
               src="/img/logo.png"
               alt="Nutrismart logo"
-              sx={{
-                height: 36,
-                width: "auto",
-              }}
+              sx={{ height: 36 }}
             />
           </Box>
 
           {/* ---------- DESKTOP NAV ---------- */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, mr: 2 }}>
-            <Typography
-              component={Link}
-              to="/"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Home
-            </Typography>
-
-            <Typography
-              component={Link}
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
+            <NavItem to="/" icon={<HomeRoundedIcon />} label="Home" />
+            <NavItem
               to="/about"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Quiénes somos
-            </Typography>
-
-            <Typography
-              component={Link}
+              icon={<InfoOutlinedIcon />}
+              label="Quiénes somos"
+            />
+            <NavItem
               to="/how-it-works"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Cómo funciona
-            </Typography>
-
-            <Typography
-              component={Link}
+              icon={<AutoAwesomeOutlinedIcon />}
+              label="Cómo funciona"
+            />
+            <NavItem
               to="/contact"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Contacto
-            </Typography>
+              icon={<ContactMailOutlinedIcon />}
+              label="Contacto"
+            />
           </Box>
-          {/* RIGHT SIDE */}
+
+          {/* ---------- RIGHT ---------- */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            {/* ---------- DESKTOP ---------- */}
+            {/* DESKTOP AVATAR */}
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <IconButton onClick={handleMenuOpen}>
+              <IconButton onClick={(e) => setMenuAnchor(e.currentTarget)}>
                 <Avatar
                   src={user.picture}
                   alt={user.name}
-                  sx={{
-                    width: 36,
-                    height: 36,
-                    border: "2px solid #1b5e4b",
-                  }}
+                  sx={{ width: 36, height: 36, border: "2px solid #1b5e4b" }}
                 />
               </IconButton>
 
               <Menu
                 anchorEl={menuAnchor}
                 open={Boolean(menuAnchor)}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                onClose={() => setMenuAnchor(null)}
               >
-                <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <LogoutRoundedIcon sx={{ mr: 1 }} />
+                  Cerrar sesión
+                </MenuItem>
               </Menu>
             </Box>
 
-            {/* ---------- MOBILE ---------- */}
-            <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <IconButton onClick={handleDrawerOpen}>
-                <MenuIcon />
-              </IconButton>
-            </Box>
+            {/* MOBILE */}
+            <IconButton
+              sx={{ display: { xs: "flex", md: "none" } }}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <MenuIcon />
+            </IconButton>
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* 🔥 Spacer para que no pise contenido */}
+      {/* Spacer */}
       <Toolbar />
 
       {/* ---------- MOBILE DRAWER ---------- */}
-      <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
-        <Box sx={{ width: 280, p: 2, mt: 10 }}>
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box sx={{ width: 280, p: 2, mt: 8 }}>
           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
             <Avatar src={user.picture} sx={{ width: 48, height: 48 }} />
             <Box>
@@ -170,39 +159,31 @@ const AppHeader = () => {
           <Divider />
 
           <List>
-            <ListItemButton component={Link} to="/" onClick={handleDrawerClose}>
-              <ListItemText primary="Home" />
-            </ListItemButton>
-
-            <ListItemButton
-              component={Link}
+            <DrawerItem to="/" icon={<HomeRoundedIcon />} label="Home" />
+            <DrawerItem
               to="/about"
-              onClick={handleDrawerClose}
-            >
-              <ListItemText primary="Quiénes somos" />
-            </ListItemButton>
-
-            <ListItemButton
-              component={Link}
+              icon={<InfoOutlinedIcon />}
+              label="Quiénes somos"
+            />
+            <DrawerItem
               to="/how-it-works"
-              onClick={handleDrawerClose}
-            >
-              <ListItemText primary="Cómo funciona" />
-            </ListItemButton>
-
-            <ListItemButton
-              component={Link}
+              icon={<AutoAwesomeOutlinedIcon />}
+              label="Cómo funciona"
+            />
+            <DrawerItem
               to="/contact"
-              onClick={handleDrawerClose}
-            >
-              <ListItemText primary="Contacto" />
-            </ListItemButton>
+              icon={<ContactMailOutlinedIcon />}
+              label="Contacto"
+            />
           </List>
 
           <Divider />
 
           <List>
             <ListItemButton onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutRoundedIcon />
+              </ListItemIcon>
               <ListItemText primary="Cerrar sesión" />
             </ListItemButton>
           </List>
@@ -211,5 +192,32 @@ const AppHeader = () => {
     </>
   );
 };
+
+/* ---------- COMPONENTES AUX ---------- */
+const NavItem = ({ to, icon, label }) => (
+  <Box
+    component={Link}
+    to={to}
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      gap: 0.8,
+      textDecoration: "none",
+      color: "text.primary",
+      fontWeight: 500,
+      "&:hover": { color: "primary.main" },
+    }}
+  >
+    {icon}
+    <Typography variant="body2">{label}</Typography>
+  </Box>
+);
+
+const DrawerItem = ({ to, icon, label }) => (
+  <ListItemButton component={Link} to={to}>
+    <ListItemIcon>{icon}</ListItemIcon>
+    <ListItemText primary={label} />
+  </ListItemButton>
+);
 
 export default AppHeader;
