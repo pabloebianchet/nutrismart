@@ -24,7 +24,6 @@ import MonitorWeightOutlinedIcon from "@mui/icons-material/MonitorWeightOutlined
 import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import WavingHandOutlinedIcon from "@mui/icons-material/WavingHandOutlined";
-import Skeleton from "@mui/material/Skeleton";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -197,8 +196,12 @@ const Dashboard = () => {
   /* ======================
      Render
   ====================== */
-  if (!userData || loading) {
-    return <DashboardSkeleton />;
+  if (loadingUserData) {
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h6">Cargando datos de tu perfil...</Typography>
+      </Box>
+    );
   }
 
   return (
@@ -575,45 +578,6 @@ const InfoRow = ({ icon, label, value }) => (
     <Typography variant="body2" fontWeight={600} sx={{ ml: "auto" }}>
       {value}
     </Typography>
-  </Box>
-);
-
-const DashboardSkeleton = () => (
-  <Box sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
-    {/* Header */}
-    <Skeleton variant="text" width={220} height={40} />
-    <Skeleton variant="text" width={320} height={20} />
-
-    {/* Perfil */}
-    <Paper sx={{ mt: 4, p: 3, borderRadius: 4 }}>
-      <Skeleton variant="text" width={180} height={30} />
-      <Skeleton
-        variant="rectangular"
-        height={140}
-        sx={{ mt: 2, borderRadius: 2 }}
-      />
-    </Paper>
-
-    {/* CTA */}
-    <Paper sx={{ mt: 4, p: 3, borderRadius: 4 }}>
-      <Skeleton variant="text" width={200} height={28} />
-      <Skeleton variant="text" width={260} height={20} />
-    </Paper>
-
-    {/* Historial */}
-    <Box mt={4}>
-      <Skeleton variant="text" width={240} height={28} />
-      <Stack spacing={2} mt={2}>
-        {[1, 2, 3].map((i) => (
-          <Skeleton
-            key={i}
-            variant="rectangular"
-            height={120}
-            sx={{ borderRadius: 3 }}
-          />
-        ))}
-      </Stack>
-    </Box>
   </Box>
 );
 
