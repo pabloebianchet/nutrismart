@@ -171,7 +171,7 @@ const AppHeader = () => {
 
           <List>
             <ListItemButton component={Link} to="/" onClick={handleDrawerClose}>
-              <ListItemText primary="Inicio" />
+              <ListItemText primary="Home" />
             </ListItemButton>
 
             <ListItemButton
