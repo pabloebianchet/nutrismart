@@ -21,6 +21,7 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import ContactMailOutlinedIcon from "@mui/icons-material/ContactMailOutlined";
+import { ListItemIcon } from "@mui/material";
 
 const AppHeader = () => {
   const { user, logout } = useNutrition();
