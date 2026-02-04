@@ -221,7 +221,7 @@ const Dashboard = () => {
             <Typography variant="h5" fontWeight={700}>
               Bienvenido{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
             </Typography>
-            <WavingHandOutlinedIcon sx={{ color: "#0f6d63" }} />
+            {/* <WavingHandOutlinedIcon sx={{ color: "#0f6d63" }} /> */}
             <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
               <AccessTimeRoundedIcon
                 sx={{ fontSize: 16, color: "text.secondary" }}
