@@ -17,6 +17,10 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import ContactMailOutlinedIcon from "@mui/icons-material/ContactMailOutlined";
 
 const AppHeader = () => {
   const { user, logout } = useNutrition();
@@ -81,38 +85,26 @@ const AppHeader = () => {
           </Box>
 
           {/* ---------- DESKTOP NAV ---------- */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, mr: 2 }}>
-            <Typography
-              component={Link}
-              to="/"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Home
-            </Typography>
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3, mr: 2 }}>
+            <NavLink to="/" icon={<HomeRoundedIcon />} label="Home" />
 
-            <Typography
-              component={Link}
+            <NavLink
               to="/about"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Quiénes somos
-            </Typography>
+              icon={<InfoOutlinedIcon />}
+              label="Quiénes somos"
+            />
 
-            <Typography
-              component={Link}
+            <NavLink
               to="/how-it-works"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Cómo funciona
-            </Typography>
+              icon={<AutoAwesomeOutlinedIcon />}
+              label="Cómo funciona"
+            />
 
-            <Typography
-              component={Link}
+            <NavLink
               to="/contact"
-              sx={{ textDecoration: "none", color: "inherit", fontWeight: 500 }}
-            >
-              Contacto
-            </Typography>
+              icon={<ContactMailOutlinedIcon />}
+              label="Contacto"
+            />
           </Box>
           {/* RIGHT SIDE */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
