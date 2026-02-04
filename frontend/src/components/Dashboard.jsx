@@ -22,8 +22,12 @@ import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
 import FlashOnOutlinedIcon from "@mui/icons-material/FlashOnOutlined";
 import MonitorWeightOutlinedIcon from "@mui/icons-material/MonitorWeightOutlined";
 import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
+import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import WavingHandOutlinedIcon from "@mui/icons-material/WavingHandOutlined";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
+
 
 const Dashboard = () => {
   const { user, userData, updateUserData, loadingUserData } = useNutrition();
@@ -124,6 +128,15 @@ const Dashboard = () => {
     historyRefreshToken,
   ]);
 
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 60000); // actualiza cada minuto
+    return () => clearInterval(interval);
+  }, []);
+
   /* ======================
      Handlers
   ====================== */
@@ -205,10 +218,37 @@ const Dashboard = () => {
     >
       {/* HEADER */}
       <Box mb={4}>
-        <Typography variant="h4" fontWeight={800}>
-          Hola{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
-        </Typography>
-        <Typography variant="body1" color="text.secondary" mt={1}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <WavingHandOutlinedIcon sx={{ color: "#0f6d63" }} />
+
+          <Box>
+            <Typography variant="h5" fontWeight={700}>
+              Bienvenido{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+            </Typography>
+
+            <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+              <AccessTimeRoundedIcon
+                sx={{ fontSize: 16, color: "text.secondary" }}
+              />
+
+              <Typography variant="body2" color="text.secondary">
+                {now.toLocaleDateString("es-AR", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}{" "}
+                ·{" "}
+                {now.toLocaleTimeString("es-AR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Typography>
+            </Stack>
+          </Box>
+        </Stack>
+
+        <Typography variant="body2" color="text.secondary" mt={1.5}>
           Este es tu panel personal de NutriSmart.
         </Typography>
       </Box>
@@ -219,7 +259,7 @@ const Dashboard = () => {
           p: { xs: 3, md: 4 },
           mb: 4,
           borderRadius: 4,
-          
+
           // Fondo primera card Dashboard
           bgcolor: "#d1d1d1",
           boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
