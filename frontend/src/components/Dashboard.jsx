@@ -197,7 +197,8 @@ const Dashboard = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#86d694",
+        // Fondo Dashboard
+        bgcolor: "#e9ffed",
         px: { xs: 2, md: 4 },
         py: 4,
       }}
@@ -219,7 +220,7 @@ const Dashboard = () => {
           mb: 4,
           borderRadius: 4,
           
-          // Fondo Dashboard
+          // Fondo primera card Dashboard
           bgcolor: "#d1d1d1",
           boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
           display: "grid",
