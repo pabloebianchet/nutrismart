@@ -96,7 +96,7 @@ const UserDataFormStyled = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#a7dcd2",
+        bgcolor: "#c9c9c9",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -115,7 +115,7 @@ const UserDataFormStyled = () => {
         {/* HEADER */}
         <Box
           sx={{
-            bgcolor: "#9ec6c2",
+            bgcolor: "#c9c9c9",
             color: "white",
             p: 3,
           }}

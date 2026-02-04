@@ -198,7 +198,7 @@ const Dashboard = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#f4fbf7",
+        bgcolor: "#fcfcfc",
         px: { xs: 2, md: 4 },
         py: 4,
       }}
@@ -382,7 +382,7 @@ const Dashboard = () => {
           sx={{
             p: 3,
             borderRadius: 4,
-            bgcolor: "#f7fcfa",
+            bgcolor: "#ffffff",
             border: "1px solid rgba(27,94,75,0.2)",
           }}
         >
