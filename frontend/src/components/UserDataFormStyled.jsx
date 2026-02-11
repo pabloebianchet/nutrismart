@@ -26,7 +26,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const inputSx = {
   "& .MuiFilledInput-root": {
     borderRadius: 999,
-    backgroundColor: "#f1f1f1",
+    backgroundColor: "#ffffff",
     overflow: "hidden",
   },
 };
@@ -96,7 +96,7 @@ const UserDataFormStyled = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#c9c9c9",
+        bgcolor: "#ffffff",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -115,7 +115,7 @@ const UserDataFormStyled = () => {
         {/* HEADER */}
         <Box
           sx={{
-            bgcolor: "#c9c9c9",
+            bgcolor: "#b1b1b1",
             color: "white",
             p: 3,
           }}
