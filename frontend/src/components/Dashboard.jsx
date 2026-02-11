@@ -209,7 +209,7 @@ const Dashboard = () => {
       sx={{
         minHeight: "100vh",
         // Fondo Dashboard
-        bgcolor: "#e9ffed",
+        bgcolor: "#ffffff",
         px: { xs: 2, md: 4 },
         py: 4,
       }}
