@@ -98,7 +98,7 @@ const UserDataPage = () => {
         >
           <Stack spacing={3} alignItems="center">
             <Typography variant="h4" fontWeight={800} textAlign="center">
-              Bienvenido a NutriSmart
+              Bienvenido a NUI
             </Typography>
 
             <Typography
