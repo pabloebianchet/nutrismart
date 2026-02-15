@@ -6,11 +6,13 @@ import Dashboard from "../components/Dashboard.jsx";
 import { useNutrition } from "../context/NutritionContext";
 
 import { API_URL } from "../config/api";
+import { useTranslation } from "react-i18next";
 
 const UserDataPage = () => {
   const { user, userData, setUser, loadingUserData } = useNutrition();
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   /* ---------------- SPLASH ---------------- */
   useEffect(() => {
@@ -98,7 +100,7 @@ const UserDataPage = () => {
         >
           <Stack spacing={3} alignItems="center">
             <Typography variant="h4" fontWeight={800} textAlign="center">
-              Bienvenido a NUI
+              {t("home.welcome")}
             </Typography>
 
             <Typography
@@ -106,8 +108,7 @@ const UserDataPage = () => {
               color="text.secondary"
               textAlign="center"
             >
-              Iniciá sesión con Google para analizar productos, guardar tu
-              historial y recibir recomendaciones nutricionales claras.
+              {t("home.loginDescription")}
             </Typography>
 
             <Divider flexItem />
@@ -122,7 +123,7 @@ const UserDataPage = () => {
               color="text.secondary"
               textAlign="center"
             >
-              No compartimos tu información personal.
+              {t("home.privacy")}
             </Typography>
           </Stack>
         </Paper>
@@ -142,7 +143,7 @@ const UserDataPage = () => {
           alignItems: "center",
         }}
       >
-        <Typography color="text.secondary">Cargando tu perfil...</Typography>
+        <Typography color="text.secondary">{t("home.loadingProfile")}</Typography>
       </Box>
     );
   }
