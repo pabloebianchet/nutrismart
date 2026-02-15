@@ -8,7 +8,6 @@ import { OAuth2Client } from "google-auth-library";
 import { connectDB } from "./db.js";
 import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
-import { useLocation } from "react-router-dom";
 
 connectDB();
 
