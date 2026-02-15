@@ -20,7 +20,7 @@ import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config/api";
 
 
 const inputSx = {

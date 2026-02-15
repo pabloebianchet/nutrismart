@@ -16,7 +16,7 @@ import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 import heic2any from "heic2any";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config/api";
 
 
 const ImageCaptureStep = () => {

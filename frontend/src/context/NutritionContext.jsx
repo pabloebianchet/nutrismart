@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { API_URL } from "../config/api";
 
 export const NutritionContext = createContext();
 
@@ -80,7 +81,7 @@ export const NutritionProvider = ({ children }) => {
       setLoadingUserData(true);
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/user/profile/${user.googleId}`,
+          `${API_URL}/api/user/profile/${user.googleId}`,
         );
 
         if (!res.ok) {
