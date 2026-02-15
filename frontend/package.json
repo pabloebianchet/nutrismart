@@ -27,10 +27,12 @@
     "formidable": "^3.5.4",
     "framer-motion": "^12.29.2",
     "heic2any": "^0.0.4",
+    "i18next": "^25.6.0",
     "multer": "^2.0.2",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
+    "react-i18next": "^15.7.3",
     "react-router-dom": "^7.13.0",
     "tesseract.js": "^7.0.0"
   },

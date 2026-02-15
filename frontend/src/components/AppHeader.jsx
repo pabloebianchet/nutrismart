@@ -13,6 +13,8 @@ import {
   Toolbar,
   Typography,
   Divider,
+  ListItemIcon,
+  Switch,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,17 +23,21 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import ContactMailOutlinedIcon from "@mui/icons-material/ContactMailOutlined";
-import { ListItemIcon } from "@mui/material";
+import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
+import { useTranslation } from "react-i18next";
+import { useUiPreferences } from "../context/UiPreferencesContext";
 
 const AppHeader = () => {
   const { user, logout, authLoading } = useNutrition();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { mode, toggleMode, language, setLanguage } = useUiPreferences();
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  if (authLoading) return null; // ⛔ splash
-  if (!user) return null; // ⛔ no logueado
+  if (authLoading || !user) return null;
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
@@ -58,7 +64,6 @@ const AppHeader = () => {
 
   return (
     <>
-      {/* ---------- HEADER ---------- */}
       <AppBar
         position="fixed"
         color="default"
@@ -86,31 +91,26 @@ const AppHeader = () => {
             />
           </Box>
 
-          {/* ---------- DESKTOP NAV ---------- */}
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3, mr: 2 }}>
-            <NavLink to="/" icon={<HomeRoundedIcon />} label="Home" />
-
+            <NavLink to="/" icon={<HomeRoundedIcon />} label={t("nav.home")} />
             <NavLink
               to="/about"
               icon={<InfoOutlinedIcon />}
-              label="Quiénes somos"
+              label={t("nav.about")}
             />
-
             <NavLink
               to="/how-it-works"
               icon={<AutoAwesomeOutlinedIcon />}
-              label="Cómo funciona"
+              label={t("nav.howItWorks")}
             />
-
             <NavLink
               to="/contact"
               icon={<ContactMailOutlinedIcon />}
-              label="Contacto"
+              label={t("nav.contact")}
             />
           </Box>
-          {/* RIGHT SIDE */}
+
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            {/* ---------- DESKTOP ---------- */}
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <IconButton onClick={handleMenuOpen}>
                 <Avatar
@@ -131,11 +131,35 @@ const AppHeader = () => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
               >
-                <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
+                <Typography sx={{ px: 2, pt: 1, pb: 0.5 }} variant="caption">
+                  {t("menu.settings")}
+                </Typography>
+                <MenuItem onClick={() => setLanguage(language === "es" ? "en" : "es")}
+                >
+                  <ListItemIcon>
+                    <TranslateRoundedIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={t("menu.language")}
+                    secondary={language === "es" ? t("menu.spanish") : t("menu.english")}
+                  />
+                </MenuItem>
+
+                <MenuItem onClick={toggleMode}>
+                  <ListItemIcon>
+                    <DarkModeRoundedIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={t("menu.theme")}
+                    secondary={mode === "light" ? t("menu.light") : t("menu.dark")}
+                  />
+                </MenuItem>
+
+                <Divider />
+                <MenuItem onClick={handleLogout}>{t("menu.logout")}</MenuItem>
               </Menu>
             </Box>
 
-            {/* ---------- MOBILE ---------- */}
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
               <IconButton onClick={handleDrawerOpen}>
                 <MenuIcon />
@@ -145,10 +169,8 @@ const AppHeader = () => {
         </Toolbar>
       </AppBar>
 
-      {/* 🔥 Spacer para que no pise contenido */}
       <Toolbar />
 
-      {/* ---------- MOBILE DRAWER ---------- */}
       <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
         <Box sx={{ width: 280, p: 2, mt: 10 }}>
           <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
@@ -167,28 +189,25 @@ const AppHeader = () => {
             <DrawerNavItem
               to="/"
               icon={<HomeRoundedIcon />}
-              label="Home"
+              label={t("nav.home")}
               onClick={handleDrawerClose}
             />
-
             <DrawerNavItem
               to="/about"
               icon={<InfoOutlinedIcon />}
-              label="Quiénes somos"
+              label={t("nav.about")}
               onClick={handleDrawerClose}
             />
-
             <DrawerNavItem
               to="/how-it-works"
               icon={<AutoAwesomeOutlinedIcon />}
-              label="Cómo funciona"
+              label={t("nav.howItWorks")}
               onClick={handleDrawerClose}
             />
-
             <DrawerNavItem
               to="/contact"
               icon={<ContactMailOutlinedIcon />}
-              label="Contacto"
+              label={t("nav.contact")}
               onClick={handleDrawerClose}
             />
           </List>
@@ -196,8 +215,29 @@ const AppHeader = () => {
           <Divider />
 
           <List>
+            <ListItemButton onClick={() => setLanguage(language === "es" ? "en" : "es")}>
+              <ListItemIcon sx={{ color: "#0f6d63", minWidth: 36 }}>
+                <TranslateRoundedIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary={t("menu.language")}
+                secondary={language === "es" ? t("menu.spanish") : t("menu.english")}
+              />
+            </ListItemButton>
+
+            <ListItemButton onClick={toggleMode}>
+              <ListItemIcon sx={{ color: "#0f6d63", minWidth: 36 }}>
+                <DarkModeRoundedIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary={t("menu.theme")}
+                secondary={mode === "light" ? t("menu.light") : t("menu.dark")}
+              />
+              <Switch checked={mode === "dark"} edge="end" />
+            </ListItemButton>
+
             <ListItemButton onClick={handleLogout}>
-              <ListItemText primary="Cerrar sesión" />
+              <ListItemText primary={t("menu.logout")} />
             </ListItemButton>
           </List>
         </Box>
