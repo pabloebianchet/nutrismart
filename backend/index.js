@@ -10,24 +10,18 @@ import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
 import { useLocation } from "react-router-dom";
 
-
-
-
 connectDB();
-
-
 
 function cleanText(text) {
   if (!text) return "";
 
   return text
-    .replace(/[*_#>`~]/g, "")          // elimina markdown básico
-    .replace(/-{2,}/g, "")             // elimina separadores tipo ----
-    .replace(/\n{3,}/g, "\n\n")        // normaliza saltos de línea
-    .replace(/\s+\n/g, "\n")           // espacios antes de saltos
+    .replace(/[*_#>`~]/g, "") // elimina markdown básico
+    .replace(/-{2,}/g, "") // elimina separadores tipo ----
+    .replace(/\n{3,}/g, "\n\n") // normaliza saltos de línea
+    .replace(/\s+\n/g, "\n") // espacios antes de saltos
     .trim();
 }
-
 
 dotenv.config();
 
@@ -37,7 +31,6 @@ if (!process.env.GOOGLE_CLIENT_ID) {
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-
 const app = express();
 
 app.use(
@@ -45,14 +38,15 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://nutrismart-orcin.vercel.app",
-      "https://nutrismart-1u7u7x32m-pablo-bianchet-martinezs-projects.vercel.app"
+      "https://nutrismart-lu7u7x32m-pablo-bianchet-martinez-projects.vercel.app",
+      "https://nuiapp.com",
+      "https://www.nuiapp.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+    credentials: true,
+  }),
 );
-
-
 
 app.use(express.json({ limit: "2mb" }));
 
@@ -64,10 +58,7 @@ if (!process.env.GOOGLE_CREDENTIALS_BASE64) {
 }
 
 const credentials = JSON.parse(
-  Buffer.from(
-    process.env.GOOGLE_CREDENTIALS_BASE64,
-    "base64"
-  ).toString("utf8")
+  Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, "base64").toString("utf8"),
 );
 
 const visionClient = new vision.ImageAnnotatorClient({ credentials });
@@ -106,17 +97,13 @@ app.post(
         return res.status(400).json({ error: "Faltan imágenes" });
       }
 
-      const [tablaResult] = await visionClient.textDetection(
-        tabla.buffer
+      const [tablaResult] = await visionClient.textDetection(tabla.buffer);
+
+      const [ingredientesResult] = await visionClient.textDetection(
+        ingredientes.buffer,
       );
 
-      const [ingredientesResult] =
-        await visionClient.textDetection(
-          ingredientes.buffer
-        );
-
-      const tablaText =
-        tablaResult.textAnnotations?.[0]?.description || "";
+      const tablaText = tablaResult.textAnnotations?.[0]?.description || "";
 
       const ingredientesText =
         ingredientesResult.textAnnotations?.[0]?.description || "";
@@ -128,7 +115,7 @@ app.post(
       console.error("OCR error:", err);
       return res.status(500).json({ error: "Error en OCR" });
     }
-  }
+  },
 );
 
 // =====================
@@ -137,7 +124,6 @@ app.post(
 app.post("/api/analyze", async (req, res) => {
   try {
     const { userData, productText, googleId } = req.body;
-
 
     if (!userData || !productText) {
       return res.status(400).json({ error: "Faltan datos requeridos" });
@@ -204,65 +190,58 @@ ESTILO:
 Natural, claro, humano y directo, como una nota breve dentro de una app de nutrición.
 `;
 
-
-
     const completion = await openai.chat.completions.create({
-  model: "gpt-4o-mini",
-  messages: [
-    {
-      role: "system",
-      content:
-        "Respondé SOLO en texto plano. No uses markdown, listas, títulos, asteriscos, emojis ni símbolos especiales.",
-    },
-    {
-      role: "user",
-      content: prompt,
-    },
-  ],
-  temperature: 0.4,
-});
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Respondé SOLO en texto plano. No uses markdown, listas, títulos, asteriscos, emojis ni símbolos especiales.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.4,
+    });
 
     const rawAnalysis =
-  completion.choices?.[0]?.message?.content ??
-  "No se pudo generar análisis";
+      completion.choices?.[0]?.message?.content ??
+      "No se pudo generar análisis";
 
-// 🔥 LIMPIEZA CLAVE
-const analysis = cleanText(rawAnalysis);
+    // 🔥 LIMPIEZA CLAVE
+    const analysis = cleanText(rawAnalysis);
 
-// Extraer puntaje (ya sobre texto limpio)
-const match = analysis.match(
-  /Puntaje global:\s*(\d+)\s*\/\s*100/i
-);
+    // Extraer puntaje (ya sobre texto limpio)
+    const match = analysis.match(/Puntaje global:\s*(\d+)\s*\/\s*100/i);
 
-const score = match ? parseInt(match[1], 10) : 0;
+    const score = match ? parseInt(match[1], 10) : 0;
 
-const user = await User.findOne({ googleId });
+    const user = await User.findOne({ googleId });
 
-if (!user) {
-  return res.status(404).json({
-    error: "User not found. Analysis was not saved.",
-  });
-}
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found. Analysis was not saved.",
+      });
+    }
 
-await Analysis.create({
-  user: user._id,
-  score,
-  analysisText: analysis,
-  productText,
-});
+    await Analysis.create({
+      user: user._id,
+      score,
+      analysisText: analysis,
+      productText,
+    });
 
-
-
-return res.json({
-  score,
-  analysis,
-});
+    return res.json({
+      score,
+      analysis,
+    });
   } catch (err) {
     console.error("Analyze error:", err);
     return res.status(500).json({ error: "Error en análisis IA" });
   }
 });
-
 
 // =====================
 // 🔐 GOOGLE AUTH
@@ -301,7 +280,6 @@ app.post("/api/auth/google", async (req, res) => {
   }
 });
 
-
 // =====================
 // 👤 UPDATE USER PROFILE
 // =====================
@@ -314,18 +292,17 @@ app.put("/api/user/profile", async (req, res) => {
 
   try {
     const user = await User.findOneAndUpdate(
-  { googleId },
-  {
-    sexo,
-    edad,
-    actividad,
-    peso,
-    altura,
-    profileCompleted: true, // 🔥 CLAVE
-  },
-  { new: true }
-);
-
+      { googleId },
+      {
+        sexo,
+        edad,
+        actividad,
+        peso,
+        altura,
+        profileCompleted: true, // 🔥 CLAVE
+      },
+      { new: true },
+    );
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -357,7 +334,6 @@ app.get("/api/user/profile/:googleId", async (req, res) => {
     return res.status(500).json({ error: "Error fetching profile" });
   }
 });
-
 
 // =====================
 // 🚀 START SERVER
