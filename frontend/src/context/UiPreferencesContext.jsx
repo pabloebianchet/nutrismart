@@ -27,15 +27,13 @@ export const UiPreferencesProvider = ({ children }) => {
       createTheme({
         palette: {
           mode,
-          primary: { main: "#0f6d63" },
+          primary: {
+            main: "#0f6d63",
+          },
           background:
             mode === "light"
               ? { default: "#f4fbf7", paper: "#ffffff" }
-              : { default: "#0b1211", paper: "#16201e" },
-          text:
-            mode === "light"
-              ? { primary: "#15312b", secondary: "#4f635d" }
-              : { primary: "#ecf4f1", secondary: "#b6c8c2" },
+              : { default: "#0f1716", paper: "#1a2523" },
         },
         typography: {
           fontFamily: '"Nunito", system-ui, -apple-system, sans-serif',
@@ -46,7 +44,12 @@ export const UiPreferencesProvider = ({ children }) => {
 
   return (
     <UiPreferencesContext.Provider
-      value={{ mode, toggleMode, language: (i18n.resolvedLanguage || i18n.language || "es").split("-")[0], setLanguage }}
+      value={{
+        mode,
+        toggleMode,
+        language: i18n.language,
+        setLanguage,
+      }}
     >
       <ThemeProvider theme={theme}>
         <CssBaseline />
