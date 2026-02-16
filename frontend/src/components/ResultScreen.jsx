@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
 
 import { API_URL } from "../config/api";
+import { useTranslation } from "react-i18next";
 
 const ResultScreen = () => {
   const { user, userData, ocrText, clearOcrText } = useNutrition();
@@ -26,6 +27,7 @@ const ResultScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // 🔒 Guardia absoluta: no ejecutar sin usuario ni datos
@@ -57,7 +59,7 @@ const ResultScreen = () => {
         setScore(typeof data.score === "number" ? data.score : 0);
       } catch (err) {
         console.error("Error al obtener análisis:", err);
-        setAnalysis("No se pudo generar el análisis. Intentá nuevamente.");
+        setAnalysis(t("result.error"));
         setScore(0);
       } finally {
         setLoading(false);
@@ -65,7 +67,7 @@ const ResultScreen = () => {
     };
 
     fetchAnalysis();
-  }, [user, ocrText, userData]);
+  }, [user, ocrText, userData, t]);
 
   const scoreColor =
     score >= 90
@@ -114,7 +116,7 @@ const ResultScreen = () => {
         sx={{
           maxWidth: 860,
           width: "100%",
-          bgcolor: "#fff",
+
           borderRadius: 6,
           p: { xs: 3, md: 4 },
           boxShadow: "0 20px 50px rgba(15, 59, 47, 0.18)",
@@ -132,11 +134,11 @@ const ResultScreen = () => {
             <Stack direction="row" spacing={1} alignItems="center">
               <InsightsRoundedIcon color="success" />
               <Typography variant="h4" fontWeight={800}>
-                Resultado del análisis
+                {t("result.title")}
               </Typography>
             </Stack>
             <Typography variant="body1" color="text.secondary" mt={1}>
-              Diagnóstico nutrimental claro y accionable.
+              {t("result.subtitle")}
             </Typography>
           </Box>
 
@@ -147,11 +149,10 @@ const ResultScreen = () => {
             sx={{
               borderRadius: 999,
               textTransform: "none",
-              borderColor: "#1b5e4b",
-              color: "#1b5e4b",
+
             }}
           >
-            Nuevo análisis
+            {t("result.newAnalysis")}
           </Button>
         </Stack>
 
@@ -164,12 +165,12 @@ const ResultScreen = () => {
               flex: 1,
               p: 3,
               borderRadius: 4,
-              borderColor: "rgba(27, 94, 75, 0.2)",
-              bgcolor: "#f7fcfa",
+              borderColor: "divider",
+              bgcolor: "background.default",
             }}
           >
             <Typography variant="subtitle1" fontWeight={700}>
-              Puntaje global
+              {t("result.globalScore")}
             </Typography>
 
             <Box sx={{ my: 3, display: "flex", justifyContent: "center" }}>
@@ -185,7 +186,7 @@ const ResultScreen = () => {
             </Box>
 
             <Chip
-              label={`Nivel ${score >= 75 ? "saludable" : "mejorable"}`}
+              label={`${t("result.level")} ${score >= 75 ? t("result.healthy") : t("result.improvable")}`}
               sx={{
                 bgcolor: `${scoreColor}22`,
                 color: scoreColor,
@@ -201,12 +202,11 @@ const ResultScreen = () => {
               flex: 1.4,
               p: 3,
               borderRadius: 4,
-              borderColor: "rgba(27, 94, 75, 0.2)",
-              bgcolor: "#ffffff",
+              borderColor: "divider",
             }}
           >
             <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-              Evaluación del producto
+              {t("result.evalTitle")}
             </Typography>
 
             <Divider sx={{ mb: 2 }} />

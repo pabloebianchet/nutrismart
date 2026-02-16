@@ -6,11 +6,13 @@ import Dashboard from "../components/Dashboard.jsx";
 import { useNutrition } from "../context/NutritionContext";
 
 import { API_URL } from "../config/api";
+import { useTranslation } from "react-i18next";
 
 const UserDataPage = () => {
   const { user, userData, setUser, loadingUserData } = useNutrition();
   const [showSplash, setShowSplash] = useState(true);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   /* ---------------- SPLASH ---------------- */
   useEffect(() => {
@@ -50,7 +52,7 @@ const UserDataPage = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: "#ffffff",
+          bgcolor: "background.paper",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -84,7 +86,7 @@ const UserDataPage = () => {
           alignItems: "center",
           justifyContent: "center",
           px: 2,
-          bgcolor: "#f4fbf7",
+          bgcolor: "background.default",
         }}
       >
         <Paper
@@ -93,12 +95,12 @@ const UserDataPage = () => {
             maxWidth: 420,
             p: { xs: 3, sm: 4 },
             borderRadius: 6,
-            boxShadow: "0 20px 60px rgba(163, 203, 193, 0.15)",
+  
           }}
         >
           <Stack spacing={3} alignItems="center">
             <Typography variant="h4" fontWeight={800} textAlign="center">
-              Bienvenido a NUI
+              {t("home.welcome")}
             </Typography>
 
             <Typography
@@ -106,8 +108,7 @@ const UserDataPage = () => {
               color="text.secondary"
               textAlign="center"
             >
-              Iniciá sesión con Google para analizar productos, guardar tu
-              historial y recibir recomendaciones nutricionales claras.
+              {t("home.loginDescription")}
             </Typography>
 
             <Divider flexItem />
@@ -122,7 +123,7 @@ const UserDataPage = () => {
               color="text.secondary"
               textAlign="center"
             >
-              No compartimos tu información personal.
+              {t("home.privacy")}
             </Typography>
           </Stack>
         </Paper>
@@ -136,13 +137,13 @@ const UserDataPage = () => {
       <Box
         sx={{
           minHeight: "100dvh",
-          bgcolor: "#f4fbf7",
+          bgcolor: "background.default",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
-        <Typography color="text.secondary">Cargando tu perfil...</Typography>
+        <Typography color="text.secondary">{t("home.loadingProfile")}</Typography>
       </Box>
     );
   }

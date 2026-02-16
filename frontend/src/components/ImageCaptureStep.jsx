@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -17,9 +17,10 @@ import { useNavigate } from "react-router-dom";
 import heic2any from "heic2any";
 
 import { API_URL } from "../config/api";
-
+import { useTranslation } from "react-i18next";
 
 const ImageCaptureStep = () => {
+  const { t } = useTranslation();
   const [tablaImage, setTablaImage] = useState(null);
   const [ingredientesImage, setIngredientesImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +48,7 @@ const ImageCaptureStep = () => {
 
       setImage(blob);
     } catch {
-      setErrorMessage("No pudimos procesar la imagen.");
+      setErrorMessage(t("capture.imageProcessError"));
     }
   };
 
@@ -69,7 +70,7 @@ const ImageCaptureStep = () => {
       updateOcrText(data.text);
       navigate("/result");
     } catch {
-      setErrorMessage("Error al leer las imágenes.");
+      setErrorMessage(t("capture.readError"));
     } finally {
       setLoading(false);
     }
@@ -88,8 +89,8 @@ const ImageCaptureStep = () => {
       sx={{
         p: 3,
         borderRadius: 4,
-        bgcolor: "#f7fcfa",
-        borderColor: "rgba(27, 94, 75, 0.2)",
+        bgcolor: "background.default",
+        borderColor: "divider",
       }}
     >
       <Stack spacing={2}>
@@ -99,7 +100,7 @@ const ImageCaptureStep = () => {
               width: 48,
               height: 48,
               borderRadius: "16px",
-              bgcolor: "rgba(27, 94, 75, 0.12)",
+              bgcolor: "action.hover",
               display: "grid",
               placeItems: "center",
             }}
@@ -132,11 +133,11 @@ const ImageCaptureStep = () => {
             alignSelf: "flex-start",
             borderRadius: 999,
             textTransform: "none",
-            borderColor: "#1b5e4b",
-            color: "#1b5e4b",
+            borderColor: "primary.main",
+            color: "primary.main",
           }}
         >
-          {image ? "Cambiar foto" : "Tomar o subir foto"}
+          {image ? t("capture.changePhoto") : t("capture.uploadPhoto")}
         </Button>
 
         {image && (
@@ -144,7 +145,7 @@ const ImageCaptureStep = () => {
             label={image.name}
             sx={{
               alignSelf: "flex-start",
-              bgcolor: "rgba(67,160,71,0.15)",
+              bgcolor: "success.light",
               fontWeight: 500,
             }}
           />
@@ -176,17 +177,17 @@ const ImageCaptureStep = () => {
         <Stack spacing={4}>
           <Box>
             <Typography variant="h4" fontWeight={800}>
-              Subí las fotos del producto
+              {t("capture.title")}
             </Typography>
             <Typography color="text.secondary">
-              Tabla nutricional e ingredientes.
+              {t("capture.subtitle")}
             </Typography>
           </Box>
 
           <UploadBlock
             icon={<CollectionsRoundedIcon color="success" />}
-            title="Tabla nutricional"
-            description="Calorías, grasas, carbohidratos, sodio."
+            title={t("capture.nutritionTitle")}
+            description={t("capture.nutritionDesc")}
             inputId="tabla-input"
             image={tablaImage}
             setImage={setTablaImage}
@@ -194,8 +195,8 @@ const ImageCaptureStep = () => {
 
           <UploadBlock
             icon={<AutoAwesomeRoundedIcon color="success" />}
-            title="Lista de ingredientes"
-            description="Incluí todos los ingredientes y aditivos."
+            title={t("capture.ingredientsTitle")}
+            description={t("capture.ingredientsDesc")}
             inputId="ingredientes-input"
             image={ingredientesImage}
             setImage={setIngredientesImage}
@@ -211,17 +212,16 @@ const ImageCaptureStep = () => {
               borderRadius: 999,
               py: 1.4,
               fontWeight: 700,
-              bgcolor: "#0e6253",
-              color: "#fff",
+
             }}
           >
             {loading ? (
               <Stack direction="row" spacing={1} alignItems="center">
-                <CircularProgress size={18} sx={{ color: "#fff" }} />
-                <span>Analizando…</span>
+                <CircularProgress size={18} color="inherit" />
+                <span>{t("capture.analyzing")}</span>
               </Stack>
             ) : (
-              "Continuar"
+              t("capture.continue")
             )}
           </Button>
 

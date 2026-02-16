@@ -21,17 +21,19 @@ import { useNutrition } from "../context/NutritionContext";
 import { useNavigate } from "react-router-dom";
 
 import { API_URL } from "../config/api";
+import { useTranslation } from "react-i18next";
 
 
 const inputSx = {
   "& .MuiFilledInput-root": {
     borderRadius: 999,
-    backgroundColor: "#ffffff",
+    backgroundColor: "background.paper",
     overflow: "hidden",
   },
 };
 
 const UserDataFormStyled = () => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     sexo: "Femenino",
     edad: "",
@@ -96,7 +98,7 @@ const UserDataFormStyled = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#ffffff",
+        bgcolor: "background.paper",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -115,22 +117,22 @@ const UserDataFormStyled = () => {
         {/* HEADER */}
         <Box
           sx={{
-            bgcolor: "#b1b1b1",
-            color: "white",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
             p: 3,
           }}
         >
           <Typography variant="h5" fontWeight={700}>
-            Personalizá tu análisis
+            {t("profile.title")}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9 }}>
-            Completá tus datos
+            {t("profile.subtitle")}
           </Typography>
 
           <Stack direction="row" spacing={1} alignItems="center" mt={2}>
             <ShieldRoundedIcon fontSize="small" />
             <Typography variant="caption">
-              Tus datos se usan solo para este análisis
+              {t("profile.privacy")}
             </Typography>
           </Stack>
         </Box>
@@ -165,7 +167,7 @@ const UserDataFormStyled = () => {
             sx={inputSx}
           >
             <MenuItem value="" disabled>
-              Género
+              {t("profile.gender")}
             </MenuItem>
 
             {["Femenino", "Masculino", "Otro"].map((option) => (
@@ -180,7 +182,7 @@ const UserDataFormStyled = () => {
             type="number"
             value={form.edad}
             onChange={handleChange}
-            placeholder="Edad"
+            placeholder={t("profile.age")}
             hiddenLabel
             variant="filled"
             fullWidth
@@ -200,7 +202,7 @@ const UserDataFormStyled = () => {
             name="actividad"
             value={form.actividad}
             onChange={handleChange}
-            placeholder="Actividad física"
+            placeholder={t("profile.activity")}
             hiddenLabel
             variant="filled"
             fullWidth
@@ -226,7 +228,7 @@ const UserDataFormStyled = () => {
             type="number"
             value={form.peso}
             onChange={handleChange}
-            placeholder="Peso (kg)"
+            placeholder={t("profile.weight")}
             hiddenLabel
             variant="filled"
             fullWidth
@@ -246,7 +248,7 @@ const UserDataFormStyled = () => {
             type="number"
             value={form.altura}
             onChange={handleChange}
-            placeholder="Altura (cm)"
+            placeholder={t("profile.height")}
             hiddenLabel
             variant="filled"
             fullWidth
@@ -268,16 +270,15 @@ const UserDataFormStyled = () => {
               mt: 3,
               py: 1.4,
               borderRadius: 999,
-              bgcolor: "#0f6d63",
-              color: "white",
+
               fontWeight: 600,
               textTransform: "none",
               "&:hover": {
-                bgcolor: "#0c5a52",
+                bgcolor: "primary.dark",
               },
             }}
           >
-            Continuar
+            {t("profile.continue")}
           </Button>
         </Box>
       </Paper>

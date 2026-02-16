@@ -26,9 +26,16 @@ import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import WavingHandOutlinedIcon from "@mui/icons-material/WavingHandOutlined";
 
 import { API_URL } from "../config/api";
+import { useUiPreferences } from "../context/UiPreferencesContext";
 
 const Dashboard = () => {
   const { user, userData, updateUserData, loadingUserData } = useNutrition();
+  const { language } = useUiPreferences();
+  const txt = ({
+    es: {loadingProfile:"Cargando datos de tu perfil...",welcome:"Bienvenido",panel:"Este es tu panel personal de NutriSmart.",personal:"Tus datos personales",gender:"Género",age:"Edad",activity:"Actividad",weight:"Peso",height:"Altura",years:"años",edit:"Editar datos",save:"Guardar",saving:"Guardando...",cancel:"Cancelar",quick:"Resumen rápido",newAnalysis:"Nuevo análisis",scan:"Escaneá un producto y analizalo.",analyze:"Analizar",recent:"Tus análisis recientes",loadingHistory:"Cargando historial...",noHistory:"Todavía no realizaste análisis",avg:"Promedio de análisis",score:"Puntaje",delete:"Eliminar análisis"},
+    en: {loadingProfile:"Loading profile data...",welcome:"Welcome",panel:"This is your personal NutriSmart dashboard.",personal:"Your personal data",gender:"Gender",age:"Age",activity:"Activity",weight:"Weight",height:"Height",years:"years",edit:"Edit data",save:"Save",saving:"Saving...",cancel:"Cancel",quick:"Quick summary",newAnalysis:"New analysis",scan:"Scan a product and analyze it.",analyze:"Analyze",recent:"Your recent analyses",loadingHistory:"Loading history...",noHistory:"You have not done analyses yet",avg:"Analysis average",score:"Score",delete:"Delete analysis"},
+    it: {loadingProfile:"Caricamento dati profilo...",welcome:"Benvenuto",panel:"Questo è il tuo pannello personale NutriSmart.",personal:"I tuoi dati personali",gender:"Genere",age:"Età",activity:"Attività",weight:"Peso",height:"Altezza",years:"anni",edit:"Modifica dati",save:"Salva",saving:"Salvataggio...",cancel:"Annulla",quick:"Riepilogo rapido",newAnalysis:"Nuova analisi",scan:"Scansiona un prodotto e analizzalo.",analyze:"Analizza",recent:"Le tue analisi recenti",loadingHistory:"Caricamento cronologia...",noHistory:"Non hai ancora effettuato analisi",avg:"Media analisi",score:"Punteggio",delete:"Elimina analisi"}
+  }[language] || {});
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,12 +70,12 @@ const Dashboard = () => {
   const formatDateTime = (value) => {
     if (!value) return "";
     const date = new Date(value);
-    const datePart = date.toLocaleDateString("es-AR", {
+    const datePart = date.toLocaleDateString(language === "it" ? "it-IT" : language === "en" ? "en-US" : "es-AR", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-    const timePart = date.toLocaleTimeString("es-AR", {
+    const timePart = date.toLocaleTimeString(language === "it" ? "it-IT" : language === "en" ? "en-US" : "es-AR", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -199,7 +206,7 @@ const Dashboard = () => {
   if (loadingUserData) {
     return (
       <Box sx={{ p: 4, textAlign: "center" }}>
-        <Typography variant="h6">Cargando datos de tu perfil...</Typography>
+        <Typography variant="h6">{txt.loadingProfile}</Typography>
       </Box>
     );
   }
@@ -209,7 +216,7 @@ const Dashboard = () => {
       sx={{
         minHeight: "100vh",
         // Fondo Dashboard
-        bgcolor: "#ffffff",
+        bgcolor: "background.default",
         px: { xs: 2, md: 4 },
         py: 4,
       }}
@@ -219,7 +226,7 @@ const Dashboard = () => {
         <Stack direction="row" spacing={2} alignItems="center">
           <Box>
             <Typography variant="h5" fontWeight={700}>
-              Bienvenido{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+              {txt.welcome}{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
             </Typography>
             {/* <WavingHandOutlinedIcon sx={{ color: "#0f6d63" }} /> */}
             <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
@@ -228,14 +235,14 @@ const Dashboard = () => {
               />
 
               <Typography variant="body2" color="text.secondary">
-                {now.toLocaleDateString("es-AR", {
+                {now.toLocaleDateString(language === "it" ? "it-IT" : language === "en" ? "en-US" : "es-AR", {
                   weekday: "long",
                   day: "2-digit",
                   month: "long",
                   year: "numeric",
                 })}{" "}
                 ·{" "}
-                {now.toLocaleTimeString("es-AR", {
+                {now.toLocaleTimeString(language === "it" ? "it-IT" : language === "en" ? "en-US" : "es-AR", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -245,7 +252,7 @@ const Dashboard = () => {
         </Stack>
 
         <Typography variant="body2" color="text.secondary" mt={1.5}>
-          Este es tu panel personal de NutriSmart.
+          {txt.panel}
         </Typography>
       </Box>
 
@@ -257,7 +264,7 @@ const Dashboard = () => {
           borderRadius: 4,
 
           // Fondo primera card Dashboard
-          bgcolor: "#d1d1d1",
+          bgcolor: "background.paper",
           boxShadow: "0 12px 30px rgba(15, 59, 47, 0.12)",
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "1.4fr 1fr" },
@@ -267,7 +274,7 @@ const Dashboard = () => {
         {/* IZQUIERDA */}
         <Box>
           <Typography variant="h6" fontWeight={700}>
-            Tus datos personales
+            {txt.personal}
           </Typography>
 
           {!editingProfile ? (
@@ -276,38 +283,39 @@ const Dashboard = () => {
                 p: 3,
                 mt: 3,
                 borderRadius: 4,
-                bgcolor: "#f7fcfa",
-                border: "1px solid rgba(15,109,99,0.15)",
+                bgcolor: "background.default",
+                border: "1px solid",
+                borderColor: "divider",
               }}
             >
               <Stack spacing={1.5}>
                 <InfoRow
                   icon={<PersonOutlineRoundedIcon />}
-                  label="Género"
+                  label={txt.gender}
                   value={profileForm.sexo}
                 />
 
                 <InfoRow
                   icon={<CakeOutlinedIcon />}
-                  label="Edad"
+                  label={txt.age}
                   value={profileForm.edad ? `${profileForm.edad} años` : "—"}
                 />
 
                 <InfoRow
                   icon={<FlashOnOutlinedIcon />}
-                  label="Actividad"
+                  label={txt.activity}
                   value={profileForm.actividad}
                 />
 
                 <InfoRow
                   icon={<MonitorWeightOutlinedIcon />}
-                  label="Peso"
+                  label={txt.weight}
                   value={profileForm.peso ? `${profileForm.peso} kg` : "—"}
                 />
 
                 <InfoRow
                   icon={<HeightOutlinedIcon />}
-                  label="Altura"
+                  label={txt.height}
                   value={profileForm.altura ? `${profileForm.altura} cm` : "—"}
                 />
               </Stack>
@@ -319,11 +327,10 @@ const Dashboard = () => {
                   mt: 3,
                   borderRadius: 999,
                   textTransform: "none",
-                  borderColor: "#0f6d63",
-                  color: "#0f6d63",
+
                 }}
               >
-                Editar datos
+                {txt.edit}
               </Button>
             </Paper>
           ) : (
@@ -332,7 +339,7 @@ const Dashboard = () => {
                 <TextField
                   select
                   name="sexo"
-                  label="Género"
+                  label={txt.gender}
                   value={profileForm.sexo}
                   onChange={handleChange}
                   fullWidth
@@ -346,7 +353,7 @@ const Dashboard = () => {
 
                 <TextField
                   name="edad"
-                  label="Edad"
+                  label={txt.age}
                   type="number"
                   value={profileForm.edad}
                   onChange={handleChange}
@@ -396,11 +403,10 @@ const Dashboard = () => {
                   disabled={savingProfile}
                   sx={{
                     borderRadius: 999,
-                    bgcolor: "#0f6d63",
                     textTransform: "none",
                   }}
                 >
-                  {savingProfile ? "Guardando..." : "Guardar"}
+                  {savingProfile ? txt.saving : txt.save}
                 </Button>
 
                 <Button
@@ -408,7 +414,7 @@ const Dashboard = () => {
                   onClick={() => setEditingProfile(false)}
                   sx={{ borderRadius: 999, textTransform: "none" }}
                 >
-                  Cancelar
+                  {txt.cancel}
                 </Button>
               </Stack>
             </Stack>
@@ -420,20 +426,20 @@ const Dashboard = () => {
           sx={{
             p: 3,
             borderRadius: 4,
-            bgcolor: "#ffffff",
+            bgcolor: "background.default",
             border: "1px solid rgba(27,94,75,0.2)",
           }}
         >
           <Typography variant="subtitle1" fontWeight={700} mb={2}>
-            Resumen rápido
+            {txt.quick}
           </Typography>
 
           {[
-            ["Género", profileForm.sexo],
-            ["Edad", profileForm.edad ? `${profileForm.edad} años` : "—"],
-            ["Actividad", profileForm.actividad],
-            ["Peso", profileForm.peso ? `${profileForm.peso} kg` : "—"],
-            ["Altura", profileForm.altura ? `${profileForm.altura} cm` : "—"],
+            [txt.gender, profileForm.sexo],
+            [txt.age, profileForm.edad ? `${profileForm.edad} ${txt.years}` : "—"],
+            [txt.activity, profileForm.actividad],
+            [txt.weight, profileForm.peso ? `${profileForm.peso} kg` : "—"],
+            [txt.height, profileForm.altura ? `${profileForm.altura} cm` : "—"],
           ].map(([label, value]) => (
             <Box key={label}>
               <Stack direction="row" justifyContent="space-between">
@@ -463,10 +469,10 @@ const Dashboard = () => {
       >
         <Box>
           <Typography variant="h6" fontWeight={700}>
-            Nuevo análisis
+            {txt.newAnalysis}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Escaneá un producto y analizalo.
+            {txt.scan}
           </Typography>
         </Box>
 
@@ -481,28 +487,28 @@ const Dashboard = () => {
             textTransform: "none",
           }}
         >
-          Analizar
+          {txt.analyze}
         </Button>
       </Paper>
 
       {/* HISTORIAL */}
       <Typography variant="h6" fontWeight={700} mb={2}>
-        Tus análisis recientes
+        {txt.recent}
       </Typography>
 
       {loading ? (
-        <Typography color="text.secondary">Cargando historial...</Typography>
+        <Typography color="text.secondary">{txt.loadingHistory}</Typography>
       ) : history.length === 0 ? (
         <Paper sx={{ p: 4, borderRadius: 4, textAlign: "center" }}>
           <Typography fontWeight={600}>
-            Todavía no realizaste análisis
+            {txt.noHistory}
           </Typography>
         </Paper>
       ) : (
         <Stack spacing={3}>
           <Paper sx={{ p: 3, borderRadius: 4 }}>
             <Typography fontWeight={700} mt={4} mb={4}>
-              Promedio de análisis ({history.length})
+              {txt.avg} ({history.length})
             </Typography>
             <ScoreDonut score={averageScore} />
           </Paper>
@@ -530,11 +536,11 @@ const Dashboard = () => {
                       {formatDateTime(item.createdAt)}
                     </Typography>
                     <Typography fontWeight={700}>
-                      Puntaje: {item.score}/100
+                      {txt.score}: {item.score}/100
                     </Typography>
                   </Box>
                   <IconButton
-                    aria-label="Eliminar análisis"
+                    aria-label={txt.delete}
                     onClick={() => handleDeleteAnalysis(item._id)}
                     size="small"
                   >
@@ -569,7 +575,7 @@ const InfoRow = ({ icon, label, value }) => (
       gap: 1.5,
     }}
   >
-    <Box sx={{ color: "#0f6d63", display: "flex" }}>{icon}</Box>
+    <Box sx={{ color: "primary.main", display: "flex" }}>{icon}</Box>
 
     <Typography variant="body2" color="text.secondary">
       {label}

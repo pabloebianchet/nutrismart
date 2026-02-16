@@ -23,7 +23,7 @@ const ProfilePage = () => {
     <Box
       sx={{
         minHeight: "100dvh",
-        bgcolor: "#f4fbf7",
+        bgcolor: "background.default",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",

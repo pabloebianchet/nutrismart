@@ -1,5 +1,6 @@
 import { Paper, Typography, Stack, Box, Chip } from "@mui/material";
 import { Bar } from "react-chartjs-2";
+import { useUiPreferences } from "../context/UiPreferencesContext";
 import {
   Chart,
   BarElement,
@@ -16,16 +17,22 @@ const calculateIMC = (peso, alturaCm) => {
   return +(peso / (alturaM * alturaM)).toFixed(1);
 };
 
-const getIMCRiskLevel = (imc) => {
+const getIMCRiskLevel = (imc, language) => {
+  const levels = {
+    es:{under:"Bajo peso",normal:"Normal",over:"Sobrepeso",ob1:"Obesidad I",ob2:"Obesidad II",ob3:"Obesidad III",mod:"Moderado",low:"Bajo",high:"Alto",vhigh:"Muy alto",ext:"Extremo"},
+    en:{under:"Underweight",normal:"Normal",over:"Overweight",ob1:"Obesity I",ob2:"Obesity II",ob3:"Obesity III",mod:"Moderate",low:"Low",high:"High",vhigh:"Very high",ext:"Extreme"},
+    it:{under:"Sottopeso",normal:"Normale",over:"Sovrappeso",ob1:"Obesità I",ob2:"Obesità II",ob3:"Obesità III",mod:"Moderato",low:"Basso",high:"Alto",vhigh:"Molto alto",ext:"Estremo"}
+  };
+  const dict = levels[language] || levels.es;
   if (imc < 18.5)
-    return { label: "Bajo peso", risk: "Moderado", color: "#fdd835" };
-  if (imc < 25) return { label: "Normal", risk: "Bajo", color: "#43a047" };
+    return { label: dict.under, risk: dict.mod, color: "#fdd835" };
+  if (imc < 25) return { label: dict.normal, risk: dict.low, color: "#43a047" };
   if (imc < 30)
-    return { label: "Sobrepeso", risk: "Moderado", color: "#fb8c00" };
-  if (imc < 35) return { label: "Obesidad I", risk: "Alto", color: "#f4511e" };
+    return { label: dict.over, risk: dict.mod, color: "#fb8c00" };
+  if (imc < 35) return { label: dict.ob1, risk: dict.high, color: "#f4511e" };
   if (imc < 40)
-    return { label: "Obesidad II", risk: "Muy alto", color: "#e53935" };
-  return { label: "Obesidad III", risk: "Extremo", color: "#b71c1c" };
+    return { label: dict.ob2, risk: dict.vhigh, color: "#e53935" };
+  return { label: dict.ob3, risk: dict.ext, color: "#b71c1c" };
 };
 
 const getPesoIdeal = (alturaCm) => {
@@ -37,10 +44,16 @@ const getPesoIdeal = (alturaCm) => {
 
 
 const ImcCard = ({ peso, altura }) => {
+  const { language } = useUiPreferences();
+  const txt = {
+    es:{title:"Índice de Masa Corporal (IMC)",risk:"Riesgo",normal:"Normal (18.5 – 24.9)",over:"Sobrepeso",obesity:"Obesidad",healthy:"Peso saludable estimado para tu altura",yourImc:"Tu IMC"},
+    en:{title:"Body Mass Index (BMI)",risk:"Risk",normal:"Normal (18.5 – 24.9)",over:"Overweight",obesity:"Obesity",healthy:"Estimated healthy weight for your height",yourImc:"Your BMI"},
+    it:{title:"Indice di Massa Corporea (BMI)",risk:"Rischio",normal:"Normale (18.5 – 24.9)",over:"Sovrappeso",obesity:"Obesità",healthy:"Peso sano stimato per la tua altezza",yourImc:"Il tuo BMI"}
+  }[language] || {};
   const imc = calculateIMC(peso, altura);
   if (!imc) return null;
 
-  const { label, risk, color } = getIMCRiskLevel(imc);
+  const { label, risk, color } = getIMCRiskLevel(imc, language);
   const pesoIdeal = getPesoIdeal(altura);
 
   const data = {
@@ -60,7 +73,7 @@ const ImcCard = ({ peso, altura }) => {
         barThickness: 18,
       },
       {
-        label: "Tu IMC",
+        label: txt.yourImc,
         data: [imc],
         backgroundColor: color,
         barThickness: 6,
@@ -94,7 +107,7 @@ const ImcCard = ({ peso, altura }) => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: () => `Tu IMC: ${imc}`,
+          label: () => `${txt.yourImc}: ${imc}`,
         },
       },
     },
@@ -110,7 +123,7 @@ const ImcCard = ({ peso, altura }) => {
       }}
     >
       <Typography variant="h6" fontWeight={700} gutterBottom>
-        Índice de Masa Corporal (IMC)
+        {txt.title}
       </Typography>
 
       <Stack spacing={2}>
@@ -130,7 +143,7 @@ const ImcCard = ({ peso, altura }) => {
           />
 
           <Typography color="text.secondary">
-            Riesgo: <strong>{risk}</strong>
+            {txt.risk}: <strong>{risk}</strong>
           </Typography>
         </Stack>
 
@@ -141,14 +154,14 @@ const ImcCard = ({ peso, altura }) => {
 
         {/* REFERENCIAS */}
         <Stack direction="row" spacing={2} flexWrap="wrap">
-          <LegendItem color="#43a047" label="Normal (18.5 – 24.9)" />
-          <LegendItem color="#fb8c00" label="Sobrepeso" />
-          <LegendItem color="#e53935" label="Obesidad" />
+          <LegendItem color="#43a047" label={txt.normal} />
+          <LegendItem color="#fb8c00" label={txt.over} />
+          <LegendItem color="#e53935" label={txt.obesity} />
         </Stack>
 
         {/* INFO */}
         <Typography variant="body2" color="text.secondary" mt={1}>
-          Peso saludable estimado para tu altura: <strong>{pesoIdeal}</strong>
+          {txt.healthy}: <strong>{pesoIdeal}</strong>
         </Typography>
       </Stack>
     </Paper>
