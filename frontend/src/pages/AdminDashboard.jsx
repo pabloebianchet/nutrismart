@@ -56,7 +56,7 @@ const AdminDashboard = () => {
         });
 
         const usersData = await usersRes.json();
-        setUsers(usersData.users);
+        setUsers(usersData.users || []);
       } catch (err) {
         console.error("Admin fetch error:", err);
       } finally {
@@ -142,7 +142,7 @@ const AdminDashboard = () => {
         </TableHead>
 
         <TableBody>
-          {users.map((u) => (
+          {users?.map((u) => (
             <TableRow key={u._id}>
               <TableCell>{u.email}</TableCell>
               <TableCell>{u.edad || "-"}</TableCell>
