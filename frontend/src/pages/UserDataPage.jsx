@@ -27,6 +27,9 @@ const UserDataPage = () => {
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleSuccess = async (credential) => {
     try {
+      // 🔥 Guardamos el token
+      localStorage.setItem("nutrismartToken", credential);
+
       const res = await fetch(`${API_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

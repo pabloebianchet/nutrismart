@@ -1,13 +1,15 @@
+import dotenv from "dotenv";
+dotenv.config(); // ✅ PRIMERO
 import express from "express";
 import cors from "cors";
 import multer from "multer";
-import dotenv from "dotenv";
 import vision from "@google-cloud/vision";
 import OpenAI from "openai";
 import { OAuth2Client } from "google-auth-library";
 import { connectDB } from "./db.js";
 import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
+import adminRoutes from "./routes/admin.js";
 
 connectDB();
 
@@ -21,8 +23,6 @@ function cleanText(text) {
     .replace(/\s+\n/g, "\n") // espacios antes de saltos
     .trim();
 }
-
-dotenv.config();
 
 if (!process.env.GOOGLE_CLIENT_ID) {
   throw new Error("Falta GOOGLE_CLIENT_ID en .env");
@@ -338,6 +338,8 @@ app.get("/api/user/profile/:googleId", async (req, res) => {
 // 🚀 START SERVER
 // =====================
 const PORT = process.env.PORT || 3001;
+
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend corriendo en puerto ${PORT}`);

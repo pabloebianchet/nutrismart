@@ -24,7 +24,6 @@ import MonitorWeightOutlinedIcon from "@mui/icons-material/MonitorWeightOutlined
 import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import WavingHandOutlinedIcon from "@mui/icons-material/WavingHandOutlined";
-
 import { API_URL } from "../config/api";
 
 const Dashboard = () => {
@@ -32,6 +31,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const isAdmin = user?.email === "raccoonitweb@gmail.com";
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -248,6 +248,22 @@ const Dashboard = () => {
           Este es tu panel personal de NutriSmart.
         </Typography>
       </Box>
+      {isAdmin && (
+        <Box mb={3}>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/admin")}
+            sx={{
+              borderRadius: 999,
+              textTransform: "none",
+              borderColor: "#0f6d63",
+              color: "#0f6d63",
+            }}
+          >
+            Ir al Panel de Administración
+          </Button>
+        </Box>
+      )}
 
       {/* PERFIL */}
       <Paper
