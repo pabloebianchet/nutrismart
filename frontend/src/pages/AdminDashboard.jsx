@@ -62,31 +62,29 @@ const AdminDashboard = () => {
     fetchAdminData();
   }, [user, token, navigate]);
 
-
   const handleDelete = async (id) => {
-  if (!window.confirm("¿Eliminar usuario?")) return;
+    if (!window.confirm("¿Eliminar usuario?")) return;
 
-  try {
-    await fetch(`${API_URL}/api/admin/users/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      await fetch(`${API_URL}/api/admin/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    // 🔥 actualizar tabla
-    setUsers((prev) => prev.filter((u) => u._id !== id));
+      // 🔥 actualizar tabla
+      setUsers((prev) => prev.filter((u) => u._id !== id));
 
-    // 🔥 actualizar métricas
-    setStats((prev) => ({
-      ...prev,
-      totalUsers: prev.totalUsers - 1,
-    }));
-
-  } catch (err) {
-    console.error("Delete error:", err);
-  }
-};
+      // 🔥 actualizar métricas
+      setStats((prev) => ({
+        ...prev,
+        totalUsers: prev.totalUsers - 1,
+      }));
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
 
   const filteredUsers = useMemo(() => {
     return users.filter((u) =>
@@ -100,35 +98,33 @@ const AdminDashboard = () => {
     { field: "altura", headerName: "Altura", width: 100 },
     { field: "peso", headerName: "Peso", width: 100 },
     {
-  field: "createdAt",
-  headerName: "Registro",
-  flex: 1,
-  valueGetter: (value) => {
-    if (!value) return "";
-    return new Date(value).toLocaleDateString();
-  },
-},
+      field: "createdAt",
+      headerName: "Registro",
+      flex: 1,
+      valueGetter: (value) => {
+        if (!value) return "";
+        return new Date(value).toLocaleDateString();
+      },
+    },
 
-{
-  field: "actions",
-  headerName: "",
-  width: 70,
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => (
-    <IconButton
-      onClick={() => handleDelete(params.row._id)}
-      sx={{
-        color: "#d32f2f",
-        "&:hover": { backgroundColor: "rgba(211,47,47,0.08)" },
-      }}
-    >
-      <DeleteOutlineRoundedIcon />
-    </IconButton>
-  ),
-},
-
-
+    {
+      field: "actions",
+      headerName: "",
+      width: 70,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <IconButton
+          onClick={() => handleDelete(params.row._id)}
+          sx={{
+            color: "#d32f2f",
+            "&:hover": { backgroundColor: "rgba(211,47,47,0.08)" },
+          }}
+        >
+          <DeleteOutlineRoundedIcon />
+        </IconButton>
+      ),
+    },
   ];
 
   if (loading) {
@@ -161,7 +157,7 @@ const AdminDashboard = () => {
           Panel de Administración
         </Typography>
         <Typography color="text.secondary" mt={1}>
-          Métricas generales y gestión de usuarios.
+          Métricaso generales y gestión de usuarios.
         </Typography>
       </Box>
 
@@ -212,9 +208,10 @@ const AdminDashboard = () => {
         <Box
           sx={{
             height: 500,
-            backgroundColor: "#fff",
+            backgroundColor: "#f4f6f8", // 👈 fondo del contenedor
             borderRadius: 4,
             boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
+            p: 1,
           }}
         >
           <DataGrid
@@ -228,9 +225,32 @@ const AdminDashboard = () => {
             disableRowSelectionOnClick
             sx={{
               border: "none",
+              backgroundColor: "#ffffff", // 👈 fondo de la tabla
+
+              // HEADER
               "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "#f7f9fb",
+                backgroundColor: "#e9eef5",
                 fontWeight: 600,
+              },
+
+              // FILAS
+              "& .MuiDataGrid-row": {
+                backgroundColor: "#ffffff",
+              },
+
+              // EFECTO ZEBRA
+              "& .MuiDataGrid-row:nth-of-type(odd)": {
+                backgroundColor: "#fafafa",
+              },
+
+              // HOVER
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "#e3f2fd",
+              },
+
+              // QUITAR BORDE DE CELDAS
+              "& .MuiDataGrid-cell": {
+                borderBottom: "none",
               },
             }}
           />
