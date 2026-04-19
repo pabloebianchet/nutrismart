@@ -62,7 +62,7 @@ const AboutPage = () => {
               <Box
                 sx={{
                   height: 140,
-                  backgroundImage: "url('./public/img/fondoVerde.jpg')",
+                  background: "linear-gradient(135deg, #65dbb4, #e9d5ff)", // lila claro
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   position: "relative",
@@ -209,7 +209,7 @@ const AboutPage = () => {
               <Box
                 sx={{
                   height: 140,
-                  backgroundImage: "url('./public/img/fondoNaranja.jpg')",
+                  background: "linear-gradient(135deg, #c75568, #e9d5ff)", // lila claro
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   position: "relative",
