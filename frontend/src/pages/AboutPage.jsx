@@ -45,31 +45,72 @@ const AboutPage = () => {
             <Paper
               elevation={0}
               sx={{
-                p: 4,
                 height: "100%",
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 3,
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <AnalyticsRoundedIcon
-                sx={{ fontSize: 40, mb: 2 }}
-                color="primary"
-              />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Análisis inteligente
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Procesamos la información nutricional que cada producto declara
-                en su etiqueta: calorías, azúcares, grasas, sodio, proteínas y
-                más. Transformamos esos datos en indicadores comprensibles y
-                comparables.
-              </Typography>
+              {/* 🖼️ Header con imagen */}
+              <Box
+                sx={{
+                  height: 140,
+                  backgroundImage: "url('./public/img/fondoVerde.jpg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  position: "relative",
+                }}
+              >
+                {/* overlay */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
+                  }}
+                />
+              </Box>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <AnalyticsRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Análisis inteligente
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  Procesamos la información nutricional que cada producto
+                  declara en su etiqueta: calorías, azúcares, grasas, sodio,
+                  proteínas y más. Transformamos esos datos en indicadores
+                  comprensibles y comparables.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
 
@@ -78,30 +119,71 @@ const AboutPage = () => {
             <Paper
               elevation={0}
               sx={{
-                p: 4,
                 height: "100%",
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 3,
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <LocalDiningRoundedIcon
-                sx={{ fontSize: 40, mb: 2 }}
-                color="primary"
-              />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Información clara
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Simplificamos tablas nutricionales complejas para que cualquier
-                persona pueda entender qué está consumiendo realmente y cómo ese
-                alimento impacta en su perfil nutricional.
-              </Typography>
+              {/* 🖼️ Header con imagen */}
+              <Box
+                sx={{
+                  height: 140,
+                  background: "linear-gradient(135deg, #f3e8ff, #e9d5ff)", // lila claro
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
+                  }}
+                />
+              </Box>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <LocalDiningRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Información clara
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  Simplificamos tablas nutricionales complejas para que
+                  cualquier persona pueda entender qué está consumiendo
+                  realmente y cómo ese alimento impacta en su perfil
+                  nutricional.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
 
@@ -110,30 +192,70 @@ const AboutPage = () => {
             <Paper
               elevation={0}
               sx={{
-                p: 4,
                 height: "100%",
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 3,
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <PsychologyRoundedIcon
-                sx={{ fontSize: 40, mb: 2 }}
-                color="primary"
-              />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Decisiones conscientes
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Nuestro objetivo es que cada usuario pueda interpretar mejor la
-                composición de los alimentos y tomar decisiones informadas en
-                función de sus metas personales.
-              </Typography>
+              {/* 🖼️ Header con imagen */}
+              <Box
+                sx={{
+                  height: 140,
+                  backgroundImage: "url('./public/img/fondoNaranja.jpg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
+                  }}
+                />
+              </Box>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <PsychologyRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Decisiones conscientes
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  Nuestro objetivo es que cada usuario pueda interpretar mejor
+                  la composición de los alimentos y tomar decisiones informadas
+                  en función de sus metas personales.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
 
@@ -142,31 +264,60 @@ const AboutPage = () => {
             <Paper
               elevation={0}
               sx={{
-                p: 4,
                 height: "100%",
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 3,
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <VerifiedRoundedIcon
-                sx={{ fontSize: 40, mb: 2 }}
-                color="primary"
+              {/* 🟦 Header celeste */}
+              <Box
+                sx={{
+                  height: 140,
+                  background: "linear-gradient(135deg, #e0f2ff, #b3e5fc)", // celeste suave
+                  position: "relative",
+                }}
               />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                Basado en lo que declara el producto
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                No inventamos información. Nuestro análisis se basa
-                exclusivamente en los datos nutricionales que el fabricante
-                informa en el envase, aplicando criterios objetivos para su
-                evaluación.
-              </Typography>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <VerifiedRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Basado en lo que declara el producto
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  No inventamos información. Nuestro análisis se basa
+                  exclusivamente en los datos nutricionales que el fabricante
+                  informa en el envase, aplicando criterios objetivos para su
+                  evaluación.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
         </Grid>
