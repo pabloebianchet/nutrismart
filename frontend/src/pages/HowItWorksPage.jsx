@@ -1,8 +1,8 @@
-import { Box, Typography, Paper, Stack, Grid, Divider } from "@mui/material";
-import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
-import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { Box, Typography, Paper, Stack, Grid } from "@mui/material";
+import AnalyticsRoundedIcon from "@mui/icons-material/AnalyticsRounded";
+import LocalDiningRoundedIcon from "@mui/icons-material/LocalDiningRounded";
+import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 
 const HowItWorksPage = () => {
   return (
@@ -16,11 +16,10 @@ const HowItWorksPage = () => {
       }}
     >
       <Stack spacing={6}>
-        {/* Header */}
+        {/* Hero */}
         <Box textAlign="center">
           <Typography
             variant="h4"
-            component="h1"
             fontWeight={700}
             gutterBottom
             sx={{ letterSpacing: "-0.5px" }}
@@ -31,136 +30,298 @@ const HowItWorksPage = () => {
           <Typography
             variant="body1"
             color="text.secondary"
-            sx={{ maxWidth: 700, mx: "auto" }}
+            sx={{ maxWidth: 650, mx: "auto" }}
           >
-            Analizamos la información declarada en los envases mediante
-            herramientas de Inteligencia Artificial para brindarte una
-            evaluación clara, objetiva y comprensible.
+            Analizamos la información nutricional declarada en los envases
+            mediante Inteligencia Artificial para brindarte una evaluación clara
+            y comprensible.
           </Typography>
         </Box>
 
-        <Divider />
-
-        {/* Steps */}
+        {/* Cards */}
         <Grid container spacing={3}>
-          {/* Paso 1 */}
-          <Grid item xs={12} md={4}>
+          {/* Card 1 */}
+          <Grid item xs={12} md={6}>
             <Paper
               elevation={0}
               sx={{
-                p: 4,
-                borderRadius: 4,
                 height: "100%",
+                borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  boxShadow: 3,
-                  transform: "translateY(-4px)",
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <PhotoCameraRoundedIcon
-                sx={{ fontSize: 42, mb: 2 }}
-                color="primary"
-              />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                1. Tomás dos fotos
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Capturás una imagen de la tabla nutricional y otra de la lista
-                de ingredientes del producto.
-              </Typography>
+              {/* 🖼️ Header con imagen */}
+              <Box
+                sx={{
+                  height: 140,
+                  background: "linear-gradient(135deg, #65dbb4, #e9d5ff)", // lila claro
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  position: "relative",
+                }}
+              >
+                {/* overlay */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
+                  }}
+                />
+              </Box>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <AnalyticsRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  1. Tomás dos fotos
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  Capturás una imagen de la tabla nutricional y otra de la lista
+                  de ingredientes del producto, asegurando que la información
+                  sea clara y completa para poder analizar correctamente su
+                  composición.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
 
-          {/* Paso 2 */}
-          <Grid item xs={12} md={4}>
+          {/* Card 2 */}
+          <Grid item xs={12} md={6}>
             <Paper
               elevation={0}
               sx={{
-                p: 4,
-                borderRadius: 4,
                 height: "100%",
+                borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  boxShadow: 3,
-                  transform: "translateY(-4px)",
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <AutoAwesomeRoundedIcon
-                sx={{ fontSize: 42, mb: 2 }}
-                color="primary"
-              />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                2. Procesamos con IA
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Nuestra tecnología interpreta los datos declarados por el
-                fabricante y los analiza conforme estándares europeos y
-                criterios internacionales de salud y nivel de procesamiento.
-              </Typography>
+              {/* 🖼️ Header con imagen */}
+              <Box
+                sx={{
+                  height: 140,
+                  background: "linear-gradient(135deg, #f3e8ff, #e9d5ff)", // lila claro
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
+                  }}
+                />
+              </Box>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <LocalDiningRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Procesamos con IA
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  Nuestra tecnología interpreta los datos declarados por el
+                  fabricante y los analiza según estándares nutricionales
+                  reconocidos, evaluando su calidad, composición y nivel de
+                  procesamiento de forma clara y consistente.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
 
-          {/* Paso 3 */}
-          <Grid item xs={12} md={4}>
+          {/* Card 3 */}
+          <Grid item xs={12} md={6}>
             <Paper
               elevation={0}
               sx={{
-                p: 4,
-                borderRadius: 4,
                 height: "100%",
+                borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
+                overflow: "hidden",
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
-                  boxShadow: 3,
-                  transform: "translateY(-4px)",
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
                 },
               }}
             >
-              <InsightsRoundedIcon
-                sx={{ fontSize: 42, mb: 2 }}
-                color="primary"
+              {/* 🖼️ Header con imagen */}
+              <Box
+                sx={{
+                  height: 140,
+                  background: "linear-gradient(135deg, #c75568, #e9d5ff)", // lila claro
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
+                  }}
+                />
+              </Box>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <PsychologyRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Recibís una evaluación clara
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  Te mostramos el nivel de procesamiento del producto y una
+                  evaluación clara sobre su consumo, ayudándote a entender cómo
+                  encaja dentro de una alimentación equilibrada y orientada a
+                  mejores decisiones diarias.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Card 4 */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                height: "100%",
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "divider",
+                overflow: "hidden",
+                transition: "all 0.3s ease",
+                position: "relative",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+                },
+              }}
+            >
+              {/* 🟦 Header celeste */}
+              <Box
+                sx={{
+                  height: 140,
+                  background: "linear-gradient(135deg, #e0f2ff, #b3e5fc)", // celeste suave
+                  position: "relative",
+                }}
               />
-              <Typography variant="h6" fontWeight={600} gutterBottom>
-                3. Recibís una evaluación clara
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Te indicamos el nivel de procesamiento del producto y si resulta
-                recomendable o no para el consumo habitual, desde un enfoque
-                informativo y preventivo.
-              </Typography>
+
+              {/* 🔵 Icono flotante */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 110,
+                  left: 24,
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  backgroundColor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                }}
+              >
+                <VerifiedRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+              </Box>
+
+              {/* 📦 Contenido */}
+              <Box sx={{ p: 4, pt: 5 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Basado en lo que declara el producto
+                </Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                  No inventamos información. Nuestro análisis se basa
+                  exclusivamente en los datos nutricionales que el fabricante
+                  informa en el envase, aplicando criterios objetivos para su
+                  evaluación.
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
         </Grid>
-
-        {/* Disclaimer */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 3,
-            borderRadius: 3,
-            backgroundColor: "background.default",
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Stack direction="row" spacing={2} alignItems="flex-start">
-            <InfoOutlinedIcon color="action" />
-            <Typography variant="body2" color="text.secondary">
-              La información proporcionada por la aplicación tiene fines
-              exclusivamente orientativos y educativos. No constituye consejo
-              médico ni reemplaza la consulta con profesionales de la salud. Las
-              recomendaciones se basan en la información declarada en los
-              envases por los fabricantes.
-            </Typography>
-          </Stack>
-        </Paper>
       </Stack>
     </Box>
   );
