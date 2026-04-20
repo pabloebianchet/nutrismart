@@ -1,8 +1,8 @@
 import { Box, Typography, Paper, Stack, Grid } from "@mui/material";
-import AnalyticsRoundedIcon from "@mui/icons-material/AnalyticsRounded";
-import LocalDiningRoundedIcon from "@mui/icons-material/LocalDiningRounded";
-import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded"; // Paso 1 (fotos)
+import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded"; // Paso 2 (IA)
+import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded"; // Paso 3 (resultado)
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"; // Disclaimer
 
 const HowItWorksPage = () => {
   return (
@@ -95,7 +95,7 @@ const HowItWorksPage = () => {
                   boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
                 }}
               >
-                <AnalyticsRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+                <PhotoCameraRoundedIcon color="primary" sx={{ fontSize: 28 }} />
               </Box>
 
               {/* 📦 Contenido */}
@@ -168,7 +168,7 @@ const HowItWorksPage = () => {
                   boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
                 }}
               >
-                <LocalDiningRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+                <AutoAwesomeRoundedIcon color="primary" sx={{ fontSize: 28 }} />
               </Box>
 
               {/* 📦 Contenido */}
@@ -241,7 +241,7 @@ const HowItWorksPage = () => {
                   boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
                 }}
               >
-                <PsychologyRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+                <InsightsRoundedIcon color="primary" sx={{ fontSize: 28 }} />
               </Box>
 
               {/* 📦 Contenido */}
@@ -303,7 +303,7 @@ const HowItWorksPage = () => {
                   boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
                 }}
               >
-                <VerifiedRoundedIcon color="primary" sx={{ fontSize: 28 }} />
+                <InfoOutlinedIcon color="primary" sx={{ fontSize: 28 }} />
               </Box>
 
               {/* 📦 Contenido */}
