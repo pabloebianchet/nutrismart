@@ -22,6 +22,7 @@ import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
 /* ─── Tokens ─────────────────────────────── */
 const C = {
@@ -150,42 +151,50 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState(null);
 
   const token = localStorage.getItem("nutrismartToken");
+
+  const fetchAdminData = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
+    else setRefreshing(true);
+    try {
+      const statsRes = await fetch(`${API_URL}/api/admin/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (statsRes.status === 401 || statsRes.status === 403) {
+        navigate("/");
+        return;
+      }
+      setStats(await statsRes.json());
+
+      const usersRes = await fetch(`${API_URL}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!usersRes.ok) {
+        navigate("/");
+        return;
+      }
+      const usersData = await usersRes.json();
+      setUsers(usersData.users || []);
+    } catch (err) {
+      console.error("Admin fetch error:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
       navigate("/");
       return;
     }
-
-    const fetchAdminData = async () => {
-      try {
-        const statsRes = await fetch(`${API_URL}/api/admin/stats`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (statsRes.status === 403) {
-          navigate("/");
-          return;
-        }
-        setStats(await statsRes.json());
-
-        const usersRes = await fetch(`${API_URL}/api/admin/users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const usersData = await usersRes.json();
-        setUsers(usersData.users || []);
-      } catch (err) {
-        console.error("Admin fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAdminData();
-  }, [user, token, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Eliminar usuario?")) return;
@@ -445,6 +454,30 @@ const AdminDashboard = () => {
         >
           Volver al panel
         </Button>
+
+        <IconButton
+          onClick={() => fetchAdminData({ silent: true })}
+          disabled={refreshing}
+          title="Actualizar datos"
+          sx={{
+            border: `1px solid ${C.border}`,
+            bgcolor: C.surface,
+            boxShadow: shadow.sm,
+            borderRadius: 2.5,
+            transition: "all 0.2s",
+            "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted },
+          }}
+        >
+          <RefreshRoundedIcon
+            sx={{
+              fontSize: 20,
+              color: C.textSecondary,
+              transition: "transform 0.4s",
+              animation: refreshing ? "spin 0.6s linear infinite" : "none",
+              "@keyframes spin": { to: { transform: "rotate(360deg)" } },
+            }}
+          />
+        </IconButton>
       </Stack>
 
       {/* ── KPI CARDS ───────────────────────────── */}
