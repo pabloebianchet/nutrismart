@@ -41,6 +41,7 @@ const UserDataPage = () => {
       }
 
       const data = await res.json();
+      if (!data.user) throw new Error("Respuesta inválida del servidor");
       setUser(data.user);
     } catch (err) {
       console.error("Google login error:", err);
