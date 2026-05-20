@@ -469,6 +469,8 @@ const Dashboard = () => {
       >
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
+            src={user?.picture}
+            alt={user?.name}
             sx={{
               width: 52,
               height: 52,
