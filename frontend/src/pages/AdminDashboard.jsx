@@ -219,16 +219,11 @@ const AdminDashboard = () => {
       headerName: "Usuario",
       flex: 1.8,
       renderCell: (params) => (
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1.5}
-          sx={{ py: 0.5 }}
-        >
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <Avatar
             sx={{
-              width: 32,
-              height: 32,
+              width: 34,
+              height: 34,
               fontSize: 12,
               fontWeight: 700,
               bgcolor: C.brandSurface,
@@ -430,7 +425,7 @@ const AdminDashboard = () => {
 
         <Button
           startIcon={<ArrowBackRoundedIcon />}
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/")}
           sx={{
             textTransform: "none",
             color: C.textSecondary,
@@ -553,14 +548,16 @@ const AdminDashboard = () => {
                 },
               },
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchRoundedIcon
-                    sx={{ fontSize: 18, color: C.textMuted }}
-                  />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchRoundedIcon
+                      sx={{ fontSize: 18, color: C.textMuted }}
+                    />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         </Box>
@@ -576,7 +573,7 @@ const AdminDashboard = () => {
               pagination: { paginationModel: { pageSize: 10, page: 0 } },
             }}
             disableRowSelectionOnClick
-            rowHeight={56}
+            rowHeight={68}
             sx={{
               border: "none",
               bgcolor: C.surface,
@@ -589,6 +586,7 @@ const AdminDashboard = () => {
               },
               "& .MuiDataGrid-columnHeader": {
                 bgcolor: C.surfaceAlt,
+                px: 2.5,
               },
               "& .MuiDataGrid-columnHeaderTitle": {
                 fontSize: 11,
@@ -615,14 +613,19 @@ const AdminDashboard = () => {
               "& .MuiDataGrid-cell": {
                 border: "none",
                 outline: "none !important",
+                display: "flex",
+                alignItems: "center",
+                px: 2.5,
                 "&:focus": { outline: "none" },
+                "&:focus-within": { outline: "none" },
               },
 
               /* Footer */
               "& .MuiDataGrid-footerContainer": {
                 borderTop: `1px solid ${C.border}`,
                 bgcolor: C.surfaceAlt,
-                minHeight: 48,
+                minHeight: 52,
+                px: 1,
               },
               "& .MuiTablePagination-root": {
                 fontSize: 13,

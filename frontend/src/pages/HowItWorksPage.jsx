@@ -1,330 +1,362 @@
-import { Box, Typography, Paper, Stack, Grid } from "@mui/material";
-import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded"; // Paso 1 (fotos)
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded"; // Paso 2 (IA)
-import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded"; // Paso 3 (resultado)
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"; // Disclaimer
+import { Box, Typography, Chip } from "@mui/material";
+import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
+import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import FlashOnRoundedIcon from "@mui/icons-material/FlashOnRounded";
 
-const HowItWorksPage = () => {
-  return (
+const C = {
+  brand: "#0B5E55",
+  brandLight: "#0f7a6e",
+  brandSurface: "#E6F5F3",
+  brandMuted: "#B2DDD9",
+  surface: "#FFFFFF",
+  surfaceAlt: "#F7F9F8",
+  border: "rgba(11,94,85,0.10)",
+  borderMed: "rgba(11,94,85,0.18)",
+  textPrimary: "#0F2420",
+  textSecondary: "#4A6B67",
+  textMuted: "#8AADAA",
+};
+
+const steps = [
+  {
+    n: "01",
+    Icon: PhotoCameraRoundedIcon,
+    title: "Tomás dos fotos",
+    body: "Capturás la tabla nutricional y la lista de ingredientes del producto. Solo necesitás que la imagen sea clara y legible.",
+    color: "#0B5E55",
+    accent: "rgba(11,94,85,0.12)",
+  },
+  {
+    n: "02",
+    Icon: AutoAwesomeRoundedIcon,
+    title: "Procesamos con IA",
+    body: "Nuestra tecnología analiza los datos declarados por el fabricante según estándares nutricionales reconocidos, evaluando calidad y nivel de procesamiento.",
+    color: "#0f7a6e",
+    accent: "rgba(15,122,110,0.12)",
+  },
+  {
+    n: "03",
+    Icon: InsightsRoundedIcon,
+    title: "Recibís tu evaluación",
+    body: "Obtenés una lectura clara del producto y recomendaciones sobre cómo encaja en una alimentación equilibrada y orientada a tus metas.",
+    color: "#138578",
+    accent: "rgba(19,133,120,0.12)",
+  },
+];
+
+const HowItWorksPage = () => (
+  <Box
+    sx={{
+      minHeight: "100vh",
+      background:
+        "linear-gradient(160deg, #edf8f5 0%, #ffffff 55%, #f4f9f7 100%)",
+      position: "relative",
+      overflow: "hidden",
+      "@keyframes fadeUp": {
+        from: { opacity: 0, transform: "translateY(28px)" },
+        to: { opacity: 1, transform: "translateY(0)" },
+      },
+      "@keyframes slideRight": {
+        from: { opacity: 0, transform: "translateX(-20px)" },
+        to: { opacity: 1, transform: "translateX(0)" },
+      },
+    }}
+  >
+    {/* Blobs */}
     <Box
       sx={{
-        px: { xs: 3, sm: 6 },
-        pt: { xs: 10, sm: 14 },
-        pb: 8,
-        maxWidth: "1100px",
+        position: "absolute",
+        top: -100,
+        right: -100,
+        width: 440,
+        height: 440,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle, rgba(11,94,85,0.07) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }}
+    />
+    <Box
+      sx={{
+        position: "absolute",
+        bottom: 60,
+        left: -120,
+        width: 480,
+        height: 480,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle, rgba(11,94,85,0.04) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }}
+    />
+
+    <Box
+      sx={{
+        px: { xs: 3, sm: 6, md: 10 },
+        pt: { xs: 11, sm: 15 },
+        pb: 12,
+        maxWidth: 1080,
         mx: "auto",
+        position: "relative",
       }}
     >
-      <Stack spacing={6}>
-        {/* Hero */}
-        <Box textAlign="center">
-          <Typography
-            variant="h4"
-            fontWeight={700}
-            gutterBottom
-            sx={{ letterSpacing: "-0.5px" }}
-          >
-            Cómo funciona
-          </Typography>
+      {/* ── Hero ── */}
+      <Box
+        textAlign="center"
+        sx={{ mb: 10, animation: "fadeUp 0.65s ease both" }}
+      >
+        <Chip
+          icon={
+            <FlashOnRoundedIcon
+              sx={{
+                fontSize: "14px !important",
+                color: `${C.brand} !important`,
+              }}
+            />
+          }
+          label="Cómo funciona"
+          sx={{
+            mb: 3,
+            bgcolor: C.brandSurface,
+            color: C.brand,
+            fontWeight: 700,
+            fontSize: 12,
+            border: `1px solid ${C.brandMuted}`,
+            px: 0.5,
+          }}
+        />
 
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ maxWidth: 650, mx: "auto" }}
+        <Typography
+          variant="h3"
+          fontWeight={900}
+          sx={{
+            letterSpacing: "-1.5px",
+            lineHeight: 1.12,
+            mb: 3,
+            background: `linear-gradient(135deg, ${C.textPrimary} 30%, ${C.brandLight} 100%)`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            fontSize: { xs: 32, sm: 42 },
+          }}
+        >
+          Tres pasos, resultado
+          <br />
+          inmediato
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: { xs: 15, sm: 17 },
+            color: C.textSecondary,
+            maxWidth: 540,
+            mx: "auto",
+            lineHeight: 1.75,
+          }}
+        >
+          Analizamos la información nutricional declarada en los envases
+          mediante Inteligencia Artificial para brindarte una evaluación clara y
+          comprensible.
+        </Typography>
+      </Box>
+
+      {/* ── Steps ── */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
+          gap: { xs: 0, md: 3 },
+          position: "relative",
+        }}
+      >
+        {/* Línea conectora desktop */}
+        <Box
+          sx={{
+            display: { xs: "none", md: "block" },
+            position: "absolute",
+            top: 52,
+            left: "calc(33.3% + 8px)",
+            right: "calc(33.3% + 8px)",
+            height: 2,
+            background: `linear-gradient(90deg, ${C.brandMuted} 0%, ${C.brandMuted} 100%)`,
+            zIndex: 0,
+            "&::before, &::after": {
+              content: '""',
+              position: "absolute",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              bgcolor: C.brandMuted,
+            },
+            "&::before": { left: 0 },
+            "&::after": { right: 0 },
+          }}
+        />
+
+        {steps.map(({ n, Icon, title, body, color, accent }, i) => (
+          <Box
+            key={n}
+            sx={{
+              position: "relative",
+              zIndex: 1,
+              animation: `fadeUp 0.65s ${0.15 + i * 0.15}s ease both`,
+            }}
           >
-            Analizamos la información nutricional declarada en los envases
-            mediante Inteligencia Artificial para brindarte una evaluación clara
-            y comprensible.
+            {/* Línea conectora mobile */}
+            {i < steps.length - 1 && (
+              <Box
+                sx={{
+                  display: { xs: "flex", md: "none" },
+                  justifyContent: "flex-start",
+                  pl: "36px",
+                  my: 0,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 2,
+                    height: 40,
+                    bgcolor: C.brandMuted,
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+            )}
+
+            <Box
+              sx={{
+                bgcolor: C.surface,
+                border: `1px solid ${C.border}`,
+                borderRadius: 4,
+                p: { xs: 3, md: 3.5 },
+                height: "100%",
+                boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
+                transition:
+                  "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: "0 20px 48px rgba(11,94,85,0.13)",
+                  borderColor: C.brandMuted,
+                },
+              }}
+            >
+              {/* Número + ícono */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  mb: 3,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 3,
+                    bgcolor: accent,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    border: `1.5px solid ${color}22`,
+                  }}
+                >
+                  <Icon sx={{ fontSize: 28, color }} />
+                </Box>
+
+                <Typography
+                  sx={{
+                    fontSize: 36,
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    color: `${color}22`,
+                    letterSpacing: "-2px",
+                    userSelect: "none",
+                  }}
+                >
+                  {n}
+                </Typography>
+              </Box>
+
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  fontSize: 16,
+                  color: C.textPrimary,
+                  mb: 1.2,
+                  letterSpacing: "-0.3px",
+                }}
+              >
+                {title}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 13.5,
+                  color: C.textSecondary,
+                  lineHeight: 1.7,
+                }}
+              >
+                {body}
+              </Typography>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+
+      {/* ── Disclaimer ── */}
+      <Box
+        sx={{
+          mt: 7,
+          bgcolor: C.surfaceAlt,
+          border: `1px solid ${C.border}`,
+          borderRadius: 4,
+          p: { xs: 3, md: 4 },
+          display: "flex",
+          gap: 2.5,
+          alignItems: "flex-start",
+          animation: "fadeUp 0.65s 0.6s ease both",
+        }}
+      >
+        <Box
+          sx={{
+            flexShrink: 0,
+            width: 40,
+            height: 40,
+            borderRadius: 2.5,
+            bgcolor: C.brandSurface,
+            border: `1px solid ${C.brandMuted}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <InfoOutlinedIcon sx={{ fontSize: 20, color: C.brand }} />
+        </Box>
+        <Box>
+          <Typography
+            sx={{
+              fontWeight: 700,
+              fontSize: 14,
+              color: C.textPrimary,
+              mb: 0.5,
+            }}
+          >
+            Importante
+          </Typography>
+          <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.7 }}>
+            No inventamos información. Nuestro análisis se basa exclusivamente
+            en los datos nutricionales que el fabricante informa en el envase,
+            aplicando criterios objetivos y estandarizados para su evaluación.
           </Typography>
         </Box>
-
-        {/* Cards */}
-        <Grid container spacing={3}>
-          {/* Card 1 */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                height: "100%",
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: "divider",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                },
-              }}
-            >
-              {/* 🖼️ Header con imagen */}
-              <Box
-                sx={{
-                  height: 140,
-                  background: "linear-gradient(135deg, #65dbb4, #e9d5ff)", // lila claro
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  position: "relative",
-                }}
-              >
-                {/* overlay */}
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
-                  }}
-                />
-              </Box>
-
-              {/* 🔵 Icono flotante */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 110,
-                  left: 24,
-                  width: 56,
-                  height: 56,
-                  borderRadius: "50%",
-                  backgroundColor: "background.paper",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-                }}
-              >
-                <PhotoCameraRoundedIcon color="primary" sx={{ fontSize: 28 }} />
-              </Box>
-
-              {/* 📦 Contenido */}
-              <Box sx={{ p: 4, pt: 5 }}>
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  1. Tomás dos fotos
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  Capturás una imagen de la tabla nutricional y otra de la lista
-                  de ingredientes del producto, asegurando que la información
-                  sea clara y completa para poder analizar correctamente su
-                  composición.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Card 2 */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                height: "100%",
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: "divider",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                },
-              }}
-            >
-              {/* 🖼️ Header con imagen */}
-              <Box
-                sx={{
-                  height: 140,
-                  background: "linear-gradient(135deg, #f3e8ff, #e9d5ff)", // lila claro
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  position: "relative",
-                }}
-              >
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
-                  }}
-                />
-              </Box>
-
-              {/* 🔵 Icono flotante */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 110,
-                  left: 24,
-                  width: 56,
-                  height: 56,
-                  borderRadius: "50%",
-                  backgroundColor: "background.paper",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-                }}
-              >
-                <AutoAwesomeRoundedIcon color="primary" sx={{ fontSize: 28 }} />
-              </Box>
-
-              {/* 📦 Contenido */}
-              <Box sx={{ p: 4, pt: 5 }}>
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  Procesamos con IA
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  Nuestra tecnología interpreta los datos declarados por el
-                  fabricante y los analiza según estándares nutricionales
-                  reconocidos, evaluando su calidad, composición y nivel de
-                  procesamiento de forma clara y consistente.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Card 3 */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                height: "100%",
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: "divider",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                },
-              }}
-            >
-              {/* 🖼️ Header con imagen */}
-              <Box
-                sx={{
-                  height: 140,
-                  background: "linear-gradient(135deg, #c75568, #e9d5ff)", // lila claro
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  position: "relative",
-                }}
-              >
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4))",
-                  }}
-                />
-              </Box>
-
-              {/* 🔵 Icono flotante */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 110,
-                  left: 24,
-                  width: 56,
-                  height: 56,
-                  borderRadius: "50%",
-                  backgroundColor: "background.paper",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-                }}
-              >
-                <InsightsRoundedIcon color="primary" sx={{ fontSize: 28 }} />
-              </Box>
-
-              {/* 📦 Contenido */}
-              <Box sx={{ p: 4, pt: 5 }}>
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  Recibís una evaluación clara
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  Te mostramos el nivel de procesamiento del producto y una
-                  evaluación clara sobre su consumo, ayudándote a entender cómo
-                  encaja dentro de una alimentación equilibrada y orientada a
-                  mejores decisiones diarias.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Card 4 */}
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                height: "100%",
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: "divider",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-6px)",
-                  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                },
-              }}
-            >
-              {/* 🟦 Header celeste */}
-              <Box
-                sx={{
-                  height: 140,
-                  background: "linear-gradient(135deg, #e0f2ff, #b3e5fc)", // celeste suave
-                  position: "relative",
-                }}
-              />
-
-              {/* 🔵 Icono flotante */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 110,
-                  left: 24,
-                  width: 56,
-                  height: 56,
-                  borderRadius: "50%",
-                  backgroundColor: "background.paper",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-                }}
-              >
-                <InfoOutlinedIcon color="primary" sx={{ fontSize: 28 }} />
-              </Box>
-
-              {/* 📦 Contenido */}
-              <Box sx={{ p: 4, pt: 5 }}>
-                <Typography variant="h6" fontWeight={600} gutterBottom>
-                  Basado en lo que declara el producto
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  No inventamos información. Nuestro análisis se basa
-                  exclusivamente en los datos nutricionales que el fabricante
-                  informa en el envase, aplicando criterios objetivos para su
-                  evaluación.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Stack>
+      </Box>
     </Box>
-  );
-};
+  </Box>
+);
 
 export default HowItWorksPage;
