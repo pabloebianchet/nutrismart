@@ -921,7 +921,12 @@ const Dashboard = () => {
 
       {/* ── TEST CARD (IMC u otro) ───────────────── */}
       <Box mb={4}>
-        <TestCard peso={profileForm.peso} altura={profileForm.altura} />
+        <TestCard
+          peso={profileForm.peso}
+          altura={profileForm.altura}
+          sexo={profileForm.sexo}
+          edad={profileForm.edad}
+        />
       </Box>
 
       {/* ── CTA NUEVO ANÁLISIS ──────────────────── */}
