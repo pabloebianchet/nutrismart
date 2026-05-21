@@ -10,6 +10,7 @@ import { connectDB } from "./db.js";
 import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
 import adminRoutes from "./routes/admin.js";
+import authEmailRoutes from "./routes/authEmail.js";
 
 connectDB();
 
@@ -355,6 +356,7 @@ app.get("/api/user/profile/:googleId", async (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 app.use("/api/admin", adminRoutes);
+app.use("/api/auth", authEmailRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend corriendo en puerto ${PORT}`);
