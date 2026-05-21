@@ -76,7 +76,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
       </Box>
 
       {/* Separador */}
-      <Box sx={{ width: 1, height: 22, bgcolor: "rgba(11,94,85,0.14)", flexShrink: 0 }} />
+      <Box sx={{ width: "1px", height: 22, bgcolor: "rgba(11,94,85,0.14)", flexShrink: 0 }} />
 
       {/* Links nav */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 1 }}>
