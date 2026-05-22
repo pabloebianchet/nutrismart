@@ -94,6 +94,14 @@ export const NutritionProvider = ({ children }) => {
             setUserData({ profileCompleted: false });
             return;
           }
+          if (res.status === 401) {
+            // Token inválido o expirado — limpiar sesión
+            localStorage.removeItem("nutrismartToken");
+            localStorage.removeItem("nutrismartUser");
+            setUser(null);
+            setUserData(null);
+            return;
+          }
           throw new Error("Error cargando perfil");
         }
 

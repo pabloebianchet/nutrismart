@@ -41,7 +41,10 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const app = express();
 
 // ── Seguridad básica de headers ──────────────────────────
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginOpenerPolicy: false, // Google Sign-In popup necesita postMessage
+}));
 
 // ── Rate limiting global ─────────────────────────────────
 const globalLimiter = rateLimit({
@@ -367,7 +370,7 @@ app.post("/api/auth/google", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     return res.json({ user, token });
   } catch (err) {
-    console.error("Google auth error:", err);
+    console.error("Google auth error:", err?.message || err);
     return res.status(401).json({ error: "Invalid Google token" });
   }
 });
