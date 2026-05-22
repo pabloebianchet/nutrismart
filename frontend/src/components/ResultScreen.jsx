@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
 import PointsCelebration from "./PointsCelebration";
+import PointsPenalty from "./PointsPenalty";
 import AnalyzingLoader from "./AnalyzingLoader";
 
 import { API_URL } from "../config/api";
@@ -26,8 +27,9 @@ const ResultScreen = () => {
   const [analysis, setAnalysis] = useState("");
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [celebration, setCelebration] = useState(null);
-  const [limitError, setLimitError] = useState(null);
+  const [celebration, setCelebration] = useState(null); // { points, totalPoints }
+  const [penalty,     setPenalty]     = useState(null); // { points, totalPoints }
+  const [limitError,  setLimitError]  = useState(null);
   const hasFetched = useRef(false);
 
   const navigate = useNavigate();
@@ -76,6 +78,9 @@ const ResultScreen = () => {
 
         if (data.pointsEarned > 0 && data.totalPoints != null) {
           setCelebration({ points: data.pointsEarned, totalPoints: data.totalPoints });
+          updateUserData({ healthyPoints: data.totalPoints });
+        } else if (data.pointsLost > 0 && data.totalPoints != null) {
+          setPenalty({ points: data.pointsLost, totalPoints: data.totalPoints });
           updateUserData({ healthyPoints: data.totalPoints });
         }
       } catch (err) {
@@ -159,6 +164,13 @@ const ResultScreen = () => {
           points={celebration.points}
           totalPoints={celebration.totalPoints}
           onDone={() => setCelebration(null)}
+        />
+      )}
+      {penalty && (
+        <PointsPenalty
+          points={penalty.points}
+          totalPoints={penalty.totalPoints}
+          onDone={() => setPenalty(null)}
         />
       )}
     <Box

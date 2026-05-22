@@ -310,10 +310,13 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
       productText,
     });
 
-    // Puntos saludables: +5 si el score es >= 50
+    // Puntos saludables
     let pointsEarned = 0;
-    let totalPoints = authUser.healthyPoints ?? 0;
+    let pointsLost   = 0;
+    let totalPoints  = authUser.healthyPoints ?? 0;
+
     if (score >= 50) {
+      // ≥ 50 → suma 5 puntos
       pointsEarned = 5;
       const updated = await User.findByIdAndUpdate(
         authUser._id,
@@ -321,12 +324,26 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
         { new: true },
       );
       totalPoints = updated.healthyPoints;
+    } else if (score > 0) {
+      // < 50 (y análisis válido) → resta 3 puntos, mínimo 0
+      const current   = authUser.healthyPoints ?? 0;
+      const deduction = Math.min(3, current);
+      if (deduction > 0) {
+        pointsLost = deduction;
+        const updated = await User.findByIdAndUpdate(
+          authUser._id,
+          { $inc: { healthyPoints: -deduction } },
+          { new: true },
+        );
+        totalPoints = updated.healthyPoints;
+      }
     }
 
     return res.json({
       score,
       analysis,
       pointsEarned,
+      pointsLost,
       totalPoints,
     });
   } catch (err) {
