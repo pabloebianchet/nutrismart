@@ -167,11 +167,11 @@ const HowItWorksPage = () => (
         sx={{
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
-          gap: { xs: 0, md: 3 },
+          gap: 3,
           position: "relative",
         }}
       >
-        {/* Línea conectora desktop */}
+        {/* Línea conectora — solo desktop */}
         <Box
           sx={{
             display: { xs: "none", md: "block" },
@@ -180,20 +180,9 @@ const HowItWorksPage = () => (
             left: "calc(33.3% + 8px)",
             right: "calc(33.3% + 8px)",
             height: 2,
-            background: `linear-gradient(90deg, ${C.brandMuted} 0%, ${C.brandMuted} 100%)`,
+            bgcolor: C.brandMuted,
             zIndex: 0,
-            "&::before, &::after": {
-              content: '""',
-              position: "absolute",
-              top: "50%",
-              transform: "translateY(-50%)",
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              bgcolor: C.brandMuted,
-            },
-            "&::before": { left: 0 },
-            "&::after": { right: 0 },
+            borderRadius: 1,
           }}
         />
 
@@ -206,34 +195,12 @@ const HowItWorksPage = () => (
               animation: `fadeUp 0.65s ${0.15 + i * 0.15}s ease both`,
             }}
           >
-            {/* Línea conectora mobile */}
-            {i < steps.length - 1 && (
-              <Box
-                sx={{
-                  display: { xs: "flex", md: "none" },
-                  justifyContent: "flex-start",
-                  pl: "36px",
-                  my: 0,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 2,
-                    height: 40,
-                    bgcolor: C.brandMuted,
-                    borderRadius: 1,
-                  }}
-                />
-              </Box>
-            )}
-
             <Box
               sx={{
                 bgcolor: C.surface,
                 border: `1px solid ${C.border}`,
                 borderRadius: 4,
                 p: { xs: 3, md: 3.5 },
-                height: "100%",
                 boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
                 transition:
                   "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
@@ -245,14 +212,7 @@ const HowItWorksPage = () => (
               }}
             >
               {/* Número + ícono */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  mb: 3,
-                }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Box
                   sx={{
                     width: 56,
@@ -295,11 +255,7 @@ const HowItWorksPage = () => (
                 {title}
               </Typography>
               <Typography
-                sx={{
-                  fontSize: 13.5,
-                  color: C.textSecondary,
-                  lineHeight: 1.7,
-                }}
+                sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.7 }}
               >
                 {body}
               </Typography>
