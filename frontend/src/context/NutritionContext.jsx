@@ -60,7 +60,8 @@ export const NutritionProvider = ({ children }) => {
   ====================== */
 
   useEffect(() => {
-    const currentId = user?.googleId || null;
+    // Usar _id como identificador universal (existe en Google y email users)
+    const currentId = user?._id || user?.googleId || null;
 
     if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
       setUserData(null);
@@ -76,12 +77,14 @@ export const NutritionProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!user?.googleId) return;
+      // Usar _id (todos los usuarios) con fallback a googleId (compatibilidad)
+      const identifier = user?._id || user?.googleId;
+      if (!identifier) return;
 
       setLoadingUserData(true);
       try {
         const res = await fetch(
-          `${API_URL}/api/user/profile/${user.googleId}`,
+          `${API_URL}/api/user/profile/${identifier}`,
         );
 
         if (!res.ok) {
@@ -104,7 +107,7 @@ export const NutritionProvider = ({ children }) => {
     };
 
     fetchUserData();
-  }, [user?.googleId]);
+  }, [user?._id, user?.googleId]);
 
   /* ======================
      PUBLIC ACTIONS

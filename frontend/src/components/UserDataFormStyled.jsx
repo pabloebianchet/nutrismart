@@ -44,9 +44,10 @@ const UserDataFormStyled = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user?.googleId) return;
+    const identifier = user?._id || user?.googleId;
+    if (!identifier) return;
 
-    fetch(`${API_URL}/api/user/profile/${user.googleId}`)
+    fetch(`${API_URL}/api/user/profile/${identifier}`)
       .then((res) => {
         if (!res.ok) throw new Error("No profile");
         return res.json();
@@ -81,6 +82,7 @@ const UserDataFormStyled = () => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        userId: user._id,
         googleId: user.googleId,
         ...form,
       }),

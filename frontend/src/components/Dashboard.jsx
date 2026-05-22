@@ -320,11 +320,12 @@ const Dashboard = () => {
   }, [userData]);
 
   const fetchHistory = useCallback(async () => {
-    if (!user?.googleId) return;
+    const identifier = user?._id || user?.googleId;
+    if (!identifier) return;
     setLoading(true);
     try {
       const res = await axios.get(
-        `${API_URL}/api/user/analysis/${user.googleId}`,
+        `${API_URL}/api/user/analysis/${identifier}`,
       );
       setHistory(res.data.history || []);
     } catch (err) {
@@ -332,10 +333,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.googleId]);
+  }, [user?._id, user?.googleId]);
 
   useEffect(() => {
-    if (!user?.googleId) return;
+    const identifier = user?._id || user?.googleId;
+    if (!identifier) return;
     if (userData?.profileCompleted !== true) {
       navigate("/profile", { replace: true });
       return;
@@ -344,6 +346,7 @@ const Dashboard = () => {
   }, [
     fetchHistory,
     navigate,
+    user?._id,
     user?.googleId,
     userData?.profileCompleted,
     location.key,
@@ -362,13 +365,13 @@ const Dashboard = () => {
   };
 
   const handleSaveProfile = async () => {
-    if (!user?.googleId) return;
+    if (!user?._id && !user?.googleId) return;
     setSavingProfile(true);
     try {
       const response = await fetch(`${API_URL}/api/user/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ googleId: user.googleId, ...profileForm }),
+        body: JSON.stringify({ userId: user._id, googleId: user.googleId, ...profileForm }),
       });
       const data = await response.json();
       if (!response.ok)

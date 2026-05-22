@@ -123,7 +123,7 @@ app.post(
 // =====================
 app.post("/api/analyze", async (req, res) => {
   try {
-    const { userData, productText, googleId } = req.body;
+    const { userData, productText, googleId, userId } = req.body;
 
     if (!userData || !productText) {
       return res.status(400).json({ error: "Faltan datos requeridos" });
@@ -233,7 +233,13 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
 
     const score = match ? parseInt(match[1], 10) : 0;
 
-    const user = await User.findOne({ googleId });
+    const identifier = userId || googleId;
+    const isObjectId = identifier && /^[a-f\d]{24}$/i.test(identifier);
+    const user = identifier
+      ? isObjectId
+        ? await User.findById(identifier)
+        : await User.findOne({ googleId: identifier })
+      : null;
 
     if (!user) {
       return res.status(404).json({
@@ -299,23 +305,20 @@ app.post("/api/auth/google", async (req, res) => {
 // 👤 UPDATE USER PROFILE
 // =====================
 app.put("/api/user/profile", async (req, res) => {
-  const { googleId, sexo, edad, actividad, peso, altura } = req.body;
+  const { googleId, userId, sexo, edad, actividad, peso, altura } = req.body;
 
-  if (!googleId) {
-    return res.status(400).json({ error: "Missing googleId" });
+  const identifier = userId || googleId;
+  if (!identifier) {
+    return res.status(400).json({ error: "Missing user identifier" });
   }
 
   try {
+    const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
+    const filter = isObjectId ? { _id: identifier } : { googleId: identifier };
+
     const user = await User.findOneAndUpdate(
-      { googleId },
-      {
-        sexo,
-        edad,
-        actividad,
-        peso,
-        altura,
-        profileCompleted: true, // 🔥 CLAVE
-      },
+      filter,
+      { sexo, edad, actividad, peso, altura, profileCompleted: true },
       { new: true },
     );
 
@@ -333,11 +336,15 @@ app.put("/api/user/profile", async (req, res) => {
 // =====================
 // 👤 GET USER PROFILE
 // =====================
-app.get("/api/user/profile/:googleId", async (req, res) => {
-  const { googleId } = req.params;
+app.get("/api/user/profile/:identifier", async (req, res) => {
+  const { identifier } = req.params;
 
   try {
-    const user = await User.findOne({ googleId });
+    // Acepta tanto MongoDB _id (24 hex) como googleId (numérico)
+    const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
+    const user = isObjectId
+      ? await User.findById(identifier)
+      : await User.findOne({ googleId: identifier });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -365,11 +372,15 @@ app.listen(PORT, () => {
 // =====================
 // 📊 USER ANALYSIS HISTORY
 // =====================
-app.get("/api/user/analysis/:googleId", async (req, res) => {
-  const { googleId } = req.params;
+app.get("/api/user/analysis/:identifier", async (req, res) => {
+  const { identifier } = req.params;
 
   try {
-    const user = await User.findOne({ googleId });
+    const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
+    const user = isObjectId
+      ? await User.findById(identifier)
+      : await User.findOne({ googleId: identifier });
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }

@@ -29,7 +29,7 @@ const ResultScreen = () => {
 
   useEffect(() => {
     // 🔒 Guardia absoluta: no ejecutar sin usuario ni datos
-    if (!user?.googleId || !ocrText || !userData) {
+    if ((!user?._id && !user?.googleId) || !ocrText || !userData) {
       return;
     }
 
@@ -41,6 +41,7 @@ const ResultScreen = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            userId: user._id,
             googleId: user.googleId,
             userData,
             productText: ocrText,
