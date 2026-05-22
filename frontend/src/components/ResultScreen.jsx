@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
 import PointsCelebration from "./PointsCelebration";
+import AnalyzingLoader from "./AnalyzingLoader";
 
 import { API_URL } from "../config/api";
 
@@ -107,8 +108,14 @@ const ResultScreen = () => {
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: "50vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <CircularProgress color="success" />
+      <Box sx={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)",
+      }}>
+        <AnalyzingLoader />
       </Box>
     );
   }
