@@ -294,7 +294,7 @@ app.post("/api/auth/google", async (req, res) => {
         picture,
       });
       // Email de bienvenida solo en el primer registro
-      sendWelcomeEmail({ name, email }).catch(() => {});
+      sendWelcomeEmail({ name, email }).catch((e) => console.error("Welcome email failed:", e.message));
     }
 
     return res.json({ user });

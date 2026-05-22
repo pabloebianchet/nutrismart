@@ -34,11 +34,16 @@ router.post("/register", async (req, res) => {
     return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
 
   try {
+    console.log("📝 Register attempt:", email);
+
     const exists = await User.findOne({ email: email.toLowerCase() });
+    console.log("   exists:", !!exists);
     if (exists)
       return res.status(409).json({ error: "Ya existe una cuenta con ese email" });
 
     const hashed = await bcrypt.hash(password, 12);
+    console.log("   bcrypt OK");
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
@@ -46,16 +51,19 @@ router.post("/register", async (req, res) => {
       provider: "email",
       profileCompleted: false,
     });
+    console.log("   user created:", user._id);
 
     const token = signToken(user._id);
+    console.log("   token OK");
 
     // Email de bienvenida (no bloqueante)
-    sendWelcomeEmail({ name: user.name, email: user.email }).catch(() => {});
+    sendWelcomeEmail({ name: user.name, email: user.email }).catch((e) => console.error("Welcome email failed:", e.message));
 
     return res.status(201).json({ token, user });
   } catch (err) {
-    console.error("Register error:", err);
-    return res.status(500).json({ error: "Error al registrar usuario" });
+    console.error("❌ Register error:", err.message);
+    console.error("   Stack:", err.stack);
+    return res.status(500).json({ error: "Error al registrar usuario", detail: err.message });
   }
 });
 

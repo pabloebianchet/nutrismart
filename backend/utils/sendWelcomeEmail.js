@@ -219,13 +219,20 @@ export const sendWelcomeEmail = async ({ name, email }) => {
 
   try {
     const transporter = createTransporter();
+    await transporter.verify();
     await transporter.sendMail({
       from: `"NutriSmart" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: `¡Bienvenido a NutriSmart, ${firstName}! 🌿`,
       html,
     });
+    console.log(`✅ Email de bienvenida enviado a ${email}`);
   } catch (err) {
-    console.error("Error enviando email de bienvenida:", err.message);
+    console.error("❌ Error enviando email de bienvenida:");
+    console.error("   Mensaje:", err.message);
+    console.error("   Código:", err.code);
+    console.error("   EMAIL_USER:", process.env.EMAIL_USER);
+    console.error("   EMAIL_HOST:", process.env.EMAIL_HOST);
+    console.error("   EMAIL_PORT:", process.env.EMAIL_PORT);
   }
 };
