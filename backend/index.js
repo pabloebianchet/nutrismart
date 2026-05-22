@@ -370,7 +370,11 @@ app.post("/api/auth/google", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     return res.json({ user, token });
   } catch (err) {
-    console.error("Google auth error:", err?.message || err);
+    console.error("Google auth error details:", {
+      message: err?.message,
+      name: err?.name,
+      mongoReady: (await import("mongoose").then(m => m.default.connection.readyState)) === 1,
+    });
     return res.status(401).json({ error: "Invalid Google token" });
   }
 });
