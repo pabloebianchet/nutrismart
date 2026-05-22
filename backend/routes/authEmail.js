@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import User from "../models/User.js";
+import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ router.post("/register", async (req, res) => {
     });
 
     const token = signToken(user._id);
+
+    // Email de bienvenida (no bloqueante)
+    sendWelcomeEmail({ name: user.name, email: user.email }).catch(() => {});
+
     return res.status(201).json({ token, user });
   } catch (err) {
     console.error("Register error:", err);

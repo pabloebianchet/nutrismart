@@ -11,6 +11,7 @@ import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
 import adminRoutes from "./routes/admin.js";
 import authEmailRoutes from "./routes/authEmail.js";
+import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
 
 connectDB();
 
@@ -292,6 +293,8 @@ app.post("/api/auth/google", async (req, res) => {
         name,
         picture,
       });
+      // Email de bienvenida solo en el primer registro
+      sendWelcomeEmail({ name, email }).catch(() => {});
     }
 
     return res.json({ user });
