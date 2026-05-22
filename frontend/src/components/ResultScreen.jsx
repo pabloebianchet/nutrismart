@@ -11,27 +11,31 @@ import {
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 import { useNutrition } from "../context/NutritionContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ScoreDonut from "./ScoreDonut";
+import PointsCelebration from "./PointsCelebration";
 
 import { API_URL } from "../config/api";
 
 const ResultScreen = () => {
-  const { user, userData, ocrText, clearOcrText } = useNutrition();
+  const { user, userData, ocrText, clearOcrText, updateUserData } = useNutrition();
 
   const [analysis, setAnalysis] = useState("");
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [celebration, setCelebration] = useState(null);
+  const [limitError, setLimitError] = useState(null);
+  const hasFetched = useRef(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 🔒 Guardia absoluta: no ejecutar sin usuario ni datos
-    if ((!user?._id && !user?.googleId) || !ocrText || !userData) {
-      return;
-    }
+    if ((!user?._id && !user?.googleId) || !ocrText || !userData) return;
+    // Evita doble ejecución en React StrictMode (desarrollo)
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
     const fetchAnalysis = async () => {
       try {
@@ -48,14 +52,31 @@ const ResultScreen = () => {
           }),
         });
 
-        if (!response.ok) {
-          throw new Error("Error en análisis");
-        }
-
         const data = await response.json();
 
+        if (!response.ok) {
+          if (data.error === "trial_limit_reached" || data.error === "daily_limit_reached") {
+            setLimitError({ type: data.error, message: data.message });
+          } else if (response.status === 429) {
+            setLimitError({
+              type: "rate_limit",
+              message: "Demasiadas solicitudes en poco tiempo. Esperá un momento e intentá de nuevo.",
+            });
+          } else {
+            setAnalysis("No se pudo generar el análisis. Intentá nuevamente.");
+            setScore(0);
+          }
+          return;
+        }
+
+        const finalScore = typeof data.score === "number" ? data.score : 0;
         setAnalysis(data.analysis);
-        setScore(typeof data.score === "number" ? data.score : 0);
+        setScore(finalScore);
+
+        if (data.pointsEarned > 0 && data.totalPoints != null) {
+          setCelebration({ points: data.pointsEarned, totalPoints: data.totalPoints });
+          updateUserData({ healthyPoints: data.totalPoints });
+        }
       } catch (err) {
         console.error("Error al obtener análisis:", err);
         setAnalysis("No se pudo generar el análisis. Intentá nuevamente.");
@@ -86,20 +107,53 @@ const ResultScreen = () => {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          minHeight: "50vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <Box sx={{ minHeight: "50vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <CircularProgress color="success" />
       </Box>
     );
   }
 
+  if (limitError) {
+    const meta = {
+      trial_limit_reached: { emoji: "🥜", title: "Límite de prueba alcanzado",  cta: "Ver planes",   ctaPath: "/pricing"      },
+      daily_limit_reached: { emoji: "⏳", title: "Límite diario alcanzado",      cta: "Ver mi plan",  ctaPath: "/subscription" },
+      rate_limit:          { emoji: "🚦", title: "Demasiadas solicitudes",       cta: "Volver",       ctaPath: "/"             },
+    };
+    const m = meta[limitError.type] || meta.rate_limit;
+    return (
+      <Box sx={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", px: 2, background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)" }}>
+        <Paper elevation={0} sx={{ maxWidth: 420, width: "100%", borderRadius: 5, border: "1px solid rgba(11,94,85,0.12)", boxShadow: "0 20px 60px rgba(11,94,85,0.10)", overflow: "hidden", textAlign: "center" }}>
+          <Box sx={{ bgcolor: "#0B5E55", px: 4, pt: 4, pb: 3 }}>
+            <Typography sx={{ fontSize: 48, mb: 1 }}>{m.emoji}</Typography>
+            <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>{m.title}</Typography>
+          </Box>
+          <Box sx={{ p: 4 }}>
+            <Typography sx={{ fontSize: 14.5, color: "#4A6B67", lineHeight: 1.7, mb: 3 }}>
+              {limitError.message}
+            </Typography>
+            <Button variant="contained" fullWidth onClick={() => navigate(m.ctaPath)}
+              sx={{ bgcolor: "#0B5E55", borderRadius: 2.5, py: 1.4, textTransform: "none", fontWeight: 700, fontSize: 14.5, mb: 1.5, "&:hover": { bgcolor: "#0f7a6e" } }}>
+              {m.cta}
+            </Button>
+            <Button fullWidth onClick={() => navigate("/")}
+              sx={{ borderRadius: 2.5, py: 1.2, textTransform: "none", fontWeight: 600, fontSize: 13.5, color: "#4A6B67" }}>
+              Volver al inicio
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+    );
+  }
+
   return (
+    <>
+      {celebration && (
+        <PointsCelebration
+          points={celebration.points}
+          totalPoints={celebration.totalPoints}
+          onDone={() => setCelebration(null)}
+        />
+      )}
     <Box
       sx={{
         minHeight: "100dvh",
@@ -233,6 +287,7 @@ const ResultScreen = () => {
         </Stack>
       </Paper>
     </Box>
+    </>
   );
 };
 

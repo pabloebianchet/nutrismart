@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
     altura:   { type: Number },
 
     profileCompleted: { type: Boolean, default: false },
+    healthyPoints:    { type: Number, default: 0 },
   },
   { timestamps: true }
 );

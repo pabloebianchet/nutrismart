@@ -16,11 +16,13 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import PeanutMascot, { getMood, MOOD_META } from "./PeanutMascot";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 import TestCard from "./TestCard";
 import SubscriptionWidget from "./SubscriptionWidget";
+import LeaderboardWidget from "./LeaderboardWidget";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
 import FlashOnOutlinedIcon from "@mui/icons-material/FlashOnOutlined";
@@ -274,6 +276,7 @@ const Dashboard = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [historyRefreshToken, setHistoryRefreshToken] = useState(0);
+  const [displayPoints, setDisplayPoints] = useState(null);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -310,6 +313,12 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    if (userData?.healthyPoints != null) {
+      setDisplayPoints(userData.healthyPoints);
+    }
+  }, [userData?.healthyPoints]);
+
+  useEffect(() => {
     if (!userData) return;
     setProfileForm({
       sexo: userData.sexo || "Femenino",
@@ -325,8 +334,10 @@ const Dashboard = () => {
     if (!identifier) return;
     setLoading(true);
     try {
+      const token = localStorage.getItem("nutrismartToken");
       const res = await axios.get(
         `${API_URL}/api/user/analysis/${identifier}`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setHistory(res.data.history || []);
     } catch (err) {
@@ -390,10 +401,12 @@ const Dashboard = () => {
   const handleDeleteAnalysis = async (analysisId) => {
     if (!analysisId) return;
     try {
+      const token = localStorage.getItem("nutrismartToken");
       const response = await fetch(
         `${API_URL}/api/user/analysis/${analysisId}`,
         {
           method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
       const data = await response.json();
@@ -556,6 +569,88 @@ const Dashboard = () => {
           )}
         </Stack>
       </Stack>
+
+      {/* ── PUNTOS SALUDABLES ───────────────────── */}
+      {(() => {
+        const pts   = displayPoints ?? 0;
+        const mood  = getMood(pts);
+        const meta  = MOOD_META[mood];
+        const level = pts < 50 ? { icon: "🌱", name: "Inicio"    }
+                    : pts < 150? { icon: "🥗", name: "Saludable" }
+                    : pts < 300? { icon: "💪", name: "Activo"    }
+                    :            { icon: "🏆", name: "Experto"   };
+        return (
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 4,
+              borderRadius: 4,
+              overflow: "visible",
+              border: "1.5px solid rgba(46,204,113,0.20)",
+              boxShadow: "0 4px 24px rgba(11,94,85,0.14)",
+              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              position: "relative",
+              "@keyframes breatheMascot": {
+                "0%,100%": { transform: "translateY(0px)" },
+                "50%":     { transform: "translateY(-5px)" },
+              },
+              "@keyframes moodPop": {
+                "0%":   { transform: "scale(0.8) translateY(0)" },
+                "65%":  { transform: "scale(1.1) translateY(-6px)" },
+                "100%": { transform: "scale(1) translateY(0)" },
+              },
+            }}
+          >
+            {/* Blob decorativo */}
+            <Box sx={{ position: "absolute", top: -24, right: -24, width: 120, height: 120, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+
+            <Box sx={{ px: 3, py: 3, display: "flex", alignItems: "flex-end", gap: 2 }}>
+
+              {/* Info izquierda */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.3 }}>
+                  Puntos saludables
+                </Typography>
+                <Typography sx={{ fontSize: 44, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
+                  {pts}
+                </Typography>
+
+                {/* Mood label con color */}
+                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8, mt: 0.8, px: 1.5, py: 0.4, borderRadius: 999, bgcolor: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                  <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{meta.label}</Typography>
+                </Box>
+
+                <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.50)", mt: 1 }}>
+                  +5 pts por cada alimento ≥ 50/100
+                </Typography>
+
+                {/* Nivel */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
+                  <Typography sx={{ fontSize: 18 }}>{level.icon}</Typography>
+                  <Box>
+                    <Typography sx={{ fontSize: 10, color: "rgba(255,255,255,0.50)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", lineHeight: 1 }}>Nivel</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>{level.name}</Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Mascota derecha — animación breathe + pop al cambiar mood */}
+              <Box
+                key={mood}
+                sx={{
+                  flexShrink: 0,
+                  mb: -1,
+                  filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.28))",
+                  animation: "moodPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both, breatheMascot 3.5s 0.6s ease-in-out infinite",
+                }}
+              >
+                <PeanutMascot points={pts} size={96} />
+              </Box>
+            </Box>
+          </Paper>
+        );
+      })()}
 
       {/* ── STATS RÁPIDAS ────────────────────────── */}
       {history.length > 0 && (
@@ -937,6 +1032,9 @@ const Dashboard = () => {
       <Box mb={4}>
         <SubscriptionWidget />
       </Box>
+
+      {/* ── RANKING GLOBAL ──────────────────────── */}
+      <LeaderboardWidget />
 
       {/* ── CTA NUEVO ANÁLISIS ──────────────────── */}
       <Paper

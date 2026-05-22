@@ -115,6 +115,14 @@ router.post("/webhook", async (req, res) => {
         const planInfo = PLANS[plan];
         if (!planInfo) return res.sendStatus(200);
 
+        // Validate payment amount matches expected plan price (±5% tolerance for MP fees)
+        const expectedAmount = planInfo.amount;
+        const receivedAmount = mp.transaction_amount;
+        if (!receivedAmount || receivedAmount < expectedAmount * 0.95) {
+          console.error(`Webhook amount mismatch: expected ~${expectedAmount}, got ${receivedAmount}`);
+          return res.sendStatus(200);
+        }
+
         const now = new Date();
         const end = new Date(now);
         end.setMonth(end.getMonth() + 1);

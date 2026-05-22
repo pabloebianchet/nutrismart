@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Typography, Chip, Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
@@ -71,6 +71,22 @@ const PricingPage = () => {
   const { user } = useNutrition();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(null);
+  const [activePlan, setActivePlan] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const token = localStorage.getItem("nutrismartToken");
+    fetch(`${API_URL}/api/payments/subscription`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.subscription?.status === "active") {
+          setActivePlan(data.subscription.plan);
+        }
+      })
+      .catch(() => {});
+  }, [user]);
 
   const handleSubscribe = async (planId) => {
     if (!user) { navigate("/"); return; }
@@ -261,28 +277,49 @@ const PricingPage = () => {
                 </Stack>
 
                 {/* CTA */}
-                <Button
-                  variant="contained"
-                  fullWidth
-                  disabled={loading === plan.id}
-                  onClick={() => handleSubscribe(plan.id)}
-                  sx={{
-                    bgcolor: plan.highlight ? plan.color : C.brand,
-                    borderRadius: 2.5,
-                    py: 1.4,
-                    textTransform: "none",
-                    fontWeight: 700,
-                    fontSize: 14.5,
-                    boxShadow: plan.highlight
-                      ? `0 4px 16px ${plan.color}44`
-                      : "0 4px 16px rgba(11,94,85,0.28)",
-                    "&:hover": {
-                      bgcolor: plan.highlight ? "#b8841f" : C.brandLight,
-                    },
-                  }}
-                >
-                  {loading === plan.id ? "Redirigiendo..." : plan.cta}
-                </Button>
+                {activePlan === plan.id ? (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      py: 1.4,
+                      borderRadius: 2.5,
+                      border: `2px solid ${plan.color}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 1,
+                      bgcolor: `${plan.color}10`,
+                    }}
+                  >
+                    <CheckRoundedIcon sx={{ fontSize: 17, color: plan.color }} />
+                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: plan.color }}>
+                      Tu plan actual
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    disabled={loading === plan.id}
+                    onClick={() => handleSubscribe(plan.id)}
+                    sx={{
+                      bgcolor: plan.highlight ? plan.color : C.brand,
+                      borderRadius: 2.5,
+                      py: 1.4,
+                      textTransform: "none",
+                      fontWeight: 700,
+                      fontSize: 14.5,
+                      boxShadow: plan.highlight
+                        ? `0 4px 16px ${plan.color}44`
+                        : "0 4px 16px rgba(11,94,85,0.28)",
+                      "&:hover": {
+                        bgcolor: plan.highlight ? "#b8841f" : C.brandLight,
+                      },
+                    }}
+                  >
+                    {loading === plan.id ? "Redirigiendo..." : plan.cta}
+                  </Button>
+                )}
               </Box>
             </Box>
           ))}

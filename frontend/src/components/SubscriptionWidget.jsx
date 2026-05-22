@@ -5,6 +5,7 @@ import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import PauseCircleOutlineRoundedIcon from "@mui/icons-material/PauseCircleOutlineRounded";
 import { API_URL } from "../config/api";
 
 const C = {
@@ -18,6 +19,7 @@ const C = {
   textPrimary: "#0F2420",
   textSecondary: "#4A6B67",
   textMuted: "#8AADAA",
+  danger: "#E24B4A",
 };
 
 const PLAN_META = {
@@ -29,14 +31,14 @@ const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "long" }) : "—";
 
 const daysLeft = (endDate) => {
-  if (!endDate) return null;
+  if (!endDate) return 0;
   const diff = new Date(endDate) - new Date();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 };
 
 const SubscriptionWidget = () => {
   const navigate = useNavigate();
-  const [sub, setSub]       = useState(undefined); // undefined = loading
+  const [sub, setSub] = useState(undefined);
   const token = localStorage.getItem("nutrismartToken");
 
   useEffect(() => {
@@ -50,13 +52,14 @@ const SubscriptionWidget = () => {
 
   if (sub === undefined) return null;
 
-  const hasActive = sub && sub.status === "active";
-  const meta = hasActive ? (PLAN_META[sub.plan] || PLAN_META.silver) : null;
-  const remaining = hasActive ? daysLeft(sub.endDate) : null;
-  const pct = remaining !== null ? Math.min(100, (remaining / 30) * 100) : 0;
+  const isActive    = sub?.status === "active";
+  const isCancelled = sub?.status === "cancelled";
+  const remaining   = (isActive || isCancelled) ? daysLeft(sub.endDate) : null;
+  const meta        = (isActive || isCancelled) ? (PLAN_META[sub.plan] || PLAN_META.silver) : null;
+  const pct         = remaining !== null ? Math.min(100, (remaining / 30) * 100) : 0;
 
-  /* ── Sin plan activo ── */
-  if (!hasActive) {
+  /* ── Sin plan activo ni cancelado ── */
+  if (!isActive && !isCancelled) {
     return (
       <Paper elevation={0} sx={{
         p: 3, borderRadius: 4,
@@ -72,7 +75,7 @@ const SubscriptionWidget = () => {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 800, fontSize: 16, color: "#fff", letterSpacing: "-0.3px" }}>
-                {sub?.status === "cancelled" ? "Plan cancelado" : "Sin membresía activa"}
+                Sin membresía activa
               </Typography>
               <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)" }}>
                 Elegí un plan para análisis ilimitados
@@ -88,6 +91,83 @@ const SubscriptionWidget = () => {
             Ver planes
           </Button>
         </Stack>
+      </Paper>
+    );
+  }
+
+  /* ── Plan cancelado ── */
+  if (isCancelled) {
+    return (
+      <Paper elevation={0} sx={{
+        borderRadius: 4,
+        border: `1.5px solid rgba(226,75,74,0.20)`,
+        boxShadow: "0 4px 20px rgba(11,94,85,0.08)",
+        overflow: "hidden",
+      }}>
+        <Box sx={{ bgcolor: "#FFF5F5", px: 3, py: 2.5, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: "rgba(226,75,74,0.10)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <PauseCircleOutlineRoundedIcon sx={{ fontSize: 20, color: C.danger }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Membresía</Typography>
+              <Typography sx={{ fontSize: 17, fontWeight: 800, color: C.textPrimary, letterSpacing: "-0.3px" }}>
+                Plan {meta.name} · cancelado
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip label="Cancelada" size="small" sx={{ bgcolor: "rgba(226,75,74,0.10)", color: C.danger, fontWeight: 700, fontSize: 11, border: "1px solid rgba(226,75,74,0.25)" }} />
+            <Button
+              onClick={() => navigate("/subscription")}
+              endIcon={<ChevronRightRoundedIcon sx={{ fontSize: 16 }} />}
+              sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: C.brand } }}
+            >
+              Ver historial
+            </Button>
+          </Stack>
+        </Box>
+
+        <Box sx={{ px: 3, py: 2.5, bgcolor: C.surface }}>
+          {remaining > 0 ? (
+            <>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                <Typography sx={{ fontSize: 12.5, color: C.textSecondary, fontWeight: 600 }}>
+                  Acceso activo hasta el vencimiento
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: remaining <= 5 ? C.danger : C.textPrimary }}>
+                  {remaining} día{remaining !== 1 ? "s" : ""} · {formatDate(sub.endDate)}
+                </Typography>
+              </Stack>
+              <LinearProgress
+                variant="determinate"
+                value={pct}
+                sx={{
+                  height: 6, borderRadius: 3,
+                  bgcolor: "rgba(226,75,74,0.12)",
+                  "& .MuiLinearProgress-bar": { bgcolor: remaining <= 5 ? C.danger : "#F39C12", borderRadius: 3 },
+                }}
+              />
+              <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 1 }}>
+                Tu acceso vence el {formatDate(sub.endDate)}. Después necesitás un plan nuevo.
+              </Typography>
+            </>
+          ) : (
+            <Typography sx={{ fontSize: 13, color: C.textSecondary }}>
+              Tu período venció. Elegí un plan para seguir usando la app.
+            </Typography>
+          )}
+
+          <Button
+            onClick={() => navigate("/pricing")}
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2, bgcolor: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13.5, py: 1.1, "&:hover": { bgcolor: C.brandLight } }}
+          >
+            Ver planes y renovar
+          </Button>
+        </Box>
       </Paper>
     );
   }
@@ -128,7 +208,7 @@ const SubscriptionWidget = () => {
           <Typography sx={{ fontSize: 12.5, color: C.textSecondary, fontWeight: 600 }}>
             Días restantes del período
           </Typography>
-          <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: remaining <= 5 ? "#E74C3C" : C.textPrimary }}>
+          <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: remaining <= 5 ? C.danger : C.textPrimary }}>
             {remaining} día{remaining !== 1 ? "s" : ""} · vence {formatDate(sub.endDate)}
           </Typography>
         </Stack>
@@ -138,7 +218,7 @@ const SubscriptionWidget = () => {
           sx={{
             height: 6, borderRadius: 3,
             bgcolor: `${meta.color}18`,
-            "& .MuiLinearProgress-bar": { bgcolor: remaining <= 5 ? "#E74C3C" : meta.color, borderRadius: 3 },
+            "& .MuiLinearProgress-bar": { bgcolor: remaining <= 5 ? C.danger : meta.color, borderRadius: 3 },
           }}
         />
         <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 1 }}>

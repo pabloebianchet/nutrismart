@@ -83,8 +83,10 @@ export const NutritionProvider = ({ children }) => {
 
       setLoadingUserData(true);
       try {
+        const token = localStorage.getItem("nutrismartToken");
         const res = await fetch(
           `${API_URL}/api/user/profile/${identifier}`,
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         if (!res.ok) {

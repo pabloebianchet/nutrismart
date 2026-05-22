@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
-dotenv.config(); // ✅ PRIMERO
+dotenv.config();
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import multer from "multer";
 import vision from "@google-cloud/vision";
 import OpenAI from "openai";
@@ -13,6 +15,7 @@ import Analysis from "./models/Analysis.js";
 import adminRoutes from "./routes/admin.js";
 import authEmailRoutes from "./routes/authEmail.js";
 import paymentsRouter from "./routes/payments.js";
+import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
 
@@ -36,6 +39,27 @@ if (!process.env.GOOGLE_CLIENT_ID) {
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
+
+// ── Seguridad básica de headers ──────────────────────────
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// ── Rate limiting global ─────────────────────────────────
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiadas solicitudes. Intentá en 15 minutos." },
+});
+app.use(globalLimiter);
+
+// Rate limit específico para análisis (costoso en OpenAI)
+const analyzeLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 min
+  max: 5,
+  message: { error: "Límite de análisis por minuto alcanzado." },
+});
+app.use("/api/analyze", analyzeLimiter);
 
 app.use(
   cors({
@@ -283,9 +307,24 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
       productText,
     });
 
+    // Puntos saludables: +5 si el score es >= 50
+    let pointsEarned = 0;
+    let totalPoints = authUser.healthyPoints ?? 0;
+    if (score >= 50) {
+      pointsEarned = 5;
+      const updated = await User.findByIdAndUpdate(
+        authUser._id,
+        { $inc: { healthyPoints: 5 } },
+        { new: true },
+      );
+      totalPoints = updated.healthyPoints;
+    }
+
     return res.json({
       score,
       analysis,
+      pointsEarned,
+      totalPoints,
     });
   } catch (err) {
     console.error("Analyze error:", err);
@@ -368,24 +407,74 @@ app.put("/api/user/profile", async (req, res) => {
 // =====================
 // 👤 GET USER PROFILE
 // =====================
-app.get("/api/user/profile/:identifier", async (req, res) => {
+app.get("/api/user/profile/:identifier", authMiddleware, async (req, res) => {
   const { identifier } = req.params;
 
   try {
-    // Acepta tanto MongoDB _id (24 hex) como googleId (numérico)
     const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
-    const user = isObjectId
-      ? await User.findById(identifier)
-      : await User.findOne({ googleId: identifier });
+    const requestedId = isObjectId ? identifier : null;
+    const requestedGoogleId = !isObjectId ? identifier : null;
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    // Solo puede ver su propio perfil
+    const isSelf =
+      (requestedId && req.user._id.toString() === requestedId) ||
+      (requestedGoogleId && req.user.googleId === requestedGoogleId);
+
+    if (!isSelf) {
+      return res.status(403).json({ error: "Forbidden" });
     }
+
+    const user = await User.findById(req.user._id).select("-password -resetPasswordToken");
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     return res.json({ user });
   } catch (err) {
     console.error("Get profile error:", err);
     return res.status(500).json({ error: "Error fetching profile" });
+  }
+});
+
+// =====================
+// 🏆 LEADERBOARD
+// =====================
+app.get("/api/leaderboard", authMiddleware, async (req, res) => {
+  try {
+    const topTen = await User.find({ healthyPoints: { $gt: 0 } })
+      .sort({ healthyPoints: -1 })
+      .limit(10)
+      .select("name picture healthyPoints");
+
+    const userPoints = req.user.healthyPoints ?? 0;
+    const betterCount = await User.countDocuments({ healthyPoints: { $gt: userPoints } });
+    const userRank = betterCount + 1;
+
+    const mapped = topTen.map((u, i) => ({
+      rank: i + 1,
+      _id: u._id.toString(),
+      name: u.name,
+      picture: u.picture || null,
+      healthyPoints: u.healthyPoints ?? 0,
+      isCurrentUser: u._id.toString() === req.user._id.toString(),
+    }));
+
+    const isInTopTen = mapped.some((u) => u.isCurrentUser);
+
+    return res.json({
+      topTen: mapped,
+      currentUser: isInTopTen
+        ? null
+        : {
+            rank: userRank,
+            _id: req.user._id.toString(),
+            name: req.user.name,
+            picture: req.user.picture || null,
+            healthyPoints: userPoints,
+            isCurrentUser: true,
+          },
+    });
+  } catch (err) {
+    console.error("Leaderboard error:", err);
+    return res.status(500).json({ error: "Error al cargar el ranking" });
   }
 });
 
@@ -411,24 +500,14 @@ app.listen(PORT, () => {
 // =====================
 // 📊 USER ANALYSIS HISTORY
 // =====================
-app.get("/api/user/analysis/:identifier", async (req, res) => {
-  const { identifier } = req.params;
-
+app.get("/api/user/analysis/:identifier", authMiddleware, async (req, res) => {
   try {
-    const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
-    const user = isObjectId
-      ? await User.findById(identifier)
-      : await User.findOne({ googleId: identifier });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
+    // Solo puede ver su propio historial
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const history = await Analysis.find({
-      user: user._id,
+      user: req.user._id,
       createdAt: { $gte: thirtyDaysAgo },
     }).sort({ createdAt: -1 });
 
@@ -442,16 +521,21 @@ app.get("/api/user/analysis/:identifier", async (req, res) => {
 // =====================
 // 🗑️ DELETE ANALYSIS
 // =====================
-app.delete("/api/user/analysis/:analysisId", async (req, res) => {
+app.delete("/api/user/analysis/:analysisId", authMiddleware, async (req, res) => {
   const { analysisId } = req.params;
 
   try {
-    const analysis = await Analysis.findByIdAndDelete(analysisId);
+    const analysis = await Analysis.findById(analysisId);
 
     if (!analysis) {
       return res.status(404).json({ error: "Analysis not found" });
     }
 
+    if (analysis.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    await analysis.deleteOne();
     return res.json({ success: true });
   } catch (err) {
     console.error("Delete analysis error:", err);
