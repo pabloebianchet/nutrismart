@@ -64,7 +64,6 @@ const UserDataPage = () => {
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleSuccess = async (credential) => {
     try {
-      localStorage.setItem("nutrismartToken", credential);
       const res = await fetch(`${API_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,6 +72,8 @@ const UserDataPage = () => {
       if (!res.ok) throw new Error("Error autenticando con Google");
       const data = await res.json();
       if (!data.user) throw new Error("Respuesta inválida del servidor");
+      // Guardar el JWT propio (7 días) en lugar del credential de Google (1 hora)
+      localStorage.setItem("nutrismartToken", data.token || credential);
       setUser(data.user);
     } catch (err) {
       console.error("Google login error:", err);
@@ -118,28 +119,101 @@ const UserDataPage = () => {
 
   /* ---------------- SPLASH SCREEN ---------------- */
   if (showSplash) {
+    const floaters = [
+      { emoji: "🍃", top: "6%",  left: "4%",   size: 130, anim: "floatA", dur: "7s",  delay: "0s"   },
+      { emoji: "🥦", top: "5%",  right: "5%",  size: 105, anim: "floatB", dur: "8.5s",delay: "1.2s" },
+      { emoji: "🥑", top: "38%", left: "2%",   size: 118, anim: "floatC", dur: "9s",  delay: "0.6s" },
+      { emoji: "🌿", top: "22%", right: "3%",  size: 124, anim: "floatA", dur: "7.5s",delay: "2s"   },
+      { emoji: "🥕", bottom:"18%",left: "6%",  size: 88,  anim: "floatB", dur: "8s",  delay: "1.8s" },
+      { emoji: "🍎", bottom:"12%",right: "7%", size: 98,  anim: "floatC", dur: "6.5s",delay: "0.4s" },
+      { emoji: "🫑", bottom:"4%", left: "32%", size: 112, anim: "floatA", dur: "9.5s",delay: "3s"   },
+      { emoji: "🥝", top: "58%", right: "4%",  size: 82,  anim: "floatB", dur: "7s",  delay: "1s"   },
+      { emoji: "🍋", top: "72%", left: "14%",  size: 76,  anim: "floatC", dur: "8s",  delay: "2.5s" },
+    ];
+
     return (
       <Box
         sx={{
-          minHeight: "100vh",
-          bgcolor: "#ffffff",
+          position: "fixed",
+          inset: 0,
+          background: "linear-gradient(160deg, #0a4a42 0%, #0B5E55 45%, #0e6b60 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          overflow: "hidden",
+          zIndex: 9999,
+
+          /* ── Keyframes ── */
+          "@keyframes floatA": {
+            "0%,100%": { transform: "translateY(0px) rotate(-5deg)" },
+            "50%":     { transform: "translateY(-28px) rotate(8deg)" },
+          },
+          "@keyframes floatB": {
+            "0%,100%": { transform: "translateY(8px) rotate(6deg)" },
+            "40%":     { transform: "translateY(-22px) rotate(-6deg)" },
+            "70%":     { transform: "translateY(-10px) rotate(3deg)" },
+          },
+          "@keyframes floatC": {
+            "0%,100%": { transform: "translateY(0px) translateX(0px) rotate(0deg)" },
+            "33%":     { transform: "translateY(-20px) translateX(10px) rotate(12deg)" },
+            "66%":     { transform: "translateY(-8px) translateX(-8px) rotate(-8deg)" },
+          },
+          "@keyframes fadeIn": {
+            from: { opacity: 0 },
+            to:   { opacity: 1 },
+          },
+          "@keyframes pulse": {
+            "0%,100%": { opacity: 0.85, transform: "scale(0.96)" },
+            "50%":     { opacity: 1,    transform: "scale(1.06)" },
+          },
         }}
       >
+        {/* Elementos flotantes */}
+        {floaters.map((f, i) => (
+          <Box
+            key={i}
+            sx={{
+              position: "absolute",
+              top:    f.top    ?? "auto",
+              bottom: f.bottom ?? "auto",
+              left:   f.left   ?? "auto",
+              right:  f.right  ?? "auto",
+              fontSize: f.size,
+              lineHeight: 1,
+              opacity: 0,
+              userSelect: "none",
+              pointerEvents: "none",
+              filter: "brightness(1.1) saturate(0.6)",
+              animation: `fadeIn 1s ${f.delay} ease forwards, ${f.anim} ${f.dur} ${f.delay} ease-in-out infinite`,
+            }}
+          >
+            {f.emoji}
+          </Box>
+        ))}
+
+        {/* Blob de luz central */}
+        <Box
+          sx={{
+            position: "absolute",
+            width: 320,
+            height: 320,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Logo */}
         <Box
           component="img"
           src="/img/logo.png"
           alt="NutriSmart"
           sx={{
-            width: { xs: 140, sm: 180 },
-            animation: "pulse 1.6s ease-in-out infinite",
-            "@keyframes pulse": {
-              "0%": { opacity: 0.6, transform: "scale(0.96)" },
-              "50%": { opacity: 1, transform: "scale(1.05)" },
-              "100%": { opacity: 0.6, transform: "scale(0.96)" },
-            },
+            position: "relative",
+            zIndex: 2,
+            width: { xs: 150, sm: 190 },
+            filter: "brightness(0) invert(1)",
+            animation: "pulse 1.8s ease-in-out infinite",
           }}
         />
       </Box>

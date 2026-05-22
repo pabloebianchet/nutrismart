@@ -6,11 +6,14 @@ import multer from "multer";
 import vision from "@google-cloud/vision";
 import OpenAI from "openai";
 import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
 import { connectDB } from "./db.js";
 import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
 import adminRoutes from "./routes/admin.js";
 import authEmailRoutes from "./routes/authEmail.js";
+import paymentsRouter from "./routes/payments.js";
+import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
 
 connectDB();
@@ -130,6 +133,39 @@ app.post("/api/analyze", async (req, res) => {
       return res.status(400).json({ error: "Faltan datos requeridos" });
     }
 
+    // ── Control de límites por plan ──────────────────────────
+    const identifier = userId || googleId;
+    const isObjId = identifier && /^[a-f\d]{24}$/i.test(identifier);
+    const authUser = identifier
+      ? isObjId ? await User.findById(identifier) : await User.findOne({ googleId: identifier })
+      : null;
+
+    if (authUser) {
+      const sub = await Subscription.findOne({ user: authUser._id, status: "active" });
+
+      if (!sub) {
+        // Sin suscripción: máximo 3 análisis de prueba en total
+        const total = await Analysis.countDocuments({ user: authUser._id });
+        if (total >= 3) {
+          return res.status(403).json({
+            error: "trial_limit_reached",
+            message: "Alcanzaste el límite de 3 análisis gratuitos. Elegí un plan para continuar.",
+          });
+        }
+      } else if (sub.plan === "silver") {
+        // Silver: 1 análisis por día
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const todayCount = await Analysis.countDocuments({ user: authUser._id, createdAt: { $gte: today } });
+        if (todayCount >= 1) {
+          return res.status(403).json({
+            error: "daily_limit_reached",
+            message: "Alcanzaste el límite diario del Plan Silver (1 análisis por día). Tu límite se renueva mañana.",
+          });
+        }
+      }
+      // Gold: sin límite
+    }
+
     const prompt = `
 Rol:
 Sos un nutricionista con formación en alimentación saludable basada en guías europeas
@@ -234,22 +270,14 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
 
     const score = match ? parseInt(match[1], 10) : 0;
 
-    const identifier = userId || googleId;
-    const isObjectId = identifier && /^[a-f\d]{24}$/i.test(identifier);
-    const user = identifier
-      ? isObjectId
-        ? await User.findById(identifier)
-        : await User.findOne({ googleId: identifier })
-      : null;
-
-    if (!user) {
+    if (!authUser) {
       return res.status(404).json({
         error: "User not found. Analysis was not saved.",
       });
     }
 
     await Analysis.create({
-      user: user._id,
+      user: authUser._id,
       score,
       analysisText: analysis,
       productText,
@@ -297,7 +325,8 @@ app.post("/api/auth/google", async (req, res) => {
       sendWelcomeEmail({ name, email }).catch((e) => console.error("Welcome email failed:", e.message));
     }
 
-    return res.json({ user });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    return res.json({ user, token });
   } catch (err) {
     console.error("Google auth error:", err);
     return res.status(401).json({ error: "Invalid Google token" });
@@ -367,6 +396,13 @@ const PORT = process.env.PORT || 3001;
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authEmailRoutes);
+app.use("/api/payments", paymentsRouter);
+
+// Redirige al frontend después del pago — MP no acepta localhost en back_url
+app.get("/payment/return", (req, res) => {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  res.redirect(`${frontendUrl}/subscription/success`);
+});
 
 app.listen(PORT, () => {
   console.log(`Backend corriendo en puerto ${PORT}`);

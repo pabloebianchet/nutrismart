@@ -9,6 +9,7 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import MailRoundedIcon from "@mui/icons-material/MailRounded";
+import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
 
@@ -16,6 +17,7 @@ const NAV = [
   { to: "/",             label: "Inicio",         Icon: HomeRoundedIcon         },
   { to: "/about",        label: "Quiénes somos",  Icon: InfoRoundedIcon         },
   { to: "/how-it-works", label: "Cómo funciona",  Icon: AutoAwesomeRoundedIcon  },
+  { to: "/pricing",      label: "Planes",          Icon: DiamondOutlinedIcon     },
   { to: "/contact",      label: "Contacto",        Icon: MailRoundedIcon         },
 ];
 

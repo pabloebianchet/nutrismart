@@ -20,6 +20,7 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import ScoreDonut from "./ScoreDonut";
 import TestCard from "./TestCard";
+import SubscriptionWidget from "./SubscriptionWidget";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
 import FlashOnOutlinedIcon from "@mui/icons-material/FlashOnOutlined";
@@ -930,6 +931,11 @@ const Dashboard = () => {
           sexo={profileForm.sexo}
           edad={profileForm.edad}
         />
+      </Box>
+
+      {/* ── MEMBRESÍA ───────────────────────────── */}
+      <Box mb={4}>
+        <SubscriptionWidget />
       </Box>
 
       {/* ── CTA NUEVO ANÁLISIS ──────────────────── */}
