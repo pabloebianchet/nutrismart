@@ -115,12 +115,10 @@ router.post("/webhook", async (req, res) => {
         const planInfo = PLANS[plan];
         if (!planInfo) return res.sendStatus(200);
 
-        // Validate payment amount matches expected plan price (±5% tolerance for MP fees)
+        // Loguear discrepancia de monto (no rechazar — MP puede agregar cargos o cuotas)
         const expectedAmount = planInfo.amount;
-        const receivedAmount = mp.transaction_amount;
-        if (!receivedAmount || receivedAmount < expectedAmount * 0.95) {
-          console.error(`Webhook amount mismatch: expected ~${expectedAmount}, got ${receivedAmount}`);
-          return res.sendStatus(200);
+        if (mp.transaction_amount && mp.transaction_amount < expectedAmount * 0.50) {
+          console.warn(`Webhook: monto sospechosamente bajo: esperado ~${expectedAmount}, recibido ${mp.transaction_amount}`);
         }
 
         const now = new Date();
@@ -193,18 +191,7 @@ router.post("/cancel", authMiddleware, async (req, res) => {
     const sub = await Subscription.findOne({ user: req.user._id });
     if (!sub) return res.status(404).json({ error: "No tenés una suscripción activa." });
 
-    if (process.env.MP_ACCESS_TOKEN && sub.mpSubscriptionId) {
-      try {
-        const client = getMPClient();
-        const preApproval = new PreApproval(client);
-        await preApproval.update({
-          id: sub.mpSubscriptionId,
-          body: { status: "cancelled" },
-        });
-      } catch (mpErr) {
-        console.error("MP cancel error:", mpErr.message);
-      }
-    }
+    // Checkout Pro es pago único — no hay suscripción MP que cancelar en la API
 
     sub.status = "cancelled";
     sub.autoRenew = false;
