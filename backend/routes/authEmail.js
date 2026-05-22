@@ -88,9 +88,12 @@ router.post("/forgot-password", async (req, res) => {
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    // Siempre responder OK para no revelar si el email existe
-    if (!user || user.provider !== "email") {
-      return res.json({ message: "Si el email existe, recibirás un enlace para restablecer tu contraseña." });
+    if (!user) {
+      return res.status(404).json({ error: "No existe una cuenta con ese email. Podés crear una cuenta nueva." });
+    }
+
+    if (user.provider !== "email") {
+      return res.status(400).json({ error: "Esa cuenta usa inicio de sesión con Google. Ingresá con el botón de Google." });
     }
 
     const token = crypto.randomBytes(32).toString("hex");

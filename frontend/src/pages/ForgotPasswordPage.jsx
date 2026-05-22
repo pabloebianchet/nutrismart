@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Paper, TextField, Button, Typography, Alert } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
@@ -17,10 +17,12 @@ const C = {
 };
 
 const ForgotPasswordPage = () => {
-  const [email, setEmail]     = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent]       = useState(false);
-  const [error, setError]     = useState("");
+  const [email, setEmail]           = useState("");
+  const [loading, setLoading]       = useState(false);
+  const [sent, setSent]             = useState(false);
+  const [error, setError]           = useState("");
+  const [notRegistered, setNotRegistered] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +35,10 @@ const ForgotPasswordPage = () => {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) return setError(data.error || "Error al enviar el correo.");
+      if (!res.ok) {
+        if (res.status === 404) setNotRegistered(true);
+        return setError(data.error || "Error al enviar el correo.");
+      }
       setSent(true);
     } catch {
       setError("Error de conexión. Verificá que el servidor esté activo.");
@@ -132,16 +137,37 @@ const ForgotPasswordPage = () => {
               </Typography>
 
               {error && (
-                <Alert severity="error" sx={{ mb: 2, borderRadius: 2, fontSize: 13 }}>
-                  {error}
-                </Alert>
+                <Box sx={{ mb: 2 }}>
+                  <Alert severity="error" sx={{ borderRadius: 2, fontSize: 13, mb: notRegistered ? 1.5 : 0 }}>
+                    {error}
+                  </Alert>
+                  {notRegistered && (
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={() => navigate("/", { state: { openRegister: true } })}
+                      sx={{
+                        borderRadius: 2.5,
+                        py: 1.2,
+                        textTransform: "none",
+                        fontWeight: 700,
+                        fontSize: 14,
+                        borderColor: C.brand,
+                        color: C.brand,
+                        "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
+                      }}
+                    >
+                      Crear cuenta nueva
+                    </Button>
+                  )}
+                </Box>
               )}
 
               <TextField
                 label="Email"
                 type="email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                onChange={(e) => { setEmail(e.target.value); setError(""); setNotRegistered(false); }}
                 required
                 fullWidth
                 size="small"
