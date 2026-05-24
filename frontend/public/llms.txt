@@ -1,0 +1,39 @@
+# NutriSmart
+
+> Aplicación web de análisis nutricional con inteligencia artificial. Permite analizar cualquier producto alimenticio escaneando su etiqueta nutricional y tabla de ingredientes.
+
+## ¿Qué es NutriSmart?
+
+NutriSmart es una app que usa OCR (Google Vision) e IA (GPT-4o-mini) para analizar el contenido nutricional de alimentos envasados. El usuario sube dos fotos del packaging (tabla nutricional e ingredientes) y recibe:
+
+- Un puntaje global de 0 a 100
+- Clasificación del producto (no procesado / procesado / ultraprocesado)
+- Evaluación personalizada según perfil del usuario (edad, sexo, peso, altura, actividad física)
+- Recomendación práctica sobre cómo incorporar el producto en una dieta equilibrada
+
+## Características principales
+
+- Análisis nutricional con IA personalizado por perfil de usuario
+- Sistema de puntos saludables gamificado (+5 por producto ≥ 50/100, -3 por producto < 50/100)
+- Historial de análisis con agrupación por fecha
+- Ranking global de usuarios por puntos saludables
+- Planes de suscripción (Silver: 1 análisis/día, Gold: ilimitado)
+- Login con Google y con email/contraseña
+- Diseño mobile-first
+
+## Público objetivo
+
+Personas interesadas en mejorar sus hábitos alimenticios, consumidores que quieren entender las etiquetas nutricionales de los productos que compran.
+
+## Tecnología
+
+- Frontend: React + Vite + MUI
+- Backend: Node.js + Express
+- Base de datos: MongoDB
+- OCR: Google Cloud Vision
+- IA: OpenAI GPT-4o-mini
+- Pagos: Mercado Pago
+
+## Idioma
+
+Español (Argentina)

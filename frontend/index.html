@@ -1,24 +1,92 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/img/logo.png" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-    />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <title>NUI</title>
+
+    <!-- ── Favicon ─────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/logo.png" />
+    <meta name="theme-color" content="#7BBFBE" />
+    <meta name="msapplication-TileColor" content="#7BBFBE" />
+
+    <!-- ── Título y descripción ─────────────────────────────── -->
+    <title>NutriSmart — Análisis Nutricional con IA</title>
+    <meta name="description" content="Analizá cualquier alimento con inteligencia artificial. Sacá una foto al packaging y obtené un diagnóstico nutricional personalizado en segundos. Gratis para empezar." />
+    <meta name="keywords" content="análisis nutricional, inteligencia artificial, nutrición, alimentos saludables, etiquetas nutricionales, scanner de alimentos, IA nutrición, puntaje nutricional, ultraprocesados" />
+    <meta name="author" content="NutriSmart" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://nutrismart.app" />
+
+    <!-- ── Open Graph — WhatsApp, Facebook, LinkedIn ────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nutrismart.app" />
+    <meta property="og:title" content="NutriSmart — Análisis Nutricional con IA" />
+    <meta property="og:description" content="Analizá cualquier alimento con IA. Foto al packaging → diagnóstico nutricional personalizado al instante. Descubrí si lo que comés es realmente saludable." />
+    <meta property="og:image" content="https://nutrismart.app/img/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="NutriSmart" />
+
+    <!-- ── Twitter / X ──────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NutriSmart — Análisis Nutricional con IA" />
+    <meta name="twitter:description" content="Foto al packaging → diagnóstico nutricional con IA en segundos. Gratis para empezar." />
+    <meta name="twitter:image" content="https://nutrismart.app/img/og-image.png" />
+
+    <!-- ── Structured Data — Google & buscadores con IA ─────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NutriSmart",
+      "url": "https://nutrismart.app",
+      "description": "Aplicación de análisis nutricional con inteligencia artificial. Analizá cualquier producto alimenticio escaneando su etiqueta y recibí un diagnóstico personalizado al instante.",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "inLanguage": "es-AR",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Plan Gratuito",
+          "price": "0",
+          "priceCurrency": "ARS",
+          "description": "3 análisis de prueba gratuitos"
+        },
+        {
+          "@type": "Offer",
+          "name": "Plan Silver",
+          "price": "2990",
+          "priceCurrency": "ARS",
+          "description": "1 análisis por día, renovación mensual"
+        },
+        {
+          "@type": "Offer",
+          "name": "Plan Gold",
+          "price": "5990",
+          "priceCurrency": "ARS",
+          "description": "Análisis ilimitados, renovación mensual"
+        }
+      ],
+      "featureList": [
+        "Análisis nutricional con IA (GPT-4o-mini)",
+        "Lectura de etiquetas por OCR (Google Vision)",
+        "Puntaje global del producto de 0 a 100",
+        "Clasificación: no procesado / procesado / ultraprocesado",
+        "Diagnóstico personalizado por perfil físico del usuario",
+        "Historial de análisis",
+        "Sistema de puntos saludables gamificado",
+        "Ranking global de usuarios"
+      ]
+    }
+    </script>
+
+    <!-- ── Fonts ─────────────────────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
