@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useNutrition } from "../context/NutritionContext";
 
 const HIDDEN_PATHS = ["/capture", "/result", "/admin"];
 
 const FloatingAnalyzeButton = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
+  const { user }  = useNutrition();
   const [hovered, setHovered] = useState(false);
 
+  if (!user?._id && !user?.googleId) return null;
   if (HIDDEN_PATHS.includes(location.pathname)) return null;
 
   return (
