@@ -10,7 +10,6 @@ import {
   IconButton,
   Avatar,
   Chip,
-  LinearProgress,
 } from "@mui/material";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -19,7 +18,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PeanutMascot, { getMood, MOOD_META } from "./PeanutMascot";
 import axios from "axios";
-import ScoreDonut from "./ScoreDonut";
 import TestCard from "./TestCard";
 import SubscriptionWidget from "./SubscriptionWidget";
 import LeaderboardWidget from "./LeaderboardWidget";
@@ -30,7 +28,6 @@ import MonitorWeightOutlinedIcon from "@mui/icons-material/MonitorWeightOutlined
 import HeightOutlinedIcon from "@mui/icons-material/HeightOutlined";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
-import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
@@ -136,129 +133,306 @@ const ScoreBadge = ({ score }) => {
   const label = score >= 75 ? "Excelente" : score >= 50 ? "Regular" : "Mejorar";
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-      <Box
-        sx={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          bgcolor: color,
-          flexShrink: 0,
-        }}
-      />
-      <Typography sx={{ fontSize: 11, fontWeight: 600, color }}>
-        {label}
-      </Typography>
+      <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color, flexShrink: 0 }} />
+      <Typography sx={{ fontSize: 11, fontWeight: 600, color }}>{label}</Typography>
     </Box>
   );
 };
 
-const AnalysisCard = ({ item, onDelete, formatDateTime }) => {
-  const score = item.score ?? 0;
-  const pct = Math.min(score, 100);
-  const barColor = pct >= 75 ? C.success : pct >= 50 ? C.accentWarm : C.danger;
+// ─── helpers para el historial ─────────────────────────────────────────────
+
+const getScoreColor = (s) =>
+  s >= 75 ? C.success : s >= 50 ? C.accentWarm : C.danger;
+
+const getScoreLabel = (s) =>
+  s >= 90 ? "Excelente" :
+  s >= 75 ? "Saludable" :
+  s >= 60 ? "Aceptable" :
+  s >= 45 ? "Mejorable" : "A evitar";
+
+const getProcessingBadge = (text) => {
+  const l = (text || "").toLowerCase();
+  if (l.includes("ultraprocesado")) return { label: "Ultraprocesado", color: "#B71C1C" };
+  if (l.includes("no procesado"))   return { label: "No procesado",   color: C.success   };
+  if (l.includes("procesado"))      return { label: "Procesado",      color: "#E65100"   };
+  return null;
+};
+
+const parseAnalysisText = (text) => {
+  if (!text) return { classification: "", explanation: "", guidance: "" };
+  const m = text.match(/Puntaje global:\s*\d+\s*\/\s*100/i);
+  if (!m) return { classification: text, explanation: "", guidance: "" };
+  const idx = text.indexOf(m[0]);
+  const classification = text.slice(0, idx).trim();
+  const after = text.slice(idx + m[0].length).trim();
+  let parts = after.split(/\n\n+/).filter((p) => p.trim());
+  if (parts.length < 2) parts = after.split(/\n/).filter((p) => p.trim());
+  return { classification, explanation: parts[0] || after, guidance: parts.slice(1).join(" ") };
+};
+
+const getPreview = (text) => {
+  if (!text) return "Sin descripción";
+  const scoreIdx = text.toLowerCase().indexOf("puntaje global");
+  const raw = scoreIdx > 0 ? text.slice(0, scoreIdx).trim() : text.split("\n")[0].trim();
+  return raw.length > 90 ? raw.slice(0, 90) + "…" : raw || text.slice(0, 90);
+};
+
+const groupByDate = (items) => {
+  const now   = new Date();
+  const today = new Date(now); today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const weekAgo   = new Date(today); weekAgo.setDate(today.getDate() - 7);
+  const used = new Set();
+  const make = (label, fn) => {
+    const its = items.filter(fn);
+    its.forEach((i) => used.add(i._id));
+    return its.length ? { label, items: its } : null;
+  };
+  return [
+    make("Hoy",          (i) => new Date(i.createdAt) >= today),
+    make("Ayer",         (i) => { const d = new Date(i.createdAt); return d >= yesterday && d < today; }),
+    make("Esta semana",  (i) => { const d = new Date(i.createdAt); return d >= weekAgo && d < yesterday; }),
+    make("Anteriores",   (i) => !used.has(i._id)),
+  ].filter(Boolean);
+};
+
+// ─── HistoryList ───────────────────────────────────────────────────────────
+
+const PAGE = 5;
+
+const HistoryList = ({ history, onDelete, formatDateTime }) => {
+  const [expandedId,   setExpandedId]   = useState(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE);
+
+  const visible = history.slice(0, visibleCount);
+  const remaining = history.length - visibleCount;
+  const groups = groupByDate(visible);
 
   return (
     <Paper
       elevation={0}
       sx={{
-        p: 0,
-        borderRadius: 4,
+        borderRadius: 5,
         border: `1px solid ${C.border}`,
-        bgcolor: C.surface,
-        boxShadow: shadow.sm,
+        boxShadow: shadow.md,
         overflow: "hidden",
-        transition: "box-shadow 0.2s, transform 0.2s",
-        "&:hover": {
-          boxShadow: shadow.md,
-          transform: "translateY(-2px)",
-        },
+        bgcolor: C.surface,
       }}
     >
-      {/* Color accent strip */}
-      <Box sx={{ height: 3, bgcolor: barColor, width: `${pct}%` }} />
+      {/* Header */}
+      <Box
+        sx={{
+          px: 3, py: 2.2,
+          borderBottom: `1px solid ${C.border}`,
+          bgcolor: C.surfaceAlt,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
+            Historial de análisis
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: C.textMuted, mt: 0.2 }}>
+            {history.length} análisis · últimos 30 días
+          </Typography>
+        </Box>
+        <Chip
+          label={`Promedio ${Math.round(history.reduce((s, i) => s + (i.score ?? 0), 0) / history.length)}/100`}
+          size="small"
+          sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
+        />
+      </Box>
 
-      <Box sx={{ p: 2.5 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="flex-start"
-          mb={1.5}
-        >
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 11,
-                color: C.textMuted,
-                mb: 0.3,
-                fontWeight: 500,
-              }}
-            >
-              {formatDateTime(item.createdAt)}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 22,
-                fontWeight: 800,
-                color: C.textPrimary,
-                lineHeight: 1,
-              }}
-            >
-              {score}
-              <Typography
-                component="span"
-                sx={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: C.textMuted,
-                  ml: 0.5,
-                }}
-              >
-                /100
-              </Typography>
+      {/* Groups */}
+      {groups.map((group, gi) => (
+        <Box key={group.label}>
+          {/* Group label */}
+          <Box sx={{ px: 3, py: 1, bgcolor: "#f6faf9", borderBottom: `1px solid ${C.border}` }}>
+            <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.09em" }}>
+              {group.label}
             </Typography>
           </Box>
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <ScoreBadge score={score} />
-            <IconButton
-              size="small"
-              onClick={() => onDelete(item._id)}
-              sx={{
-                color: C.textMuted,
-                "&:hover": { color: C.danger, bgcolor: "rgba(226,75,74,0.08)" },
-              }}
-            >
-              <DeleteOutlineRoundedIcon fontSize="small" />
-            </IconButton>
-          </Stack>
-        </Stack>
 
-        <LinearProgress
-          variant="determinate"
-          value={pct}
-          sx={{
-            height: 4,
-            borderRadius: 2,
-            bgcolor: "rgba(11,94,85,0.08)",
-            mb: 2,
-            "& .MuiLinearProgress-bar": { bgcolor: barColor, borderRadius: 2 },
-          }}
-        />
+          {/* Rows */}
+          {group.items.map((item, idx) => {
+            const score = item.score ?? 0;
+            const sc = getScoreColor(score);
+            const isExpanded = expandedId === item._id;
+            const parsed = isExpanded ? parseAnalysisText(item.analysisText) : null;
+            const badge = isExpanded ? getProcessingBadge(item.analysisText) : null;
+            const isLast = idx === group.items.length - 1 && gi === groups.length - 1;
 
-        <Typography
-          variant="body2"
+            return (
+              <Box key={item._id}>
+                {/* Row */}
+                <Box
+                  onClick={() => setExpandedId(isExpanded ? null : item._id)}
+                  sx={{
+                    px: 3, py: 1.8,
+                    display: "flex", alignItems: "center", gap: 2,
+                    cursor: "pointer",
+                    borderBottom: `1px solid ${C.border}`,
+                    bgcolor: isExpanded ? "#f7fcfa" : "transparent",
+                    transition: "background 0.15s ease",
+                    "&:hover": { bgcolor: "#f7fcfa" },
+                  }}
+                >
+                  {/* Score circle */}
+                  <Box
+                    sx={{
+                      width: 46, height: 46, borderRadius: "50%", flexShrink: 0,
+                      bgcolor: `${sc}12`,
+                      border: `2px solid ${sc}`,
+                      display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    <Typography sx={{ fontSize: 14, fontWeight: 900, color: sc, lineHeight: 1 }}>
+                      {score}
+                    </Typography>
+                    <Typography sx={{ fontSize: 8.5, color: sc, fontWeight: 600, lineHeight: 1 }}>
+                      /100
+                    </Typography>
+                  </Box>
+
+                  {/* Content */}
+                  <Box flex={1} minWidth={0}>
+                    <Typography sx={{ fontSize: 11.5, color: C.textMuted, mb: 0.25, fontWeight: 500 }}>
+                      {formatDateTime(item.createdAt)}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 13.5, color: C.textPrimary, fontWeight: 500,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {getPreview(item.analysisText)}
+                    </Typography>
+                  </Box>
+
+                  {/* Chevron + delete */}
+                  <Stack direction="row" alignItems="center" spacing={0.5} flexShrink={0}>
+                    <Box
+                      sx={{
+                        fontSize: 14, color: C.textMuted, lineHeight: 1,
+                        transform: isExpanded ? "rotate(180deg)" : "none",
+                        transition: "transform 0.25s ease",
+                        display: "flex", alignItems: "center",
+                      }}
+                    >
+                      ▾
+                    </Box>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); onDelete(item._id); }}
+                      sx={{ color: C.textMuted, "&:hover": { color: C.danger, bgcolor: "rgba(226,75,74,0.08)" } }}
+                    >
+                      <DeleteOutlineRoundedIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </Stack>
+                </Box>
+
+                {/* Expanded panel */}
+                <Box
+                  sx={{
+                    maxHeight: isExpanded ? 600 : 0,
+                    overflow: "hidden",
+                    transition: "max-height 0.35s cubic-bezier(0.4,0,0.2,1)",
+                  }}
+                >
+                  <Box sx={{ px: 3, py: 2.5, bgcolor: "#f7fcfa", borderBottom: `1px solid ${C.border}` }}>
+                    {/* Score label + processing badge */}
+                    <Stack direction="row" spacing={1} mb={2} flexWrap="wrap">
+                      <Chip
+                        label={getScoreLabel(score)}
+                        size="small"
+                        sx={{ bgcolor: `${sc}15`, color: sc, fontWeight: 700, fontSize: 11.5, border: `1px solid ${sc}30` }}
+                      />
+                      {badge && (
+                        <Chip
+                          label={badge.label}
+                          size="small"
+                          sx={{ bgcolor: `${badge.color}10`, color: badge.color, fontWeight: 700, fontSize: 11.5, border: `1px solid ${badge.color}30` }}
+                        />
+                      )}
+                    </Stack>
+
+                    {/* Parsed sections */}
+                    {parsed?.classification && (
+                      <Box mb={1.5}>
+                        <Typography sx={{ fontSize: 10, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
+                          Clasificación
+                        </Typography>
+                        <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
+                          {parsed.classification}
+                        </Typography>
+                      </Box>
+                    )}
+                    {parsed?.explanation && (
+                      <Box mb={1.5}>
+                        <Typography sx={{ fontSize: 10, fontWeight: 800, color: "#1565C0", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
+                          Motivo del puntaje
+                        </Typography>
+                        <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
+                          {parsed.explanation}
+                        </Typography>
+                      </Box>
+                    )}
+                    {parsed?.guidance && (
+                      <Box>
+                        <Typography sx={{ fontSize: 10, fontWeight: 800, color: "#6A1B9A", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
+                          Consejo
+                        </Typography>
+                        <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
+                          {parsed.guidance}
+                        </Typography>
+                      </Box>
+                    )}
+                    {!parsed?.classification && !parsed?.explanation && (
+                      <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                        {item.analysisText}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      ))}
+
+      {/* Ver más */}
+      {remaining > 0 && (
+        <Box
           sx={{
-            color: C.textSecondary,
-            fontSize: 13,
-            lineHeight: 1.55,
-            display: "-webkit-box",
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
+            px: 3, py: 2,
+            borderTop: `1px solid ${C.border}`,
+            bgcolor: C.surfaceAlt,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {item.analysisText}
-        </Typography>
-      </Box>
+          <Button
+            onClick={() => setVisibleCount((v) => v + PAGE)}
+            sx={{
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: 13.5,
+              color: C.brand,
+              borderRadius: 999,
+              px: 3, py: 0.8,
+              "&:hover": { bgcolor: C.brandSurface },
+            }}
+          >
+            Ver {Math.min(remaining, PAGE)} análisis más
+            <Typography component="span" sx={{ fontSize: 12, color: C.textMuted, ml: 0.8, fontWeight: 500 }}>
+              ({remaining} restantes)
+            </Typography>
+          </Button>
+        </Box>
+      )}
     </Paper>
   );
 };
@@ -1132,46 +1306,6 @@ const Dashboard = () => {
       </Paper>
 
       {/* ── HISTORIAL ───────────────────────────── */}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
-        <Box>
-          <Typography
-            sx={{ fontSize: 18, fontWeight: 800, color: C.textPrimary }}
-          >
-            Análisis recientes
-          </Typography>
-          {history.length > 0 && (
-            <Typography sx={{ fontSize: 13, color: C.textMuted, mt: 0.3 }}>
-              {history.length} análisis realizados
-            </Typography>
-          )}
-        </Box>
-        {history.length > 0 && (
-          <Chip
-            icon={
-              <BarChartRoundedIcon
-                sx={{
-                  fontSize: "14px !important",
-                  color: `${C.brand} !important`,
-                }}
-              />
-            }
-            label={`Promedio ${averageScore}/100`}
-            size="small"
-            sx={{
-              bgcolor: C.brandSurface,
-              color: C.brand,
-              fontWeight: 700,
-              fontSize: 12,
-              border: `1px solid ${C.brandMuted}`,
-            }}
-          />
-        )}
-      </Stack>
 
       {loading ? (
         <Box sx={{ py: 6, textAlign: "center" }}>
@@ -1248,56 +1382,11 @@ const Dashboard = () => {
           </Button>
         </Paper>
       ) : (
-        <Stack spacing={4}>
-          {/* Donut promedio */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 3, md: 4 },
-              borderRadius: 5,
-              border: `1px solid ${C.border}`,
-              boxShadow: shadow.sm,
-              bgcolor: C.surface,
-            }}
-          >
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: 15,
-                color: C.textPrimary,
-                mb: 0.5,
-              }}
-            >
-              Puntaje promedio general
-            </Typography>
-            <Typography sx={{ fontSize: 13, color: C.textMuted, mb: 3 }}>
-              Basado en {history.length} análisis realizados
-            </Typography>
-            <ScoreDonut score={averageScore} />
-          </Paper>
-
-          {/* Grid de cards */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                md: "repeat(3, 1fr)",
-              },
-              gap: 2,
-            }}
-          >
-            {history.map((item) => (
-              <AnalysisCard
-                key={item._id}
-                item={item}
-                onDelete={handleDeleteAnalysis}
-                formatDateTime={formatDateTime}
-              />
-            ))}
-          </Box>
-        </Stack>
+        <HistoryList
+          history={history}
+          onDelete={handleDeleteAnalysis}
+          formatDateTime={formatDateTime}
+        />
       )}
 
       {/* Spacer bottom */}

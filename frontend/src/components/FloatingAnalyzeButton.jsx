@@ -40,7 +40,7 @@ const FloatingAnalyzeButton = () => {
           position: "absolute",
           inset: 0,
           borderRadius: 999,
-          bgcolor: "rgba(11,94,85,0.35)",
+          bgcolor: "rgba(11,94,85,0.22)",
           animation: "pulse 2.4s ease-out infinite",
           pointerEvents: "none",
         }}
@@ -61,10 +61,15 @@ const FloatingAnalyzeButton = () => {
           pl: 1.8,
           pr: { xs: 2.2, sm: hovered ? 2.8 : 2.2 },
           gap: 1.2,
-          background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+          background: hovered
+            ? "rgba(11,94,85,0.82)"
+            : "rgba(11,94,85,0.68)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          border: "1px solid rgba(255,255,255,0.18)",
           boxShadow: hovered
-            ? "0 12px 40px rgba(11,94,85,0.55), 0 4px 12px rgba(0,0,0,0.15)"
-            : "0 6px 28px rgba(11,94,85,0.40), 0 2px 8px rgba(0,0,0,0.10)",
+            ? "0 12px 40px rgba(11,94,85,0.45), 0 4px 12px rgba(0,0,0,0.12)"
+            : "0 6px 24px rgba(11,94,85,0.30), 0 2px 8px rgba(0,0,0,0.08)",
           animation: "floatUp 3.5s ease-in-out infinite",
           transition: "box-shadow 0.25s ease, padding-right 0.3s ease",
           userSelect: "none",
