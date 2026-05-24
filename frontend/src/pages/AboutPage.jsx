@@ -284,8 +284,8 @@ const AboutPage = () => (
             letterSpacing: "-0.5px",
           }}
         >
-          Hacer que entender lo que comés sea simple, sin tecnicismos, sin
-          confusión.
+          Ayudamos a que entiendas lo que comés. Todo de manera simple, sin tecnicismos, sin
+          confusión. También te ayudamos a preparar platos sanos, sencillos y rápidos, para que la falta de tiempo no te imposibilite comer de manera adecuada. 
         </Typography>
       </Box>
     </Box>
