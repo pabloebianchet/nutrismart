@@ -1,0 +1,124 @@
+import express from "express";
+import OpenAI from "openai";
+import rateLimit from "express-rate-limit";
+import { authMiddleware } from "../middleware/auth.js";
+
+const router = express.Router();
+const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const recipesLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: "Demasiadas solicitudes. Esperá un momento." },
+});
+
+const MODALIDAD_DESC = {
+  "Fit":                "liviana, baja en grasa, alta en proteína, ingredientes naturales",
+  "Hipertrofia":        "alta en proteína y calorías, orientada a ganancia muscular",
+  "Rápidas":            "máximo 15 minutos de preparación, pocos ingredientes, muy simple",
+  "Desayunos Completos":"nutritiva y energizante para comenzar el día, equilibrada en macros",
+};
+
+const parseJSON = (text) => {
+  const clean = text.replace(/```json\n?/gi, "").replace(/```\n?/g, "").trim();
+  return JSON.parse(clean);
+};
+
+const userCtxStr = (ud) =>
+  ud
+    ? `El usuario es ${ud.sexo}, ${ud.edad} años, ${ud.peso}kg, ${ud.altura}cm, actividad física ${ud.actividad}.`
+    : "";
+
+/* ── 3 sugerencias ─────────────────────────────────── */
+router.post("/suggestions", authMiddleware, recipesLimiter, async (req, res) => {
+  const { modalidad, momento, userData } = req.body;
+  if (!modalidad || !momento)
+    return res.status(400).json({ error: "Modalidad y momento son requeridos." });
+
+  const desc = MODALIDAD_DESC[modalidad] || modalidad;
+
+  const prompt = `Sos un chef nutricionista argentino. Generá 3 recetas distintas y creativas para ${momento} con enfoque ${modalidad} (${desc}).
+${userCtxStr(userData)}
+
+Reglas:
+- Ingredientes accesibles en Argentina
+- Nombres apetitosos y concretos (no genéricos)
+- Descripción de una sola línea, directa y motivadora
+- Emoji representativo del plato
+
+Respondé ÚNICAMENTE con este JSON sin texto extra:
+{
+  "recipes": [
+    {"name": "Nombre del plato", "description": "Una línea apetitosa", "emoji": "🍗"},
+    {"name": "Nombre del plato", "description": "Una línea apetitosa", "emoji": "🥗"},
+    {"name": "Nombre del plato", "description": "Una línea apetitosa", "emoji": "🫙"}
+  ]
+}`;
+
+  try {
+    const completion = await getOpenAI().chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "Respondés SOLO con JSON válido. Sin markdown, sin explicaciones." },
+        { role: "user",   content: prompt },
+      ],
+      temperature: 0.85,
+      max_tokens: 350,
+    });
+    const data = parseJSON(completion.choices[0].message.content);
+    return res.json(data);
+  } catch (err) {
+    console.error("Recipes suggestions error:", err.message);
+    return res.status(500).json({ error: "No se pudieron generar las recetas. Intentá de nuevo." });
+  }
+});
+
+/* ── Receta completa ───────────────────────────────── */
+router.post("/detail", authMiddleware, recipesLimiter, async (req, res) => {
+  const { name, emoji, modalidad, momento, userData } = req.body;
+  if (!name || !modalidad || !momento)
+    return res.status(400).json({ error: "Datos incompletos." });
+
+  const desc = MODALIDAD_DESC[modalidad] || modalidad;
+
+  const prompt = `Sos un chef nutricionista argentino. Dá la receta completa de "${name}" para ${momento} con enfoque ${modalidad} (${desc}).
+${userCtxStr(userData)}
+
+Reglas:
+- Ingredientes con cantidades exactas, accesibles en Argentina
+- Máximo 7 pasos, claros y con tiempos cuando corresponda
+- Tiempo de preparación realista
+- 1 tip práctico al final
+
+Respondé ÚNICAMENTE con este JSON sin texto extra:
+{
+  "name": "${name}",
+  "emoji": "${emoji || "🍽️"}",
+  "time": "20 min",
+  "difficulty": "Fácil",
+  "servings": 1,
+  "calories": "420 kcal aprox.",
+  "ingredients": ["200g de pechuga de pollo", "1/2 taza de quinoa"],
+  "steps": ["Herví la quinoa en caldo por 15 minutos.", "Cociná el pollo..."],
+  "tip": "Podés preparar la quinoa con anticipación."
+}`;
+
+  try {
+    const completion = await getOpenAI().chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "Respondés SOLO con JSON válido. Sin markdown, sin explicaciones." },
+        { role: "user",   content: prompt },
+      ],
+      temperature: 0.6,
+      max_tokens: 700,
+    });
+    const data = parseJSON(completion.choices[0].message.content);
+    return res.json(data);
+  } catch (err) {
+    console.error("Recipes detail error:", err.message);
+    return res.status(500).json({ error: "No se pudo generar la receta. Intentá de nuevo." });
+  }
+});
+
+export default router;

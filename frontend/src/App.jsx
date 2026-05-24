@@ -14,6 +14,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import PricingPage from "./pages/PricingPage.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage.jsx";
+import RecipesPage from "./pages/RecipesPage.jsx";
 import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
 
 
@@ -36,6 +37,7 @@ const App = () => {
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/subscription" element={<SubscriptionPage />} />
         <Route path="/subscription/success" element={<SubscriptionPage />} />
+        <Route path="/recipes" element={<RecipesPage />} />
       </Routes>
     </Router>
   );

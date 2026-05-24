@@ -19,6 +19,7 @@ import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
 import { sendContactEmail } from "./utils/sendContactEmail.js";
+import recipesRouter from "./routes/recipes.js";
 
 connectDB();
 
@@ -511,6 +512,7 @@ const PORT = process.env.PORT || 3001;
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authEmailRoutes);
 app.use("/api/payments", paymentsRouter);
+app.use("/api/recipes", recipesRouter);
 
 // Redirige al frontend después del pago — MP no acepta localhost en back_url
 app.get("/payment/return", (req, res) => {

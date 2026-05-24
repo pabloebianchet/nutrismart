@@ -438,6 +438,159 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
 };
 
 /* ────────────────────────────────────────────
+   Recetas YA Banner
+──────────────────────────────────────────── */
+const MODALIDADES_PREVIEW = [
+  { emoji: "💚", label: "Fit",        color: "#2E7D32", bg: "#E8F5E9" },
+  { emoji: "💪", label: "Hipertrofia",color: "#BF360C", bg: "#FBE9E7" },
+  { emoji: "⚡", label: "Rápidas",    color: "#1565C0", bg: "#E3F2FD" },
+  { emoji: "🌅", label: "Desayunos",  color: "#E65100", bg: "#FFF3E0" },
+];
+
+const RecetasYABanner = () => {
+  const navigate = useNavigate();
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        mb: 4,
+        borderRadius: 5,
+        overflow: "hidden",
+        border: `1px solid ${C.borderStrong}`,
+        boxShadow: shadow.lg,
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1.15fr 1fr" },
+      }}
+    >
+      {/* ── Columna izquierda: contexto ── */}
+      <Box
+        sx={{
+          p: { xs: 3.5, md: 5 },
+          background: "linear-gradient(145deg, #0B5E55 0%, #0d7268 60%, #0f8a7c 100%)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* blob decorativo */}
+        <Box sx={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", bottom: -60, left: -30, width: 220, height: 220, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+
+        <Box sx={{ position: "relative" }}>
+          {/* Badge */}
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8, px: 1.5, py: 0.5, borderRadius: 999, bgcolor: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.20)", mb: 2 }}>
+            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#2ECC71" }} />
+            <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Nuevo módulo
+            </Typography>
+          </Box>
+
+          {/* Title */}
+          <Stack direction="row" spacing={1.2} alignItems="center" mb={1}>
+            <Typography sx={{ fontSize: 32 }}>🍽️</Typography>
+            <Typography sx={{ fontSize: { xs: 24, md: 28 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.8px", lineHeight: 1 }}>
+              Recetas YA
+            </Typography>
+          </Stack>
+
+          <Typography sx={{ fontSize: 14.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.65, mb: 3, maxWidth: 320 }}>
+            La IA que cocina para vos. Elegís el tipo de plato y el momento del día, y te da tres opciones con ingredientes y pasos al instante.
+          </Typography>
+
+          {/* Feature list */}
+          <Stack spacing={1.2} mb={3.5}>
+            {[
+              "Fit, Hipertrofia, Rápidas o Desayunos",
+              "Desayuno, Almuerzo, Merienda, Cena o Snack",
+              "Ingredientes + pasos detallados con IA",
+            ].map((f) => (
+              <Stack key={f} direction="row" spacing={1.2} alignItems="center">
+                <Box sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: "rgba(46,204,113,0.25)", border: "1px solid rgba(46,204,113,0.5)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Typography sx={{ fontSize: 10, color: "#2ECC71" }}>✓</Typography>
+                </Box>
+                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>{f}</Typography>
+              </Stack>
+            ))}
+          </Stack>
+
+          <Button
+            variant="contained"
+            onClick={() => navigate("/recipes")}
+            sx={{
+              bgcolor: "#fff",
+              color: "#0B5E55",
+              borderRadius: 999,
+              px: 3.5, py: 1.3,
+              textTransform: "none",
+              fontWeight: 800,
+              fontSize: 14.5,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+              "&:hover": { bgcolor: "#edf8f5", boxShadow: "0 8px 28px rgba(0,0,0,0.22)", transform: "translateY(-1px)" },
+              transition: "all 0.2s ease",
+            }}
+          >
+            Descubrir recetas →
+          </Button>
+        </Box>
+      </Box>
+
+      {/* ── Columna derecha: visual ── */}
+      <Box
+        sx={{
+          p: { xs: 3, md: 4 },
+          bgcolor: "#F7FBF9",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 2,
+        }}
+      >
+        <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.5 }}>
+          Modalidades disponibles
+        </Typography>
+
+        {/* Modalidad cards */}
+        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5 }}>
+          {MODALIDADES_PREVIEW.map((m) => (
+            <Box
+              key={m.label}
+              onClick={() => navigate("/recipes")}
+              sx={{
+                px: 2, py: 1.8, borderRadius: 3.5, cursor: "pointer",
+                bgcolor: m.bg,
+                border: `1.5px solid ${m.color}25`,
+                transition: "all 0.18s ease",
+                "&:hover": { transform: "translateY(-2px)", boxShadow: `0 6px 18px ${m.color}25`, borderColor: `${m.color}60` },
+              }}
+            >
+              <Typography sx={{ fontSize: 22, lineHeight: 1, mb: 0.6 }}>{m.emoji}</Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 800, color: m.color, letterSpacing: "-0.2px" }}>{m.label}</Typography>
+            </Box>
+          ))}
+        </Box>
+
+        {/* Momentos chips */}
+        <Box>
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.07em", mb: 1 }}>
+            Para cada momento
+          </Typography>
+          <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
+            {["🌅 Desayuno", "☀️ Almuerzo", "🍎 Merienda", "🌙 Cena", "🫐 Snack"].map((m) => (
+              <Chip
+                key={m}
+                label={m}
+                size="small"
+                onClick={() => navigate("/recipes")}
+                sx={{ bgcolor: "#fff", border: `1px solid ${C.border}`, fontWeight: 600, fontSize: 12, color: C.textSecondary, cursor: "pointer", "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted } }}
+              />
+            ))}
+          </Stack>
+        </Box>
+      </Box>
+    </Paper>
+  );
+};
+
+/* ────────────────────────────────────────────
    Dashboard principal
 ──────────────────────────────────────────── */
 const Dashboard = () => {
@@ -1209,6 +1362,9 @@ const Dashboard = () => {
 
       {/* ── RANKING GLOBAL ──────────────────────── */}
       <LeaderboardWidget />
+
+      {/* ── RECETAS YA ──────────────────────────── */}
+      <RecetasYABanner />
 
       {/* ── CTA NUEVO ANÁLISIS ──────────────────── */}
       <Paper
