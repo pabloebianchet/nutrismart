@@ -12,11 +12,13 @@ import MailRoundedIcon from "@mui/icons-material/MailRounded";
 import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
-import RamenDiningRoundedIcon from "@mui/icons-material/RamenDiningRounded";
+import RamenDiningRoundedIcon    from "@mui/icons-material/RamenDiningRounded";
+import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
 
 const NAV = [
   { to: "/",             label: "Inicio",         Icon: HomeRoundedIcon         },
-  { to: "/recipes",      label: "Recetas YA",     Icon: RamenDiningRoundedIcon  },
+  { to: "/recipes",      label: "Recetas YA",      Icon: RamenDiningRoundedIcon    },
+  { to: "/training",    label: "Entrenamiento",   Icon: FitnessCenterRoundedIcon  },
   { to: "/about",        label: "Quiénes somos",  Icon: InfoRoundedIcon         },
   { to: "/how-it-works", label: "Cómo funciona",  Icon: AutoAwesomeRoundedIcon  },
   { to: "/pricing",      label: "Planes",          Icon: DiamondOutlinedIcon     },

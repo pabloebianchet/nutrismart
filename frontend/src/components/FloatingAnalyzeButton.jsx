@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 
-const HIDDEN_PATHS = ["/capture", "/result", "/admin", "/recipes"];
+const HIDDEN_PATHS = ["/capture", "/result", "/admin", "/recipes", "/training"];
 
 const FloatingAnalyzeButton = () => {
   const navigate  = useNavigate();
