@@ -2,6 +2,7 @@ import express from "express";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
+import SavedRecipe from "../models/SavedRecipe.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -117,6 +118,50 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
   } catch (err) {
     console.error("Recipes detail error:", err.message);
     return res.status(500).json({ error: "No se pudo generar la receta. Intentá de nuevo." });
+  }
+});
+
+/* ── Guardar receta ────────────────────────────────── */
+router.post("/save", authMiddleware, async (req, res) => {
+  const { name, emoji, modalidad, momento, time, difficulty, servings, calories, ingredients, steps, tip } = req.body;
+  if (!name || !ingredients?.length || !steps?.length)
+    return res.status(400).json({ error: "Datos de receta incompletos." });
+
+  try {
+    const existing = await SavedRecipe.findOne({ user: req.user._id, name });
+    if (existing) return res.status(409).json({ error: "already_saved" });
+
+    const saved = await SavedRecipe.create({
+      user: req.user._id, name, emoji, modalidad, momento,
+      time, difficulty, servings, calories, ingredients, steps, tip,
+    });
+    return res.json({ saved });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al guardar la receta." });
+  }
+});
+
+/* ── Listar recetas guardadas ──────────────────────── */
+router.get("/saved", authMiddleware, async (req, res) => {
+  try {
+    const recipes = await SavedRecipe.find({ user: req.user._id }).sort({ createdAt: -1 });
+    return res.json({ recipes });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener recetas." });
+  }
+});
+
+/* ── Eliminar receta guardada ─────────────────────── */
+router.delete("/saved/:id", authMiddleware, async (req, res) => {
+  try {
+    const recipe = await SavedRecipe.findById(req.params.id);
+    if (!recipe) return res.status(404).json({ error: "Receta no encontrada." });
+    if (recipe.user.toString() !== req.user._id.toString())
+      return res.status(403).json({ error: "Sin permiso." });
+    await recipe.deleteOne();
+    return res.json({ ok: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al eliminar la receta." });
   }
 });
 

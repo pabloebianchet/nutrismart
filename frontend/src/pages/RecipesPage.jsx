@@ -1,19 +1,30 @@
-import { useState } from "react";
-import { Box, Typography, Stack, Chip, Button, Paper, CircularProgress } from "@mui/material";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import { useState, useEffect } from "react";
+import {
+  Box, Typography, Stack, Chip, Button, Paper,
+  CircularProgress, IconButton, Tooltip, Snackbar, Alert,
+} from "@mui/material";
+import ArrowBackRoundedIcon       from "@mui/icons-material/ArrowBackRounded";
+import RefreshRoundedIcon         from "@mui/icons-material/RefreshRounded";
+import CheckRoundedIcon           from "@mui/icons-material/CheckRounded";
+import BookmarkBorderRoundedIcon  from "@mui/icons-material/BookmarkBorderRounded";
+import BookmarkRoundedIcon        from "@mui/icons-material/BookmarkRounded";
+import WhatsAppIcon               from "@mui/icons-material/WhatsApp";
+import EmailRoundedIcon           from "@mui/icons-material/EmailRounded";
+import ContentCopyRoundedIcon     from "@mui/icons-material/ContentCopyRounded";
+import DeleteOutlineRoundedIcon   from "@mui/icons-material/DeleteOutlineRounded";
+import ExpandMoreRoundedIcon      from "@mui/icons-material/ExpandMoreRounded";
+import ExpandLessRoundedIcon      from "@mui/icons-material/ExpandLessRounded";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNutrition } from "../context/NutritionContext";
-import { useLocation } from "react-router-dom";
-import { API_URL } from "../config/api";
+import { useNutrition }           from "../context/NutritionContext";
+import { useLocation }            from "react-router-dom";
+import { API_URL }                from "../config/api";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
 const MODALIDADES = [
-  { id: "Fit",         label: "Fit",         emoji: "💚", desc: "Liviano, proteico y natural",  color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"  },
-  { id: "Hipertrofia", label: "Hipertrofia", emoji: "💪", desc: "Alto en proteína y calorías",  color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
-  { id: "Rápidas",     label: "Rápidas",     emoji: "⚡", desc: "Listo en menos de 15 min",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"  },
+  { id: "Fit",         label: "Fit",         emoji: "💚", desc: "Liviano, proteico y natural", color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
+  { id: "Hipertrofia", label: "Hipertrofia", emoji: "💪", desc: "Alto en proteína y calorías", color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"   },
+  { id: "Rápidas",     label: "Rápidas",     emoji: "⚡", desc: "Listo en menos de 15 min",   color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"   },
 ];
 
 const MOMENTOS = [
@@ -38,6 +49,24 @@ const fadeUp = {
   exit:   { opacity: 0, y: -20 },
 };
 
+// ─── helpers ─────────────────────────────────────────────────────────────────
+
+const buildShareText = (recipe) => {
+  const lines = [
+    `${recipe.emoji || "🍽️"} *${recipe.name}*`,
+    `⏱ ${recipe.time}  🔥 ${recipe.calories}  📊 ${recipe.difficulty}`,
+    "",
+    "🛒 *Ingredientes:*",
+    ...(recipe.ingredients || []).map((i) => `• ${i}`),
+    "",
+    "👨‍🍳 *Preparación:*",
+    ...(recipe.steps || []).map((s, idx) => `${idx + 1}. ${s}`),
+  ];
+  if (recipe.tip) lines.push("", `💡 *Tip:* ${recipe.tip}`);
+  lines.push("", "Generado con NutriSmart 💚");
+  return lines.join("\n");
+};
+
 // ─── sub-components ──────────────────────────────────────────────────────────
 
 const StepLabel = ({ n, label }) => (
@@ -56,11 +85,14 @@ const StepLabel = ({ n, label }) => (
 
 const RecipeLoader = ({ message }) => (
   <Box sx={{ textAlign: "center", py: 8 }}>
-    <Box sx={{ position: "relative", display: "inline-flex", mb: 3 }}>
-      <Typography sx={{ fontSize: 56, lineHeight: 1, "@keyframes cookSpin": { "0%,100%": { transform: "rotate(-10deg)" }, "50%": { transform: "rotate(10deg)" } }, animation: "cookSpin 1.2s ease-in-out infinite" }}>
-        🍳
-      </Typography>
-    </Box>
+    <Typography sx={{
+      fontSize: 56, lineHeight: 1, mb: 3,
+      "@keyframes cookSpin": { "0%,100%": { transform: "rotate(-10deg)" }, "50%": { transform: "rotate(10deg)" } },
+      animation: "cookSpin 1.2s ease-in-out infinite",
+      display: "inline-block",
+    }}>
+      🍳
+    </Typography>
     <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
     <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
       {[0, 1, 2].map((i) => (
@@ -74,25 +106,218 @@ const RecipeLoader = ({ message }) => (
   </Box>
 );
 
+const ShareIcons = ({ recipe, onCopy }) => (
+  <Stack direction="row" spacing={0.5}>
+    <Tooltip title="Compartir por WhatsApp">
+      <IconButton
+        size="small"
+        onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildShareText(recipe))}`, "_blank", "noopener")}
+        sx={{ color: "#25D366", "&:hover": { bgcolor: "rgba(37,211,102,0.10)" } }}
+      >
+        <WhatsAppIcon sx={{ fontSize: 19 }} />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Enviar por email">
+      <IconButton
+        size="small"
+        onClick={() => {
+          const sub  = encodeURIComponent(`Receta: ${recipe.name} 🍽️`);
+          const body = encodeURIComponent(buildShareText(recipe).replace(/\*/g, ""));
+          window.location.href = `mailto:?subject=${sub}&body=${body}`;
+        }}
+        sx={{ color: "#4A6B67", "&:hover": { bgcolor: "rgba(11,94,85,0.08)" } }}
+      >
+        <EmailRoundedIcon sx={{ fontSize: 19 }} />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Copiar receta">
+      <IconButton
+        size="small"
+        onClick={onCopy}
+        sx={{ color: "#4A6B67", "&:hover": { bgcolor: "rgba(11,94,85,0.08)" } }}
+      >
+        <ContentCopyRoundedIcon sx={{ fontSize: 17 }} />
+      </IconButton>
+    </Tooltip>
+  </Stack>
+);
+
+// ─── saved recipe card (for Guardadas tab) ────────────────────────────────────
+
+const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, deleting }) => {
+  const mod = MODALIDADES.find((m) => m.id === recipe.modalidad);
+  return (
+    <Paper elevation={0} sx={{
+      borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)",
+      boxShadow: "0 2px 12px rgba(11,94,85,0.06)", overflow: "hidden",
+    }}>
+      {/* header row */}
+      <Box
+        onClick={onToggle}
+        sx={{ px: 2.5, py: 2, cursor: "pointer", display: "flex", alignItems: "center", gap: 2,
+          "&:hover": { bgcolor: "rgba(11,94,85,0.025)" }, transition: "background 0.15s" }}
+      >
+        <Box sx={{
+          width: 48, height: 48, borderRadius: 2.5, flexShrink: 0,
+          bgcolor: mod?.bg || "#E6F5F3",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
+        }}>
+          {recipe.emoji}
+        </Box>
+        <Box flex={1} minWidth={0}>
+          <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px", mb: 0.3 }}>
+            {recipe.name}
+          </Typography>
+          <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
+            {mod && (
+              <Chip label={`${mod.emoji} ${mod.label}`} size="small"
+                sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: mod.bg, color: mod.color, border: `1px solid ${mod.border}` }} />
+            )}
+            {recipe.momento && (
+              <Chip label={recipe.momento} size="small"
+                sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+            )}
+            {recipe.time && (
+              <Typography sx={{ fontSize: 11.5, color: "#8AADAA", alignSelf: "center" }}>⏱ {recipe.time}</Typography>
+            )}
+            {recipe.calories && (
+              <Typography sx={{ fontSize: 11.5, color: "#8AADAA", alignSelf: "center" }}>🔥 {recipe.calories}</Typography>
+            )}
+          </Stack>
+        </Box>
+        <Box sx={{ color: "#8AADAA", flexShrink: 0 }}>
+          {expanded ? <ExpandLessRoundedIcon /> : <ExpandMoreRoundedIcon />}
+        </Box>
+      </Box>
+
+      {/* expanded content */}
+      <Box sx={{
+        maxHeight: expanded ? 600 : 0,
+        overflow: "hidden",
+        transition: "max-height 0.35s ease",
+      }}>
+        <Box sx={{ px: 2.5, pb: 2, pt: 0.5, borderTop: "1px solid rgba(11,94,85,0.07)" }}>
+
+          {/* ingredients */}
+          <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2, mt: 1.5 }}>
+            Ingredientes
+          </Typography>
+          <Stack spacing={0.7} mb={2}>
+            {(recipe.ingredients || []).map((ing, i) => (
+              <Stack key={i} direction="row" spacing={1.5} alignItems="flex-start">
+                <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#0B5E55", mt: 0.85, flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 13.5, color: "#3D5A57", lineHeight: 1.5 }}>{ing}</Typography>
+              </Stack>
+            ))}
+          </Stack>
+
+          {/* steps */}
+          {(recipe.steps || []).length > 0 && (
+            <>
+              <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2 }}>
+                Preparación
+              </Typography>
+              <Stack spacing={1.8} mb={2}>
+                {recipe.steps.map((s, i) => (
+                  <Stack key={i} direction="row" spacing={1.5} alignItems="flex-start">
+                    <Box sx={{
+                      width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                      bgcolor: mod?.bg || "#E6F5F3",
+                      border: `1.5px solid ${mod?.color || "#0B5E55"}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <Typography sx={{ fontSize: 10, fontWeight: 900, color: mod?.color || "#0B5E55" }}>{i + 1}</Typography>
+                    </Box>
+                    <Typography sx={{ fontSize: 13.5, color: "#3D5A57", lineHeight: 1.6, pt: 0.1 }}>{s}</Typography>
+                  </Stack>
+                ))}
+              </Stack>
+            </>
+          )}
+
+          {/* tip */}
+          {recipe.tip && (
+            <Box sx={{ px: 2, py: 1.5, borderRadius: 2.5, bgcolor: mod?.bg || "#E6F5F3", border: `1px solid ${mod?.border || "rgba(11,94,85,0.15)"}`, mb: 2 }}>
+              <Stack direction="row" spacing={1}>
+                <Typography sx={{ fontSize: 16, lineHeight: 1 }}>💡</Typography>
+                <Typography sx={{ fontSize: 13, color: "#4A6B67", lineHeight: 1.6 }}>{recipe.tip}</Typography>
+              </Stack>
+            </Box>
+          )}
+
+          {/* actions */}
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <ShareIcons recipe={recipe} onCopy={onCopy} />
+            <Tooltip title="Eliminar receta">
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                disabled={deleting}
+                sx={{ color: "#E57373", "&:hover": { bgcolor: "rgba(229,115,115,0.10)" } }}
+              >
+                {deleting
+                  ? <CircularProgress size={16} sx={{ color: "#E57373" }} />
+                  : <DeleteOutlineRoundedIcon sx={{ fontSize: 19 }} />}
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </Box>
+      </Box>
+    </Paper>
+  );
+};
+
 // ─── main page ───────────────────────────────────────────────────────────────
 
 const RecipesPage = () => {
   const { userData } = useNutrition();
   const location     = useLocation();
 
-  const preselected  = location.state?.modalidad ?? null;
+  const preselected = location.state?.modalidad ?? null;
 
-  const [step,       setStep]       = useState("select");
-  const [modalidad,  setModalidad]  = useState(preselected);
-  const [momento,    setMomento]    = useState(null);
-  const [suggestions, setSuggestions] = useState([]);
-  const [selected,   setSelected]   = useState(null);       // { name, emoji, description }
-  const [detail,     setDetail]     = useState(null);       // full recipe
-  const [showSteps,  setShowSteps]  = useState(false);
-  const [error,      setError]      = useState("");
+  const [activeTab,    setActiveTab]    = useState("create");
+  const [step,         setStep]         = useState("select");
+  const [modalidad,    setModalidad]    = useState(preselected);
+  const [momento,      setMomento]      = useState(null);
+  const [suggestions,  setSuggestions]  = useState([]);
+  const [selected,     setSelected]     = useState(null);
+  const [detail,       setDetail]       = useState(null);
+  const [showSteps,    setShowSteps]    = useState(false);
+  const [error,        setError]        = useState("");
 
-  const token = localStorage.getItem("nutrismartToken");
+  // save & share
+  const [saving,       setSaving]       = useState(false);
+  const [savedNames,   setSavedNames]   = useState(new Set());
+  const [savedRecipes, setSavedRecipes] = useState([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [expandedId,   setExpandedId]   = useState(null);
+  const [deletingId,   setDeletingId]   = useState(null);
+  const [snackMsg,     setSnackMsg]     = useState("");
+
+  const token       = localStorage.getItem("nutrismartToken");
   const canGenerate = modalidad && momento;
+  const activeMod   = MODALIDADES.find((m) => m.id === modalidad);
+  const isSaved     = detail ? savedNames.has(detail.name) : false;
+
+  // ── load saved on mount ──
+  const fetchSaved = async () => {
+    setLoadingSaved(true);
+    try {
+      const res  = await fetch(`${API_URL}/api/recipes/saved`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      const list = data.recipes || [];
+      setSavedRecipes(list);
+      setSavedNames(new Set(list.map((r) => r.name)));
+    } catch {
+      // silently fail
+    } finally {
+      setLoadingSaved(false);
+    }
+  };
+
+  useEffect(() => { fetchSaved(); }, []); // eslint-disable-line
 
   // ── fetch suggestions ──
   const handleGenerate = async () => {
@@ -137,14 +362,64 @@ const RecipesPage = () => {
     }
   };
 
+  // ── save recipe ──
+  const handleSave = async () => {
+    if (!detail || isSaved || saving) return;
+    setSaving(true);
+    try {
+      const res  = await fetch(`${API_URL}/api/recipes/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ...detail, modalidad, momento }),
+      });
+      const data = await res.json();
+      if (!res.ok && data.error !== "already_saved") throw new Error(data.error);
+      const newRecipe = data.saved || { ...detail, modalidad, momento, _id: String(Date.now()) };
+      setSavedNames((prev) => new Set([...prev, detail.name]));
+      setSavedRecipes((prev) => [newRecipe, ...prev]);
+      setSnackMsg("¡Receta guardada! 💾");
+    } catch {
+      setSnackMsg("No se pudo guardar. Intentá de nuevo.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── copy to clipboard ──
+  const handleCopy = async (recipe) => {
+    try {
+      await navigator.clipboard.writeText(buildShareText(recipe).replace(/\*/g, ""));
+      setSnackMsg("¡Copiado al portapapeles! 📋");
+    } catch {
+      setSnackMsg("No se pudo copiar.");
+    }
+  };
+
+  // ── delete saved recipe ──
+  const handleDelete = async (id) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${API_URL}/api/recipes/saved/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error();
+      const removed = savedRecipes.find((r) => r._id === id);
+      setSavedRecipes((prev) => prev.filter((r) => r._id !== id));
+      if (removed) setSavedNames((prev) => { const s = new Set(prev); s.delete(removed.name); return s; });
+      setSnackMsg("Receta eliminada.");
+    } catch {
+      setSnackMsg("No se pudo eliminar.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const reset = () => {
     setStep("select"); setModalidad(preselected); setMomento(null);
     setSuggestions([]); setSelected(null); setDetail(null);
     setShowSteps(false); setError("");
   };
-
-  // ── active modalidad config ──
-  const activeMod = MODALIDADES.find((m) => m.id === modalidad);
 
   return (
     <Box sx={{
@@ -159,7 +434,7 @@ const RecipesPage = () => {
 
         {/* ── Hero header ── */}
         <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Box>
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <Typography sx={{ fontSize: 28 }}>🍽️</Typography>
@@ -171,7 +446,7 @@ const RecipesPage = () => {
                 IA que cocina para vos · rápido y personalizado
               </Typography>
             </Box>
-            {step !== "select" && (
+            {step !== "select" && activeTab === "create" && (
               <Button
                 onClick={reset}
                 startIcon={<RefreshRoundedIcon />}
@@ -181,376 +456,496 @@ const RecipesPage = () => {
               </Button>
             )}
           </Stack>
+
+          {/* ── Tab switcher ── */}
+          <Box sx={{ mb: 4 }}>
+            <Stack direction="row" spacing={0}
+              sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex" }}>
+              {[
+                { id: "create", label: "Crear receta" },
+                { id: "saved",  label: savedRecipes.length ? `Guardadas (${savedRecipes.length})` : "Guardadas" },
+              ].map((tab) => (
+                <Box
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  sx={{
+                    px: 2.2, py: 0.8, borderRadius: 999, cursor: "pointer",
+                    bgcolor: activeTab === tab.id ? "#fff" : "transparent",
+                    boxShadow: activeTab === tab.id ? "0 2px 8px rgba(11,94,85,0.12)" : "none",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <Typography sx={{
+                    fontSize: 13.5,
+                    fontWeight: activeTab === tab.id ? 800 : 600,
+                    color: activeTab === tab.id ? "#0B5E55" : "#4A6B67",
+                    whiteSpace: "nowrap",
+                  }}>
+                    {tab.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
         </motion.div>
 
-        {/* ── Steps ── */}
-        <AnimatePresence mode="wait">
+        {/* ══════════════ TAB: CREATE ══════════════ */}
+        {activeTab === "create" && (
+          <AnimatePresence mode="wait">
 
-          {/* ────── SELECT ────── */}
-          {step === "select" && (
-            <motion.div key="select" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
+            {/* ────── SELECT ────── */}
+            {step === "select" && (
+              <motion.div key="select" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
 
-              {/* Modalidad */}
-              <StepLabel n="1" label="¿Qué tipo de receta?" />
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 4 }}>
-                {MODALIDADES.map((m) => {
-                  const active = modalidad === m.id;
-                  return (
-                    <Box
-                      key={m.id}
-                      onClick={() => setModalidad(m.id)}
-                      sx={{
-                        p: 2.5, borderRadius: 4, cursor: "pointer",
-                        border: `2px solid ${active ? m.color : "rgba(11,94,85,0.10)"}`,
-                        bgcolor: active ? m.bg : "#fff",
-                        transition: "all 0.2s ease",
-                        position: "relative",
-                        "&:hover": { borderColor: m.color, bgcolor: m.bg, transform: "translateY(-2px)", boxShadow: `0 8px 24px ${m.border}` },
-                      }}
-                    >
-                      {active && (
-                        <Box sx={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: "50%", bgcolor: m.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <CheckRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />
-                        </Box>
-                      )}
-                      <Typography sx={{ fontSize: 28, mb: 0.8, lineHeight: 1 }}>{m.emoji}</Typography>
-                      <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px" }}>{m.label}</Typography>
-                      <Typography sx={{ fontSize: 12, color: "#4A6B67", mt: 0.3 }}>{m.desc}</Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
-
-              {/* Momento — aparece al elegir modalidad */}
-              <AnimatePresence>
-                {modalidad && (
-                  <motion.div
-                    key="momento"
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <StepLabel n="2" label="¿Para qué momento?" />
-                    <Stack direction="row" spacing={1.2} flexWrap="wrap" mb={4} useFlexGap>
-                      {MOMENTOS.map((m) => {
-                        const active = momento === m.id;
-                        return (
-                          <Box
-                            key={m.id}
-                            onClick={() => setMomento(m.id)}
-                            sx={{
-                              display: "flex", alignItems: "center", gap: 1,
-                              px: 2.2, py: 1.2, borderRadius: 999, cursor: "pointer",
-                              border: `2px solid ${active ? m.color : "rgba(11,94,85,0.12)"}`,
-                              bgcolor: active ? `${m.color}12` : "#fff",
-                              transition: "all 0.18s ease",
-                              "&:hover": { borderColor: m.color, bgcolor: `${m.color}10` },
-                            }}
-                          >
-                            <Typography sx={{ fontSize: 18, lineHeight: 1 }}>{m.emoji}</Typography>
-                            <Typography sx={{ fontSize: 13.5, fontWeight: active ? 800 : 600, color: active ? m.color : "#4A6B67" }}>
-                              {m.id}
-                            </Typography>
+                <StepLabel n="1" label="¿Qué tipo de receta?" />
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 4 }}>
+                  {MODALIDADES.map((m) => {
+                    const active = modalidad === m.id;
+                    return (
+                      <Box
+                        key={m.id}
+                        onClick={() => setModalidad(m.id)}
+                        sx={{
+                          p: 2.5, borderRadius: 4, cursor: "pointer",
+                          border: `2px solid ${active ? m.color : "rgba(11,94,85,0.10)"}`,
+                          bgcolor: active ? m.bg : "#fff",
+                          transition: "all 0.2s ease",
+                          position: "relative",
+                          "&:hover": { borderColor: m.color, bgcolor: m.bg, transform: "translateY(-2px)", boxShadow: `0 8px 24px ${m.border}` },
+                        }}
+                      >
+                        {active && (
+                          <Box sx={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: "50%", bgcolor: m.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <CheckRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />
                           </Box>
-                        );
-                      })}
-                    </Stack>
-                  </motion.div>
+                        )}
+                        <Typography sx={{ fontSize: 28, mb: 0.8, lineHeight: 1 }}>{m.emoji}</Typography>
+                        <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px" }}>{m.label}</Typography>
+                        <Typography sx={{ fontSize: 12, color: "#4A6B67", mt: 0.3 }}>{m.desc}</Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+
+                <AnimatePresence>
+                  {modalidad && (
+                    <motion.div key="momento" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.3 }}>
+                      <StepLabel n="2" label="¿Para qué momento?" />
+                      <Stack direction="row" spacing={1.2} flexWrap="wrap" mb={4} useFlexGap>
+                        {MOMENTOS.map((m) => {
+                          const active = momento === m.id;
+                          return (
+                            <Box
+                              key={m.id}
+                              onClick={() => setMomento(m.id)}
+                              sx={{
+                                display: "flex", alignItems: "center", gap: 1,
+                                px: 2.2, py: 1.2, borderRadius: 999, cursor: "pointer",
+                                border: `2px solid ${active ? m.color : "rgba(11,94,85,0.12)"}`,
+                                bgcolor: active ? `${m.color}12` : "#fff",
+                                transition: "all 0.18s ease",
+                                "&:hover": { borderColor: m.color, bgcolor: `${m.color}10` },
+                              }}
+                            >
+                              <Typography sx={{ fontSize: 18, lineHeight: 1 }}>{m.emoji}</Typography>
+                              <Typography sx={{ fontSize: 13.5, fontWeight: active ? 800 : 600, color: active ? m.color : "#4A6B67" }}>
+                                {m.id}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Stack>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {error && (
+                  <Typography sx={{ fontSize: 13.5, color: "#E24B4A", textAlign: "center", mb: 2 }}>{error}</Typography>
                 )}
-              </AnimatePresence>
 
-              {/* Error */}
-              {error && (
-                <Typography sx={{ fontSize: 13.5, color: "#E24B4A", textAlign: "center", mb: 2 }}>{error}</Typography>
-              )}
+                <AnimatePresence>
+                  {canGenerate && (
+                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+                      <Button
+                        fullWidth variant="contained"
+                        onClick={handleGenerate}
+                        sx={{
+                          py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: 16,
+                          letterSpacing: "-0.2px",
+                          background: activeMod
+                            ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}CC 100%)`
+                            : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                          boxShadow: `0 8px 28px ${activeMod?.border || "rgba(11,94,85,0.30)"}`,
+                          "&:hover": { transform: "translateY(-2px)", boxShadow: `0 12px 36px ${activeMod?.border || "rgba(11,94,85,0.38)"}` },
+                          transition: "all 0.25s ease",
+                        }}
+                      >
+                        {activeMod?.emoji} Descubrir recetas de {momento}
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
 
-              {/* CTA */}
-              <AnimatePresence>
-                {canGenerate && (
-                  <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      onClick={handleGenerate}
-                      sx={{
-                        py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: 16,
-                        letterSpacing: "-0.2px",
-                        background: activeMod
-                          ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}CC 100%)`
-                          : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
-                        boxShadow: `0 8px 28px ${activeMod?.border || "rgba(11,94,85,0.30)"}`,
-                        "&:hover": { transform: "translateY(-2px)", boxShadow: `0 12px 36px ${activeMod?.border || "rgba(11,94,85,0.38)"}` },
-                        transition: "all 0.25s ease",
-                      }}
-                    >
-                      {activeMod?.emoji} Descubrir recetas de {momento}
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
+            {/* ────── LOADING SUGGESTIONS ────── */}
+            {step === "loading" && (
+              <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
+                <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
+                  <RecipeLoader message="Preparando tus recetas…" />
+                </Paper>
+              </motion.div>
+            )}
 
-          {/* ────── LOADING SUGGESTIONS ────── */}
-          {step === "loading" && (
-            <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
-              <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                <RecipeLoader message="Preparando tus recetas…" />
-              </Paper>
-            </motion.div>
-          )}
+            {/* ────── SUGGESTIONS ────── */}
+            {step === "suggestions" && (
+              <motion.div key="suggestions" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
+                <Stack direction="row" spacing={1} alignItems="center" mb={3}>
+                  <Button onClick={() => setStep("select")} startIcon={<ArrowBackRoundedIcon />} size="small"
+                    sx={{ textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
+                    Volver
+                  </Button>
+                  <Chip
+                    label={`${activeMod?.emoji} ${modalidad} · ${MOMENTOS.find(m => m.id === momento)?.emoji} ${momento}`}
+                    size="small"
+                    sx={{ bgcolor: activeMod?.bg, color: activeMod?.color, fontWeight: 700, border: `1px solid ${activeMod?.border}` }}
+                  />
+                </Stack>
 
-          {/* ────── SUGGESTIONS ────── */}
-          {step === "suggestions" && (
-            <motion.div key="suggestions" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
-              <Stack direction="row" spacing={1} alignItems="center" mb={3}>
-                <Button onClick={() => setStep("select")} startIcon={<ArrowBackRoundedIcon />} size="small"
-                  sx={{ textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                  Volver
+                <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#0F2420", mb: 0.5, letterSpacing: "-0.4px" }}>
+                  Elegí tu receta
+                </Typography>
+                <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
+                  Tocá una para ver los ingredientes
+                </Typography>
+
+                {error && <Typography sx={{ fontSize: 13.5, color: "#E24B4A", mb: 2 }}>{error}</Typography>}
+
+                <Stack spacing={2}>
+                  {suggestions.map((r, i) => (
+                    <motion.div key={r.name} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: i * 0.1 }}>
+                      <Paper
+                        elevation={0}
+                        onClick={() => handleSelectRecipe(r)}
+                        sx={{
+                          p: 2.5, borderRadius: 4, cursor: "pointer",
+                          border: "1px solid rgba(11,94,85,0.10)",
+                          boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
+                          display: "flex", alignItems: "center", gap: 2.5,
+                          transition: "all 0.2s ease",
+                          "&:hover": { boxShadow: "0 8px 28px rgba(11,94,85,0.14)", transform: "translateY(-2px)", borderColor: "#0B5E55" },
+                        }}
+                      >
+                        <Box sx={{
+                          width: 56, height: 56, borderRadius: 3,
+                          bgcolor: activeMod?.bg || "#E6F5F3",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 30, flexShrink: 0,
+                        }}>
+                          {r.emoji}
+                        </Box>
+                        <Box flex={1} minWidth={0}>
+                          <Typography sx={{ fontSize: 15.5, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px", mb: 0.3 }}>
+                            {r.name}
+                          </Typography>
+                          <Typography sx={{ fontSize: 13, color: "#4A6B67", lineHeight: 1.5 }}>
+                            {r.description}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ fontSize: 20, color: "#8AADAA", flexShrink: 0 }}>›</Box>
+                      </Paper>
+                    </motion.div>
+                  ))}
+                </Stack>
+
+                <Button
+                  onClick={handleGenerate}
+                  startIcon={<RefreshRoundedIcon />}
+                  sx={{ mt: 3, textTransform: "none", fontWeight: 600, fontSize: 13.5, color: "#4A6B67", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
+                >
+                  Otras opciones
                 </Button>
-                <Chip
-                  label={`${activeMod?.emoji} ${modalidad} · ${MOMENTOS.find(m => m.id === momento)?.emoji} ${momento}`}
-                  size="small"
-                  sx={{ bgcolor: activeMod?.bg, color: activeMod?.color, fontWeight: 700, border: `1px solid ${activeMod?.border}` }}
-                />
-              </Stack>
+              </motion.div>
+            )}
 
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#0F2420", mb: 0.5, letterSpacing: "-0.4px" }}>
-                Elegí tu receta
-              </Typography>
-              <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
-                Tocá una para ver los ingredientes
-              </Typography>
+            {/* ────── LOADING DETAIL ────── */}
+            {step === "loading-detail" && (
+              <motion.div key="loading-detail" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
+                <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
+                  <RecipeLoader message={`Preparando "${selected?.name}"…`} />
+                </Paper>
+              </motion.div>
+            )}
 
-              {error && (
-                <Typography sx={{ fontSize: 13.5, color: "#E24B4A", mb: 2 }}>{error}</Typography>
-              )}
+            {/* ────── DETAIL ────── */}
+            {step === "detail" && detail && (
+              <motion.div key="detail" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
 
-              <Stack spacing={2}>
-                {suggestions.map((r, i) => (
-                  <motion.div
-                    key={r.name}
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, delay: i * 0.1 }}
-                  >
-                    <Paper
-                      elevation={0}
-                      onClick={() => handleSelectRecipe(r)}
+                <Button onClick={() => { setStep("suggestions"); setShowSteps(false); }} startIcon={<ArrowBackRoundedIcon />} size="small"
+                  sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
+                  Otras recetas
+                </Button>
+
+                {/* Recipe card */}
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+                  <Paper elevation={0} sx={{
+                    borderRadius: 5, overflow: "hidden",
+                    border: "1px solid rgba(11,94,85,0.10)",
+                    boxShadow: "0 8px 32px rgba(11,94,85,0.10)",
+                    mb: 2,
+                  }}>
+                    {/* Header band */}
+                    <Box sx={{
+                      px: 3, pt: 3, pb: 2.5,
+                      background: activeMod
+                        ? `linear-gradient(135deg, ${activeMod.color}18 0%, #fff 100%)`
+                        : "linear-gradient(135deg, #edf8f5 0%, #fff 100%)",
+                      borderBottom: "1px solid rgba(11,94,85,0.08)",
+                    }}>
+                      <Typography sx={{ fontSize: 44, lineHeight: 1, mb: 1 }}>{detail.emoji}</Typography>
+                      <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.6px", lineHeight: 1.2, mb: 1.5 }}>
+                        {detail.name}
+                      </Typography>
+                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                        {[
+                          { label: `⏱ ${detail.time}` },
+                          { label: `📊 ${detail.difficulty}` },
+                          { label: `🔥 ${detail.calories}` },
+                          { label: `🍽️ ${detail.servings} porción${detail.servings > 1 ? "es" : ""}` },
+                        ].map((c) => (
+                          <Chip key={c.label} label={c.label} size="small"
+                            sx={{ bgcolor: "#fff", border: "1px solid rgba(11,94,85,0.14)", fontWeight: 600, fontSize: 12.5, color: "#4A6B67" }} />
+                        ))}
+                      </Stack>
+                    </Box>
+
+                    {/* Ingredients */}
+                    <Box sx={{ px: 3, py: 2.5 }}>
+                      <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
+                        Ingredientes
+                      </Typography>
+                      <Stack spacing={0.9}>
+                        {detail.ingredients?.map((ing, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
+                            <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                              <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#0B5E55", mt: 0.8, flexShrink: 0 }} />
+                              <Typography sx={{ fontSize: 14, color: "#3D5A57", lineHeight: 1.5 }}>{ing}</Typography>
+                            </Stack>
+                          </motion.div>
+                        ))}
+                      </Stack>
+                    </Box>
+                  </Paper>
+                </motion.div>
+
+                {/* Save & Share row */}
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center"
+                    sx={{ px: 1, mb: 2 }}>
+
+                    {/* Save button */}
+                    <Button
+                      onClick={handleSave}
+                      disabled={isSaved || saving}
+                      startIcon={
+                        saving
+                          ? <CircularProgress size={16} sx={{ color: "#0B5E55" }} />
+                          : isSaved
+                            ? <BookmarkRoundedIcon sx={{ fontSize: 19 }} />
+                            : <BookmarkBorderRoundedIcon sx={{ fontSize: 19 }} />
+                      }
                       sx={{
-                        p: 2.5, borderRadius: 4, cursor: "pointer",
-                        border: "1px solid rgba(11,94,85,0.10)",
-                        boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
-                        display: "flex", alignItems: "center", gap: 2.5,
+                        textTransform: "none", fontWeight: 700, fontSize: 13.5,
+                        borderRadius: 999, px: 2, py: 0.9,
+                        color: isSaved ? "#0B5E55" : "#4A6B67",
+                        bgcolor: isSaved ? "rgba(11,94,85,0.08)" : "transparent",
+                        border: `1.5px solid ${isSaved ? "rgba(11,94,85,0.25)" : "rgba(11,94,85,0.15)"}`,
+                        "&:hover": { bgcolor: "rgba(11,94,85,0.08)", borderColor: "#0B5E55" },
+                        "&.Mui-disabled": {
+                          color: isSaved ? "#0B5E55" : "#aaa",
+                          borderColor: isSaved ? "rgba(11,94,85,0.25)" : "rgba(0,0,0,0.1)",
+                          bgcolor: isSaved ? "rgba(11,94,85,0.08)" : "transparent",
+                        },
                         transition: "all 0.2s ease",
-                        "&:hover": { boxShadow: "0 8px 28px rgba(11,94,85,0.14)", transform: "translateY(-2px)", borderColor: "#0B5E55" },
                       }}
                     >
-                      <Box sx={{
-                        width: 56, height: 56, borderRadius: 3,
-                        bgcolor: activeMod?.bg || "#E6F5F3",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 30, flexShrink: 0,
+                      {isSaved ? "Guardada ✓" : "Guardar"}
+                    </Button>
+
+                    {/* Share icons */}
+                    <ShareIcons recipe={detail} onCopy={() => handleCopy(detail)} />
+                  </Stack>
+                </motion.div>
+
+                {/* ¡Vamos! → steps */}
+                <AnimatePresence mode="wait">
+                  {!showSteps ? (
+                    <motion.div key="vamos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                      <Button
+                        fullWidth variant="contained"
+                        onClick={() => setShowSteps(true)}
+                        sx={{
+                          py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 17,
+                          letterSpacing: "-0.2px",
+                          background: activeMod
+                            ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}BB 100%)`
+                            : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                          boxShadow: `0 8px 28px ${activeMod?.border || "rgba(11,94,85,0.30)"}`,
+                          "&:hover": { transform: "translateY(-2px)", boxShadow: `0 12px 36px ${activeMod?.border || "rgba(11,94,85,0.38)"}` },
+                          transition: "all 0.25s ease",
+                        }}
+                      >
+                        ¡Vamos! 🚀
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="steps" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                      <Paper elevation={0} sx={{
+                        borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)",
+                        boxShadow: "0 4px 20px rgba(11,94,85,0.08)", overflow: "hidden",
                       }}>
-                        {r.emoji}
-                      </Box>
-                      <Box flex={1} minWidth={0}>
-                        <Typography sx={{ fontSize: 15.5, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px", mb: 0.3 }}>
-                          {r.name}
-                        </Typography>
-                        <Typography sx={{ fontSize: 13, color: "#4A6B67", lineHeight: 1.5 }}>
-                          {r.description}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ fontSize: 20, color: "#8AADAA", flexShrink: 0 }}>›</Box>
-                    </Paper>
+                        <Box sx={{ px: 3, py: 2, bgcolor: "#f7fcfa", borderBottom: "1px solid rgba(11,94,85,0.08)" }}>
+                          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em" }}>
+                            Preparación paso a paso
+                          </Typography>
+                        </Box>
+                        <Box sx={{ px: 3, py: 2.5 }}>
+                          <Stack spacing={2.5}>
+                            {detail.steps?.map((s, i) => (
+                              <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}>
+                                <Stack direction="row" spacing={2} alignItems="flex-start">
+                                  <Box sx={{
+                                    width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                                    background: activeMod
+                                      ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}CC 100%)`
+                                      : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                  }}>
+                                    <Typography sx={{ fontSize: 12, fontWeight: 900, color: "#fff" }}>{i + 1}</Typography>
+                                  </Box>
+                                  <Typography sx={{ fontSize: 14.5, color: "#3D5A57", lineHeight: 1.7, pt: 0.2 }}>
+                                    {s}
+                                  </Typography>
+                                </Stack>
+                              </motion.div>
+                            ))}
+                          </Stack>
+
+                          {detail.tip && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                              <Box sx={{
+                                mt: 3, px: 2.5, py: 2, borderRadius: 3,
+                                bgcolor: activeMod?.bg || "#E6F5F3",
+                                border: `1px solid ${activeMod?.border || "rgba(11,94,85,0.15)"}`,
+                              }}>
+                                <Stack direction="row" spacing={1.2} alignItems="flex-start">
+                                  <Typography sx={{ fontSize: 18, lineHeight: 1 }}>💡</Typography>
+                                  <Box>
+                                    <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: activeMod?.color || "#0B5E55", textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.4 }}>
+                                      Tip
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6 }}>
+                                      {detail.tip}
+                                    </Typography>
+                                  </Box>
+                                </Stack>
+                              </Box>
+                            </motion.div>
+                          )}
+                        </Box>
+                      </Paper>
+
+                      <Button
+                        fullWidth onClick={reset}
+                        startIcon={<RefreshRoundedIcon />}
+                        sx={{
+                          mt: 2.5, py: 1.5, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
+                          border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
+                          "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
+                        }}
+                      >
+                        Nueva receta
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+
+          </AnimatePresence>
+        )}
+
+        {/* ══════════════ TAB: GUARDADAS ══════════════ */}
+        {activeTab === "saved" && (
+          <motion.div key="saved-tab" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            {loadingSaved ? (
+              <Box sx={{ textAlign: "center", py: 8 }}>
+                <CircularProgress size={32} sx={{ color: "#0B5E55" }} />
+              </Box>
+            ) : savedRecipes.length === 0 ? (
+              <Box sx={{ textAlign: "center", py: 10 }}>
+                <Typography sx={{ fontSize: 48, mb: 2 }}>📭</Typography>
+                <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#0F2420", mb: 1 }}>
+                  Aún no guardaste ninguna receta
+                </Typography>
+                <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
+                  Generá una y tocá "Guardar" para verla acá
+                </Typography>
+                <Button
+                  onClick={() => setActiveTab("create")}
+                  variant="contained"
+                  sx={{
+                    textTransform: "none", fontWeight: 700, borderRadius: 999, px: 3,
+                    background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                    boxShadow: "0 6px 20px rgba(11,94,85,0.28)",
+                  }}
+                >
+                  Crear receta
+                </Button>
+              </Box>
+            ) : (
+              <Stack spacing={2}>
+                {savedRecipes.map((recipe) => (
+                  <motion.div
+                    key={recipe._id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <SavedCard
+                      recipe={recipe}
+                      expanded={expandedId === recipe._id}
+                      onToggle={() => setExpandedId(expandedId === recipe._id ? null : recipe._id)}
+                      onDelete={() => handleDelete(recipe._id)}
+                      onCopy={() => handleCopy(recipe)}
+                      deleting={deletingId === recipe._id}
+                    />
                   </motion.div>
                 ))}
               </Stack>
-
-              <Button
-                onClick={handleGenerate}
-                startIcon={<RefreshRoundedIcon />}
-                sx={{ mt: 3, textTransform: "none", fontWeight: 600, fontSize: 13.5, color: "#4A6B67", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
-              >
-                Otras opciones
-              </Button>
-            </motion.div>
-          )}
-
-          {/* ────── LOADING DETAIL ────── */}
-          {step === "loading-detail" && (
-            <motion.div key="loading-detail" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
-              <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                <RecipeLoader message={`Preparando "${selected?.name}"…`} />
-              </Paper>
-            </motion.div>
-          )}
-
-          {/* ────── DETAIL ────── */}
-          {step === "detail" && detail && (
-            <motion.div key="detail" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
-
-              {/* Back */}
-              <Button onClick={() => { setStep("suggestions"); setShowSteps(false); }} startIcon={<ArrowBackRoundedIcon />} size="small"
-                sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                Otras recetas
-              </Button>
-
-              {/* Recipe header */}
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-                <Paper elevation={0} sx={{
-                  borderRadius: 5, overflow: "hidden",
-                  border: "1px solid rgba(11,94,85,0.10)",
-                  boxShadow: "0 8px 32px rgba(11,94,85,0.10)",
-                  mb: 2.5,
-                }}>
-                  {/* Header band */}
-                  <Box sx={{
-                    px: 3, pt: 3, pb: 2.5,
-                    background: activeMod
-                      ? `linear-gradient(135deg, ${activeMod.color}18 0%, #fff 100%)`
-                      : "linear-gradient(135deg, #edf8f5 0%, #fff 100%)",
-                    borderBottom: "1px solid rgba(11,94,85,0.08)",
-                  }}>
-                    <Typography sx={{ fontSize: 44, lineHeight: 1, mb: 1 }}>{detail.emoji}</Typography>
-                    <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.6px", lineHeight: 1.2, mb: 1.5 }}>
-                      {detail.name}
-                    </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                      {[
-                        { label: `⏱ ${detail.time}` },
-                        { label: `📊 ${detail.difficulty}` },
-                        { label: `🔥 ${detail.calories}` },
-                        { label: `🍽️ ${detail.servings} porción${detail.servings > 1 ? "es" : ""}` },
-                      ].map((c) => (
-                        <Chip key={c.label} label={c.label} size="small"
-                          sx={{ bgcolor: "#fff", border: "1px solid rgba(11,94,85,0.14)", fontWeight: 600, fontSize: 12.5, color: "#4A6B67" }} />
-                      ))}
-                    </Stack>
-                  </Box>
-
-                  {/* Ingredients */}
-                  <Box sx={{ px: 3, py: 2.5 }}>
-                    <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
-                      Ingredientes
-                    </Typography>
-                    <Stack spacing={0.9}>
-                      {detail.ingredients?.map((ing, i) => (
-                        <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
-                          <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#0B5E55", mt: 0.8, flexShrink: 0 }} />
-                            <Typography sx={{ fontSize: 14, color: "#3D5A57", lineHeight: 1.5 }}>{ing}</Typography>
-                          </Stack>
-                        </motion.div>
-                      ))}
-                    </Stack>
-                  </Box>
-                </Paper>
-              </motion.div>
-
-              {/* ¡Vamos! button → reveals steps */}
-              <AnimatePresence mode="wait">
-                {!showSteps ? (
-                  <motion.div key="vamos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                    <Button
-                      fullWidth variant="contained"
-                      onClick={() => setShowSteps(true)}
-                      sx={{
-                        py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 17,
-                        letterSpacing: "-0.2px",
-                        background: activeMod
-                          ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}BB 100%)`
-                          : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
-                        boxShadow: `0 8px 28px ${activeMod?.border || "rgba(11,94,85,0.30)"}`,
-                        "&:hover": { transform: "translateY(-2px)", boxShadow: `0 12px 36px ${activeMod?.border || "rgba(11,94,85,0.38)"}` },
-                        transition: "all 0.25s ease",
-                      }}
-                    >
-                      ¡Vamos! 🚀
-                    </Button>
-                  </motion.div>
-                ) : (
-                  <motion.div key="steps" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-                    <Paper elevation={0} sx={{
-                      borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)",
-                      boxShadow: "0 4px 20px rgba(11,94,85,0.08)", overflow: "hidden",
-                    }}>
-                      <Box sx={{ px: 3, py: 2, bgcolor: "#f7fcfa", borderBottom: "1px solid rgba(11,94,85,0.08)" }}>
-                        <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em" }}>
-                          Preparación paso a paso
-                        </Typography>
-                      </Box>
-                      <Box sx={{ px: 3, py: 2.5 }}>
-                        <Stack spacing={2.5}>
-                          {detail.steps?.map((step, i) => (
-                            <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}>
-                              <Stack direction="row" spacing={2} alignItems="flex-start">
-                                <Box sx={{
-                                  width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
-                                  background: activeMod
-                                    ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}CC 100%)`
-                                    : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                }}>
-                                  <Typography sx={{ fontSize: 12, fontWeight: 900, color: "#fff" }}>{i + 1}</Typography>
-                                </Box>
-                                <Typography sx={{ fontSize: 14.5, color: "#3D5A57", lineHeight: 1.7, pt: 0.2 }}>
-                                  {step}
-                                </Typography>
-                              </Stack>
-                            </motion.div>
-                          ))}
-                        </Stack>
-
-                        {/* Tip */}
-                        {detail.tip && (
-                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-                            <Box sx={{
-                              mt: 3, px: 2.5, py: 2, borderRadius: 3,
-                              bgcolor: activeMod?.bg || "#E6F5F3",
-                              border: `1px solid ${activeMod?.border || "rgba(11,94,85,0.15)"}`,
-                            }}>
-                              <Stack direction="row" spacing={1.2} alignItems="flex-start">
-                                <Typography sx={{ fontSize: 18, lineHeight: 1 }}>💡</Typography>
-                                <Box>
-                                  <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: activeMod?.color || "#0B5E55", textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.4 }}>
-                                    Tip
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6 }}>
-                                    {detail.tip}
-                                  </Typography>
-                                </Box>
-                              </Stack>
-                            </Box>
-                          </motion.div>
-                        )}
-                      </Box>
-                    </Paper>
-
-                    {/* Nueva receta */}
-                    <Button
-                      fullWidth onClick={reset}
-                      startIcon={<RefreshRoundedIcon />}
-                      sx={{
-                        mt: 2.5, py: 1.5, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
-                        border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
-                        "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
-                      }}
-                    >
-                      Nueva receta
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-        </AnimatePresence>
+            )}
+          </motion.div>
+        )}
 
         <Box sx={{ height: 80 }} />
       </Box>
+
+      {/* ── Snackbar ── */}
+      <Snackbar
+        open={!!snackMsg}
+        autoHideDuration={2800}
+        onClose={() => setSnackMsg("")}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackMsg("")}
+          severity={snackMsg.includes("pudo") ? "error" : "success"}
+          variant="filled"
+          sx={{ borderRadius: 3, fontWeight: 700 }}
+        >
+          {snackMsg}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
