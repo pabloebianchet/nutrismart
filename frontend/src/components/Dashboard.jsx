@@ -441,10 +441,10 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
    Recetas YA Banner
 ──────────────────────────────────────────── */
 const MODALIDADES_PREVIEW = [
-  { emoji: "💚", label: "Fit",        color: "#2E7D32", bg: "#E8F5E9" },
-  { emoji: "💪", label: "Hipertrofia",color: "#BF360C", bg: "#FBE9E7" },
-  { emoji: "⚡", label: "Rápidas",    color: "#1565C0", bg: "#E3F2FD" },
-  { emoji: "🌅", label: "Desayunos",  color: "#E65100", bg: "#FFF3E0" },
+  { id: "Fit",                 emoji: "💚", label: "Fit",        color: "#2E7D32", bg: "#E8F5E9" },
+  { id: "Hipertrofia",         emoji: "💪", label: "Hipertrofia",color: "#BF360C", bg: "#FBE9E7" },
+  { id: "Rápidas",             emoji: "⚡", label: "Rápidas",    color: "#1565C0", bg: "#E3F2FD" },
+  { id: "Desayunos Completos", emoji: "🌅", label: "Desayunos",  color: "#E65100", bg: "#FFF3E0" },
 ];
 
 const RecetasYABanner = () => {
@@ -553,7 +553,7 @@ const RecetasYABanner = () => {
           {MODALIDADES_PREVIEW.map((m) => (
             <Box
               key={m.label}
-              onClick={() => navigate("/recipes")}
+              onClick={() => navigate("/recipes", { state: { modalidad: m.id } })}
               sx={{
                 px: 2, py: 1.8, borderRadius: 3.5, cursor: "pointer",
                 bgcolor: m.bg,

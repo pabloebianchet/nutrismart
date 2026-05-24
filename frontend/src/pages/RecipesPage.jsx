@@ -5,6 +5,7 @@ import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition } from "../context/NutritionContext";
+import { useLocation } from "react-router-dom";
 import { API_URL } from "../config/api";
 
 // ─── config ─────────────────────────────────────────────────────────────────
@@ -78,9 +79,12 @@ const RecipeLoader = ({ message }) => (
 
 const RecipesPage = () => {
   const { userData } = useNutrition();
+  const location     = useLocation();
 
-  const [step,       setStep]       = useState("select");   // select | loading | suggestions | loading-detail | detail
-  const [modalidad,  setModalidad]  = useState(null);
+  const preselected  = location.state?.modalidad ?? null;
+
+  const [step,       setStep]       = useState("select");
+  const [modalidad,  setModalidad]  = useState(preselected);
   const [momento,    setMomento]    = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [selected,   setSelected]   = useState(null);       // { name, emoji, description }
@@ -135,7 +139,7 @@ const RecipesPage = () => {
   };
 
   const reset = () => {
-    setStep("select"); setModalidad(null); setMomento(null);
+    setStep("select"); setModalidad(preselected); setMomento(null);
     setSuggestions([]); setSelected(null); setDetail(null);
     setShowSteps(false); setError("");
   };
