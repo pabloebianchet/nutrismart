@@ -22,7 +22,7 @@ export default function ScoreDonut({ score }) {
       justifyContent="center"
       alignItems="center"
       position="relative"
-      mb={3}
+      mb={2}
     >
       <svg width={SIZE} height={SIZE}>
         {/* Fondo */}

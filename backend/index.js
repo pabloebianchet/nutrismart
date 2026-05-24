@@ -18,6 +18,7 @@ import paymentsRouter from "./routes/payments.js";
 import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
+import { sendContactEmail } from "./utils/sendContactEmail.js";
 
 connectDB();
 
@@ -515,6 +516,40 @@ app.use("/api/payments", paymentsRouter);
 app.get("/payment/return", (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   res.redirect(`${frontendUrl}/subscription/success`);
+});
+
+// =====================
+// 📬 CONTACT FORM
+// =====================
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 5,
+  message: { error: "Demasiados mensajes enviados. Intentá de nuevo en una hora." },
+});
+
+app.post("/api/contact", contactLimiter, async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  if (!name?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
+    return res.status(400).json({ error: "Todos los campos son requeridos." });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: "El email no es válido." });
+  }
+
+  if (message.trim().length < 10) {
+    return res.status(400).json({ error: "El mensaje es demasiado corto." });
+  }
+
+  try {
+    await sendContactEmail({ name: name.trim(), email: email.trim(), subject: subject.trim(), message: message.trim() });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Contact email error:", err.message);
+    return res.status(500).json({ error: "No se pudo enviar el mensaje. Intentá de nuevo más tarde." });
+  }
 });
 
 app.listen(PORT, () => {

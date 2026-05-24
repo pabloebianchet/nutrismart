@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Box, Typography, Chip, TextField, Button, Stack } from "@mui/material";
+import { Box, Typography, Chip, TextField, Button, Stack, CircularProgress } from "@mui/material";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import { API_URL } from "../config/api";
 
 const C = {
   brand: "#0B5E55",
@@ -32,15 +33,35 @@ const fieldSx = {
 };
 
 const ContactPage = () => {
-  const [sent, setSent] = useState(false);
+  const [sent,     setSent]     = useState(false);
+  const [sending,  setSending]  = useState(false);
+  const [apiError, setApiError] = useState("");
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
 
   const handleChange = (e) =>
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSent(true);
+    setApiError("");
+    setSending(true);
+    try {
+      const res = await fetch(`${API_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setApiError(data.error || "No se pudo enviar el mensaje. Intentá de nuevo.");
+        return;
+      }
+      setSent(true);
+    } catch {
+      setApiError("Error de red. Verificá tu conexión e intentá de nuevo.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -425,10 +446,17 @@ const ContactPage = () => {
                     }}
                   />
 
+                  {apiError && (
+                    <Typography sx={{ fontSize: 13.5, color: "#E24B4A", textAlign: "center", mt: -0.5 }}>
+                      {apiError}
+                    </Typography>
+                  )}
+
                   <Button
                     type="submit"
                     variant="contained"
-                    endIcon={<SendRoundedIcon />}
+                    disabled={sending}
+                    endIcon={sending ? <CircularProgress size={16} color="inherit" /> : <SendRoundedIcon />}
                     fullWidth
                     sx={{
                       mt: 0.5,
@@ -448,7 +476,7 @@ const ContactPage = () => {
                       },
                     }}
                   >
-                    Enviar mensaje
+                    {sending ? "Enviando..." : "Enviar mensaje"}
                   </Button>
                 </Stack>
               </Box>
