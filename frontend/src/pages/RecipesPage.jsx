@@ -191,11 +191,16 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, deleting }) =
       </Box>
 
       {/* expanded content */}
-      <Box sx={{
-        maxHeight: expanded ? 600 : 0,
-        overflow: "hidden",
-        transition: "max-height 0.35s ease",
-      }}>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="expanded"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            style={{ overflow: "hidden" }}
+          >
         <Box sx={{ px: 2.5, pb: 2, pt: 0.5, borderTop: "1px solid rgba(11,94,85,0.07)" }}>
 
           {/* ingredients */}
@@ -262,7 +267,9 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, deleting }) =
             </Tooltip>
           </Stack>
         </Box>
-      </Box>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Paper>
   );
 };
