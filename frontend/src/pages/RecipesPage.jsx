@@ -11,10 +11,9 @@ import { API_URL } from "../config/api";
 // ─── config ─────────────────────────────────────────────────────────────────
 
 const MODALIDADES = [
-  { id: "Fit",                label: "Fit",       emoji: "💚", desc: "Liviano y proteico",       color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)" },
-  { id: "Hipertrofia",        label: "Hipertrofia", emoji: "💪", desc: "Alto en proteína",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)" },
-  { id: "Rápidas",            label: "Rápidas",   emoji: "⚡", desc: "Listo en 15 min",          color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
-  { id: "Desayunos Completos",label: "Desayunos", emoji: "🌅", desc: "Energía para el día",      color: "#E65100", bg: "#FFF3E0", border: "rgba(230,81,0,0.25)"   },
+  { id: "Fit",         label: "Fit",         emoji: "💚", desc: "Liviano, proteico y natural",  color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"  },
+  { id: "Hipertrofia", label: "Hipertrofia", emoji: "💪", desc: "Alto en proteína y calorías",  color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
+  { id: "Rápidas",     label: "Rápidas",     emoji: "⚡", desc: "Listo en menos de 15 min",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"  },
 ];
 
 const MOMENTOS = [
@@ -193,7 +192,7 @@ const RecipesPage = () => {
 
               {/* Modalidad */}
               <StepLabel n="1" label="¿Qué tipo de receta?" />
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 4 }}>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 4 }}>
                 {MODALIDADES.map((m) => {
                   const active = modalidad === m.id;
                   return (

@@ -13,10 +13,9 @@ const recipesLimiter = rateLimit({
 });
 
 const MODALIDAD_DESC = {
-  "Fit":                "liviana, baja en grasa, alta en proteína, ingredientes naturales",
-  "Hipertrofia":        "alta en proteína y calorías, orientada a ganancia muscular",
-  "Rápidas":            "máximo 15 minutos de preparación, pocos ingredientes, muy simple",
-  "Desayunos Completos":"nutritiva y energizante para comenzar el día, equilibrada en macros",
+  "Fit":         "liviana, baja en grasa, alta en proteína, ingredientes naturales",
+  "Hipertrofia": "alta en proteína y calorías, orientada a ganancia muscular",
+  "Rápidas":     "máximo 15 minutos de preparación, pocos ingredientes, muy simple",
 };
 
 const parseJSON = (text) => {
