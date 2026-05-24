@@ -108,7 +108,10 @@ const AboutPage = () => (
         <Chip
           icon={
             <SpaRoundedIcon
-              sx={{ fontSize: "14px !important", color: `${C.brand} !important` }}
+              sx={{
+                fontSize: "14px !important",
+                color: `${C.brand} !important`,
+              }}
             />
           }
           label="Quiénes somos"
@@ -138,7 +141,9 @@ const AboutPage = () => (
             fontSize: { xs: 32, sm: 42 },
           }}
         >
-          Nutrición basada en<br />datos reales
+          Nutrición basada en
+          <br />
+          datos reales
         </Typography>
 
         <Typography
@@ -176,7 +181,8 @@ const AboutPage = () => (
               gap: 2.5,
               alignItems: "flex-start",
               boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
-              transition: "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
+              transition:
+                "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
               animation: `fadeUp 0.65s ${0.1 + i * 0.1}s ease both`,
               "&:hover": {
                 transform: "translateY(-5px)",
@@ -284,8 +290,21 @@ const AboutPage = () => (
             letterSpacing: "-0.5px",
           }}
         >
-          Ayudamos a que entiendas lo que comés. Todo de manera simple, sin tecnicismos, sin
-          confusión. También te ayudamos a preparar platos sanos, sencillos y rápidos, para que la falta de tiempo no te imposibilite comer de manera adecuada. 
+          Ayudamos a entender lo que comés y a preparar platos sanos y
+          sencillos, sin tecnicismos ni confusión. También te sugerimos recetas
+          fáciles y rápidas para que la falta de tiempo no sea un obstáculo.{" "}
+          <Box
+            component="span"
+            sx={{
+              fontSize: { xs: 13, md: 15 },
+              fontWeight: 400,
+              fontStyle: "italic",
+              opacity: 0.75,
+            }}
+          >
+            Nuestras recomendaciones no reemplazan el consejo de un médico o
+            nutricionista.
+          </Box>
         </Typography>
       </Box>
     </Box>
