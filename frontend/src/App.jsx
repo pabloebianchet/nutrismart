@@ -14,12 +14,14 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import PricingPage from "./pages/PricingPage.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage.jsx";
+import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
 
 
 const App = () => {
   return (
     <Router>
       <AppHeader />
+      <FloatingAnalyzeButton />
       <Routes>
         <Route path="/" element={<UserDataPage />} />
         <Route path="/capture" element={<CapturePage />} />
