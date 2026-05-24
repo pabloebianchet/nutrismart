@@ -9,7 +9,6 @@ import CheckRoundedIcon           from "@mui/icons-material/CheckRounded";
 import BookmarkBorderRoundedIcon  from "@mui/icons-material/BookmarkBorderRounded";
 import BookmarkRoundedIcon        from "@mui/icons-material/BookmarkRounded";
 import WhatsAppIcon               from "@mui/icons-material/WhatsApp";
-import EmailRoundedIcon           from "@mui/icons-material/EmailRounded";
 import ContentCopyRoundedIcon     from "@mui/icons-material/ContentCopyRounded";
 import DeleteOutlineRoundedIcon   from "@mui/icons-material/DeleteOutlineRounded";
 import ExpandMoreRoundedIcon      from "@mui/icons-material/ExpandMoreRounded";
@@ -48,6 +47,14 @@ const fadeUp = {
   center: { opacity: 1, y: 0  },
   exit:   { opacity: 0, y: -20 },
 };
+
+// ─── Instagram icon (not in MUI) ─────────────────────────────────────────────
+
+const InstagramIcon = () => (
+  <Box component="svg" sx={{ width: 19, height: 19 }} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+  </Box>
+);
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -106,7 +113,7 @@ const RecipeLoader = ({ message }) => (
   </Box>
 );
 
-const ShareIcons = ({ recipe, onCopy }) => (
+const ShareIcons = ({ recipe, onCopy, onInstagram }) => (
   <Stack direction="row" spacing={0.5}>
     <Tooltip title="Compartir por WhatsApp">
       <IconButton
@@ -117,17 +124,13 @@ const ShareIcons = ({ recipe, onCopy }) => (
         <WhatsAppIcon sx={{ fontSize: 19 }} />
       </IconButton>
     </Tooltip>
-    <Tooltip title="Enviar por email">
+    <Tooltip title="Compartir en Instagram">
       <IconButton
         size="small"
-        onClick={() => {
-          const sub  = encodeURIComponent(`Receta: ${recipe.name} 🍽️`);
-          const body = encodeURIComponent(buildShareText(recipe).replace(/\*/g, ""));
-          window.location.href = `mailto:?subject=${sub}&body=${body}`;
-        }}
-        sx={{ color: "#4A6B67", "&:hover": { bgcolor: "rgba(11,94,85,0.08)" } }}
+        onClick={onInstagram}
+        sx={{ color: "#C13584", "&:hover": { bgcolor: "rgba(193,53,132,0.10)" } }}
       >
-        <EmailRoundedIcon sx={{ fontSize: 19 }} />
+        <InstagramIcon />
       </IconButton>
     </Tooltip>
     <Tooltip title="Copiar receta">
@@ -144,7 +147,7 @@ const ShareIcons = ({ recipe, onCopy }) => (
 
 // ─── saved recipe card (for Guardadas tab) ────────────────────────────────────
 
-const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, deleting }) => {
+const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, deleting }) => {
   const mod = MODALIDADES.find((m) => m.id === recipe.modalidad);
   return (
     <Paper elevation={0} sx={{
@@ -252,7 +255,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, deleting }) =
 
           {/* actions */}
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <ShareIcons recipe={recipe} onCopy={onCopy} />
+            <ShareIcons recipe={recipe} onCopy={onCopy} onInstagram={onInstagram} />
             <Tooltip title="Eliminar receta">
               <IconButton
                 size="small"
@@ -390,6 +393,15 @@ const RecipesPage = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  // ── instagram: copy + open ──
+  const handleInstagram = async (recipe) => {
+    try {
+      await navigator.clipboard.writeText(buildShareText(recipe).replace(/\*/g, ""));
+    } catch {}
+    window.open("https://www.instagram.com", "_blank", "noopener");
+    setSnackMsg("¡Receta copiada! Pegala en tus Stories 📸");
   };
 
   // ── copy to clipboard ──
@@ -780,7 +792,7 @@ const RecipesPage = () => {
                     </Button>
 
                     {/* Share icons */}
-                    <ShareIcons recipe={detail} onCopy={() => handleCopy(detail)} />
+                    <ShareIcons recipe={detail} onCopy={() => handleCopy(detail)} onInstagram={() => handleInstagram(detail)} />
                   </Stack>
                 </motion.div>
 
@@ -925,6 +937,7 @@ const RecipesPage = () => {
                       onToggle={() => setExpandedId(expandedId === recipe._id ? null : recipe._id)}
                       onDelete={() => handleDelete(recipe._id)}
                       onCopy={() => handleCopy(recipe)}
+                      onInstagram={() => handleInstagram(recipe)}
                       deleting={deletingId === recipe._id}
                     />
                   </motion.div>
