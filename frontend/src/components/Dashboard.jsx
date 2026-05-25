@@ -1180,9 +1180,9 @@ const NotifPrefsPanel = () => {
                 />
               </Stack>
 
-              <Row label="Email de bienvenida"       icon="👋" fieldKey="welcome"  disabled={prefs.paused} />
               <Row label="Resultado de cada análisis" icon="🔍" fieldKey="analysis" disabled={prefs.paused} />
               <Row label="Sesión de entrenamiento"    icon="🏋️" fieldKey="training" disabled={prefs.paused} />
+              <Row label="Renovación de plan"         icon="🔄" fieldKey="renewal"  disabled={prefs.paused} />
 
               <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 1.5, lineHeight: 1.6 }}>
                 Los emails se envían solo si la notificación correspondiente está activa y el tipo no está pausado.

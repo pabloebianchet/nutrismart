@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, TextField, Snackbar, Alert,
-  Dialog, DialogContent,
+  Dialog, DialogContent, IconButton, Tooltip,
 } from "@mui/material";
 import ArrowBackRoundedIcon    from "@mui/icons-material/ArrowBackRounded";
 import CheckRoundedIcon        from "@mui/icons-material/CheckRounded";
@@ -423,22 +423,71 @@ const TrainingPage = () => {
                 Plan personalizado con IA · seguimiento integrado
               </Typography>
             </Box>
+
+            {/* Botones: texto completo en sm+, solo íconos en xs */}
             {phase === "plan" && !activeDay && (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Button
-                  onClick={() => setShowNewPlanDialog(true)}
-                  startIcon={<RefreshRoundedIcon />}
-                  sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
-                >
-                  Nuevo plan
-                </Button>
-                <Button
-                  onClick={() => setDeleteStep(1)}
-                  startIcon={<DeleteOutlineRoundedIcon sx={{ fontSize: 17 }} />}
-                  sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#E24B4A", borderRadius: 999, "&:hover": { bgcolor: "rgba(226,75,74,0.06)" } }}
-                >
-                  Borrar
-                </Button>
+              <Stack direction="row" spacing={0.5} alignItems="center" flexShrink={0} ml={1}>
+
+                {/* Nuevo plan — texto en sm+, ícono en xs */}
+                <Tooltip title="Nuevo plan" placement="bottom">
+                  <Box>
+                    {/* sm+: botón con texto */}
+                    <Button
+                      onClick={() => setShowNewPlanDialog(true)}
+                      startIcon={<RefreshRoundedIcon />}
+                      sx={{
+                        display: { xs: "none", sm: "inline-flex" },
+                        textTransform: "none", fontWeight: 700, fontSize: 13,
+                        color: "#0B5E55", borderRadius: 999,
+                        "&:hover": { bgcolor: "rgba(11,94,85,0.06)" },
+                      }}
+                    >
+                      Nuevo plan
+                    </Button>
+                    {/* xs: solo ícono */}
+                    <IconButton
+                      onClick={() => setShowNewPlanDialog(true)}
+                      sx={{
+                        display: { xs: "inline-flex", sm: "none" },
+                        color: "#0B5E55",
+                        "&:hover": { bgcolor: "rgba(11,94,85,0.08)" },
+                      }}
+                    >
+                      <RefreshRoundedIcon sx={{ fontSize: 22 }} />
+                    </IconButton>
+                  </Box>
+                </Tooltip>
+
+                {/* Borrar — texto en sm+, ícono en xs */}
+                <Tooltip title="Borrar plan" placement="bottom">
+                  <Box>
+                    {/* sm+: botón con texto */}
+                    <Button
+                      onClick={() => setDeleteStep(1)}
+                      startIcon={<DeleteOutlineRoundedIcon sx={{ fontSize: 17 }} />}
+                      sx={{
+                        display: { xs: "none", sm: "inline-flex" },
+                        textTransform: "none", fontWeight: 700, fontSize: 13,
+                        color: "#E24B4A", borderRadius: 999,
+                        "&:hover": { bgcolor: "rgba(226,75,74,0.06)" },
+                      }}
+                    >
+                      Borrar
+                    </Button>
+                    {/* xs: solo ícono */}
+                    <IconButton
+                      onClick={() => setDeleteStep(1)}
+                      sx={{
+                        display: { xs: "inline-flex", sm: "none" },
+                        color: "#E24B4A",
+                        "&:hover": { bgcolor: "rgba(226,75,74,0.08)" },
+                      }}
+                    >
+                      <DeleteOutlineRoundedIcon sx={{ fontSize: 22 }} />
+                    </IconButton>
+                  </Box>
+                </Tooltip>
+
               </Stack>
             )}
           </Stack>

@@ -119,24 +119,12 @@ const UserDataPage = () => {
 
   /* ---------------- SPLASH SCREEN ---------------- */
   if (showSplash) {
-    const floaters = [
-      { emoji: "🍃", top: "6%",  left: "4%",   size: 130, anim: "floatA", dur: "7s",  delay: "0s"   },
-      { emoji: "🥦", top: "5%",  right: "5%",  size: 105, anim: "floatB", dur: "8.5s",delay: "1.2s" },
-      { emoji: "🥑", top: "38%", left: "2%",   size: 118, anim: "floatC", dur: "9s",  delay: "0.6s" },
-      { emoji: "🌿", top: "22%", right: "3%",  size: 124, anim: "floatA", dur: "7.5s",delay: "2s"   },
-      { emoji: "🥕", bottom:"18%",left: "6%",  size: 88,  anim: "floatB", dur: "8s",  delay: "1.8s" },
-      { emoji: "🍎", bottom:"12%",right: "7%", size: 98,  anim: "floatC", dur: "6.5s",delay: "0.4s" },
-      { emoji: "🫑", bottom:"4%", left: "32%", size: 112, anim: "floatA", dur: "9.5s",delay: "3s"   },
-      { emoji: "🥝", top: "58%", right: "4%",  size: 82,  anim: "floatB", dur: "7s",  delay: "1s"   },
-      { emoji: "🍋", top: "72%", left: "14%",  size: 76,  anim: "floatC", dur: "8s",  delay: "2.5s" },
-    ];
-
     return (
       <Box
         sx={{
           position: "fixed",
           inset: 0,
-          background: "linear-gradient(160deg, #0a4a42 0%, #0B5E55 45%, #0e6b60 100%)",
+          background: "linear-gradient(150deg, #071e1b 0%, #0B5E55 60%, #0d5449 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -144,78 +132,117 @@ const UserDataPage = () => {
           zIndex: 9999,
 
           /* ── Keyframes ── */
-          "@keyframes floatA": {
-            "0%,100%": { transform: "translateY(0px) rotate(-5deg)" },
-            "50%":     { transform: "translateY(-28px) rotate(8deg)" },
+          "@keyframes splashFadeIn": {
+            from: { opacity: 0, transform: "scale(0.94)" },
+            to:   { opacity: 1, transform: "scale(1)" },
           },
-          "@keyframes floatB": {
-            "0%,100%": { transform: "translateY(8px) rotate(6deg)" },
-            "40%":     { transform: "translateY(-22px) rotate(-6deg)" },
-            "70%":     { transform: "translateY(-10px) rotate(3deg)" },
+          "@keyframes logoPulse": {
+            "0%,100%": { opacity: 0.88, transform: "scale(0.97)" },
+            "50%":     { opacity: 1,    transform: "scale(1.03)" },
           },
-          "@keyframes floatC": {
-            "0%,100%": { transform: "translateY(0px) translateX(0px) rotate(0deg)" },
-            "33%":     { transform: "translateY(-20px) translateX(10px) rotate(12deg)" },
-            "66%":     { transform: "translateY(-8px) translateX(-8px) rotate(-8deg)" },
+          "@keyframes blobDrift1": {
+            "0%,100%": { transform: "translate(0,0) scale(1)" },
+            "50%":     { transform: "translate(-40px,25px) scale(1.08)" },
           },
-          "@keyframes fadeIn": {
-            from: { opacity: 0 },
-            to:   { opacity: 1 },
+          "@keyframes blobDrift2": {
+            "0%,100%": { transform: "translate(0,0) scale(1)" },
+            "50%":     { transform: "translate(30px,-35px) scale(0.94)" },
           },
-          "@keyframes pulse": {
-            "0%,100%": { opacity: 0.85, transform: "scale(0.96)" },
-            "50%":     { opacity: 1,    transform: "scale(1.06)" },
+          "@keyframes blobDrift3": {
+            "0%,100%": { transform: "translate(0,0) scale(1)" },
+            "50%":     { transform: "translate(-20px,-20px) scale(1.05)" },
+          },
+          "@keyframes dotBlink": {
+            "0%,100%": { opacity: 0.25, transform: "scale(0.75)" },
+            "50%":     { opacity: 1,    transform: "scale(1)" },
           },
         }}
       >
-        {/* Elementos flotantes */}
-        {floaters.map((f, i) => (
-          <Box
-            key={i}
-            sx={{
-              position: "absolute",
-              top:    f.top    ?? "auto",
-              bottom: f.bottom ?? "auto",
-              left:   f.left   ?? "auto",
-              right:  f.right  ?? "auto",
-              fontSize: f.size,
-              lineHeight: 1,
-              opacity: 0,
-              userSelect: "none",
-              pointerEvents: "none",
-              filter: "brightness(1.1) saturate(0.6)",
-              animation: `fadeIn 1s ${f.delay} ease forwards, ${f.anim} ${f.dur} ${f.delay} ease-in-out infinite`,
-            }}
-          >
-            {f.emoji}
-          </Box>
-        ))}
+        {/* ── Orb 1 — top-left grande ── */}
+        <Box sx={{
+          position: "absolute",
+          top: "-18%", left: "-12%",
+          width: 520, height: 520,
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 35% 40%, rgba(20,200,170,0.14) 0%, transparent 65%)",
+          filter: "blur(32px)",
+          animation: "blobDrift1 9s ease-in-out infinite",
+          pointerEvents: "none",
+        }} />
 
-        {/* Blob de luz central */}
-        <Box
-          sx={{
-            position: "absolute",
-            width: 320,
-            height: 320,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
+        {/* ── Orb 2 — bottom-right grande ── */}
+        <Box sx={{
+          position: "absolute",
+          bottom: "-22%", right: "-14%",
+          width: 620, height: 620,
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 60% 55%, rgba(11,160,135,0.16) 0%, transparent 65%)",
+          filter: "blur(40px)",
+          animation: "blobDrift2 11s ease-in-out infinite",
+          pointerEvents: "none",
+        }} />
 
-        {/* Logo */}
+        {/* ── Orb 3 — top-right pequeño ── */}
+        <Box sx={{
+          position: "absolute",
+          top: "8%", right: "6%",
+          width: 260, height: 260,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(100,220,190,0.10) 0%, transparent 70%)",
+          filter: "blur(24px)",
+          animation: "blobDrift3 7s ease-in-out infinite",
+          pointerEvents: "none",
+        }} />
+
+        {/* ── Orb 4 — bottom-left pequeño ── */}
+        <Box sx={{
+          position: "absolute",
+          bottom: "10%", left: "5%",
+          width: 200, height: 200,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(50,200,165,0.10) 0%, transparent 70%)",
+          filter: "blur(20px)",
+          animation: "blobDrift1 8s ease-in-out 2s infinite",
+          pointerEvents: "none",
+        }} />
+
+
+        {/* ── Contenido central ── */}
         <Box
-          component="img"
-          src="/img/logo.png"
-          alt="NUI App"
           sx={{
             position: "relative",
             zIndex: 2,
-            width: { xs: 150, sm: 190 },
-            filter: "brightness(0) invert(1)",
-            animation: "pulse 1.8s ease-in-out infinite",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 3,
+            animation: "splashFadeIn 0.5s ease both",
           }}
-        />
+        >
+          {/* Logo */}
+          <Box
+            component="img"
+            src="/img/logo.png"
+            alt="NUI App"
+            sx={{
+              width: { xs: 145, sm: 180 },
+              filter: "brightness(0) invert(1)",
+              animation: "logoPulse 2.2s ease-in-out infinite",
+            }}
+          />
+
+          {/* Tres puntos animados */}
+          <Box sx={{ display: "flex", gap: 1.2 }}>
+            {[0, 1, 2].map((i) => (
+              <Box key={i} sx={{
+                width: 6, height: 6,
+                borderRadius: "50%",
+                bgcolor: "rgba(255,255,255,0.50)",
+                animation: `dotBlink 1.5s ease-in-out ${i * 0.28}s infinite`,
+              }} />
+            ))}
+          </Box>
+        </Box>
       </Box>
     );
   }

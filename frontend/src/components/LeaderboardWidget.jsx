@@ -28,7 +28,7 @@ const RankRow = ({ entry, blurred }) => {
         borderRadius: 2.5,
         border: `1.5px solid ${rs?.border ?? (entry.isCurrentUser ? "rgba(11,94,85,0.30)" : "rgba(11,94,85,0.08)")}`,
         background: rs?.bg ?? (entry.isCurrentUser ? "rgba(11,94,85,0.07)" : "transparent"),
-        filter: blurred ? "blur(5px)" : "none",
+        filter: blurred ? "blur(2px)" : "none",
         userSelect: blurred ? "none" : "auto",
         transition: "filter 0.3s",
         position: "relative",
@@ -252,7 +252,7 @@ const LeaderboardWidget = () => {
                 sx={{
                   position: "absolute",
                   inset: 0,
-                  background: "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,1) 100%)",
+                  background: "linear-gradient(to bottom, transparent 25%, rgba(255,255,255,0.55) 60%, rgba(255,255,255,0.88) 100%)",
                   display: "flex",
                   alignItems: "flex-end",
                   justifyContent: "center",

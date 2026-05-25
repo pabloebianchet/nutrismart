@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
       welcome:  { type: Boolean, default: true },
       analysis: { type: Boolean, default: true },
       training: { type: Boolean, default: true },
+      renewal:  { type: Boolean, default: true },
     },
   },
   { timestamps: true }

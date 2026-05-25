@@ -21,10 +21,11 @@ const subscriptionSchema = new mongoose.Schema(
     mpPlanId:        { type: String },
     startDate:       { type: Date },
     endDate:         { type: Date },
-    autoRenew:       { type: Boolean, default: true },
-    amount:          { type: Number, default: 0 },
-    currency:        { type: String, default: "ARS" },
-    paymentHistory:  [paymentHistorySchema],
+    autoRenew:              { type: Boolean, default: true },
+    amount:                 { type: Number, default: 0 },
+    currency:               { type: String, default: "ARS" },
+    trialExpiryEmailSent:   { type: Boolean, default: false },
+    paymentHistory:         [paymentHistorySchema],
   },
   { timestamps: true }
 );

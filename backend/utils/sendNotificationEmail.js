@@ -233,12 +233,208 @@ const buildTrainingHtml = ({ firstName, dayName, tipoLabel, totalPoints, appUrl,
 </html>`;
 };
 
+/* ── Email: trial expira mañana ──────────────────────────────────────────── */
+
+const buildTrialExpiryHtml = ({ firstName, trialEndDate, appUrl, year }) => {
+  const fechaFin = new Date(trialEndDate).toLocaleDateString("es-AR", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Tu prueba gratuita vence mañana — Nui</title>
+</head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:28px 36px;text-align:center;">
+            <div style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">Nui</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.08em;">ANÁLISIS NUTRICIONAL CON IA</div>
+          </td>
+        </tr>
+
+        <!-- HERO -->
+        <tr>
+          <td style="background:#ffffff;padding:36px 36px 28px;">
+            <div style="text-align:center;margin-bottom:24px;">
+              <div style="font-size:44px;">⏰</div>
+              <div style="font-size:20px;font-weight:800;color:#0F2420;margin-top:10px;">Tu prueba gratuita vence mañana</div>
+              <div style="font-size:14px;color:#4A6B67;margin-top:6px;line-height:1.65;">
+                Hola <strong>${firstName}</strong>, tu período de prueba gratuito en Nui
+                finaliza el <strong>${fechaFin}</strong>.<br/>
+                Para seguir analizando tus alimentos, elegí un plan.
+              </div>
+            </div>
+
+            <!-- Info vencimiento -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="text-align:center;background:#FFF8E1;border:1.5px solid #F5B800;border-radius:14px;padding:18px 20px;">
+                  <div style="font-size:12px;color:#8A6800;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Vencimiento</div>
+                  <div style="font-size:18px;font-weight:900;color:#8A6800;">${fechaFin}</div>
+                  <div style="font-size:12px;color:#A07800;margin-top:6px;">A partir de mañana no podrás realizar nuevos análisis</div>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Beneficios de actualizar -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+              <tr>
+                <td style="background:#f7faf9;border-radius:12px;padding:18px 20px;">
+                  <div style="font-size:12px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">¿Qué incluye un plan pago?</div>
+                  <div style="font-size:13px;color:#4A6B67;margin-bottom:8px;">✅ &nbsp;Análisis de productos diarios o ilimitados</div>
+                  <div style="font-size:13px;color:#4A6B67;margin-bottom:8px;">✅ &nbsp;Historial completo de lo que comés</div>
+                  <div style="font-size:13px;color:#4A6B67;margin-bottom:8px;">✅ &nbsp;Planes de entrenamiento personalizados con IA</div>
+                  <div style="font-size:13px;color:#4A6B67;">✅ &nbsp;Recetas saludables adaptadas a tu perfil</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="background:#0B5E55;border-radius:0 0 16px 16px;padding:28px 36px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#ffffff;margin-bottom:6px;">¡No pierdas el hábito que estás construyendo!</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:18px;">Elegí el plan que mejor se adapte a vos.</div>
+            <a href="${appUrl}/pricing" style="display:inline-block;background:#ffffff;color:#0B5E55;text-decoration:none;padding:11px 28px;border-radius:999px;font-weight:700;font-size:13px;">
+              Ver planes disponibles
+            </a>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="padding:18px 36px;text-align:center;">
+            <div style="font-size:11px;color:#B2DDD9;line-height:1.6;">
+              Este mensaje se envía automáticamente a todos los usuarios cuyo período de prueba está por vencer.<br/>
+              © ${year} Nui
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+
+</body>
+</html>`;
+};
+
+/* ── Email: renovación de plan ───────────────────────────────────────────── */
+
+const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year }) => {
+  const tip = getRandomTip("food");
+  const fechaFin = new Date(endDate).toLocaleDateString("es-AR", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>¡Tu plan se renovó! — Nui</title>
+</head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0B5E55 0%,#0d7a6e 100%);border-radius:16px 16px 0 0;padding:32px 36px;text-align:center;">
+            <div style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">Nui</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.08em;">ANÁLISIS NUTRICIONAL CON IA</div>
+          </td>
+        </tr>
+
+        <!-- HERO -->
+        <tr>
+          <td style="background:#ffffff;padding:36px 36px 28px;">
+            <div style="text-align:center;margin-bottom:24px;">
+              <div style="font-size:44px;">💚</div>
+              <div style="font-size:21px;font-weight:800;color:#0F2420;margin-top:10px;">¡Gracias por seguir creciendo, ${firstName}!</div>
+              <div style="font-size:14px;color:#4A6B67;margin-top:8px;line-height:1.7;">
+                Tu plan <strong>${planName}</strong> se renovó exitosamente.<br/>
+                Seguís apostando por un estilo de vida más consciente y saludable — eso dice mucho de vos. 🌿
+              </div>
+            </div>
+
+            <!-- Plan activo badge -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="text-align:center;background:#E6F5F3;border:1.5px solid rgba(11,94,85,0.20);border-radius:14px;padding:18px 20px;">
+                  <div style="font-size:12px;color:#0B5E55;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Plan activo hasta</div>
+                  <div style="font-size:18px;font-weight:900;color:#0B5E55;">${fechaFin}</div>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Mensaje motivacional -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+              <tr>
+                <td style="background:#f7faf9;border-left:4px solid #0B5E55;border-radius:0 12px 12px 0;padding:18px 20px;margin-top:24px;">
+                  <div style="font-size:13px;color:#0F2420;line-height:1.7;">
+                    Cada mes que elegís seguir con Nui es un mes más de decisiones más conscientes sobre tu alimentación.
+                    La constancia es la clave de cualquier cambio real — y vos ya la tenés. 💪
+                  </div>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Tip -->
+            ${tipCard(tip)}
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0B5E55 0%,#0d7a6e 100%);border-radius:0 0 16px 16px;padding:28px 36px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:#ffffff;margin-bottom:6px;">¡Seguí eligiendo mejor!</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:18px;">Analizá tus alimentos, entrená y avanzá hacia tus metas.</div>
+            <a href="${appUrl}" style="display:inline-block;background:#ffffff;color:#0B5E55;text-decoration:none;padding:11px 28px;border-radius:999px;font-weight:700;font-size:13px;">
+              Abrir Nui
+            </a>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="padding:18px 36px;text-align:center;">
+            <div style="font-size:11px;color:#B2DDD9;line-height:1.6;">
+              Recibiste este correo porque tenés activadas las notificaciones de renovación en Nui.<br/>
+              Podés cambiar tus preferencias en tu perfil.<br/>
+              © ${year} Nui
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+
+</body>
+</html>`;
+};
+
 /* ── Función principal ───────────────────────────────────────────────────── */
 
 /**
- * Envía un email de felicitación/motivación.
- * @param {"analysis"|"training"} type
- * @param {object} opts  - { name, email, score?, productName?, totalPoints, dayName?, tipoLabel? }
+ * Envía un email de notificación.
+ * @param {"analysis"|"training"|"trial-expiry"|"renewal"} type
+ * @param {object} opts
  */
 export const sendNotificationEmail = async (type, opts) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
@@ -255,6 +451,12 @@ export const sendNotificationEmail = async (type, opts) => {
   } else if (type === "training") {
     subject = `¡Sesión completada, ${firstName}! 💪 +5 puntos — Nui`;
     html    = buildTrainingHtml({ firstName, ...opts, appUrl, year });
+  } else if (type === "trial-expiry") {
+    subject = `⏰ Tu prueba gratuita vence mañana — Nui`;
+    html    = buildTrialExpiryHtml({ firstName, ...opts, appUrl, year });
+  } else if (type === "renewal") {
+    subject = `¡Tu plan sigue activo, ${firstName}! 💚 — Nui`;
+    html    = buildRenewalHtml({ firstName, ...opts, appUrl, year });
   } else {
     return;
   }

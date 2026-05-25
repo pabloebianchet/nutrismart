@@ -4,6 +4,7 @@ import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
+import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 
 const router = express.Router();
 
@@ -156,6 +157,9 @@ router.post("/webhook", async (req, res) => {
 
         const user = await User.findById(userId);
         if (user) {
+          const isRenewal = sub.paymentHistory.length > 1;
+
+          // Email de recibo de pago (transaccional, siempre se envía)
           await sendPaymentEmail({
             name: user.name,
             email: user.email,
@@ -163,7 +167,19 @@ router.post("/webhook", async (req, res) => {
             amount: mp.transaction_amount,
             currency: mp.currency_id,
             endDate: end,
+            isRenewal,
           });
+
+          // Email motivacional de renovación (solo si hay renovación y el user no pausó)
+          if (isRenewal && !user.notifPrefs?.paused && user.notifPrefs?.renewal !== false) {
+            const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
+            sendNotificationEmail("renewal", {
+              name:     user.name,
+              email:    user.email,
+              planName: PLAN_NAMES[plan] || plan,
+              endDate:  end,
+            }).catch(() => {});
+          }
         }
       }
     }

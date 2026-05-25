@@ -23,8 +23,10 @@ import { sendNotificationEmail } from "./utils/sendNotificationEmail.js";
 import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
 import { activateFreeTrial } from "./utils/activateFreeTrial.js";
+import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
 
 connectDB();
+startTrialExpiryJob();
 
 function cleanText(text) {
   if (!text) return "";
@@ -517,12 +519,13 @@ app.get("/api/user/notif-prefs", authMiddleware, async (req, res) => {
 });
 
 app.put("/api/user/notif-prefs", authMiddleware, async (req, res) => {
-  const { paused, welcome, analysis, training } = req.body;
+  const { paused, welcome, analysis, training, renewal } = req.body;
   const update = {};
   if (typeof paused   === "boolean") update["notifPrefs.paused"]   = paused;
   if (typeof welcome  === "boolean") update["notifPrefs.welcome"]  = welcome;
   if (typeof analysis === "boolean") update["notifPrefs.analysis"] = analysis;
   if (typeof training === "boolean") update["notifPrefs.training"] = training;
+  if (typeof renewal  === "boolean") update["notifPrefs.renewal"]  = renewal;
 
   try {
     const user = await User.findByIdAndUpdate(
