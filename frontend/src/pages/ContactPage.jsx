@@ -269,7 +269,7 @@ const ContactPage = () => {
                 {
                   Icon: MailOutlineRoundedIcon,
                   label: "Email",
-                  value: "hola@nutrismart.app",
+                  value: "info@raccoonnow.com.ar",
                 },
                 {
                   Icon: AccessTimeRoundedIcon,

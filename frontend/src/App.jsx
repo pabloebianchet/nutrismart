@@ -14,9 +14,13 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import PricingPage from "./pages/PricingPage.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage.jsx";
-import RecipesPage  from "./pages/RecipesPage.jsx";
-import TrainingPage from "./pages/TrainingPage.jsx";
+import RecipesPage    from "./pages/RecipesPage.jsx";
+import TrainingPage   from "./pages/TrainingPage.jsx";
+import PrivacyPage    from "./pages/PrivacyPage.jsx";
+import TermsPage      from "./pages/TermsPage.jsx";
+import LegalPage      from "./pages/LegalPage.jsx";
 import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
+import AppFooter      from "./components/AppFooter.jsx";
 
 
 const App = () => {
@@ -38,9 +42,13 @@ const App = () => {
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/subscription" element={<SubscriptionPage />} />
         <Route path="/subscription/success" element={<SubscriptionPage />} />
-        <Route path="/recipes"   element={<RecipesPage />} />
-        <Route path="/training" element={<TrainingPage />} />
+        <Route path="/recipes"    element={<RecipesPage />} />
+        <Route path="/training"   element={<TrainingPage />} />
+        <Route path="/privacidad" element={<PrivacyPage />} />
+        <Route path="/terminos"   element={<TermsPage />} />
+        <Route path="/legal"      element={<LegalPage />} />
       </Routes>
+      <AppFooter />
     </Router>
   );
 };
