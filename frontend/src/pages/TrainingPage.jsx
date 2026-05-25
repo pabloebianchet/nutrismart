@@ -2,11 +2,14 @@ import { useState } from "react";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, TextField, Snackbar, Alert,
+  Dialog, DialogContent,
 } from "@mui/material";
 import ArrowBackRoundedIcon    from "@mui/icons-material/ArrowBackRounded";
 import CheckRoundedIcon        from "@mui/icons-material/CheckRounded";
 import RefreshRoundedIcon      from "@mui/icons-material/RefreshRounded";
 import AutoAwesomeRoundedIcon  from "@mui/icons-material/AutoAwesomeRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import WarningAmberRoundedIcon  from "@mui/icons-material/WarningAmberRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
 import { API_URL }             from "../config/api";
@@ -120,7 +123,10 @@ const WeightChart = ({ weights }) => {
 // ─── main component ───────────────────────────────────────────────────────────
 
 const TrainingPage = () => {
-  const { userData, updateUserData } = useNutrition();
+  const { userData, updateUserData, subPlan } = useNutrition();
+
+  // Free activo y Gold pueden tener 2 planes simultáneos; Silver solo 1
+  const canHaveMultiplePlans = subPlan === "free" || subPlan === "gold";
   const token = localStorage.getItem("nutrismartToken");
 
   // Determinar qué slot mostrar al abrir
@@ -160,6 +166,8 @@ const TrainingPage = () => {
   const [loading,      setLoading]      = useState(false);
   const [error,        setError]        = useState("");
   const [snackMsg,     setSnackMsg]     = useState("");
+  const [showNewPlanDialog,  setShowNewPlanDialog]  = useState(false);
+  const [deleteStep,         setDeleteStep]          = useState(0); // 0=cerrado 1=primer aviso 2=confirmar
   const [tipsData,     setTipsData]     = useState(null);
   const [loadingTips,  setLoadingTips]  = useState(false);
   const [expandedSess,   setExpandedSess]   = useState(null);
@@ -197,8 +205,10 @@ const TrainingPage = () => {
   // ── generar plan
   const handleGenerate = async () => {
     const isQuick  = duracion === "1 día";
-    const planType = isQuick ? "quick" : "main";
-    const key      = isQuick ? QUICK_KEY : MAIN_KEY;
+    // Usar siempre activePlanType como slot destino — ya fue seteado
+    // correctamente tanto en el flujo normal como en "mantener + agregar"
+    const planType = activePlanType;
+    const key      = planType === "quick" ? QUICK_KEY : MAIN_KEY;
     const freq     = isQuick ? 1 : frecuencia;
 
     setError("");
@@ -310,9 +320,13 @@ const TrainingPage = () => {
     if (activePlanType === "main") setHasMainPlan(false);
     else                           setHasQuickPlan(false);
 
-    // Si borramos el plan rápido y hay plan principal, volver al principal
+    // Si hay plan en el otro slot, ir a ese en vez de mostrar config
     if (wasQuick && hasMainPlan) {
       switchToPlan("main");
+      return;
+    }
+    if (!wasQuick && hasQuickPlan) {
+      switchToPlan("quick");
       return;
     }
 
@@ -356,6 +370,23 @@ const TrainingPage = () => {
     }
   };
 
+  // ── Decisión al pedir "Nuevo plan" desde un plan activo ─────────────────────
+  const handleNewPlanChoice = (choice) => {
+    setShowNewPlanDialog(false);
+    if (choice === "replace") {
+      // Reemplaza el slot actual
+      resetPlan(false);
+    } else {
+      // Mantiene el actual y abre config en el slot vacío
+      const otherType = activePlanType === "main" ? "quick" : "main";
+      setActivePlanType(otherType);
+      setPlan(null); setConfig(null); setSessions([]); setStartDate(null); setTotalDays(0);
+      setTipo(null); setLugar(null); setDuracion(null); setFrecuencia(null);
+      setConfigStep(1); setError(""); setTipsData(null); setActiveDay(null);
+      setPhase("config");
+    }
+  };
+
   const nextConfigStep = () => {
     if (configStep === 1) setConfigStep(skipLugar ? 3 : 2);
     else if (configStep === 2) setConfigStep(3);
@@ -393,69 +424,65 @@ const TrainingPage = () => {
               </Typography>
             </Box>
             {phase === "plan" && !activeDay && (
-              <Button onClick={() => resetPlan(false)} startIcon={<RefreshRoundedIcon />}
-                sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                {activePlanType === "quick" ? "Nuevo plan rápido" : "Nuevo plan"}
-              </Button>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Button
+                  onClick={() => setShowNewPlanDialog(true)}
+                  startIcon={<RefreshRoundedIcon />}
+                  sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
+                >
+                  Nuevo plan
+                </Button>
+                <Button
+                  onClick={() => setDeleteStep(1)}
+                  startIcon={<DeleteOutlineRoundedIcon sx={{ fontSize: 17 }} />}
+                  sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#E24B4A", borderRadius: 999, "&:hover": { bgcolor: "rgba(226,75,74,0.06)" } }}
+                >
+                  Borrar
+                </Button>
+              </Stack>
             )}
           </Stack>
 
-          {/* ── Toggle entre plan principal y plan rápido ── */}
-          {hasMainPlan && hasQuickPlan && phase === "plan" && !activeDay && (
-            <Box sx={{ mb: 3 }}>
-              <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex" }}>
-                {[
-                  { type: "main",  label: "Plan principal", emoji: "📋" },
-                  { type: "quick", label: "Plan rápido",    emoji: "⚡" },
-                ].map((opt) => (
-                  <Box
-                    key={opt.type}
-                    onClick={() => switchToPlan(opt.type)}
-                    sx={{
-                      px: 2.2, py: 0.8, borderRadius: 999, cursor: "pointer",
-                      bgcolor: activePlanType === opt.type ? "#fff" : "transparent",
-                      boxShadow: activePlanType === opt.type ? "0 2px 8px rgba(11,94,85,0.12)" : "none",
-                      transition: "all 0.2s ease",
-                      display: "flex", alignItems: "center", gap: 0.6,
-                    }}
-                  >
-                    <Typography sx={{ fontSize: 14, lineHeight: 1 }}>{opt.emoji}</Typography>
-                    <Typography sx={{
-                      fontSize: 13.5,
-                      fontWeight: activePlanType === opt.type ? 800 : 600,
-                      color: activePlanType === opt.type ? "#0B5E55" : "#4A6B67",
-                      whiteSpace: "nowrap",
-                    }}>
-                      {opt.label}
-                    </Typography>
-                  </Box>
-                ))}
-              </Stack>
-            </Box>
-          )}
-
-          {/* Botón para iniciar plan rápido cuando hay un plan principal activo y no hay plan rápido */}
-          {hasMainPlan && !hasQuickPlan && phase === "plan" && !activeDay && (
-            <Box sx={{ mb: 3 }}>
-              <Button
-                size="small"
-                onClick={() => {
-                  setActivePlanType("quick");
-                  setPlan(null); setConfig(null); setSessions([]); setStartDate(null); setTotalDays(0);
-                  setTipo(null); setLugar(null); setDuracion("1 día"); setFrecuencia(1);
-                  setConfigStep(1);
-                  setPhase("config");
-                }}
-                sx={{
-                  textTransform: "none", fontWeight: 700, fontSize: 13, borderRadius: 999,
-                  border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55", px: 2, py: 0.7,
-                  "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
-                }}
-              >
-                ⚡ Agregar plan rápido (1 día)
-              </Button>
-            </Box>
-          )}
+          {/* ── Toggle entre Plan A y Plan B (los dos slots) ── */}
+          {hasMainPlan && hasQuickPlan && phase === "plan" && !activeDay && (() => {
+            const cfg1 = loadPlan(MAIN_KEY)?.config;
+            const cfg2 = loadPlan(QUICK_KEY)?.config;
+            const label = (cfg) => {
+              if (!cfg) return "Plan";
+              const t = TIPOS.find(t => t.id === cfg.tipo);
+              return t ? `${t.emoji} ${t.id}` : cfg.tipo;
+            };
+            return (
+              <Box sx={{ mb: 3 }}>
+                <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex" }}>
+                  {[
+                    { type: "main",  label: label(cfg1) },
+                    { type: "quick", label: label(cfg2) },
+                  ].map((opt) => (
+                    <Box
+                      key={opt.type}
+                      onClick={() => switchToPlan(opt.type)}
+                      sx={{
+                        px: 2.2, py: 0.8, borderRadius: 999, cursor: "pointer",
+                        bgcolor: activePlanType === opt.type ? "#fff" : "transparent",
+                        boxShadow: activePlanType === opt.type ? "0 2px 8px rgba(11,94,85,0.12)" : "none",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      <Typography sx={{
+                        fontSize: 13.5,
+                        fontWeight: activePlanType === opt.type ? 800 : 600,
+                        color: activePlanType === opt.type ? "#0B5E55" : "#4A6B67",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {opt.label}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            );
+          })()}
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -481,13 +508,13 @@ const TrainingPage = () => {
                     </Paper>
                   )}
 
-                  {/* Aviso plan rápido cuando se viene del botón */}
-                  {activePlanType === "quick" && hasMainPlan && (
-                    <Paper elevation={0} sx={{ p: 1.8, borderRadius: 3, border: "1px solid rgba(230,81,0,0.20)", bgcolor: "#FFF8F5", mb: 3 }}>
+                  {/* Aviso segundo plan activo */}
+                  {(hasMainPlan || hasQuickPlan) && (
+                    <Paper elevation={0} sx={{ p: 1.8, borderRadius: 3, border: "1px solid rgba(11,94,85,0.15)", bgcolor: "#f7fcfa", mb: 3 }}>
                       <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography sx={{ fontSize: 16 }}>⚡</Typography>
-                        <Typography sx={{ fontSize: 13, color: "#BF360C", lineHeight: 1.5 }}>
-                          Estás creando un <strong>plan rápido</strong>. Tu plan principal no se toca.
+                        <Typography sx={{ fontSize: 16 }}>📋</Typography>
+                        <Typography sx={{ fontSize: 13, color: "#0B5E55", lineHeight: 1.5 }}>
+                          Tu plan actual se conserva. Este será tu <strong>segundo plan activo</strong>.
                         </Typography>
                       </Stack>
                     </Paper>
@@ -701,7 +728,8 @@ const TrainingPage = () => {
                         {activeTipo && <Chip label={`${activeTipo.emoji} ${config?.tipo}`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo.bg, color: activeTipo.color, border: `1px solid ${activeTipo.border}` }} />}
                         {config?.lugar && <Chip label={config.lugar} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
                         {config?.duracion !== "1 día" && <Chip label={`${config?.frecuencia} días/sem`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
-                        {activePlanType === "quick" && <Chip label="⚡ Plan rápido" size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: "#FFF3E0", color: "#E65100" }} />}
+                        {activePlanType === "quick" && hasMainPlan && <Chip label="Plan 2" size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: "rgba(11,94,85,0.08)", color: "#0B5E55" }} />}
+                        {activePlanType === "main"  && hasQuickPlan && <Chip label="Plan 1" size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: "rgba(11,94,85,0.08)", color: "#0B5E55" }} />}
                       </Stack>
                     </Box>
                     {totalDays > 1 && (
@@ -774,7 +802,7 @@ const TrainingPage = () => {
                                   <Typography sx={{ fontSize: 12, color: "#4A6B67" }}>{day.focus}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: "right", flexShrink: 0, ml: 1 }}>
-                                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{exs.length} ejercicios</Typography>
+                                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{exs.length} {isRunning ? "partes" : "ejercicios"}</Typography>
                                   {sessCount > 0 && <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>{sessCount} sesión{sessCount > 1 ? "es" : ""}</Typography>}
                                 </Box>
                               </Stack>
@@ -783,7 +811,9 @@ const TrainingPage = () => {
                                   <Stack key={j} direction="row" spacing={1} alignItems="center">
                                     <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: activeTipo?.color || "#0B5E55", flexShrink: 0 }} />
                                     <Typography sx={{ fontSize: 12.5, color: "#4A6B67", flex: 1 }}>{ex.name}</Typography>
-                                    <Typography sx={{ fontSize: 11.5, color: "#8AADAA", flexShrink: 0 }}>{ex.sets}×{ex.reps}</Typography>
+                                    <Typography sx={{ fontSize: 11.5, color: "#8AADAA", flexShrink: 0 }}>
+                                  {isRunning ? `${ex.sets} km · ${ex.reps}` : `${ex.sets}×${ex.reps}`}
+                                </Typography>
                                   </Stack>
                                 ))}
                                 {exs.length > 3 && <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>+{exs.length - 3} más…</Typography>}
@@ -1032,35 +1062,63 @@ const TrainingPage = () => {
               </Typography>
 
               <Stack spacing={2} mb={3}>
-                {(plan.weekStructure[activeDay]?.exercises || []).map((ex, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                    <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5 }}>
-                      <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: "#0F2420", mb: 0.5 }}>{ex.name}</Typography>
-                      <Stack direction="row" spacing={0.8} mb={1.2}>
-                        <Chip label={`${ex.sets} series`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo?.bg || "#E6F5F3", color: activeTipo?.color || "#0B5E55" }} />
-                        <Chip label={ex.reps} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
-                        <Chip label={ex.rest} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
-                      </Stack>
-                      {ex.notes && <Typography sx={{ fontSize: 11.5, color: "#8AADAA", mb: 1.2, fontStyle: "italic" }}>💡 {ex.notes}</Typography>}
-                      <Stack direction="row" spacing={1.5}>
-                        <TextField size="small"
-                          label={isRunning ? "Distancia" : "Peso / Carga"}
-                          placeholder={isRunning ? "ej: 5.2 km" : "ej: 60 kg"}
-                          value={sessionLog[ex.name]?.weight || ""}
-                          onChange={(e) => setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], weight: e.target.value } }))}
-                          sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
-                        />
-                        <TextField size="small"
-                          label={isRunning ? "Tiempo" : "Reps logradas"}
-                          placeholder={isRunning ? "ej: 28 min" : "ej: 10/10/8"}
-                          value={sessionLog[ex.name]?.reps || ""}
-                          onChange={(e) => setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], reps: e.target.value } }))}
-                          sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
-                        />
-                      </Stack>
-                    </Paper>
-                  </motion.div>
-                ))}
+                {(plan.weekStructure[activeDay]?.exercises || []).map((ex, i) => {
+                  const runningKeywords = /rodaje|fartlek|tirada|carrera|trote|running|sprint|intervalo/i;
+                  const exIsRunning = isRunning || runningKeywords.test(ex.name);
+                  return (
+                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
+                      <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5 }}>
+                        <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: "#0F2420", mb: 0.5 }}>{ex.name}</Typography>
+                        <Stack direction="row" spacing={0.8} mb={1.2}>
+                          <Chip
+                            label={exIsRunning ? `${ex.sets} km` : `${ex.sets} series`}
+                            size="small"
+                            sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo?.bg || "#E6F5F3", color: activeTipo?.color || "#0B5E55" }}
+                          />
+                          <Chip
+                            label={exIsRunning ? `Ritmo: ${ex.reps}` : ex.reps}
+                            size="small"
+                            sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }}
+                          />
+                          <Chip
+                            label={ex.rest}
+                            size="small"
+                            sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }}
+                          />
+                        </Stack>
+                        {ex.notes && <Typography sx={{ fontSize: 11.5, color: "#8AADAA", mb: 1.2, fontStyle: "italic" }}>💡 {ex.notes}</Typography>}
+                        <Stack direction="row" spacing={1.5}>
+                          <TextField size="small"
+                            label={exIsRunning ? "Distancia (km)" : "Peso / Carga (kg)"}
+                            placeholder={exIsRunning ? "ej: 5.2" : "ej: 60"}
+                            value={sessionLog[ex.name]?.weight || ""}
+                            onChange={(e) => {
+                              let val = e.target.value.replace(/[^0-9.]/g, "");
+                              const parts = val.split(".");
+                              if (parts.length > 2) val = parts[0] + "." + parts.slice(1).join("");
+                              if (parseFloat(val) > 999) val = "999";
+                              setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], weight: val } }));
+                            }}
+                            inputProps={{ maxLength: 6, inputMode: "decimal" }}
+                            sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
+                          />
+                          <TextField size="small"
+                            label={exIsRunning ? "Tiempo (min)" : "Repeticiones"}
+                            placeholder={exIsRunning ? "ej: 28" : "ej: 12"}
+                            value={sessionLog[ex.name]?.reps || ""}
+                            onChange={(e) => {
+                              let val = e.target.value.replace(/[^0-9]/g, "");
+                              if (parseInt(val, 10) > 999) val = "999";
+                              setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], reps: val } }));
+                            }}
+                            inputProps={{ maxLength: 3, inputMode: "numeric" }}
+                            sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
+                          />
+                        </Stack>
+                      </Paper>
+                    </motion.div>
+                  );
+                })}
               </Stack>
 
               <Button fullWidth variant="contained" onClick={saveSession} sx={{
@@ -1163,6 +1221,218 @@ const TrainingPage = () => {
         </AnimatePresence>
         <Box sx={{ height: 80 }} />
       </Box>
+
+      {/* ═══════════ DIALOG: Borrar plan — 2 pasos ═══════════ */}
+      <Dialog
+        open={deleteStep > 0}
+        onClose={() => setDeleteStep(0)}
+        PaperProps={{ sx: { borderRadius: 5, mx: 2, maxWidth: 400, width: "100%" } }}
+      >
+        <DialogContent sx={{ p: 3 }}>
+
+          {/* ── Paso 1: primer aviso ── */}
+          {deleteStep === 1 && (
+            <>
+              <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+                <Box sx={{ width: 44, height: 44, borderRadius: "50%", bgcolor: "rgba(226,75,74,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <DeleteOutlineRoundedIcon sx={{ color: "#E24B4A", fontSize: 22 }} />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: 17, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.3px" }}>
+                    ¿Borrar este plan?
+                  </Typography>
+                  <Typography sx={{ fontSize: 12.5, color: "#8AADAA" }}>
+                    {plan?.planTitle || "Plan de entrenamiento"}
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Box sx={{ p: 2, borderRadius: 3, bgcolor: "#FFF5F5", border: "1px solid rgba(226,75,74,0.18)", mb: 3 }}>
+                <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.7 }}>
+                  Se va a eliminar el plan y <strong>todo el progreso registrado</strong>:
+                </Typography>
+                <Stack spacing={0.5} mt={1}>
+                  {[
+                    `${sessions.length} sesión${sessions.length !== 1 ? "es" : ""} registrada${sessions.length !== 1 ? "s" : ""}`,
+                    `${elapsed} día${elapsed !== 1 ? "s" : ""} de seguimiento`,
+                    config?.tipo ? `Tipo: ${config.tipo}` : null,
+                    config?.duracion ? `Duración: ${config.duracion}` : null,
+                  ].filter(Boolean).map((item, i) => (
+                    <Stack key={i} direction="row" spacing={1} alignItems="center">
+                      <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: "#E24B4A", flexShrink: 0 }} />
+                      <Typography sx={{ fontSize: 13, color: "#4A6B67" }}>{item}</Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+              </Box>
+
+              <Stack spacing={1}>
+                <Button
+                  fullWidth
+                  onClick={() => setDeleteStep(2)}
+                  sx={{
+                    py: 1.3, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 14.5,
+                    bgcolor: "rgba(226,75,74,0.08)", color: "#E24B4A",
+                    border: "1.5px solid rgba(226,75,74,0.25)",
+                    "&:hover": { bgcolor: "rgba(226,75,74,0.14)" },
+                  }}
+                >
+                  Sí, quiero borrarlo
+                </Button>
+                <Button
+                  fullWidth
+                  onClick={() => setDeleteStep(0)}
+                  sx={{ py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14, color: "#4A6B67", "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
+                >
+                  Cancelar
+                </Button>
+              </Stack>
+            </>
+          )}
+
+          {/* ── Paso 2: confirmación final ── */}
+          {deleteStep === 2 && (
+            <>
+              <Box sx={{ textAlign: "center", mb: 2.5 }}>
+                <Box sx={{ width: 56, height: 56, borderRadius: "50%", bgcolor: "rgba(226,75,74,0.12)", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 1.5 }}>
+                  <WarningAmberRoundedIcon sx={{ color: "#E24B4A", fontSize: 28 }} />
+                </Box>
+                <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+                  ¿Confirmás el borrado?
+                </Typography>
+                <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.65 }}>
+                  Esta acción <strong>no se puede deshacer</strong>. El plan y todo su progreso se eliminarán permanentemente.
+                </Typography>
+              </Box>
+
+              <Stack spacing={1}>
+                <Button
+                  fullWidth
+                  onClick={() => { setDeleteStep(0); resetPlan(false); }}
+                  sx={{
+                    py: 1.4, borderRadius: 2.5, textTransform: "none", fontWeight: 800, fontSize: 15,
+                    bgcolor: "#E24B4A", color: "#fff",
+                    boxShadow: "0 4px 16px rgba(226,75,74,0.30)",
+                    "&:hover": { bgcolor: "#c73e3d" },
+                  }}
+                >
+                  Sí, borrar definitivamente
+                </Button>
+                <Button
+                  fullWidth
+                  onClick={() => setDeleteStep(1)}
+                  sx={{ py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14, color: "#4A6B67", "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
+                >
+                  ← Volver
+                </Button>
+              </Stack>
+            </>
+          )}
+
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══════════ DIALOG: ¿Qué hacer con el plan actual? ═══════════ */}
+      <Dialog
+        open={showNewPlanDialog}
+        onClose={() => setShowNewPlanDialog(false)}
+        PaperProps={{ sx: { borderRadius: 5, mx: 2, maxWidth: 400, width: "100%" } }}
+      >
+        <DialogContent sx={{ p: 3 }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+            ¿Qué querés hacer?
+          </Typography>
+          <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3, lineHeight: 1.6 }}>
+            Ya tenés un plan activo. Podés agregar uno nuevo o reemplazarlo.
+          </Typography>
+
+          <Stack spacing={1.5}>
+            {/* Opción A: mantener + agregar nuevo */}
+            {(() => {
+              const bothFull   = hasMainPlan && hasQuickPlan;
+              const canKeep    = canHaveMultiplePlans && !bothFull;
+              const disabledMsg = !canHaveMultiplePlans
+                ? "Disponible en plan Gold · tu plan Silver permite 1 plan activo"
+                : "Límite alcanzado — ya tenés 2 planes activos";
+
+              return canKeep ? (
+                <Box
+                  onClick={() => handleNewPlanChoice("keep")}
+                  sx={{
+                    p: 2.2, borderRadius: 3, cursor: "pointer",
+                    border: "2px solid rgba(11,94,85,0.20)",
+                    bgcolor: "#f7fcfa",
+                    transition: "all 0.18s",
+                    "&:hover": { borderColor: "#0B5E55", bgcolor: "#E6F5F3" },
+                  }}
+                >
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Typography sx={{ fontSize: 22, lineHeight: 1, mt: 0.2 }}>📋</Typography>
+                    <Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#0B5E55", mb: 0.3 }}>
+                        Mantener el actual + crear uno nuevo
+                      </Typography>
+                      <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.5 }}>
+                        Tu progreso actual se conserva. Vas a tener dos planes activos en simultáneo.
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+              ) : (
+                <Box sx={{ p: 2.2, borderRadius: 3, border: "1.5px solid rgba(0,0,0,0.08)", bgcolor: "#f5f5f5", opacity: 0.55 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Typography sx={{ fontSize: 22, lineHeight: 1, mt: 0.2 }}>📋</Typography>
+                    <Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#888", mb: 0.3 }}>
+                        Mantener el actual + crear uno nuevo
+                      </Typography>
+                      <Typography sx={{ fontSize: 12.5, color: "#999", lineHeight: 1.5 }}>
+                        {disabledMsg}
+                      </Typography>
+                      {!canHaveMultiplePlans && (
+                        <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: "#C9952A", mt: 0.5 }}>
+                          ⭐ Disponible en Gold
+                        </Typography>
+                      )}
+                    </Box>
+                  </Stack>
+                </Box>
+              );
+            })()}
+
+            {/* Opción B: reemplazar */}
+            <Box
+              onClick={() => handleNewPlanChoice("replace")}
+              sx={{
+                p: 2.2, borderRadius: 3, cursor: "pointer",
+                border: "2px solid rgba(226,75,74,0.20)",
+                bgcolor: "#fff5f5",
+                transition: "all 0.18s",
+                "&:hover": { borderColor: "#E24B4A", bgcolor: "#FFEBEB" },
+              }}
+            >
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <Typography sx={{ fontSize: 22, lineHeight: 1, mt: 0.2 }}>🔄</Typography>
+                <Box>
+                  <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#E24B4A", mb: 0.3 }}>
+                    Generar uno nuevo y borrar el actual
+                  </Typography>
+                  <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.5 }}>
+                    Se pierde el progreso del plan actual. No se puede deshacer.
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+
+            <Button
+              onClick={() => setShowNewPlanDialog(false)}
+              sx={{ textTransform: "none", color: "#8AADAA", fontWeight: 600, fontSize: 13.5, py: 0.8, borderRadius: 2 }}
+            >
+              Cancelar
+            </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
 
       <Snackbar open={!!snackMsg} autoHideDuration={2800} onClose={() => setSnackMsg("")} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert onClose={() => setSnackMsg("")} severity={snackMsg.includes("pudo") || snackMsg.includes("ingresá") ? "warning" : "success"} variant="filled" sx={{ borderRadius: 3, fontWeight: 700 }}>

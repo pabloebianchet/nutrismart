@@ -86,7 +86,7 @@ const PLANS = [
     features: [
       feat("🔍", "Análisis de alimentos ilimitados"),
       feat("🍽️", "Recetas YA ilimitadas + guardar favoritas"),
-      feat("🏋️", "Entrenamientos ilimitados + progresión avanzada"),
+      feat("🏋️", "Hasta 2 planes de entrenamiento activos en simultáneo"),
       feat("📊", "Historial completo sin límite"),
       feat("⭐", "Dashboard premium + estadísticas detalladas"),
       feat("🚀", "Acceso anticipado a nuevas funciones"),

@@ -458,35 +458,38 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
         background: "linear-gradient(135deg, #f4faf8 0%, #fff 100%)",
         overflow: "hidden",
       }}>
-        <Box sx={{ px: 3, py: 2.2, display: "flex", alignItems: "center", gap: 2 }}>
-          <Box sx={{
-            width: 44, height: 44, borderRadius: 3, flexShrink: 0,
-            background: "linear-gradient(135deg, #BF360C 0%, #E64A19 100%)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 14px rgba(191,54,12,0.28)",
-          }}>
-            <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🏋️</Typography>
-          </Box>
-          <Box flex={1} minWidth={0}>
-            <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
-              ¡Empezá a entrenar para sumar más puntos!
-            </Typography>
-            <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
-              Analizás bien tu alimentación. Cada sesión de entrenamiento registrada suma <strong>+5 pts saludables</strong>.
-            </Typography>
-          </Box>
+        <Box sx={{ px: 3, py: 2.2 }}>
+          {/* Fila superior: icono + texto */}
+          <Stack direction="row" alignItems="flex-start" spacing={2} mb={1.8}>
+            <Box sx={{
+              width: 44, height: 44, borderRadius: 3, flexShrink: 0,
+              background: "linear-gradient(135deg, #BF360C 0%, #E64A19 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 14px rgba(191,54,12,0.28)",
+            }}>
+              <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🏋️</Typography>
+            </Box>
+            <Box flex={1} minWidth={0}>
+              <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
+                ¡Empezá a entrenar para sumar más puntos!
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
+                Analizás bien tu alimentación. Cada sesión registrada suma <strong>+5 pts saludables</strong>.
+              </Typography>
+            </Box>
+          </Stack>
+          {/* Botón full-width en mobile, inline en desktop */}
           <Button
             onClick={() => navigate("/training")}
-            size="small"
+            fullWidth
             sx={{
-              textTransform: "none", fontWeight: 700, fontSize: 13,
-              color: "#BF360C", borderRadius: 999, flexShrink: 0,
-              border: "1.5px solid rgba(191,54,12,0.25)", px: 2, py: 0.8,
-              whiteSpace: "nowrap",
+              textTransform: "none", fontWeight: 700, fontSize: 13.5,
+              color: "#BF360C", borderRadius: 999,
+              border: "1.5px solid rgba(191,54,12,0.28)", py: 1,
               "&:hover": { bgcolor: "rgba(191,54,12,0.06)", borderColor: "#BF360C" },
             }}
           >
-            Ver planes →
+            Ver planes de entrenamiento →
           </Button>
         </Box>
       </Paper>
@@ -502,35 +505,38 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
         background: "linear-gradient(135deg, #f4faf8 0%, #fff 100%)",
         overflow: "hidden",
       }}>
-        <Box sx={{ px: 3, py: 2.2, display: "flex", alignItems: "center", gap: 2 }}>
-          <Box sx={{
-            width: 44, height: 44, borderRadius: 3, flexShrink: 0,
-            background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 14px rgba(11,94,85,0.28)",
-          }}>
-            <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🔍</Typography>
-          </Box>
-          <Box flex={1} minWidth={0}>
-            <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
-              ¡Analizá tus alimentos para potenciar tus resultados!
-            </Typography>
-            <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
-              Estás entrenando bien. Cada análisis con puntaje ≥ 50/100 suma <strong>+5 pts saludables</strong>.
-            </Typography>
-          </Box>
+        <Box sx={{ px: 3, py: 2.2 }}>
+          {/* Fila superior: icono + texto */}
+          <Stack direction="row" alignItems="flex-start" spacing={2} mb={1.8}>
+            <Box sx={{
+              width: 44, height: 44, borderRadius: 3, flexShrink: 0,
+              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 14px rgba(11,94,85,0.28)",
+            }}>
+              <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🔍</Typography>
+            </Box>
+            <Box flex={1} minWidth={0}>
+              <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
+                ¡Analizá tus alimentos para potenciar tus resultados!
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
+                Estás entrenando bien. Cada análisis con puntaje ≥ 50/100 suma <strong>+5 pts saludables</strong>.
+              </Typography>
+            </Box>
+          </Stack>
+          {/* Botón full-width */}
           <Button
             onClick={() => navigate("/capture")}
-            size="small"
+            fullWidth
             sx={{
-              textTransform: "none", fontWeight: 700, fontSize: 13,
-              color: "#0B5E55", borderRadius: 999, flexShrink: 0,
-              border: "1.5px solid rgba(11,94,85,0.22)", px: 2, py: 0.8,
-              whiteSpace: "nowrap",
+              textTransform: "none", fontWeight: 700, fontSize: 13.5,
+              color: "#0B5E55", borderRadius: 999,
+              border: "1.5px solid rgba(11,94,85,0.25)", py: 1,
               "&:hover": { bgcolor: "rgba(11,94,85,0.06)", borderColor: "#0B5E55" },
             }}
           >
-            Analizar →
+            Analizar un producto ahora →
           </Button>
         </Box>
       </Paper>
@@ -557,6 +563,103 @@ const TIPO_META = {
 
 const loadTPlan = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
 
+/* ── Sub-card de un plan individual ── */
+const PlanCard = ({ data, navigate }) => {
+  const cfg       = data.config || {};
+  const plan      = data.plan   || {};
+  const elapsed   = Math.floor((Date.now() - new Date(data.startDate)) / 86400000);
+  const total     = data.totalDays || 1;
+  const pct       = Math.min(100, Math.round((elapsed / total) * 100));
+  const week      = Math.max(1, Math.ceil((elapsed + 1) / 7));
+  const sessCount = data.sessions?.length || 0;
+  const meta      = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
+
+  return (
+    <Box sx={{
+      flex: 1, minWidth: 0,
+      borderRadius: 3.5,
+      border: `1.5px solid ${meta.color}28`,
+      background: `linear-gradient(135deg, ${meta.color}0D 0%, #fff 70%)`,
+      p: { xs: 2.2, sm: 2.5 },
+      display: "flex",
+      flexDirection: "column",
+      gap: 1.5,
+    }}>
+      {/* Tipo badge */}
+      <Box sx={{
+        display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 0.7,
+        px: 1.2, py: 0.35, borderRadius: 999,
+        bgcolor: meta.bg, border: `1px solid ${meta.color}30`,
+      }}>
+        <Typography sx={{ fontSize: 13, lineHeight: 1 }}>{meta.emoji}</Typography>
+        <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          {cfg.tipo}
+        </Typography>
+      </Box>
+
+      {/* Título */}
+      <Typography sx={{ fontSize: 14.5, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.3px", lineHeight: 1.25 }}>
+        {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
+      </Typography>
+
+      {/* Chips secundarios */}
+      <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap>
+        {cfg.lugar && (
+          <Chip label={cfg.lugar} size="small"
+            sx={{ height: 18, fontSize: 10.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+        )}
+        {total > 1 && (
+          <Chip label={`Sem. ${week}`} size="small"
+            sx={{ height: 18, fontSize: 10.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+        )}
+        {sessCount > 0 && (
+          <Chip label={`${sessCount} sesión${sessCount > 1 ? "es" : ""}`} size="small"
+            sx={{ height: 18, fontSize: 10.5, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
+        )}
+      </Stack>
+
+      {/* Barra de progreso */}
+      {total > 1 && (
+        <Box>
+          <Stack direction="row" justifyContent="space-between" mb={0.5}>
+            <Typography sx={{ fontSize: 11, color: "#4A6B67", fontWeight: 600 }}>
+              {Math.min(elapsed, total)} / {total} días
+            </Typography>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color }}>
+              {pct}%
+            </Typography>
+          </Stack>
+          <Box sx={{ height: 5, borderRadius: 3, bgcolor: `${meta.color}14`, overflow: "hidden" }}>
+            <Box sx={{
+              height: "100%", width: `${pct}%`, borderRadius: 3,
+              background: `linear-gradient(90deg, ${meta.color} 0%, ${meta.color}BB 100%)`,
+              transition: "width 1s ease",
+            }} />
+          </Box>
+        </Box>
+      )}
+
+      {/* CTA */}
+      <Button
+        variant="contained"
+        onClick={() => navigate("/training")}
+        size="small"
+        sx={{
+          mt: "auto",
+          background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}CC 100%)`,
+          borderRadius: 999, py: 1,
+          textTransform: "none", fontWeight: 700, fontSize: 13,
+          boxShadow: `0 4px 14px ${meta.color}35`,
+          "&:hover": { transform: "translateY(-1px)", boxShadow: `0 8px 20px ${meta.color}45` },
+          transition: "all 0.2s ease",
+        }}
+      >
+        Continuar →
+      </Button>
+    </Box>
+  );
+};
+
 const EntrenamientoWidget = () => {
   const navigate = useNavigate();
 
@@ -564,13 +667,10 @@ const EntrenamientoWidget = () => {
   const quickData = loadTPlan(T_QUICK_KEY);
   const hasMain   = !!mainData?.plan;
   const hasQuick  = !!quickData?.plan;
+  const hasBoth   = hasMain && hasQuick;
 
-  // Plan a mostrar: principal > rápido > nada
-  const activeData = hasMain ? mainData : (hasQuick ? quickData : null);
-  const isQuick    = !hasMain && hasQuick;
-
-  /* ── Sin plan activo: banner promo ── */
-  if (!activeData) {
+  /* ── Sin ningún plan: banner promo ── */
+  if (!hasMain && !hasQuick) {
     return (
       <Paper elevation={0} sx={{
         mb: 4, borderRadius: 5, overflow: "hidden",
@@ -581,7 +681,6 @@ const EntrenamientoWidget = () => {
           background: "linear-gradient(145deg, #1a2f2a 0%, #0d3d34 50%, #0B5E55 100%)",
           position: "relative", overflow: "hidden",
         }}>
-          {/* blobs */}
           <Box sx={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
           <Box sx={{ position: "absolute", bottom: -50, left: -30, width: 160, height: 160, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
 
@@ -628,7 +727,49 @@ const EntrenamientoWidget = () => {
     );
   }
 
-  /* ── Con plan activo: resume card ── */
+  /* ── DOS planes activos: mostrar ambos en paralelo ── */
+  if (hasBoth) {
+    return (
+      <Paper elevation={0} sx={{
+        mb: 4, borderRadius: 5, overflow: "hidden",
+        border: `1px solid ${C.borderStrong}`, boxShadow: shadow.md,
+      }}>
+        {/* Header */}
+        <Box sx={{
+          px: { xs: 3, md: 3.5 }, py: 2,
+          borderBottom: `1px solid ${C.border}`,
+          bgcolor: C.surfaceAlt,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Typography sx={{ fontSize: 20 }}>🏋️</Typography>
+            <Box>
+              <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
+                Planes de entrenamiento
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: C.textMuted }}>
+                Tenés 2 planes activos en simultáneo
+              </Typography>
+            </Box>
+          </Stack>
+          <Chip
+            label="2 activos"
+            size="small"
+            sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
+          />
+        </Box>
+
+        {/* Cards side by side */}
+        <Box sx={{ p: { xs: 2, sm: 2.5 }, display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+          <PlanCard data={mainData}  navigate={navigate} />
+          <PlanCard data={quickData} navigate={navigate} />
+        </Box>
+      </Paper>
+    );
+  }
+
+  /* ── UN solo plan activo: card completa ── */
+  const activeData = hasMain ? mainData : quickData;
   const cfg      = activeData.config || {};
   const plan     = activeData.plan   || {};
   const elapsed  = Math.floor((Date.now() - new Date(activeData.startDate)) / 86400000);
@@ -656,7 +797,6 @@ const EntrenamientoWidget = () => {
         >
           {/* ── Info ── */}
           <Box flex={1} minWidth={0}>
-            {/* Badge */}
             <Box sx={{
               display: "inline-flex", alignItems: "center", gap: 0.8,
               px: 1.5, py: 0.45, borderRadius: 999,
@@ -664,16 +804,14 @@ const EntrenamientoWidget = () => {
             }}>
               <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                {isQuick ? "⚡ Plan rápido activo" : "🏋️ Entrenamiento activo"}
+                🏋️ Entrenamiento activo
               </Typography>
             </Box>
 
-            {/* Título del plan */}
             <Typography sx={{ fontSize: { xs: 17, sm: 19 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", mb: 0.8, lineHeight: 1.25 }}>
               {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
             </Typography>
 
-            {/* Chips de contexto */}
             <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap mb={total > 1 ? 2 : 0}>
               <Chip label={`${meta.emoji} ${cfg.tipo}`} size="small"
                 sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: meta.bg, color: meta.color, border: `1px solid ${meta.color}25` }} />
@@ -689,13 +827,8 @@ const EntrenamientoWidget = () => {
                 <Chip label={`${sessCount} sesión${sessCount > 1 ? "es" : ""} registrada${sessCount > 1 ? "s" : ""}`} size="small"
                   sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
               )}
-              {hasMain && hasQuick && (
-                <Chip label="⚡ + plan rápido" size="small"
-                  sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "#FFF3E0", color: "#E65100" }} />
-              )}
             </Stack>
 
-            {/* Barra de progreso (solo planes > 1 día) */}
             {total > 1 && (
               <Box>
                 <Stack direction="row" justifyContent="space-between" mb={0.6}>
