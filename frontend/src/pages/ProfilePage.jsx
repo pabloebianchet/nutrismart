@@ -23,15 +23,16 @@ const ProfilePage = () => {
     <Box
       sx={{
         minHeight: "100dvh",
-        bgcolor: "#f4fbf7",
+        background: "linear-gradient(160deg, #edf8f5 0%, #ffffff 55%, #f4f9f7 100%)",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        py: { xs: 3, md: 6 },
+        pt: { xs: 10, md: 12 },
+        pb: { xs: 6, md: 10 },
         px: 2,
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 640 }}>
+      <Box sx={{ width: "100%", maxWidth: 540 }}>
         <UserDataFormStyled />
       </Box>
     </Box>

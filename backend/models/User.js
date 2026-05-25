@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
     actividad:{ type: String },
     peso:     { type: Number },
     altura:   { type: Number },
+    avatar:   { type: String },
 
     profileCompleted: { type: Boolean, default: false },
     healthyPoints:    { type: Number, default: 0 },

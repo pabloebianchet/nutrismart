@@ -179,6 +179,13 @@ router.post("/webhook", async (req, res) => {
 router.get("/subscription", authMiddleware, async (req, res) => {
   try {
     const sub = await Subscription.findOne({ user: req.user._id });
+
+    // Auto-expirar free trial vencido
+    if (sub?.plan === "free" && sub.status === "active" && sub.endDate < new Date()) {
+      sub.status = "expired";
+      await sub.save();
+    }
+
     return res.json({ subscription: sub || null });
   } catch (err) {
     return res.status(500).json({ error: "Error al obtener la suscripción." });

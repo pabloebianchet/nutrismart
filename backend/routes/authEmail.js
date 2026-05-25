@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 import rateLimit from "express-rate-limit";
 import User from "../models/User.js";
 import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
+import { activateFreeTrial } from "../utils/activateFreeTrial.js";
 
 const router = express.Router();
 
@@ -74,9 +75,16 @@ router.post("/register", authLimiter, async (req, res) => {
       profileCompleted: false,
     });
 
-    const token = signToken(user._id);
+    // Activar período de prueba gratuito (7 días)
+    const trial = await activateFreeTrial(user._id).catch((e) => {
+      console.error("Free trial activation failed:", e.message);
+      return null;
+    });
 
-    sendWelcomeEmail({ name: user.name, email: user.email }).catch((e) =>
+    const token = signToken(user._id);
+    const trialEnd = trial?.endDate || null;
+
+    sendWelcomeEmail({ name: user.name, email: user.email, trialEnd }).catch((e) =>
       console.error("Welcome email failed:", e.message)
     );
 

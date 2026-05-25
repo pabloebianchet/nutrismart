@@ -672,8 +672,7 @@ const HowItWorksPage = () => (
             >
               Además del análisis por producto, Nui lleva un score global de tus
               hábitos. Cuanto más consistente seas con buenas elecciones de
-              comida y entrenamiento, más crece tu mascot 🥜 — y sus brazos
-              también.
+              comida y entrenamiento, tu avatar mejora su aspecto.
             </Typography>
             <Stack spacing={1.5}>
               {[

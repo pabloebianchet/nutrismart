@@ -27,12 +27,17 @@ export const NutritionProvider = ({ children }) => {
   const lastUserIdRef = useRef(null);
 
   /* ======================
+     SUBSCRIPTION STATE
+  ====================== */
+
+  const [subscription, setSubscription] = useState(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(false);
+
+  /* ======================
      AUTH BOOTSTRAP
   ====================== */
 
-  // 🔑 Marca cuándo la app terminó de resolver auth (localStorage / Google)
   useEffect(() => {
-    // Si necesitás validar token / Google session, este es el lugar
     setAuthLoading(false);
   }, []);
 
@@ -60,12 +65,12 @@ export const NutritionProvider = ({ children }) => {
   ====================== */
 
   useEffect(() => {
-    // Usar _id como identificador universal (existe en Google y email users)
     const currentId = user?._id || user?.googleId || null;
 
     if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
       setUserData(null);
       setOcrText("");
+      setSubscription(null);
     }
 
     lastUserIdRef.current = currentId;
@@ -77,7 +82,6 @@ export const NutritionProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      // Usar _id (todos los usuarios) con fallback a googleId (compatibilidad)
       const identifier = user?._id || user?.googleId;
       if (!identifier) return;
 
@@ -95,7 +99,6 @@ export const NutritionProvider = ({ children }) => {
             return;
           }
           if (res.status === 401) {
-            // Token inválido o expirado — limpiar sesión
             localStorage.removeItem("nutrismartToken");
             localStorage.removeItem("nutrismartUser");
             setUser(null);
@@ -120,27 +123,84 @@ export const NutritionProvider = ({ children }) => {
   }, [user?._id, user?.googleId]);
 
   /* ======================
+     FETCH SUBSCRIPTION
+  ====================== */
+
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!user?._id) {
+        setSubscription(null);
+        return;
+      }
+      setLoadingSubscription(true);
+      try {
+        const token = localStorage.getItem("nutrismartToken");
+        const res = await fetch(`${API_URL}/api/payments/subscription`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setSubscription(data.subscription || null);
+      } catch {
+        setSubscription(null);
+      } finally {
+        setLoadingSubscription(false);
+      }
+    };
+
+    fetchSubscription();
+  }, [user?._id]);
+
+  /* ======================
+     COMPUTED SUBSCRIPTION
+  ====================== */
+
+  const subPlan      = subscription?.plan   || null;
+  const subStatus    = subscription?.status || null;
+  const subEndDate   = subscription?.endDate ? new Date(subscription.endDate) : null;
+
+  // El trial expiró si el plan es free y la fecha de fin ya pasó
+  const isTrialExpired = subPlan === "free" && subStatus === "expired";
+
+  // Días que quedan en el trial (solo cuando free + activo)
+  const trialDaysLeft = subPlan === "free" && subStatus === "active" && subEndDate
+    ? Math.max(0, Math.ceil((subEndDate - new Date()) / (1000 * 60 * 60 * 24)))
+    : 0;
+
+  // ¿Tiene acceso completo? (free activo, silver activo, gold activo)
+  const hasActiveAccess = subStatus === "active" && !isTrialExpired;
+
+  /* ======================
      PUBLIC ACTIONS
   ====================== */
 
   const updateUserData = (data) => {
-    if (data === null) {
-      setUserData(null);
-      return;
-    }
+    if (data === null) { setUserData(null); return; }
     setUserData((prev) => ({ ...(prev || {}), ...data }));
   };
 
   const updateOcrText = (text) => setOcrText(text);
-  const clearOcrText = () => setOcrText("");
+  const clearOcrText  = () => setOcrText("");
 
   const clearUser = () => {
     setUser(null);
     setUserData(null);
     setOcrText("");
+    setSubscription(null);
   };
 
   const logout = () => clearUser();
+
+  const refreshSubscription = async () => {
+    if (!user?._id) return;
+    try {
+      const token = localStorage.getItem("nutrismartToken");
+      const res = await fetch(`${API_URL}/api/payments/subscription`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setSubscription(data.subscription || null);
+    } catch { /* silencioso */ }
+  };
 
   /* ======================
      PROVIDER
@@ -163,6 +223,17 @@ export const NutritionProvider = ({ children }) => {
         ocrText,
         updateOcrText,
         clearOcrText,
+
+        // subscription
+        subscription,
+        loadingSubscription,
+        subPlan,
+        subStatus,
+        subEndDate,
+        isTrialExpired,
+        trialDaysLeft,
+        hasActiveAccess,
+        refreshSubscription,
 
         // actions
         clearUser,

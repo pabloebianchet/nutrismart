@@ -22,6 +22,7 @@ import { sendContactEmail } from "./utils/sendContactEmail.js";
 import { sendNotificationEmail } from "./utils/sendNotificationEmail.js";
 import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
+import { activateFreeTrial } from "./utils/activateFreeTrial.js";
 
 connectDB();
 
@@ -172,10 +173,28 @@ app.post("/api/analyze", async (req, res) => {
       : null;
 
     if (authUser) {
+      const now = new Date();
       const sub = await Subscription.findOne({ user: authUser._id, status: "active" });
 
+      // ── Plan Free: verificar que el trial no venció ──────────
+      if (sub?.plan === "free" && sub.endDate < now) {
+        await Subscription.updateOne({ _id: sub._id }, { $set: { status: "expired" } });
+        return res.status(403).json({
+          error: "trial_expired",
+          message: "Tu período de prueba gratuito venció. Elegí un plan para continuar.",
+        });
+      }
+
       if (!sub) {
-        // Sin suscripción: máximo 3 análisis de prueba en total
+        // Sin suscripción activa: verificar si tuvo trial expirado
+        const expiredTrial = await Subscription.findOne({ user: authUser._id, plan: "free", status: "expired" });
+        if (expiredTrial) {
+          return res.status(403).json({
+            error: "trial_expired",
+            message: "Tu período de prueba gratuito venció. Elegí un plan para continuar.",
+          });
+        }
+        // Fallback: máximo 3 análisis (usuarios sin trial previo)
         const total = await Analysis.countDocuments({ user: authUser._id });
         if (total >= 3) {
           return res.status(403).json({
@@ -194,7 +213,7 @@ app.post("/api/analyze", async (req, res) => {
           });
         }
       }
-      // Gold: sin límite
+      // Free (activo) o Gold: sin límite
     }
 
     const prompt = `
@@ -399,8 +418,14 @@ app.post("/api/auth/google", async (req, res) => {
         name,
         picture,
       });
-      // Email de bienvenida solo en el primer registro
-      sendWelcomeEmail({ name, email }).catch((e) => console.error("Welcome email failed:", e.message));
+      // Activar período de prueba gratuito (7 días)
+      const trial = await activateFreeTrial(user._id).catch((e) => {
+        console.error("Free trial activation failed:", e.message);
+        return null;
+      });
+      // Email de bienvenida con info del trial
+      const trialEnd = trial?.endDate || null;
+      sendWelcomeEmail({ name, email, trialEnd }).catch((e) => console.error("Welcome email failed:", e.message));
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -419,7 +444,7 @@ app.post("/api/auth/google", async (req, res) => {
 // 👤 UPDATE USER PROFILE
 // =====================
 app.put("/api/user/profile", async (req, res) => {
-  const { googleId, userId, sexo, edad, actividad, peso, altura } = req.body;
+  const { googleId, userId, sexo, edad, actividad, peso, altura, avatar } = req.body;
 
   const identifier = userId || googleId;
   if (!identifier) {
@@ -432,7 +457,7 @@ app.put("/api/user/profile", async (req, res) => {
 
     const user = await User.findOneAndUpdate(
       filter,
-      { sexo, edad, actividad, peso, altura, profileCompleted: true },
+      { sexo, edad, actividad, peso, altura, avatar, profileCompleted: true },
       { new: true },
     );
 

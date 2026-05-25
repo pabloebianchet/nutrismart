@@ -11,12 +11,16 @@ const createTransporter = () =>
     },
   });
 
-export const sendWelcomeEmail = async ({ name, email }) => {
+export const sendWelcomeEmail = async ({ name, email, trialEnd = null }) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
 
   const firstName = name?.split(" ")[0] || "ahí";
   const appUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const year = new Date().getFullYear();
+
+  const trialEndStr = trialEnd
+    ? new Date(trialEnd).toLocaleDateString("es-AR", { day: "2-digit", month: "long", year: "numeric" })
+    : null;
 
   const html = `
 <!DOCTYPE html>
@@ -57,6 +61,27 @@ export const sendWelcomeEmail = async ({ name, email }) => {
               </div>
             </td>
           </tr>
+
+          <!-- TRIAL BANNER -->
+          ${trialEndStr ? `
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 28px;">
+              <div style="background:linear-gradient(135deg,#E6F5F3 0%,#f0faf8 100%);border:1.5px solid #B2DDD9;border-radius:14px;padding:18px 22px;text-align:center;">
+                <div style="font-size:20px;margin-bottom:6px;">🎉</div>
+                <div style="font-size:15px;font-weight:800;color:#0B5E55;margin-bottom:4px;">
+                  Tu semana gratis está activa
+                </div>
+                <div style="font-size:13px;color:#4A6B67;line-height:1.6;">
+                  Tenés acceso completo a los 3 módulos hasta el <strong style="color:#0B5E55;">${trialEndStr}</strong>.<br/>
+                  Sin tarjeta de crédito. Sin compromisos.
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:#8AADAA;">
+                  Al vencer el período, podés elegir el plan que más te convenga desde la app.
+                </div>
+              </div>
+            </td>
+          </tr>
+          ` : ""}
 
           <!-- DIVISOR -->
           <tr>
@@ -145,7 +170,7 @@ export const sendWelcomeEmail = async ({ name, email }) => {
                   <td>
                     <div style="font-size:13px;color:#4A6B67;line-height:1.7;">
                       Cada vez que analizás un alimento con buen puntaje o completás una sesión de entrenamiento, ganás <strong style="color:#0B5E55;">+5 puntos saludables</strong>.
-                      Tu mascota Nui crece y se fortalece con vos. 🥜💪
+                      Tu avatar Nui mejora su aspecto y se fortalece con vos. 💪
                     </div>
                   </td>
                 </tr>
