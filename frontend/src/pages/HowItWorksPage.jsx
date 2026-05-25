@@ -58,7 +58,7 @@ const STEPS = [
     n: "01",
     Icon: PhotoCameraRoundedIcon,
     title: "Fotografiá el envase",
-    body: "Capturás la tabla nutricional y la lista de ingredientes. NutriSmart puede analizar desde una simple foto del celular hasta el código de barras del producto.",
+    body: "Capturás la tabla nutricional y la lista de ingredientes. NUI App puede analizar desde una simple foto del celular hasta el código de barras del producto.",
     color: "#0B5E55",
     accent: "rgba(11,94,85,0.12)",
   },

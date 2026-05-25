@@ -1908,7 +1908,7 @@ const Dashboard = () => {
                 mb: 0.5,
               }}
             >
-              NutriSmart
+              NUI App
             </Typography>
             <Typography
               sx={{ fontSize: 20, fontWeight: 800, color: "#fff", mb: 0.5 }}

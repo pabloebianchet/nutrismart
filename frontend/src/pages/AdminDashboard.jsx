@@ -417,7 +417,7 @@ const AdminDashboard = () => {
                 mb: 0.2,
               }}
             >
-              NutriSmart
+              NUI App
             </Typography>
             <Typography
               sx={{

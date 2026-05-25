@@ -207,7 +207,7 @@ const UserDataPage = () => {
         <Box
           component="img"
           src="/img/logo.png"
-          alt="NutriSmart"
+          alt="NUI App"
           sx={{
             position: "relative",
             zIndex: 2,
@@ -257,14 +257,14 @@ const UserDataPage = () => {
             <Box
               component="img"
               src="/img/logo.png"
-              alt="NutriSmart"
+              alt="NUI App"
               sx={{ height: 40, mb: 2, filter: "brightness(0) invert(1)" }}
             />
             <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.4px" }}>
               {mode === "login" ? "Bienvenido de nuevo" : "Crear cuenta"}
             </Typography>
             <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.65)", mt: 0.5 }}>
-              {mode === "login" ? "Ingresá a tu cuenta para continuar" : "Empezá a usar NutriSmart gratis"}
+              {mode === "login" ? "Ingresá a tu cuenta para continuar" : "Empezá a usar NUI App gratis"}
             </Typography>
           </Box>
 

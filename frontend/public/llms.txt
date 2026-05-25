@@ -1,10 +1,10 @@
-# NutriSmart
+# NUI App
 
 > Aplicación web de análisis nutricional con inteligencia artificial. Permite analizar cualquier producto alimenticio escaneando su etiqueta nutricional y tabla de ingredientes.
 
-## ¿Qué es NutriSmart?
+## ¿Qué es NUI App?
 
-NutriSmart es una app que usa OCR (Google Vision) e IA (GPT-4o-mini) para analizar el contenido nutricional de alimentos envasados. El usuario sube dos fotos del packaging (tabla nutricional e ingredientes) y recibe:
+NUI App es una app que usa OCR (Google Vision) e IA (GPT-4o-mini) para analizar el contenido nutricional de alimentos envasados. El usuario sube dos fotos del packaging (tabla nutricional e ingredientes) y recibe:
 
 - Un puntaje global de 0 a 100
 - Clasificación del producto (no procesado / procesado / ultraprocesado)

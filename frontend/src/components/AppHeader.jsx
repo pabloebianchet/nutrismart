@@ -78,7 +78,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
         to="/"
         sx={{ display: "flex", alignItems: "center", textDecoration: "none", mr: 2, flexShrink: 0 }}
       >
-        <Box component="img" src="/img/logo.png" alt="NutriSmart" sx={{ height: 34, width: "auto" }} />
+        <Box component="img" src="/img/logo.png" alt="NUI App" sx={{ height: 34, width: "auto" }} />
       </Box>
 
       {/* Separador */}
@@ -265,7 +265,7 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
           to="/"
           sx={{ display: "flex", alignItems: "center", textDecoration: "none" }}
         >
-          <Box component="img" src="/img/logo.png" alt="NutriSmart" sx={{ height: 28, width: "auto" }} />
+          <Box component="img" src="/img/logo.png" alt="NUI App" sx={{ height: 28, width: "auto" }} />
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

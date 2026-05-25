@@ -28,7 +28,8 @@ export default function AppFooter() {
       sx={{
         background: "#0B5E55",
         mt: "auto",
-        py: 3,
+        pt: 3,
+        pb: { xs: "96px", sm: 3 },   // xs: deja espacio libre sobre el botón flotante (54px botón + 24px offset + margen)
         px: { xs: 3, md: 6 },
       }}
     >

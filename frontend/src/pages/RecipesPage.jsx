@@ -70,7 +70,7 @@ const buildShareText = (recipe) => {
     ...(recipe.steps || []).map((s, idx) => `${idx + 1}. ${s}`),
   ];
   if (recipe.tip) lines.push("", `💡 *Tip:* ${recipe.tip}`);
-  lines.push("", "Generado con NutriSmart 💚");
+  lines.push("", "Generado con NUI App 💚");
   return lines.join("\n");
 };
 
