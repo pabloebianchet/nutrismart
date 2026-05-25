@@ -1440,7 +1440,7 @@ const Dashboard = () => {
                 sx={{
                   position: "absolute",
                   right: { xs: -160, sm: -70 },
-                  bottom: { xs: "-255%", sm: "-233%" },
+                  bottom: { xs: "-255%", sm: "-260%" },
                   animation: "moodPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both, breatheMascot 3.5s 1s ease-in-out infinite",
                 }}
               >
