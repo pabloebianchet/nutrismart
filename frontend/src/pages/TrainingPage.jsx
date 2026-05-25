@@ -10,6 +10,7 @@ import AutoAwesomeRoundedIcon  from "@mui/icons-material/AutoAwesomeRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
 import { API_URL }             from "../config/api";
+import PeanutMascot            from "../components/PeanutMascot.jsx";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -119,7 +120,7 @@ const WeightChart = ({ weights }) => {
 // ─── main component ───────────────────────────────────────────────────────────
 
 const TrainingPage = () => {
-  const { userData } = useNutrition();
+  const { userData, updateUserData } = useNutrition();
   const token = localStorage.getItem("nutrismartToken");
 
   // Determinar qué slot mostrar al abrir
@@ -161,7 +162,8 @@ const TrainingPage = () => {
   const [snackMsg,     setSnackMsg]     = useState("");
   const [tipsData,     setTipsData]     = useState(null);
   const [loadingTips,  setLoadingTips]  = useState(false);
-  const [expandedSess, setExpandedSess] = useState(null);
+  const [expandedSess,   setExpandedSess]   = useState(null);
+  const [sessionSuccess, setSessionSuccess] = useState(null); // { earned, total, dayName, tipoColor }
 
   // ── computed
   const elapsed     = startDate ? Math.floor((Date.now() - new Date(startDate)) / 86400000) : 0;
@@ -253,16 +255,47 @@ const TrainingPage = () => {
   // ── sesión
   const openSession = (dayKey) => { setActiveDay(dayKey); setSessionLog({}); };
 
-  const saveSession = () => {
+  const saveSession = async () => {
     const hasData = Object.values(sessionLog).some(v => v.weight || v.reps);
     if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de guardar."); return; }
-    const dayInfo    = plan.weekStructure[activeDay];
-    const newSession = { date: todayStr, dayKey: activeDay, dayName: dayInfo?.name || activeDay, exercises: sessionLog };
+
+    const dayInfo = plan.weekStructure[activeDay];
+    const dayName = dayInfo?.name || activeDay;
+    const newSession = { date: todayStr, dayKey: activeDay, dayName, exercises: sessionLog };
     const updated    = [...sessions, newSession];
     setSessions(updated);
     const stored = loadPlan(activeKey);
     savePlan(activeKey, { ...stored, sessions: updated });
     setActiveDay(null);
+
+    // +5 puntos saludables — mostrar overlay de celebración si el API responde
+    try {
+      const res = await fetch(`${API_URL}/api/training/session`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ dayName, tipoLabel: activeTipo?.label || null }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        updateUserData({ healthyPoints: data.totalPoints });
+        setSessionSuccess({
+          earned:     5,
+          total:      data.totalPoints,
+          dayName,
+          tipoColor:  activeTipo?.color || "#0B5E55",
+          tipoBg:     activeTipo?.bg    || "#E6F5F3",
+          tipoEmoji:  activeTipo?.emoji || "🏋️",
+        });
+        // auto-dismiss
+        setTimeout(() => {
+          setSessionSuccess(null);
+          if (totalDays === 1 || elapsed >= totalDays) setPhase("summary");
+        }, 3200);
+        return; // evitar el snackbar cuando el overlay está activo
+      }
+    } catch { /* silencioso */ }
+
+    // fallback si el API falla
     setSnackMsg("¡Sesión guardada! 💪");
     if (totalDays === 1 || elapsed >= totalDays) setTimeout(() => setPhase("summary"), 800);
   };
@@ -1136,6 +1169,107 @@ const TrainingPage = () => {
           {snackMsg}
         </Alert>
       </Snackbar>
+
+      {/* ═══════════ OVERLAY CELEBRACIÓN DE SESIÓN ═══════════ */}
+      <AnimatePresence>
+        {sessionSuccess && (
+          <motion.div
+            key="session-success-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{ position: "fixed", inset: 0, zIndex: 1500, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+            onClick={() => setSessionSuccess(null)}
+          >
+            {/* Backdrop desenfocado */}
+            <Box sx={{ position: "absolute", inset: 0, bgcolor: "rgba(10,24,20,0.65)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }} />
+
+            {/* Card de celebración */}
+            <motion.div
+              initial={{ scale: 0.68, y: 48 }}
+              animate={{ scale: 1,    y: 0  }}
+              exit={{    scale: 0.88, y: 24 }}
+              transition={{ type: "spring", damping: 16, stiffness: 260 }}
+              style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 320 }}
+            >
+              <Paper elevation={0} sx={{
+                borderRadius: 6,
+                overflow: "hidden",
+                textAlign: "center",
+                boxShadow: "0 32px 72px rgba(0,0,0,0.35)",
+              }}>
+                {/* Header con color del tipo */}
+                <Box sx={{
+                  pt: 4, pb: 3, px: 3,
+                  background: `linear-gradient(160deg, ${sessionSuccess.tipoColor}22 0%, ${sessionSuccess.tipoBg} 100%)`,
+                  borderBottom: `1px solid ${sessionSuccess.tipoColor}22`,
+                }}>
+                  {/* Mascot animado */}
+                  <Box sx={{
+                    display: "inline-block", mb: 1,
+                    "@keyframes mascotEntrada": {
+                      "0%":   { transform: "scale(0.3) rotate(-12deg)" },
+                      "65%":  { transform: "scale(1.12) rotate(4deg)"  },
+                      "100%": { transform: "scale(1)   rotate(0deg)"   },
+                    },
+                    animation: "mascotEntrada 0.55s cubic-bezier(0.34,1.56,0.64,1) both",
+                  }}>
+                    <PeanutMascot points={sessionSuccess.total} size={92} />
+                  </Box>
+
+                  {/* Nombre de la sesión */}
+                  <Typography sx={{ fontSize: 13, fontWeight: 700, color: sessionSuccess.tipoColor, textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.5 }}>
+                    {sessionSuccess.tipoEmoji} {sessionSuccess.dayName}
+                  </Typography>
+                  <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px" }}>
+                    ¡Sesión completada!
+                  </Typography>
+                </Box>
+
+                {/* Cuerpo: puntos */}
+                <Box sx={{ px: 3, py: 3 }}>
+                  {/* +5 animado */}
+                  <Box sx={{
+                    "@keyframes ptsIn": {
+                      "0%":   { opacity: 0, transform: "scale(0.4) translateY(24px)" },
+                      "65%":  { opacity: 1, transform: "scale(1.08) translateY(-4px)" },
+                      "100%": { opacity: 1, transform: "scale(1) translateY(0)" },
+                    },
+                    animation: "ptsIn 0.5s 0.18s cubic-bezier(0.34,1.56,0.64,1) both",
+                    mb: 0.5,
+                  }}>
+                    <Typography sx={{ fontSize: 76, fontWeight: 900, color: sessionSuccess.tipoColor, lineHeight: 1, letterSpacing: "-4px" }}>
+                      +{sessionSuccess.earned}
+                    </Typography>
+                    <Typography sx={{ fontSize: 15, fontWeight: 800, color: sessionSuccess.tipoColor, mt: -0.5, letterSpacing: "-0.2px" }}>
+                      puntos saludables
+                    </Typography>
+                  </Box>
+
+                  {/* Total acumulado */}
+                  <Box sx={{
+                    mt: 2.5, px: 2.5, py: 1.2,
+                    borderRadius: 999,
+                    bgcolor: `${sessionSuccess.tipoColor}10`,
+                    border:  `1px solid ${sessionSuccess.tipoColor}25`,
+                    display: "inline-flex", alignItems: "center", gap: 1,
+                  }}>
+                    <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#4A6B67" }}>Total:</Typography>
+                    <Typography sx={{ fontSize: 16, fontWeight: 900, color: sessionSuccess.tipoColor }}>
+                      {sessionSuccess.total} pts
+                    </Typography>
+                  </Box>
+
+                  <Typography sx={{ fontSize: 12, color: "#B0CECA", mt: 3 }}>
+                    Tocá para continuar
+                  </Typography>
+                </Box>
+              </Paper>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Box>
   );
 };

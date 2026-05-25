@@ -19,6 +19,7 @@ import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
 import { sendContactEmail } from "./utils/sendContactEmail.js";
+import { sendNotificationEmail } from "./utils/sendNotificationEmail.js";
 import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
 
@@ -342,6 +343,21 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
       }
     }
 
+    // Email de notificación (async, no bloquea respuesta)
+    const freshUser = await User.findById(authUser._id).select("notifPrefs email name");
+    if (
+      freshUser &&
+      !freshUser.notifPrefs?.paused &&
+      freshUser.notifPrefs?.analysis !== false
+    ) {
+      sendNotificationEmail("analysis", {
+        name:        freshUser.name,
+        email:       freshUser.email,
+        score,
+        totalPoints,
+      }).catch(() => {});
+    }
+
     return res.json({
       score,
       analysis,
@@ -458,6 +474,42 @@ app.get("/api/user/profile/:identifier", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Get profile error:", err);
     return res.status(500).json({ error: "Error fetching profile" });
+  }
+});
+
+// =====================
+// 🔔 NOTIF PREFS
+// =====================
+app.get("/api/user/notif-prefs", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("notifPrefs");
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
+    return res.json({ notifPrefs: user.notifPrefs });
+  } catch (err) {
+    console.error("Get notif-prefs error:", err);
+    return res.status(500).json({ error: "Error al obtener preferencias." });
+  }
+});
+
+app.put("/api/user/notif-prefs", authMiddleware, async (req, res) => {
+  const { paused, welcome, analysis, training } = req.body;
+  const update = {};
+  if (typeof paused   === "boolean") update["notifPrefs.paused"]   = paused;
+  if (typeof welcome  === "boolean") update["notifPrefs.welcome"]  = welcome;
+  if (typeof analysis === "boolean") update["notifPrefs.analysis"] = analysis;
+  if (typeof training === "boolean") update["notifPrefs.training"] = training;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: update },
+      { new: true }
+    ).select("notifPrefs");
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
+    return res.json({ notifPrefs: user.notifPrefs });
+  } catch (err) {
+    console.error("Put notif-prefs error:", err);
+    return res.status(500).json({ error: "Error al actualizar preferencias." });
   }
 });
 

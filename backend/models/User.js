@@ -21,6 +21,13 @@ const userSchema = new mongoose.Schema(
 
     profileCompleted: { type: Boolean, default: false },
     healthyPoints:    { type: Number, default: 0 },
+
+    notifPrefs: {
+      paused:   { type: Boolean, default: false },
+      welcome:  { type: Boolean, default: true },
+      analysis: { type: Boolean, default: true },
+      training: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );

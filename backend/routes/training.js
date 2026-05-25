@@ -2,6 +2,8 @@ import express from "express";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
+import User from "../models/User.js";
+import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -124,6 +126,35 @@ Respondé ÚNICAMENTE con este JSON:
   } catch (err) {
     console.error("Training tips error:", err.message);
     return res.status(500).json({ error: "No se pudieron generar los tips." });
+  }
+});
+
+/* ── Registrar sesión completada (+5 puntos saludables) ───────────────────── */
+router.post("/session", authMiddleware, async (req, res) => {
+  const { dayName, tipoLabel } = req.body;
+  try {
+    const updated = await User.findByIdAndUpdate(
+      req.user._id,
+      { $inc: { healthyPoints: 5 } },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: "Usuario no encontrado." });
+
+    // Email de notificación (async, no bloquea respuesta)
+    if (!updated.notifPrefs?.paused && updated.notifPrefs?.training !== false) {
+      sendNotificationEmail("training", {
+        name:       updated.name,
+        email:      updated.email,
+        dayName:    dayName || null,
+        tipoLabel:  tipoLabel || null,
+        totalPoints: updated.healthyPoints,
+      }).catch(() => {});
+    }
+
+    return res.json({ pointsEarned: 5, totalPoints: updated.healthyPoints });
+  } catch (err) {
+    console.error("Training session points error:", err.message);
+    return res.status(500).json({ error: "No se pudieron actualizar los puntos." });
   }
 });
 

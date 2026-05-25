@@ -142,28 +142,6 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
           🥜
         </Box>
 
-        {/* +5 puntos flotando */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 12,
-            right: 16,
-            animation: "plusFloat 2s ease-out forwards",
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: 22,
-              fontWeight: 900,
-              color: "#2ECC71",
-              letterSpacing: "-0.5px",
-              textShadow: "0 2px 8px rgba(46,204,113,0.4)",
-            }}
-          >
-            +{points}
-          </Typography>
-        </Box>
-
         {/* Texto principal */}
         <Box sx={{ textAlign: "center" }}>
           <Typography
@@ -190,47 +168,58 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
           </Typography>
         </Box>
 
-        {/* Contador de puntos */}
+        {/* Puntos ganados — número grande */}
+        <Box sx={{ textAlign: "center" }}>
+          <Typography
+            sx={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "#8AADAA",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              mb: 0.5,
+            }}
+          >
+            Puntos ganados
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 72,
+              fontWeight: 900,
+              color: "#2ECC71",
+              lineHeight: 1,
+              letterSpacing: "-3px",
+              textShadow: "0 4px 20px rgba(46,204,113,0.35)",
+              animation: "celebEnter 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            }}
+          >
+            +{points}
+          </Typography>
+        </Box>
+
+        {/* Total acumulado — chico, debajo */}
         <Box
           sx={{
-            mt: 0.5,
             px: 3,
-            py: 1.2,
+            py: 1,
             borderRadius: 3,
             background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
             boxShadow: "0 4px 16px rgba(11,94,85,0.30)",
             display: "flex",
             alignItems: "center",
-            gap: 1.2,
+            gap: 1,
           }}
         >
-          <Typography sx={{ fontSize: 22 }}>🥜</Typography>
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.65)",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                lineHeight: 1,
-              }}
-            >
-              Puntos saludables
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 26,
-                fontWeight: 900,
-                color: "#fff",
-                lineHeight: 1.1,
-                letterSpacing: "-1px",
-                animation: "shimmer 0.4s ease",
-              }}
-            >
-              {displayCount}
-            </Typography>
-          </Box>
+          <Typography sx={{ fontSize: 18 }}>🥜</Typography>
+          <Typography
+            sx={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: "rgba(255,255,255,0.85)",
+            }}
+          >
+            Total: <span style={{ color: "#fff", fontWeight: 900 }}>{displayCount} pts</span>
+          </Typography>
         </Box>
       </Box>
     </Box>

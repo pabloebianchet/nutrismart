@@ -17,6 +17,7 @@ import { useNutrition } from "../context/NutritionContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PeanutMascot, { getMood, MOOD_META } from "./PeanutMascot";
+import AvatarMascot, { getAvatarState } from "./AvatarMascot";
 import axios from "axios";
 import TestCard from "./TestCard";
 import SubscriptionWidget from "./SubscriptionWidget";
@@ -438,6 +439,307 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
 };
 
 /* ────────────────────────────────────────────
+   Nudge cruzado entrenamiento ↔ análisis
+──────────────────────────────────────────── */
+const CrossModuleNudge = ({ historyCount, loading }) => {
+  const navigate = useNavigate();
+  if (loading) return null;
+
+  const mainSessions  = loadTPlan(T_MAIN_KEY)?.sessions?.length  || 0;
+  const quickSessions = loadTPlan(T_QUICK_KEY)?.sessions?.length || 0;
+  const totalSessions = mainSessions + quickSessions;
+
+  // Analiza comida pero nunca entrenó → sugerir entrenamiento
+  if (historyCount > 2 && totalSessions === 0) {
+    return (
+      <Paper elevation={0} sx={{
+        mb: 4, borderRadius: 4,
+        border: "1px solid rgba(11,94,85,0.14)",
+        background: "linear-gradient(135deg, #f4faf8 0%, #fff 100%)",
+        overflow: "hidden",
+      }}>
+        <Box sx={{ px: 3, py: 2.2, display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{
+            width: 44, height: 44, borderRadius: 3, flexShrink: 0,
+            background: "linear-gradient(135deg, #BF360C 0%, #E64A19 100%)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 4px 14px rgba(191,54,12,0.28)",
+          }}>
+            <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🏋️</Typography>
+          </Box>
+          <Box flex={1} minWidth={0}>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
+              ¡Empezá a entrenar para sumar más puntos!
+            </Typography>
+            <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
+              Analizás bien tu alimentación. Cada sesión de entrenamiento registrada suma <strong>+5 pts saludables</strong>.
+            </Typography>
+          </Box>
+          <Button
+            onClick={() => navigate("/training")}
+            size="small"
+            sx={{
+              textTransform: "none", fontWeight: 700, fontSize: 13,
+              color: "#BF360C", borderRadius: 999, flexShrink: 0,
+              border: "1.5px solid rgba(191,54,12,0.25)", px: 2, py: 0.8,
+              whiteSpace: "nowrap",
+              "&:hover": { bgcolor: "rgba(191,54,12,0.06)", borderColor: "#BF360C" },
+            }}
+          >
+            Ver planes →
+          </Button>
+        </Box>
+      </Paper>
+    );
+  }
+
+  // Entrenó pero nunca analizó comida → sugerir análisis
+  if (totalSessions > 0 && historyCount === 0) {
+    return (
+      <Paper elevation={0} sx={{
+        mb: 4, borderRadius: 4,
+        border: "1px solid rgba(11,94,85,0.14)",
+        background: "linear-gradient(135deg, #f4faf8 0%, #fff 100%)",
+        overflow: "hidden",
+      }}>
+        <Box sx={{ px: 3, py: 2.2, display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{
+            width: 44, height: 44, borderRadius: 3, flexShrink: 0,
+            background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 4px 14px rgba(11,94,85,0.28)",
+          }}>
+            <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🔍</Typography>
+          </Box>
+          <Box flex={1} minWidth={0}>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
+              ¡Analizá tus alimentos para potenciar tus resultados!
+            </Typography>
+            <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
+              Estás entrenando bien. Cada análisis con puntaje ≥ 50/100 suma <strong>+5 pts saludables</strong>.
+            </Typography>
+          </Box>
+          <Button
+            onClick={() => navigate("/capture")}
+            size="small"
+            sx={{
+              textTransform: "none", fontWeight: 700, fontSize: 13,
+              color: "#0B5E55", borderRadius: 999, flexShrink: 0,
+              border: "1.5px solid rgba(11,94,85,0.22)", px: 2, py: 0.8,
+              whiteSpace: "nowrap",
+              "&:hover": { bgcolor: "rgba(11,94,85,0.06)", borderColor: "#0B5E55" },
+            }}
+          >
+            Analizar →
+          </Button>
+        </Box>
+      </Paper>
+    );
+  }
+
+  return null;
+};
+
+/* ────────────────────────────────────────────
+   Entrenamiento Widget
+──────────────────────────────────────────── */
+
+const T_MAIN_KEY  = "nutrismart_training_main";
+const T_QUICK_KEY = "nutrismart_training_quick";
+
+const TIPO_META = {
+  "Calistenia":        { color: "#1565C0", bg: "#E3F2FD", emoji: "🤸" },
+  "Hipertrofia":       { color: "#BF360C", bg: "#FBE9E7", emoji: "💪" },
+  "Fit":               { color: "#6A1B9A", bg: "#F3E5F5", emoji: "✨" },
+  "Ejercicio en Casa": { color: "#2E7D32", bg: "#E8F5E9", emoji: "🏠" },
+  "Running":           { color: "#E65100", bg: "#FFF3E0", emoji: "🏃" },
+};
+
+const loadTPlan = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
+
+const EntrenamientoWidget = () => {
+  const navigate = useNavigate();
+
+  const mainData  = loadTPlan(T_MAIN_KEY);
+  const quickData = loadTPlan(T_QUICK_KEY);
+  const hasMain   = !!mainData?.plan;
+  const hasQuick  = !!quickData?.plan;
+
+  // Plan a mostrar: principal > rápido > nada
+  const activeData = hasMain ? mainData : (hasQuick ? quickData : null);
+  const isQuick    = !hasMain && hasQuick;
+
+  /* ── Sin plan activo: banner promo ── */
+  if (!activeData) {
+    return (
+      <Paper elevation={0} sx={{
+        mb: 4, borderRadius: 5, overflow: "hidden",
+        border: `1px solid ${C.borderStrong}`, boxShadow: shadow.lg,
+      }}>
+        <Box sx={{
+          p: { xs: 3.5, md: 4.5 },
+          background: "linear-gradient(145deg, #1a2f2a 0%, #0d3d34 50%, #0B5E55 100%)",
+          position: "relative", overflow: "hidden",
+        }}>
+          {/* blobs */}
+          <Box sx={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+          <Box sx={{ position: "absolute", bottom: -50, left: -30, width: 160, height: 160, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+
+          <Box sx={{ position: "relative" }}>
+            <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+              <Typography sx={{ fontSize: 30 }}>🏋️</Typography>
+              <Box>
+                <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1 }}>
+                  Entrenamiento
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.55)", mt: 0.2 }}>
+                  Plan personalizado con IA
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Stack spacing={1.2} mb={3.5}>
+              {[
+                "Calistenia, Hipertrofia, Running y más",
+                "Seguimiento de sesiones con progresión",
+                "Tips semanales personalizados con IA",
+              ].map((f) => (
+                <Stack key={f} direction="row" spacing={1.2} alignItems="center">
+                  <Box sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: "rgba(46,204,113,0.25)", border: "1px solid rgba(46,204,113,0.5)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Typography sx={{ fontSize: 10, color: "#2ECC71" }}>✓</Typography>
+                  </Box>
+                  <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 1.4 }}>{f}</Typography>
+                </Stack>
+              ))}
+            </Stack>
+
+            <Button variant="contained" onClick={() => navigate("/training")} sx={{
+              bgcolor: "#fff", color: "#0B5E55", borderRadius: 999,
+              px: 3.5, py: 1.3, textTransform: "none", fontWeight: 800, fontSize: 14.5,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+              "&:hover": { bgcolor: "#edf8f5", boxShadow: "0 8px 28px rgba(0,0,0,0.22)", transform: "translateY(-1px)" },
+              transition: "all 0.2s ease",
+            }}>
+              Comenzar con un plan de entrenamiento →
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    );
+  }
+
+  /* ── Con plan activo: resume card ── */
+  const cfg      = activeData.config || {};
+  const plan     = activeData.plan   || {};
+  const elapsed  = Math.floor((Date.now() - new Date(activeData.startDate)) / 86400000);
+  const total    = activeData.totalDays || 1;
+  const pct      = Math.min(100, Math.round((elapsed / total) * 100));
+  const week     = Math.max(1, Math.ceil((elapsed + 1) / 7));
+  const sessCount = activeData.sessions?.length || 0;
+  const meta     = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
+
+  return (
+    <Paper elevation={0} sx={{
+      mb: 4, borderRadius: 5, overflow: "hidden",
+      border: `1.5px solid ${meta.color}30`,
+      boxShadow: `0 8px 32px ${meta.color}18`,
+    }}>
+      <Box sx={{
+        px: { xs: 3, md: 4 }, py: { xs: 2.8, md: 3.5 },
+        background: `linear-gradient(135deg, ${meta.color}12 0%, #fff 60%)`,
+      }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          spacing={2.5}
+        >
+          {/* ── Info ── */}
+          <Box flex={1} minWidth={0}>
+            {/* Badge */}
+            <Box sx={{
+              display: "inline-flex", alignItems: "center", gap: 0.8,
+              px: 1.5, py: 0.45, borderRadius: 999,
+              bgcolor: `${meta.color}14`, border: `1px solid ${meta.color}30`, mb: 1.2,
+            }}>
+              <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                {isQuick ? "⚡ Plan rápido activo" : "🏋️ Entrenamiento activo"}
+              </Typography>
+            </Box>
+
+            {/* Título del plan */}
+            <Typography sx={{ fontSize: { xs: 17, sm: 19 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", mb: 0.8, lineHeight: 1.25 }}>
+              {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
+            </Typography>
+
+            {/* Chips de contexto */}
+            <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap mb={total > 1 ? 2 : 0}>
+              <Chip label={`${meta.emoji} ${cfg.tipo}`} size="small"
+                sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: meta.bg, color: meta.color, border: `1px solid ${meta.color}25` }} />
+              {cfg.lugar && (
+                <Chip label={cfg.lugar} size="small"
+                  sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+              )}
+              {total > 1 && (
+                <Chip label={`Semana ${week}`} size="small"
+                  sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+              )}
+              {sessCount > 0 && (
+                <Chip label={`${sessCount} sesión${sessCount > 1 ? "es" : ""} registrada${sessCount > 1 ? "s" : ""}`} size="small"
+                  sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
+              )}
+              {hasMain && hasQuick && (
+                <Chip label="⚡ + plan rápido" size="small"
+                  sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "#FFF3E0", color: "#E65100" }} />
+              )}
+            </Stack>
+
+            {/* Barra de progreso (solo planes > 1 día) */}
+            {total > 1 && (
+              <Box>
+                <Stack direction="row" justifyContent="space-between" mb={0.6}>
+                  <Typography sx={{ fontSize: 11.5, color: "#4A6B67", fontWeight: 600 }}>
+                    {Math.min(elapsed, total)} de {total} días
+                  </Typography>
+                  <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: meta.color }}>
+                    {pct}% completado
+                  </Typography>
+                </Stack>
+                <Box sx={{ height: 7, borderRadius: 3.5, bgcolor: `${meta.color}14`, overflow: "hidden" }}>
+                  <Box sx={{
+                    height: "100%", width: `${pct}%`, borderRadius: 3.5,
+                    background: `linear-gradient(90deg, ${meta.color} 0%, ${meta.color}BB 100%)`,
+                    transition: "width 1s ease",
+                  }} />
+                </Box>
+              </Box>
+            )}
+          </Box>
+
+          {/* ── CTA ── */}
+          <Button
+            variant="contained"
+            onClick={() => navigate("/training")}
+            sx={{
+              background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}CC 100%)`,
+              borderRadius: 999, px: { xs: 3, sm: 3.5 }, py: 1.5,
+              textTransform: "none", fontWeight: 800, fontSize: { xs: 14, sm: 15 },
+              boxShadow: `0 6px 20px ${meta.color}40`,
+              flexShrink: 0, whiteSpace: "nowrap",
+              "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 28px ${meta.color}55` },
+              transition: "all 0.22s ease",
+            }}
+          >
+            Continuar entrenamiento →
+          </Button>
+        </Stack>
+      </Box>
+    </Paper>
+  );
+};
+
+/* ────────────────────────────────────────────
    Recetas YA Banner
 ──────────────────────────────────────────── */
 const MODALIDADES_PREVIEW = [
@@ -585,6 +887,177 @@ const RecetasYABanner = () => {
           </Stack>
         </Box>
       </Box>
+    </Paper>
+  );
+};
+
+/* ────────────────────────────────────────────
+   Panel preferencias de notificaciones
+──────────────────────────────────────────── */
+const NotifPrefsPanel = () => {
+  const { user } = useNutrition();
+  const token = typeof window !== "undefined" ? localStorage.getItem("nutrismartToken") : null;
+
+  const [prefs, setPrefs] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!token || !open) return;
+    fetch(`${API_URL}/api/user/notif-prefs`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((d) => d.notifPrefs && setPrefs(d.notifPrefs))
+      .catch(() => {});
+  }, [token, open]);
+
+  const toggle = async (key) => {
+    if (!prefs || saving) return;
+    const next = { ...prefs, [key]: !prefs[key] };
+    setPrefs(next);
+    setSaving(true);
+    try {
+      const r = await fetch(`${API_URL}/api/user/notif-prefs`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: next[key] }),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        if (d.notifPrefs) setPrefs(d.notifPrefs);
+      }
+    } catch { }
+    setSaving(false);
+  };
+
+  const Row = ({ label, icon, fieldKey, disabled }) => {
+    const active = prefs ? (prefs.paused ? false : prefs[fieldKey]) : true;
+    return (
+      <Stack direction="row" alignItems="center" justifyContent="space-between"
+        sx={{ py: 1.2, borderBottom: `1px solid ${C.border}`, "&:last-child": { borderBottom: "none" } }}>
+        <Stack direction="row" alignItems="center" spacing={1.2}>
+          <Typography sx={{ fontSize: 18 }}>{icon}</Typography>
+          <Typography sx={{ fontSize: 13, color: disabled ? C.textMuted : C.textPrimary, fontWeight: 500 }}>
+            {label}
+          </Typography>
+        </Stack>
+        <Box
+          onClick={() => !disabled && toggle(fieldKey)}
+          sx={{
+            width: 44, height: 24, borderRadius: 12,
+            bgcolor: active && !disabled ? C.brand : C.border,
+            cursor: disabled ? "not-allowed" : "pointer",
+            position: "relative",
+            transition: "background 0.22s",
+            opacity: saving ? 0.6 : 1,
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              top: 3, left: active && !disabled ? 23 : 3,
+              width: 18, height: 18, borderRadius: "50%",
+              background: "#fff",
+              transition: "left 0.22s",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+            },
+          }}
+        />
+      </Stack>
+    );
+  };
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        mb: 3,
+        borderRadius: 4,
+        border: `1px solid ${C.border}`,
+        overflow: "hidden",
+      }}
+    >
+      <Stack
+        direction="row" alignItems="center" justifyContent="space-between"
+        onClick={() => setOpen((v) => !v)}
+        sx={{
+          px: 3, py: 2,
+          cursor: "pointer",
+          bgcolor: open ? C.brandSurface : C.surface,
+          transition: "background 0.2s",
+          "&:hover": { bgcolor: C.brandSurface },
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Typography sx={{ fontSize: 18 }}>🔔</Typography>
+          <Box>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
+              Notificaciones por email
+            </Typography>
+            {prefs && (
+              <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 0.2 }}>
+                {prefs.paused ? "Pausadas" : "Activas"}
+              </Typography>
+            )}
+          </Box>
+        </Stack>
+        <Typography sx={{ fontSize: 13, color: C.textMuted, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+          ▾
+        </Typography>
+      </Stack>
+
+      {open && (
+        <Box sx={{ px: 3, pb: 2.5, pt: 1 }}>
+          {!prefs ? (
+            <Typography sx={{ fontSize: 13, color: C.textMuted, py: 1.5 }}>Cargando preferencias…</Typography>
+          ) : (
+            <>
+              {/* Master pause */}
+              <Stack direction="row" alignItems="center" justifyContent="space-between"
+                sx={{ py: 1.5, mb: 1, borderBottom: `2px solid ${C.border}` }}>
+                <Stack direction="row" alignItems="center" spacing={1.2}>
+                  <Typography sx={{ fontSize: 18 }}>⏸️</Typography>
+                  <Box>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textPrimary }}>
+                      Pausar todos los emails
+                    </Typography>
+                    <Typography sx={{ fontSize: 11, color: C.textMuted }}>
+                      Ninguna notificación llegará mientras esté activado
+                    </Typography>
+                  </Box>
+                </Stack>
+                <Box
+                  onClick={() => toggle("paused")}
+                  sx={{
+                    width: 44, height: 24, borderRadius: 12,
+                    bgcolor: prefs.paused ? "#E24B4A" : C.border,
+                    cursor: "pointer",
+                    position: "relative",
+                    transition: "background 0.22s",
+                    opacity: saving ? 0.6 : 1,
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      top: 3, left: prefs.paused ? 23 : 3,
+                      width: 18, height: 18, borderRadius: "50%",
+                      background: "#fff",
+                      transition: "left 0.22s",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+                    },
+                  }}
+                />
+              </Stack>
+
+              <Row label="Email de bienvenida"       icon="👋" fieldKey="welcome"  disabled={prefs.paused} />
+              <Row label="Resultado de cada análisis" icon="🔍" fieldKey="analysis" disabled={prefs.paused} />
+              <Row label="Sesión de entrenamiento"    icon="🏋️" fieldKey="training" disabled={prefs.paused} />
+
+              <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 1.5, lineHeight: 1.6 }}>
+                Los emails se envían solo si la notificación correspondiente está activa y el tipo no está pausado.
+              </Typography>
+            </>
+          )}
+        </Box>
+      )}
     </Paper>
   );
 };
@@ -911,29 +1384,31 @@ const Dashboard = () => {
             sx={{
               mb: 4,
               borderRadius: 4,
-              overflow: "visible",
+              overflow: "hidden",
               border: "1.5px solid rgba(46,204,113,0.20)",
               boxShadow: "0 4px 24px rgba(11,94,85,0.14)",
               background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
               position: "relative",
+              minHeight: 160,
               "@keyframes breatheMascot": {
                 "0%,100%": { transform: "translateY(0px)" },
-                "50%":     { transform: "translateY(-5px)" },
+                "50%":     { transform: "translateY(-6px)" },
               },
               "@keyframes moodPop": {
-                "0%":   { transform: "scale(0.8) translateY(0)" },
-                "65%":  { transform: "scale(1.1) translateY(-6px)" },
-                "100%": { transform: "scale(1) translateY(0)" },
+                "0%":   { transform: "scale(0.85) translateY(8px)", opacity: 0 },
+                "65%":  { transform: "scale(1.04) translateY(-4px)", opacity: 1 },
+                "100%": { transform: "scale(1) translateY(0)",      opacity: 1 },
               },
             }}
           >
-            {/* Blob decorativo */}
-            <Box sx={{ position: "absolute", top: -24, right: -24, width: 120, height: 120, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+            {/* Blobs decorativos */}
+            <Box sx={{ position: "absolute", top: -30, right: 160, width: 140, height: 140, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+            <Box sx={{ position: "absolute", bottom: -40, right: 80, width: 100, height: 100, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
 
-            <Box sx={{ px: 3, py: 3, display: "flex", alignItems: "flex-end", gap: 2 }}>
+            <Box sx={{ px: 3, py: 3, display: "flex", alignItems: "stretch", gap: 2, position: "relative" }}>
 
               {/* Info izquierda */}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.3 }}>
                   Puntos saludables
                 </Typography>
@@ -941,17 +1416,15 @@ const Dashboard = () => {
                   {pts}
                 </Typography>
 
-                {/* Mood label con color */}
-                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8, mt: 0.8, px: 1.5, py: 0.4, borderRadius: 999, bgcolor: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                <Box sx={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 0.8, mt: 0.8, px: 1.5, py: 0.4, borderRadius: 999, bgcolor: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.18)" }}>
                   <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
                   <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{meta.label}</Typography>
                 </Box>
 
                 <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.50)", mt: 1 }}>
-                  +5 pts por cada alimento ≥ 50/100
+                  
                 </Typography>
 
-                {/* Nivel */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
                   <Typography sx={{ fontSize: 18 }}>{level.icon}</Typography>
                   <Box>
@@ -961,17 +1434,21 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {/* Mascota derecha — animación breathe + pop al cambiar mood */}
+              {/* Avatar — ventana: solo cintura para arriba visible */}
               <Box
-                key={mood}
+                key={getAvatarState(pts)}
                 sx={{
-                  flexShrink: 0,
-                  mb: -1,
-                  filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.28))",
-                  animation: "moodPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both, breatheMascot 3.5s 0.6s ease-in-out infinite",
+                  position: "absolute",
+                  right: { xs: -160, sm: -70 },
+                  bottom: { xs: "-255%", sm: "-233%" },
+                  animation: "moodPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both, breatheMascot 3.5s 1s ease-in-out infinite",
                 }}
               >
-                <PeanutMascot points={pts} size={96} />
+                <AvatarMascot
+                  points={pts}
+                  sexo={userData?.sexo || profileForm?.sexo}
+                  showLabel={false}
+                />
               </Box>
             </Box>
           </Paper>
@@ -1117,6 +1594,9 @@ const Dashboard = () => {
           </Paper>
         </Box>
       )}
+
+      {/* ── NUDGE CRUZADO ───────────────────────── */}
+      <CrossModuleNudge historyCount={history.length} loading={loading} />
 
       {/* ── PERFIL ──────────────────────────────── */}
       <Paper
@@ -1362,8 +1842,14 @@ const Dashboard = () => {
       {/* ── RANKING GLOBAL ──────────────────────── */}
       <LeaderboardWidget />
 
+      {/* ── ENTRENAMIENTO ───────────────────────── */}
+      <EntrenamientoWidget />
+
       {/* ── RECETAS YA ──────────────────────────── */}
       <RecetasYABanner />
+
+      {/* ── NOTIFICACIONES ──────────────────────── */}
+      <NotifPrefsPanel />
 
       {/* ── CTA NUEVO ANÁLISIS ──────────────────── */}
       <Paper

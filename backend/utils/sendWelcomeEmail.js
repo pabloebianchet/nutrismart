@@ -24,7 +24,7 @@ export const sendWelcomeEmail = async ({ name, email }) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bienvenido a NutriSmart</title>
+  <title>Bienvenido a Nui</title>
 </head>
 <body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
 
@@ -36,21 +36,21 @@ export const sendWelcomeEmail = async ({ name, email }) => {
           <!-- HEADER -->
           <tr>
             <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-              <div style="font-size:26px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">NutriSmart</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:0.05em;">ANÁLISIS NUTRICIONAL CON IA</div>
+              <div style="font-size:32px;font-weight:900;color:#ffffff;letter-spacing:-1px;">Nui</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:5px;letter-spacing:0.1em;text-transform:uppercase;">Tu salud, con inteligencia artificial</div>
             </td>
           </tr>
 
           <!-- HERO -->
           <tr>
-            <td style="background:#ffffff;padding:40px 40px 32px;">
+            <td style="background:#ffffff;padding:40px 40px 28px;">
               <div style="font-size:22px;font-weight:800;color:#0F2420;margin-bottom:10px;line-height:1.3;">
                 ¡Hola, ${firstName}! 👋
               </div>
-              <p style="font-size:15px;color:#4A6B67;line-height:1.7;margin:0 0 20px;">
-                Tu cuenta en NutriSmart está lista. A partir de ahora podés analizar cualquier producto alimenticio con Inteligencia Artificial y tomar decisiones más conscientes sobre lo que comés.
+              <p style="font-size:15px;color:#4A6B67;line-height:1.7;margin:0 0 24px;">
+                Tu cuenta en <strong>Nui</strong> está lista. A partir de ahora tenés en tu bolsillo tres herramientas diseñadas para ayudarte a comer mejor, encontrar recetas inteligentes y entrenar con un plan personalizado.
               </p>
-              <div style="text-align:center;margin:28px 0;">
+              <div style="text-align:center;margin:24px 0 8px;">
                 <a href="${appUrl}" style="display:inline-block;background:#0B5E55;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:999px;font-weight:700;font-size:15px;letter-spacing:0.01em;">
                   Empezar ahora
                 </a>
@@ -65,61 +65,62 @@ export const sendWelcomeEmail = async ({ name, email }) => {
             </td>
           </tr>
 
-          <!-- QUÉ PODÉS HACER -->
+          <!-- 3 MÓDULOS -->
           <tr>
             <td style="background:#ffffff;padding:32px 40px;">
-              <div style="font-size:13px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;">
-                ¿Qué podés hacer?
+              <div style="font-size:13px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:22px;">
+                Los 3 módulos de Nui
               </div>
 
-              <!-- Feature 1 -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;">
+              <!-- Módulo 1: Análisis -->
+              <table width="100%" cellpadding="0" cellspacing="0"
+                style="border:1.5px solid #E6F5F3;border-radius:14px;padding:18px 20px;margin-bottom:14px;">
                 <tr>
-                  <td width="44" valign="top">
-                    <div style="width:40px;height:40px;background:#E6F5F3;border-radius:10px;text-align:center;line-height:40px;font-size:20px;">📸</div>
+                  <td width="50" valign="top">
+                    <div style="width:44px;height:44px;background:#E6F5F3;border-radius:12px;text-align:center;line-height:44px;font-size:22px;">🔍</div>
                   </td>
                   <td style="padding-left:14px;">
-                    <div style="font-size:14px;font-weight:700;color:#0F2420;margin-bottom:3px;">Escaneá cualquier producto</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">Sacá una foto a la tabla nutricional y a los ingredientes del envase. La IA lo interpreta al instante.</div>
+                    <div style="font-size:15px;font-weight:800;color:#0B5E55;margin-bottom:4px;">Análisis de Alimentos</div>
+                    <div style="font-size:13px;color:#4A6B67;line-height:1.65;">
+                      Fotografiá la etiqueta de cualquier producto y recibís en segundos su nivel de procesamiento (NOVA), puntaje nutricional de 0 a 100 y recomendaciones personalizadas según tu perfil.
+                    </div>
+                    <div style="margin-top:8px;">
+                      <span style="display:inline-block;background:#E6F5F3;color:#0B5E55;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-right:4px;">No procesado</span>
+                      <span style="display:inline-block;background:#FFF3E0;color:#E65100;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-right:4px;">Procesado</span>
+                      <span style="display:inline-block;background:#FFEBEE;color:#C62828;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;">Ultraprocesado</span>
+                    </div>
                   </td>
                 </tr>
               </table>
 
-              <!-- Feature 2 -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;">
+              <!-- Módulo 2: Recetas YA -->
+              <table width="100%" cellpadding="0" cellspacing="0"
+                style="border:1.5px solid #EDE7F6;border-radius:14px;padding:18px 20px;margin-bottom:14px;">
                 <tr>
-                  <td width="44" valign="top">
-                    <div style="width:40px;height:40px;background:#E6F5F3;border-radius:10px;text-align:center;line-height:40px;font-size:20px;">🤖</div>
+                  <td width="50" valign="top">
+                    <div style="width:44px;height:44px;background:#EDE7F6;border-radius:12px;text-align:center;line-height:44px;font-size:22px;">🍳</div>
                   </td>
                   <td style="padding-left:14px;">
-                    <div style="font-size:14px;font-weight:700;color:#0F2420;margin-bottom:3px;">Análisis con IA personalizado</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">Recibís una evaluación clara del producto adaptada a tu perfil: edad, peso, altura y nivel de actividad.</div>
+                    <div style="font-size:15px;font-weight:800;color:#6A1B9A;margin-bottom:4px;">Recetas YA</div>
+                    <div style="font-size:13px;color:#4A6B67;line-height:1.65;">
+                      ¿Qué tenés en la heladera? Ingresá los ingredientes y la IA genera recetas saludables al instante, adaptadas a tus preferencias y lo que tenés disponible.
+                    </div>
                   </td>
                 </tr>
               </table>
 
-              <!-- Feature 3 -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;">
+              <!-- Módulo 3: Entrenamiento -->
+              <table width="100%" cellpadding="0" cellspacing="0"
+                style="border:1.5px solid #FBE9E7;border-radius:14px;padding:18px 20px;">
                 <tr>
-                  <td width="44" valign="top">
-                    <div style="width:40px;height:40px;background:#E6F5F3;border-radius:10px;text-align:center;line-height:40px;font-size:20px;">📊</div>
+                  <td width="50" valign="top">
+                    <div style="width:44px;height:44px;background:#FBE9E7;border-radius:12px;text-align:center;line-height:44px;font-size:22px;">🏋️</div>
                   </td>
                   <td style="padding-left:14px;">
-                    <div style="font-size:14px;font-weight:700;color:#0F2420;margin-bottom:3px;">Puntaje global del producto</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">Cada análisis devuelve un puntaje de 0 a 100. Cuanto más alto, mejor encaja el producto en una alimentación equilibrada.</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Feature 4 -->
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td width="44" valign="top">
-                    <div style="width:40px;height:40px;background:#E6F5F3;border-radius:10px;text-align:center;line-height:40px;font-size:20px;">📈</div>
-                  </td>
-                  <td style="padding-left:14px;">
-                    <div style="font-size:14px;font-weight:700;color:#0F2420;margin-bottom:3px;">Historial de análisis</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">Todos tus análisis quedan guardados. Podés ver tu evolución y el puntaje promedio de los productos que consumís.</div>
+                    <div style="font-size:15px;font-weight:800;color:#BF360C;margin-bottom:4px;">Entrenamiento</div>
+                    <div style="font-size:13px;color:#4A6B67;line-height:1.65;">
+                      Generá un plan de entrenamiento personalizado para gym, casa o aire libre. Fuerza, cardio, running o HIIT. La IA lo diseña según tu cuerpo, nivel y disponibilidad horaria.
+                    </div>
                   </td>
                 </tr>
               </table>
@@ -133,49 +134,18 @@ export const sendWelcomeEmail = async ({ name, email }) => {
             </td>
           </tr>
 
-          <!-- CÓMO LEER LOS GRÁFICOS -->
+          <!-- PUNTAJE SALUDABLE -->
           <tr>
-            <td style="background:#ffffff;padding:32px 40px 36px;">
-              <div style="font-size:13px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;">
-                Cómo leer tu dashboard
+            <td style="background:#ffffff;padding:28px 40px 36px;">
+              <div style="font-size:13px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">
+                Tu puntaje saludable
               </div>
-
-              <!-- IMC -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;border-radius:12px;padding:18px 20px;margin-bottom:14px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;border-radius:14px;padding:18px 20px;">
                 <tr>
                   <td>
-                    <div style="font-size:13px;font-weight:700;color:#0B5E55;margin-bottom:5px;">Gráfico de IMC (Índice de Masa Corporal)</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">
-                      Muestra tu posición en la escala de IMC dividida en zonas de color:<br/>
-                      <span style="color:#5BA4F5;">● Azul</span> = Bajo peso &nbsp;
-                      <span style="color:#2ECC71;">● Verde</span> = Normal &nbsp;
-                      <span style="color:#FFB74D;">● Naranja</span> = Sobrepeso &nbsp;
-                      <span style="color:#EF5350;">● Rojo</span> = Obesidad<br/>
-                      El punto indicador muestra exactamente dónde estás vos.
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Puntaje promedio -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;border-radius:12px;padding:18px 20px;margin-bottom:14px;">
-                <tr>
-                  <td>
-                    <div style="font-size:13px;font-weight:700;color:#0B5E55;margin-bottom:5px;">Puntaje promedio</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">
-                      Refleja la calidad promedio de todos los productos que analizaste. Un puntaje alto indica que tus elecciones alimenticias son saludables en general.
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Historial -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;border-radius:12px;padding:18px 20px;">
-                <tr>
-                  <td>
-                    <div style="font-size:13px;font-weight:700;color:#0B5E55;margin-bottom:5px;">Historial de los últimos 30 días</div>
-                    <div style="font-size:13px;color:#4A6B67;line-height:1.6;">
-                      Cada tarjeta del historial muestra el producto analizado, su puntaje y la fecha. Podés ver tendencias en tus hábitos de consumo a lo largo del tiempo.
+                    <div style="font-size:13px;color:#4A6B67;line-height:1.7;">
+                      Cada vez que analizás un alimento con buen puntaje o completás una sesión de entrenamiento, ganás <strong style="color:#0B5E55;">+5 puntos saludables</strong>.
+                      Tu mascota Nui crece y se fortalece con vos. 🥜💪
                     </div>
                   </td>
                 </tr>
@@ -190,10 +160,10 @@ export const sendWelcomeEmail = async ({ name, email }) => {
                 ¿Listo para empezar?
               </div>
               <div style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:22px;line-height:1.6;">
-                Completá tu perfil con tus datos físicos para obtener análisis más precisos y personalizados.
+                Completá tu perfil con tus datos físicos para obtener análisis más precisos y planes de entrenamiento personalizados.
               </div>
               <a href="${appUrl}" style="display:inline-block;background:#ffffff;color:#0B5E55;text-decoration:none;padding:12px 32px;border-radius:999px;font-weight:700;font-size:14px;">
-                Ir a NutriSmart
+                Ir a Nui
               </a>
             </td>
           </tr>
@@ -202,8 +172,8 @@ export const sendWelcomeEmail = async ({ name, email }) => {
           <tr>
             <td style="padding:20px 40px;text-align:center;">
               <div style="font-size:11px;color:#B2DDD9;line-height:1.6;">
-                Recibiste este correo porque creaste una cuenta en NutriSmart.<br/>
-                © ${year} NutriSmart — Análisis nutricional con IA
+                Recibiste este correo porque creaste una cuenta en Nui.<br/>
+                © ${year} Nui — Tu salud, con inteligencia artificial
               </div>
             </td>
           </tr>
@@ -221,9 +191,9 @@ export const sendWelcomeEmail = async ({ name, email }) => {
     const transporter = createTransporter();
     await transporter.verify();
     await transporter.sendMail({
-      from: `"NutriSmart" <${process.env.EMAIL_USER}>`,
+      from: `"Nui" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `¡Bienvenido a NutriSmart, ${firstName}! 🌿`,
+      subject: `¡Bienvenido a Nui, ${firstName}! 🌿`,
       html,
     });
     console.log(`✅ Email de bienvenida enviado a ${email}`);
