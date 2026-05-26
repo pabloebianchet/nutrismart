@@ -262,7 +262,7 @@ const HeroSection = ({ onCTA }) => (
 
 /* ─── TICKER ─────────────────────────────────────────────────────────────── */
 const MarqueeTicker = () => {
-  const items = ["ANÁLISIS", "RECETAS", "ENTRENAMIENTO", "NUI", "SALUD", "INTELIGENCIA ARTIFICIAL", "NUTRICIÓN", "BIENESTAR"];
+  const items = ["ANÁLISIS NUTRICIONAL", "ALIMENTOS ULTRAPROCESADOS", "CLASIFICACIÓN NOVA", "RUTINA DE HIPERTROFIA", "ENTRENAMIENTO RUNNING", "PLAN DE CALISTENIA", "MARATÓN", "ARMAR DIETA", "NUTRICIONISTA IA", "ETIQUETAS", "NUI", "MICROBIOTA", "PERSONAL TRAINER", "NUTRICIÓN INTELIGENTE"];
   const repeated = [...items, ...items];
   return (
     <Box sx={{ background: C.heroBg, borderTop: "1px solid rgba(255,255,255,0.05)",
@@ -286,14 +286,149 @@ const MarqueeTicker = () => {
   );
 };
 
+/* ─── POR QUÉ IMPORTA ───────────────────────────────────────────────────── */
+const FACTS = [
+  {
+    stat:  "70%",
+    title: "de los productos envasados son ultraprocesados",
+    desc:  "La mayoría de lo que encontrás en el supermercado está diseñado para maximizar el sabor y la palatabilidad, no tu salud.",
+    color: "#E55A4E",
+  },
+  {
+    stat:  "+5",
+    title: "ingredientes desconocidos = señal de alerta",
+    desc:  "Si un producto tiene más de cinco ingredientes o aditivos que no reconocés, la clasificación NOVA lo ubica como ultraprocesado.",
+    color: C.brand,
+  },
+  {
+    stat:  "↑3×",
+    title: "mayor riesgo de sobrepeso, obesidad y depresión",
+    desc:  "El consumo frecuente altera la microbiota intestinal y el metabolismo, generando riesgos a largo plazo para tu salud.",
+    color: C.heroAccent,
+  },
+];
+
+const WhyMattersSection = ({ onCTA }) => (
+  <Box sx={{
+    background: "#060F0D",
+    py: { xs: 9, md: 13 },
+    px: { xs: 2.5, sm: 5, md: 8 },
+    position: "relative", overflow: "hidden",
+    borderTop: "1px solid rgba(255,255,255,0.05)",
+  }}>
+    {/* Glow */}
+    <Box sx={{ position: "absolute", top: "30%", left: "10%", width: 500, height: 500,
+      borderRadius: "50%", background: "radial-gradient(circle, rgba(229,90,78,0.05) 0%, transparent 65%)",
+      pointerEvents: "none" }} />
+
+    <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+      {/* Headline */}
+      <Box textAlign="center" mb={7}>
+        <Chip label="El problema que no se ve"
+          sx={{ mb: 2.5, bgcolor: "rgba(229,90,78,0.10)", color: "#E55A4E",
+            fontWeight: 700, fontSize: 12, border: "1px solid rgba(229,90,78,0.20)", px: 0.5 }} />
+        <Typography component="h2" sx={{
+          fontSize: { xs: 26, sm: 36 }, fontWeight: 900, color: "#fff",
+          letterSpacing: "-1px", lineHeight: 1.15, mb: 2,
+        }}>
+          El 70% de lo que comprás en el<br />
+          <Box component="span" sx={{ color: "#E55A4E" }}>supermercado es ultraprocesado</Box>
+        </Typography>
+        <Typography sx={{ fontSize: 16, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, maxWidth: 560, mx: "auto" }}>
+          Estos productos son más dulces, salados y grasos, con menos vitaminas y fibra.
+          Identificarlos no siempre es fácil — Nui lo hace por vos al instante.
+        </Typography>
+      </Box>
+
+      {/* Fact cards */}
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3,1fr)" }, gap: 2.5, mb: 7 }}>
+        {FACTS.map((f) => (
+          <Box key={f.stat} sx={{
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 4, p: 3.5,
+            transition: "border-color 0.2s",
+            "&:hover": { borderColor: `${f.color}40` },
+          }}>
+            <Typography sx={{ fontSize: 44, fontWeight: 900, color: f.color, lineHeight: 1, mb: 1.5 }}>
+              {f.stat}
+            </Typography>
+            <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#fff", mb: 1, lineHeight: 1.3 }}>
+              {f.title}
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>
+              {f.desc}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+
+      {/* NOVA strip */}
+      <Box sx={{
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 4, p: { xs: 3, md: 4 }, mb: 6,
+      }}>
+        <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.heroAccent,
+          letterSpacing: "0.12em", mb: 2 }}>
+          CLASIFICACIÓN NOVA — EL ESTÁNDAR INTERNACIONAL
+        </Typography>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4,1fr)" }, gap: 2 }}>
+          {[
+            { grupo: "Grupo 1", label: "Frescos o mínimamente procesados", ej: "Frutas, verduras, huevos, carnes", ok: true  },
+            { grupo: "Grupo 2", label: "Ingredientes culinarios",           ej: "Aceites, sal, azúcar, vinagre",    ok: true  },
+            { grupo: "Grupo 3", label: "Alimentos procesados",              ej: "Conservas, queso, pan, embutidos", ok: true  },
+            { grupo: "Grupo 4", label: "Ultraprocesados",                   ej: "Snacks, cereales, refrescos, galletas", ok: false },
+          ].map((g) => (
+            <Box key={g.grupo} sx={{
+              borderRadius: 3, p: 2,
+              background: g.ok ? "rgba(16,185,129,0.05)" : "rgba(229,90,78,0.07)",
+              border: `1px solid ${g.ok ? "rgba(16,185,129,0.15)" : "rgba(229,90,78,0.20)"}`,
+            }}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={0.8}>
+                <Box sx={{ width: 8, height: 8, borderRadius: "50%",
+                  bgcolor: g.ok ? C.heroAccent : "#E55A4E", flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: g.ok ? C.heroAccent : "#E55A4E",
+                  letterSpacing: "0.05em" }}>
+                  {g.grupo}
+                </Typography>
+              </Stack>
+              <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: "#fff", mb: 0.5, lineHeight: 1.3 }}>
+                {g.label}
+              </Typography>
+              <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)", lineHeight: 1.5 }}>
+                {g.ej}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+      {/* CTA */}
+      <Box textAlign="center">
+        <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.40)", mb: 2 }}>
+          Nui analiza cualquier etiqueta y te dice exactamente en qué grupo cae el producto.
+        </Typography>
+        <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
+          color: C.heroAccent, fontWeight: 800, fontSize: 15,
+          textTransform: "none", px: 4, py: 1.5, borderRadius: 999,
+          border: `1.5px solid ${C.heroAccent}`, bgcolor: "transparent",
+          "&:hover": { bgcolor: "rgba(16,185,129,0.08)", transform: "translateY(-1px)" },
+          transition: "all 0.2s",
+        }}>
+          Analizá tu primer producto gratis
+        </Button>
+      </Box>
+    </Box>
+  </Box>
+);
+
 /* ─── MÓDULOS ────────────────────────────────────────────────────────────── */
 const MODULES = [
   {
     Icon:  SearchRoundedIcon,
     title: "Análisis de alimentos",
-    desc:  "Fotografiá cualquier producto o etiqueta y obtené su análisis nutricional completo al instante. Puntaje, macros, alertas y recomendaciones personalizadas.",
+    desc:  "Fotografiá cualquier etiqueta y obtené al instante si es ultraprocesado, su clasificación NOVA, macros, aditivos y recomendaciones personalizadas según tu perfil.",
     color: C.brand, bg: C.brandSurf,
-    tags:  ["Score nutricional", "Macros", "Ingredientes", "Historial"],
+    tags:  ["Clasificación NOVA", "Macros", "Aditivos", "Score nutricional"],
     photo: "/img/150096600078176441.jpg",
   },
   {
@@ -307,9 +442,9 @@ const MODULES = [
   {
     Icon:  FitnessCenterRoundedIcon,
     title: "Entrenamiento personalizado",
-    desc:  "Tu plan de ejercicios adaptado a tu cuerpo, nivel y metas. Seguí tu progreso sesión a sesión y evolucioná con cada entrenamiento.",
+    desc:  "Generá tu rutina personalizada: hipertrofia, running, calistenia, preparación para maratón o pérdida de peso. Seguí tu progreso sesión a sesión.",
     color: "#D97706", bg: "#FFFBEB",
-    tags:  ["Plan a medida", "Seguimiento", "2 planes", "Progreso"],
+    tags:  ["Hipertrofia", "Running", "Calistenia", "Maratón"],
     photo: "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
   },
 ];
@@ -377,6 +512,154 @@ const ModulesSection = () => (
           </Box>
         ))}
       </Box>
+    </Box>
+  </Box>
+);
+
+/* ─── COMPARATIVA DE COSTOS ──────────────────────────────────────────────── */
+const TRAINING_TYPES = [
+  "Rutina de hipertrofia", "Entrenamiento running", "Preparación maratón",
+  "Rutina calistenia", "Pérdida de peso", "Fuerza y potencia",
+  "Entrenamiento en casa", "Armar dieta personalizada",
+];
+
+const CostComparisonSection = ({ onCTA }) => (
+  <Box sx={{ background: "#F7FAF9", py: { xs: 9, md: 13 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
+    <Box sx={{ maxWidth: 1000, mx: "auto" }}>
+
+      <Box textAlign="center" mb={7}>
+        <Chip label="La alternativa inteligente"
+          icon={<BoltRoundedIcon sx={{ fontSize: "14px !important", color: `${C.brand} !important` }} />}
+          sx={{ mb: 2.5, bgcolor: C.brandSurf, color: C.brand, fontWeight: 700, fontSize: 12,
+            border: "1px solid rgba(11,94,85,0.18)", px: 0.5 }} />
+        <Typography component="h2" sx={{
+          fontSize: { xs: 26, sm: 36 }, fontWeight: 900, color: C.text,
+          letterSpacing: "-1px", lineHeight: 1.15, mb: 2,
+        }}>
+          Lo que un nutricionista y un personal<br />
+          trainer cobran por <Box component="span" sx={{ color: C.brand }}>una sola sesión</Box>
+        </Typography>
+        <Typography sx={{ fontSize: 16, color: C.muted, maxWidth: 540, mx: "auto", lineHeight: 1.7 }}>
+          Con Nui tenés análisis nutricional, dieta personalizada y plan de entrenamiento
+          adaptado a tus metas — por una fracción del costo mensual.
+        </Typography>
+      </Box>
+
+      {/* Comparativa */}
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" }, gap: 2.5, mb: 6 }}>
+
+        {/* Nutricionista */}
+        <Box sx={{ background: "#fff", border: `1.5px solid rgba(0,0,0,0.07)`, borderRadius: 4, p: 3.5,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.muted,
+            textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
+            Nutricionista
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: C.muted, lineHeight: 1.7, mb: 2 }}>
+            Una consulta con un nutricionista en Argentina cuesta entre
+          </Typography>
+          <Typography sx={{ fontSize: 36, fontWeight: 900, color: C.text, lineHeight: 1, mb: 0.5 }}>
+            $15.000 – $30.000
+          </Typography>
+          <Typography sx={{ fontSize: 12.5, color: C.muted }}>por consulta · sin seguimiento diario</Typography>
+          <Box sx={{ mt: 2.5, pt: 2.5, borderTop: `1px solid rgba(0,0,0,0.06)` }}>
+            {["Plan alimentario básico", "1 revisión por mes", "Sin análisis de etiquetas"].map((f) => (
+              <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
+                <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "rgba(0,0,0,0.15)", flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 13, color: C.muted }}>{f}</Typography>
+              </Stack>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Personal trainer */}
+        <Box sx={{ background: "#fff", border: `1.5px solid rgba(0,0,0,0.07)`, borderRadius: 4, p: 3.5,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.muted,
+            textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
+            Personal Trainer
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: C.muted, lineHeight: 1.7, mb: 2 }}>
+            Una sesión con personal trainer en Argentina tiene un costo de
+          </Typography>
+          <Typography sx={{ fontSize: 36, fontWeight: 900, color: C.text, lineHeight: 1, mb: 0.5 }}>
+            $8.000 – $20.000
+          </Typography>
+          <Typography sx={{ fontSize: 12.5, color: C.muted }}>por sesión · sin personalización continua</Typography>
+          <Box sx={{ mt: 2.5, pt: 2.5, borderTop: `1px solid rgba(0,0,0,0.06)` }}>
+            {["Rutina genérica o semigenérica", "Seguimiento presencial", "Sin análisis nutricional"].map((f) => (
+              <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
+                <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "rgba(0,0,0,0.15)", flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 13, color: C.muted }}>{f}</Typography>
+              </Stack>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Nui */}
+        <Box sx={{
+          background: `linear-gradient(145deg, ${C.brand}, ${C.brandLight})`,
+          border: `1.5px solid ${C.brand}`, borderRadius: 4, p: 3.5,
+          boxShadow: `0 12px 40px rgba(11,94,85,0.22)`,
+          position: "relative",
+        }}>
+          <Box sx={{ position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
+            bgcolor: C.heroAccent, color: "#fff", fontSize: 11, fontWeight: 800,
+            px: 2.5, py: 0.5, borderRadius: 999, whiteSpace: "nowrap",
+            boxShadow: "0 4px 12px rgba(16,185,129,0.40)" }}>
+            La alternativa inteligente
+          </Box>
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.65)",
+            textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5, mt: 0.5 }}>
+            Nui — Plan Gold
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.70)", lineHeight: 1.7, mb: 2 }}>
+            Nutricionista IA + personal trainer IA + análisis ilimitados, por
+          </Typography>
+          <Typography sx={{ fontSize: 36, fontWeight: 900, color: "#fff", lineHeight: 1, mb: 0.5 }}>
+            $5.990
+          </Typography>
+          <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.60)" }}>por mes · todo incluido · cancelá cuando quieras</Typography>
+          <Box sx={{ mt: 2.5, pt: 2.5, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+            {["Análisis nutricional ilimitado", "Dieta y recetas personalizadas", "Rutina de hipertrofia, running, calistenia y más", "Seguimiento diario en la app"].map((f) => (
+              <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
+                <CheckRoundedIcon sx={{ fontSize: 14, color: C.heroAccent, flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{f}</Typography>
+              </Stack>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Tipos de entrenamiento */}
+      <Box textAlign="center" mb={5}>
+        <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.muted,
+          textTransform: "uppercase", letterSpacing: "0.08em", mb: 2 }}>
+          Planes disponibles en Nui
+        </Typography>
+        <Stack direction="row" flexWrap="wrap" gap={1} justifyContent="center">
+          {TRAINING_TYPES.map((t) => (
+            <Box key={t} sx={{ fontSize: 13, fontWeight: 600, color: C.brand,
+              bgcolor: C.brandSurf, borderRadius: 999, px: 2, py: 0.7,
+              border: `1px solid rgba(11,94,85,0.15)` }}>
+              {t}
+            </Box>
+          ))}
+        </Stack>
+      </Box>
+
+      {/* CTA */}
+      <Box textAlign="center">
+        <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
+          color: C.brand, fontWeight: 800, fontSize: 15,
+          textTransform: "none", px: 4, py: 1.5, borderRadius: 999,
+          border: `1.5px solid ${C.brand}`, bgcolor: "transparent",
+          "&:hover": { bgcolor: C.brandSurf, transform: "translateY(-1px)" }, transition: "all 0.2s",
+        }}>
+          Probá gratis 7 días
+        </Button>
+      </Box>
+
     </Box>
   </Box>
 );
@@ -665,7 +948,9 @@ const LandingPage = () => {
       <LandingNav scrolled={scrolled} />
       <HeroSection onCTA={goToApp} />
       <MarqueeTicker />
+      <WhyMattersSection onCTA={goToApp} />
       <ModulesSection />
+      <CostComparisonSection onCTA={goToApp} />
       <HowItWorksSection />
       <PricingSection onCTA={goToApp} />
       <FinalCTA onCTA={goToApp} />

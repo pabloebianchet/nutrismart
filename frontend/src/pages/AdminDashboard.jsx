@@ -318,9 +318,9 @@ const AdminDashboard = () => {
   const d = stats?.demo ?? {};
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: C.surfaceAlt,
-      px: { xs: 2, sm: 3, md: 5 }, py: { xs: 3, md: 5 },
-      maxWidth: 1400, mx: "auto" }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: C.surfaceAlt }}>
+    <Box sx={{ maxWidth: 1400, mx: "auto",
+      px: { xs: 2, sm: 3, md: 5 }, py: { xs: 3, md: 5 } }}>
 
       {/* ── HEADER ───────────────────────────────────── */}
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between"
@@ -581,6 +581,7 @@ const AdminDashboard = () => {
       </Paper>
 
       <Box sx={{ height: 48 }} />
+    </Box>
     </Box>
   );
 };
