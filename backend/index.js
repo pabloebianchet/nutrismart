@@ -351,7 +351,7 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
       const updated = await User.findByIdAndUpdate(
         authUser._id,
         { $inc: { healthyPoints: 5 } },
-        { new: true },
+        { returnDocument: "after" },
       );
       totalPoints = updated.healthyPoints;
     } else if (score > 0) {
@@ -363,7 +363,7 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
         const updated = await User.findByIdAndUpdate(
           authUser._id,
           { $inc: { healthyPoints: -deduction } },
-          { new: true },
+          { returnDocument: "after" },
         );
         totalPoints = updated.healthyPoints;
       }
@@ -478,7 +478,7 @@ app.put("/api/user/profile", authMiddleware, async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { sexo, edad, actividad, peso, altura, avatar, profileCompleted: true },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     if (!user) {
@@ -549,7 +549,7 @@ app.put("/api/user/notif-prefs", authMiddleware, async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { $set: update },
-      { new: true }
+      { returnDocument: "after" }
     ).select("notifPrefs");
     if (!user) return res.status(404).json({ error: "Usuario no encontrado." });
     return res.json({ notifPrefs: user.notifPrefs });

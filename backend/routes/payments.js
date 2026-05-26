@@ -129,7 +129,7 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
           currency:        planInfo.currency,
           autoRenew:       true,
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
     }
 
@@ -199,7 +199,7 @@ router.post("/webhook", async (req, res) => {
               },
             },
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: "after" }
         );
 
         const user = await User.findById(userId);
@@ -309,7 +309,7 @@ router.post("/webhook", async (req, res) => {
               },
             },
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: "after" }
         );
 
         const user = await User.findById(userId);

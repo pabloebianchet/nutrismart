@@ -198,7 +198,7 @@ router.post("/session", authMiddleware, async (req, res) => {
     const updated = await User.findByIdAndUpdate(
       req.user._id,
       { $inc: { healthyPoints: 5 } },
-      { new: true }
+      { returnDocument: "after" }
     );
     if (!updated) return res.status(404).json({ error: "Usuario no encontrado." });
 
@@ -252,7 +252,7 @@ router.put("/plan/:planType", authMiddleware, async (req, res) => {
     const doc = await TrainingPlan.findOneAndUpdate(
       { user: req.user._id, planType },
       { $set: { config, plan, startDate, totalDays, sessions: sessions || [] } },
-      { upsert: true, new: true, runValidators: false }
+      { upsert: true, returnDocument: "after", runValidators: false }
     );
     return res.json({ ok: true, id: doc._id });
   } catch (err) {
@@ -275,7 +275,7 @@ router.post("/plan/:planType/session", authMiddleware, async (req, res) => {
     const doc = await TrainingPlan.findOneAndUpdate(
       { user: req.user._id, planType },
       { $push: { sessions: { date, dayKey, dayName: dayName || dayKey, exercises: exercises || {} } } },
-      { new: true }
+      { returnDocument: "after" }
     );
     if (!doc) return res.status(404).json({ error: "Plan no encontrado." });
     return res.json({ ok: true, sessionsCount: doc.sessions.length });
