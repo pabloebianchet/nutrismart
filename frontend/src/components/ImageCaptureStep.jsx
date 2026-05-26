@@ -174,10 +174,15 @@ const ImageCaptureStep = () => {
     if (!bothReady) return;
     setLoading(true);
     try {
+      const token = localStorage.getItem("nutrismartToken");
       const formData = new FormData();
       formData.append("tabla", tablaImage);
       formData.append("ingredientes", ingredientesImage);
-      const res  = await fetch(`${API_URL}/api/ocr`, { method: "POST", body: formData });
+      const res  = await fetch(`${API_URL}/api/ocr`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
       const data = await res.json();
       updateOcrText(data.text);
       navigate("/result");

@@ -75,8 +75,6 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://nutrismart-orcin.vercel.app",
-      "https://nutrismart-lu7u7x32m-pablo-bianchet-martinez-projects.vercel.app",
       "https://nuiapp.com",
       "https://www.nuiapp.com",
     ],
@@ -122,6 +120,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 // =====================
 app.post(
   "/api/ocr",
+  authMiddleware,
   upload.fields([
     { name: "tabla", maxCount: 1 },
     { name: "ingredientes", maxCount: 1 },
@@ -159,20 +158,16 @@ app.post(
 // =====================
 // 🤖 ANALYZE ENDPOINT
 // =====================
-app.post("/api/analyze", async (req, res) => {
+app.post("/api/analyze", authMiddleware, async (req, res) => {
   try {
-    const { userData, productText, googleId, userId } = req.body;
+    const { userData, productText } = req.body;
 
     if (!userData || !productText) {
       return res.status(400).json({ error: "Faltan datos requeridos" });
     }
 
-    // ── Control de límites por plan ──────────────────────────
-    const identifier = userId || googleId;
-    const isObjId = identifier && /^[a-f\d]{24}$/i.test(identifier);
-    const authUser = identifier
-      ? isObjId ? await User.findById(identifier) : await User.findOne({ googleId: identifier })
-      : null;
+    // ── Usuario autenticado via JWT ──────────────────────────
+    const authUser = req.user;
 
     if (authUser) {
       const now = new Date();
@@ -338,12 +333,6 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
 
     const score = match ? parseInt(match[1], 10) : 0;
 
-    if (!authUser) {
-      return res.status(404).json({
-        error: "User not found. Analysis was not saved.",
-      });
-    }
-
     await Analysis.create({
       user: authUser._id,
       score,
@@ -482,20 +471,12 @@ app.post("/api/auth/google", async (req, res) => {
 // =====================
 // 👤 UPDATE USER PROFILE
 // =====================
-app.put("/api/user/profile", async (req, res) => {
-  const { googleId, userId, sexo, edad, actividad, peso, altura, avatar } = req.body;
-
-  const identifier = userId || googleId;
-  if (!identifier) {
-    return res.status(400).json({ error: "Missing user identifier" });
-  }
+app.put("/api/user/profile", authMiddleware, async (req, res) => {
+  const { sexo, edad, actividad, peso, altura, avatar } = req.body;
 
   try {
-    const isObjectId = /^[a-f\d]{24}$/i.test(identifier);
-    const filter = isObjectId ? { _id: identifier } : { googleId: identifier };
-
-    const user = await User.findOneAndUpdate(
-      filter,
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
       { sexo, edad, actividad, peso, altura, avatar, profileCompleted: true },
       { new: true },
     );

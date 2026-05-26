@@ -138,15 +138,14 @@ const ResultScreen = () => {
     const fetchAnalysis = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem("nutrismartToken");
         const response = await fetch(`${API_URL}/api/analyze`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId:      user._id,
-            googleId:    user.googleId,
-            userData,
-            productText: ocrText,
-          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userData, productText: ocrText }),
         });
         const data = await response.json();
 

@@ -1,10 +1,40 @@
 import express from "express";
+import crypto from "crypto";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
+
+/* ─── Validación de firma de webhook MP ─────────────────────────────────── */
+const verifyMPSignature = (req) => {
+  const secret = process.env.MP_WEBHOOK_SECRET;
+  if (!secret) return true; // sin secret configurado → skip (dev)
+
+  const xSignature = req.headers["x-signature"];
+  const xRequestId = req.headers["x-request-id"];
+  if (!xSignature) return false;
+
+  const parts = {};
+  xSignature.split(",").forEach((part) => {
+    const [k, v] = part.split("=");
+    if (k && v) parts[k.trim()] = v.trim();
+  });
+
+  const { ts, v1 } = parts;
+  if (!ts || !v1) return false;
+
+  const dataId = req.query?.["data.id"] || req.body?.data?.id || "";
+  const manifest = `id:${dataId};request-id:${xRequestId || ""};ts:${ts};`;
+
+  const hash = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+  try {
+    return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(v1, "hex"));
+  } catch {
+    return false;
+  }
+};
 
 const router = express.Router();
 
@@ -112,6 +142,12 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
 
 /* ─── WEBHOOK DE MERCADO PAGO ────────────────────────────────── */
 router.post("/webhook", async (req, res) => {
+  // Validar firma MP
+  if (!verifyMPSignature(req)) {
+    console.warn("⚠️  Webhook MP rechazado: firma inválida");
+    return res.sendStatus(401);
+  }
+
   try {
     const { type, data } = req.body;
 
