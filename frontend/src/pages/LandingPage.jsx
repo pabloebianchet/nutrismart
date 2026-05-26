@@ -525,10 +525,10 @@ const TRAINING_TYPES = [
 
 const CostComparisonSection = ({ onCTA }) => (
   <Box sx={{ background: "#F7FAF9", py: { xs: 9, md: 13 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
-    <Box sx={{ maxWidth: 1000, mx: "auto" }}>
+    <Box sx={{ maxWidth: 720, mx: "auto" }}>
 
-      <Box textAlign="center" mb={7}>
-        <Chip label="La alternativa inteligente"
+      <Box textAlign="center" mb={6}>
+        <Chip label="Todo en un solo lugar"
           icon={<BoltRoundedIcon sx={{ fontSize: "14px !important", color: `${C.brand} !important` }} />}
           sx={{ mb: 2.5, bgcolor: C.brandSurf, color: C.brand, fontWeight: 700, fontSize: 12,
             border: "1px solid rgba(11,94,85,0.18)", px: 0.5 }} />
@@ -536,106 +536,56 @@ const CostComparisonSection = ({ onCTA }) => (
           fontSize: { xs: 26, sm: 36 }, fontWeight: 900, color: C.text,
           letterSpacing: "-1px", lineHeight: 1.15, mb: 2,
         }}>
-          Lo que un nutricionista y un personal<br />
-          trainer cobran por <Box component="span" sx={{ color: C.brand }}>una sola sesión</Box>
+          Tu asistente de salud<br />
+          <Box component="span" sx={{ color: C.brand }}>siempre disponible</Box>
         </Typography>
-        <Typography sx={{ fontSize: 16, color: C.muted, maxWidth: 540, mx: "auto", lineHeight: 1.7 }}>
-          Con Nui tenés análisis nutricional, dieta personalizada y plan de entrenamiento
-          adaptado a tus metas — por una fracción del costo mensual.
+        <Typography sx={{ fontSize: 16, color: C.muted, maxWidth: 480, mx: "auto", lineHeight: 1.7 }}>
+          Análisis nutricional, dieta personalizada y plan de entrenamiento adaptado a tus metas,
+          disponibles las 24 hs desde tu celular.
         </Typography>
       </Box>
 
-      {/* Comparativa */}
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" }, gap: 2.5, mb: 6 }}>
-
-        {/* Nutricionista */}
-        <Box sx={{ background: "#fff", border: `1.5px solid rgba(0,0,0,0.07)`, borderRadius: 4, p: 3.5,
-          boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.muted,
-            textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
-            Nutricionista
-          </Typography>
-          <Typography sx={{ fontSize: 13, color: C.muted, lineHeight: 1.7, mb: 2 }}>
-            Una consulta con un nutricionista en Argentina cuesta alrededor de
-          </Typography>
-          <Typography sx={{ fontSize: 36, fontWeight: 900, color: C.text, lineHeight: 1, mb: 0.5 }}>
-            $70.000
-          </Typography>
-          <Typography sx={{ fontSize: 12.5, color: C.muted }}>por consulta · sin seguimiento diario</Typography>
-          <Box sx={{ mt: 2.5, pt: 2.5, borderTop: `1px solid rgba(0,0,0,0.06)` }}>
-            {["Plan alimentario básico", "1 revisión por mes", "Sin análisis de etiquetas"].map((f) => (
-              <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
-                <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "rgba(0,0,0,0.15)", flexShrink: 0 }} />
-                <Typography sx={{ fontSize: 13, color: C.muted }}>{f}</Typography>
+      {/* Card Nui centrada */}
+      <Box sx={{
+        background: `linear-gradient(145deg, ${C.brand}, ${C.brandLight})`,
+        border: `1.5px solid ${C.brand}`, borderRadius: 4, p: { xs: 3, md: 4 },
+        boxShadow: `0 16px 48px rgba(11,94,85,0.22)`,
+        mb: 5,
+      }}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 3, sm: 5 }} alignItems="flex-start">
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)",
+              textTransform: "uppercase", letterSpacing: "0.08em", mb: 1 }}>
+              Nui — Plan Gold
+            </Typography>
+            <Typography sx={{ fontSize: 42, fontWeight: 900, color: "#fff", lineHeight: 1, mb: 0.5 }}>
+              $5.990
+            </Typography>
+            <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+              por mes · cancelá cuando quieras
+            </Typography>
+          </Box>
+          <Box sx={{ flex: 1.4 }}>
+            {[
+              "Análisis nutricional ilimitado",
+              "Dieta y recetas personalizadas con IA",
+              "Rutina de hipertrofia, running, calistenia y más",
+              "Seguimiento diario en la app",
+            ].map((f) => (
+              <Stack key={f} direction="row" spacing={1.2} alignItems="center" mb={1}>
+                <CheckRoundedIcon sx={{ fontSize: 15, color: C.heroAccent, flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.88)" }}>{f}</Typography>
               </Stack>
             ))}
           </Box>
-        </Box>
-
-        {/* Personal trainer */}
-        <Box sx={{ background: "#fff", border: `1.5px solid rgba(0,0,0,0.07)`, borderRadius: 4, p: 3.5,
-          boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.muted,
-            textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
-            Personal Trainer
-          </Typography>
-          <Typography sx={{ fontSize: 13, color: C.muted, lineHeight: 1.7, mb: 2 }}>
-            Una sesión con personal trainer en Argentina tiene un costo de
-          </Typography>
-          <Typography sx={{ fontSize: 36, fontWeight: 900, color: C.text, lineHeight: 1, mb: 0.5 }}>
-            $15.000 – $30.000
-          </Typography>
-          <Typography sx={{ fontSize: 12.5, color: C.muted }}>por hora · sin personalización continua</Typography>
-          <Box sx={{ mt: 2.5, pt: 2.5, borderTop: `1px solid rgba(0,0,0,0.06)` }}>
-            {["Rutina genérica o semigenérica", "Seguimiento presencial", "Sin análisis nutricional"].map((f) => (
-              <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
-                <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "rgba(0,0,0,0.15)", flexShrink: 0 }} />
-                <Typography sx={{ fontSize: 13, color: C.muted }}>{f}</Typography>
-              </Stack>
-            ))}
-          </Box>
-        </Box>
-
-        {/* Nui */}
-        <Box sx={{
-          background: `linear-gradient(145deg, ${C.brand}, ${C.brandLight})`,
-          border: `1.5px solid ${C.brand}`, borderRadius: 4, p: 3.5,
-          boxShadow: `0 12px 40px rgba(11,94,85,0.22)`,
-          position: "relative",
-        }}>
-          <Box sx={{ position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
-            bgcolor: C.heroAccent, color: "#fff", fontSize: 11, fontWeight: 800,
-            px: 2.5, py: 0.5, borderRadius: 999, whiteSpace: "nowrap",
-            boxShadow: "0 4px 12px rgba(16,185,129,0.40)" }}>
-            La alternativa inteligente
-          </Box>
-          <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.65)",
-            textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5, mt: 0.5 }}>
-            Nui — Plan Gold
-          </Typography>
-          <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.70)", lineHeight: 1.7, mb: 2 }}>
-            Nutricionista IA + personal trainer IA + análisis ilimitados, por
-          </Typography>
-          <Typography sx={{ fontSize: 36, fontWeight: 900, color: "#fff", lineHeight: 1, mb: 0.5 }}>
-            $5.990
-          </Typography>
-          <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.60)" }}>por mes · todo incluido · cancelá cuando quieras</Typography>
-          <Box sx={{ mt: 2.5, pt: 2.5, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
-            {["Análisis nutricional ilimitado", "Dieta y recetas personalizadas", "Rutina de hipertrofia, running, calistenia y más", "Seguimiento diario en la app"].map((f) => (
-              <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
-                <CheckRoundedIcon sx={{ fontSize: 14, color: C.heroAccent, flexShrink: 0 }} />
-                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{f}</Typography>
-              </Stack>
-            ))}
-          </Box>
-        </Box>
+        </Stack>
       </Box>
 
       {/* Tipos de entrenamiento */}
       <Box textAlign="center" mb={5}>
-        <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.muted,
+        <Typography sx={{ fontSize: 12, fontWeight: 700, color: C.muted,
           textTransform: "uppercase", letterSpacing: "0.08em", mb: 2 }}>
-          Planes disponibles en Nui
+          Objetivos disponibles
         </Typography>
         <Stack direction="row" flexWrap="wrap" gap={1} justifyContent="center">
           {TRAINING_TYPES.map((t) => (
