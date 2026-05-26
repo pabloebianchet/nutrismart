@@ -1,5 +1,5 @@
 import express from "express";
-import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
+import { MercadoPagoConfig, Payment } from "mercadopago";
 import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -25,12 +25,20 @@ const PLANS = {
   },
 };
 
-const getMPClient = () => {
-  if (!process.env.MP_ACCESS_TOKEN) throw new Error("MP_ACCESS_TOKEN no configurado");
-  return new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+/* ─── Helper: fetch autenticado a la API de MP ───────────────── */
+const mpFetch = (path, options = {}) => {
+  const token = process.env.MP_ACCESS_TOKEN;
+  return fetch(`https://api.mercadopago.com${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {}),
+    },
+  });
 };
 
-/* ─── CREAR SUSCRIPCIÓN ───────────────────────────────────── */
+/* ─── CREAR SUSCRIPCIÓN (Preapproval recurrente) ─────────────── */
 router.post("/subscribe", authMiddleware, async (req, res) => {
   const { plan } = req.body;
 
@@ -43,46 +51,41 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
   }
 
   try {
-    const user = req.user;
+    const user     = req.user;
     const planInfo = PLANS[plan];
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
-    const client = getMPClient();
-    const preference = new Preference(client);
-
-    const returnUrl = process.env.MP_WEBHOOK_URL
-      ? process.env.MP_WEBHOOK_URL.replace("/api/payments/webhook", "/payment/return")
-      : `${frontendUrl}/subscription/success`;
-
-    const mpResponse = await preference.create({
-      body: {
-        items: [{
-          id: plan,
-          title: `NutriSmart · ${planInfo.name}`,
-          description: planInfo.description,
-          quantity: 1,
-          unit_price: planInfo.amount,
-          currency_id: planInfo.currency,
-        }],
-        payer: { email: user.email },
+    const mpRes = await mpFetch("/preapproval", {
+      method: "POST",
+      body: JSON.stringify({
+        reason:             `NutriSmart · ${planInfo.name}`,
         external_reference: `${user._id}|${plan}`,
-        back_urls: {
-          success: returnUrl,
-          failure: returnUrl,
-          pending: returnUrl,
+        payer_email:        user.email,
+        auto_recurring: {
+          frequency:          1,
+          frequency_type:     "months",
+          transaction_amount: planInfo.amount,
+          currency_id:        planInfo.currency,
         },
-        auto_return: "approved",
+        back_url:         `${frontendUrl}/subscription/success`,
         notification_url: process.env.MP_WEBHOOK_URL,
-      },
+        status:           "pending",
+      }),
     });
 
-    // Guardar preferencia pendiente sin pisar una suscripción activa
-    // (ej: usuario con free trial que intenta contratar gold y rebota)
+    if (!mpRes.ok) {
+      const errBody = await mpRes.json().catch(() => ({}));
+      console.error("MP Preapproval error:", errBody);
+      return res.status(502).json({ error: "Error al crear la suscripción en Mercado Pago." });
+    }
+
+    const mpData = await mpRes.json();
+
+    // No pisar una suscripción activa (ej: free trial vigente)
     const existingSub = await Subscription.findOne({ user: user._id });
 
     if (existingSub?.status === "active") {
-      // Solo actualizamos el ID de preferencia para tracking; el plan activo se preserva
-      existingSub.mpSubscriptionId = mpResponse.id;
+      existingSub.mpSubscriptionId = mpData.id;
       await existingSub.save();
     } else {
       await Subscription.findOneAndUpdate(
@@ -90,46 +93,43 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
         {
           user: user._id,
           plan,
-          status: "pending",
-          mpSubscriptionId: mpResponse.id,
-          amount: planInfo.amount,
-          currency: planInfo.currency,
-          autoRenew: true,
+          status:          "pending",
+          mpSubscriptionId: mpData.id,
+          amount:          planInfo.amount,
+          currency:        planInfo.currency,
+          autoRenew:       true,
         },
         { upsert: true, new: true }
       );
     }
 
-    return res.json({ initPoint: mpResponse.init_point });
+    return res.json({ initPoint: mpData.init_point });
   } catch (err) {
-    console.error("Subscribe error completo:", err);
+    console.error("Subscribe error:", err);
     return res.status(500).json({ error: err.message || "Error al crear la suscripción." });
   }
 });
 
-/* ─── WEBHOOK DE MERCADO PAGO ─────────────────────────────── */
+/* ─── WEBHOOK DE MERCADO PAGO ────────────────────────────────── */
 router.post("/webhook", async (req, res) => {
   try {
     const { type, data } = req.body;
 
-    if (type === "payment" && data?.id) {
-      const client = getMPClient();
-      const paymentClient = new Payment(client);
-      const mp = await paymentClient.get({ id: data.id });
+    /* ── 1. Cobro mensual procesado (suscripción recurrente) ── */
+    if (type === "subscription_authorized_payment" && data?.id) {
+      const pmRes  = await mpFetch(`/authorized_payments/${data.id}`);
+      const payment = await pmRes.json();
 
-      if (mp.status === "approved") {
-        // external_reference tiene formato "userId|plan"
-        const [userId, plan] = (mp.external_reference || "").split("|");
+      if (payment.status === "processed") {
+        // Obtenemos el preapproval para leer external_reference
+        const paRes      = await mpFetch(`/preapproval/${payment.preapproval_id}`);
+        const preapproval = await paRes.json();
+
+        const [userId, plan] = (preapproval.external_reference || "").split("|");
         if (!userId) return res.sendStatus(200);
 
         const planInfo = PLANS[plan];
         if (!planInfo) return res.sendStatus(200);
-
-        // Loguear discrepancia de monto (no rechazar — MP puede agregar cargos o cuotas)
-        const expectedAmount = planInfo.amount;
-        if (mp.transaction_amount && mp.transaction_amount < expectedAmount * 0.50) {
-          console.warn(`Webhook: monto sospechosamente bajo: esperado ~${expectedAmount}, recibido ${mp.transaction_amount}`);
-        }
 
         const now = new Date();
         const end = new Date(now);
@@ -139,23 +139,25 @@ router.post("/webhook", async (req, res) => {
           { user: userId },
           {
             $set: {
-              user: userId,
+              user:             userId,
               plan,
-              status: "active",
-              startDate: now,
-              endDate: end,
-              amount: mp.transaction_amount,
-              currency: mp.currency_id,
+              status:           "active",
+              startDate:        now,
+              endDate:          end,
+              amount:           payment.transaction_amount ?? planInfo.amount,
+              currency:         planInfo.currency,
+              mpSubscriptionId: payment.preapproval_id,
+              autoRenew:        true,
             },
             $push: {
               paymentHistory: {
                 $each: [{
-                  mpPaymentId: mp.id.toString(),
-                  amount: mp.transaction_amount,
-                  currency: mp.currency_id,
-                  status: "approved",
+                  mpPaymentId: String(payment.id),
+                  amount:      payment.transaction_amount ?? planInfo.amount,
+                  currency:    planInfo.currency,
+                  status:      "approved",
                   plan,
-                  description: `Pago ${planInfo.name} — 30 días`,
+                  description: `Cobro ${planInfo.name} — 30 días`,
                 }],
                 $position: 0,
               },
@@ -168,18 +170,16 @@ router.post("/webhook", async (req, res) => {
         if (user) {
           const isRenewal = sub.paymentHistory.length > 1;
 
-          // Email de recibo de pago (transaccional, siempre se envía)
           await sendPaymentEmail({
-            name: user.name,
-            email: user.email,
+            name:     user.name,
+            email:    user.email,
             plan,
-            amount: mp.transaction_amount,
-            currency: mp.currency_id,
-            endDate: end,
+            amount:   payment.transaction_amount ?? planInfo.amount,
+            currency: planInfo.currency,
+            endDate:  end,
             isRenewal,
           });
 
-          // Email motivacional de renovación (solo si hay renovación y el user no pausó)
           if (isRenewal && !user.notifPrefs?.paused && user.notifPrefs?.renewal !== false) {
             const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
             sendNotificationEmail("renewal", {
@@ -193,6 +193,90 @@ router.post("/webhook", async (req, res) => {
       }
     }
 
+    /* ── 2. Cambio de estado de suscripción (cancelación, pausa) ── */
+    if (type === "subscription_preapproval" && data?.id) {
+      const paRes      = await mpFetch(`/preapproval/${data.id}`);
+      const preapproval = await paRes.json();
+
+      const [userId] = (preapproval.external_reference || "").split("|");
+      if (!userId) return res.sendStatus(200);
+
+      if (preapproval.status === "cancelled") {
+        await Subscription.findOneAndUpdate(
+          { user: userId, mpSubscriptionId: data.id },
+          { $set: { status: "cancelled", autoRenew: false } }
+        );
+        console.log(`Suscripción cancelada desde MP para usuario ${userId}`);
+      }
+
+      if (preapproval.status === "authorized") {
+        // Primera autorización — el primer cobro llega via subscription_authorized_payment
+        console.log(`Suscripción autorizada para usuario ${userId}`);
+      }
+    }
+
+    /* ── 3. Compatibilidad con pagos únicos anteriores (Checkout Pro) ── */
+    if (type === "payment" && data?.id) {
+      const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+      const paymentClient = new Payment(client);
+      const mp = await paymentClient.get({ id: data.id });
+
+      if (mp.status === "approved") {
+        const [userId, plan] = (mp.external_reference || "").split("|");
+        if (!userId) return res.sendStatus(200);
+
+        const planInfo = PLANS[plan];
+        if (!planInfo) return res.sendStatus(200);
+
+        const now = new Date();
+        const end = new Date(now);
+        end.setMonth(end.getMonth() + 1);
+
+        const sub = await Subscription.findOneAndUpdate(
+          { user: userId },
+          {
+            $set: {
+              user:      userId,
+              plan,
+              status:    "active",
+              startDate: now,
+              endDate:   end,
+              amount:    mp.transaction_amount,
+              currency:  mp.currency_id,
+            },
+            $push: {
+              paymentHistory: {
+                $each: [{
+                  mpPaymentId: mp.id.toString(),
+                  amount:      mp.transaction_amount,
+                  currency:    mp.currency_id,
+                  status:      "approved",
+                  plan,
+                  description: `Pago ${planInfo.name} — 30 días`,
+                }],
+                $position: 0,
+              },
+            },
+          },
+          { upsert: true, new: true }
+        );
+
+        const user = await User.findById(userId);
+        if (user) {
+          const isRenewal = sub.paymentHistory.length > 1;
+          await sendPaymentEmail({
+            name:     user.name,
+            email:    user.email,
+            plan,
+            amount:   mp.transaction_amount,
+            currency: mp.currency_id,
+            endDate:  end,
+            isRenewal,
+          });
+        }
+      }
+    }
+
     return res.sendStatus(200);
   } catch (err) {
     console.error("Webhook error:", err.message);
@@ -200,12 +284,12 @@ router.post("/webhook", async (req, res) => {
   }
 });
 
-/* ─── GET SUSCRIPCIÓN DEL USUARIO ────────────────────────── */
+/* ─── GET SUSCRIPCIÓN DEL USUARIO ────────────────────────────── */
 router.get("/subscription", authMiddleware, async (req, res) => {
   try {
     const sub = await Subscription.findOne({ user: req.user._id });
 
-    // Auto-expirar cualquier suscripción vencida (free trial o plan pago)
+    // Auto-expirar cualquier suscripción vencida
     if (sub?.status === "active" && sub.endDate && sub.endDate < new Date()) {
       sub.status = "expired";
       await sub.save();
@@ -217,15 +301,26 @@ router.get("/subscription", authMiddleware, async (req, res) => {
   }
 });
 
-/* ─── CANCELAR SUSCRIPCIÓN ───────────────────────────────── */
+/* ─── CANCELAR SUSCRIPCIÓN ───────────────────────────────────── */
 router.post("/cancel", authMiddleware, async (req, res) => {
   try {
     const sub = await Subscription.findOne({ user: req.user._id });
     if (!sub) return res.status(404).json({ error: "No tenés una suscripción activa." });
 
-    // Checkout Pro es pago único — no hay suscripción MP que cancelar en la API
+    // Cancelar el preapproval en MP para detener el cobro automático
+    if (sub.mpSubscriptionId) {
+      try {
+        await mpFetch(`/preapproval/${sub.mpSubscriptionId}`, {
+          method: "PUT",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+      } catch (mpErr) {
+        console.error("Error al cancelar en MP:", mpErr.message);
+        // Cancelamos localmente igual aunque MP falle
+      }
+    }
 
-    sub.status = "cancelled";
+    sub.status    = "cancelled";
     sub.autoRenew = false;
     await sub.save();
 
@@ -235,7 +330,7 @@ router.post("/cancel", authMiddleware, async (req, res) => {
   }
 });
 
-/* ─── TOGGLE AUTO-RENOVACIÓN ────────────────────────────── */
+/* ─── TOGGLE AUTO-RENOVACIÓN ─────────────────────────────────── */
 router.post("/toggle-renew", authMiddleware, async (req, res) => {
   try {
     const sub = await Subscription.findOne({ user: req.user._id });
