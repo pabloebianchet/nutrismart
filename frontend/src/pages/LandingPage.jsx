@@ -104,15 +104,6 @@ const HeroSection = ({ onCTA }) => (
     px: { xs: 2.5, sm: 5, md: 8, lg: 12 },
     pt: { xs: 10, md: 0 }, pb: { xs: 8, md: 0 },
   }}>
-    {/* Foto hero con overlay */}
-    <Box aria-hidden sx={{
-      position: "absolute", inset: 0,
-      backgroundImage: "url(/img/fondoVerde.jpg)",
-      backgroundSize: "cover",
-      backgroundPosition: "center center",
-      backgroundRepeat: "no-repeat",
-      opacity: 0.13, pointerEvents: "none",
-    }} />
 
     {/* Ilustración decorativa */}
     <Box component="img" src="/img/fondoCell.png" alt="" aria-hidden="true" sx={{
