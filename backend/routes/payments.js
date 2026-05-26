@@ -76,20 +76,29 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
       },
     });
 
-    // Guardar preferencia pendiente
-    await Subscription.findOneAndUpdate(
-      { user: user._id },
-      {
-        user: user._id,
-        plan,
-        status: "pending",
-        mpSubscriptionId: mpResponse.id,
-        amount: planInfo.amount,
-        currency: planInfo.currency,
-        autoRenew: true,
-      },
-      { upsert: true, new: true }
-    );
+    // Guardar preferencia pendiente sin pisar una suscripción activa
+    // (ej: usuario con free trial que intenta contratar gold y rebota)
+    const existingSub = await Subscription.findOne({ user: user._id });
+
+    if (existingSub?.status === "active") {
+      // Solo actualizamos el ID de preferencia para tracking; el plan activo se preserva
+      existingSub.mpSubscriptionId = mpResponse.id;
+      await existingSub.save();
+    } else {
+      await Subscription.findOneAndUpdate(
+        { user: user._id },
+        {
+          user: user._id,
+          plan,
+          status: "pending",
+          mpSubscriptionId: mpResponse.id,
+          amount: planInfo.amount,
+          currency: planInfo.currency,
+          autoRenew: true,
+        },
+        { upsert: true, new: true }
+      );
+    }
 
     return res.json({ initPoint: mpResponse.init_point });
   } catch (err) {
