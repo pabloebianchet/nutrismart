@@ -429,6 +429,82 @@ const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year }) => {
 </html>`;
 };
 
+/* ── Email interno: nuevo suscriptor (va al admin) ──────────────────────── */
+
+const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, startDate, endDate, isRenewal, year }) => {
+  const planLabel   = plan === "gold" ? "🥇 Gold" : "🥈 Silver";
+  const planColor   = plan === "gold" ? "#C9952A" : "#71879C";
+  const formatDate  = (d) => new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "long", year: "numeric" });
+  const formatARS   = (n) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Nuevo suscriptor — Nui Admin</title>
+</head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+
+        <tr>
+          <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:24px 32px;text-align:center;">
+            <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Nui · Admin</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.08em;">
+              ${isRenewal ? "RENOVACIÓN DE SUSCRIPCIÓN" : "NUEVA SUSCRIPCIÓN"}
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background:#fff;padding:32px;">
+            <div style="text-align:center;margin-bottom:24px;">
+              <div style="font-size:36px;">${isRenewal ? "🔄" : "💰"}</div>
+              <div style="font-size:20px;font-weight:800;color:#0F2420;margin-top:8px;">
+                ${isRenewal ? "Renovación exitosa" : "¡Nuevo suscriptor!"}
+              </div>
+            </div>
+
+            <!-- Plan badge -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+              <tr>
+                <td style="text-align:center;background:${planColor}18;border:1.5px solid ${planColor}55;border-radius:12px;padding:16px 20px;">
+                  <div style="font-size:13px;font-weight:700;color:${planColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Plan contratado</div>
+                  <div style="font-size:22px;font-weight:900;color:${planColor};">${planLabel}</div>
+                  <div style="font-size:18px;font-weight:700;color:#0F2420;margin-top:6px;">${formatARS(amount)} / mes</div>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Datos del usuario -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf9;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+              <tr><td>
+                <div style="font-size:11px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Datos del usuario</div>
+                <div style="font-size:14px;color:#0F2420;margin-bottom:6px;"><strong>Nombre:</strong> ${userName}</div>
+                <div style="font-size:14px;color:#0F2420;margin-bottom:6px;"><strong>Email:</strong> ${userEmail}</div>
+                <div style="font-size:14px;color:#0F2420;margin-bottom:6px;"><strong>Inicio:</strong> ${formatDate(startDate)}</div>
+                <div style="font-size:14px;color:#0F2420;"><strong>Vence:</strong> ${formatDate(endDate)}</div>
+              </td></tr>
+            </table>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background:#0B5E55;border-radius:0 0 16px 16px;padding:16px 32px;text-align:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);">Notificación interna automática — © ${year} Nui</div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
+
 /* ── Función principal ───────────────────────────────────────────────────── */
 
 /**
@@ -457,6 +533,26 @@ export const sendNotificationEmail = async (type, opts) => {
   } else if (type === "renewal") {
     subject = `¡Tu plan sigue activo, ${firstName}! 💚 — Nui`;
     html    = buildRenewalHtml({ firstName, ...opts, appUrl, year });
+  } else if (type === "admin-new-sub") {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) return;
+    const planLabel = opts.plan === "gold" ? "Gold" : "Silver";
+    subject = `${opts.isRenewal ? "🔄 Renovación" : "💰 Nuevo suscriptor"} — Plan ${planLabel} | Nui`;
+    html    = buildAdminNewSubHtml({ ...opts, year });
+
+    try {
+      const transporter = createTransporter();
+      await transporter.sendMail({
+        from: `"Nui Admin" <${process.env.EMAIL_USER}>`,
+        to:   adminEmail,
+        subject,
+        html,
+      });
+      console.log(`✅ Admin email [new-sub] enviado a ${adminEmail}`);
+    } catch (err) {
+      console.error(`❌ Error enviando admin email:`, err.message);
+    }
+    return;
   } else {
     return;
   }

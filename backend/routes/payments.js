@@ -180,6 +180,18 @@ router.post("/webhook", async (req, res) => {
             isRenewal,
           });
 
+          // Email al admin con info del nuevo suscriptor
+          sendNotificationEmail("admin-new-sub", {
+            userName:  user.name,
+            userEmail: user.email,
+            plan,
+            amount:    payment.transaction_amount ?? planInfo.amount,
+            currency:  planInfo.currency,
+            startDate: now,
+            endDate:   end,
+            isRenewal,
+          }).catch(() => {});
+
           if (isRenewal && !user.notifPrefs?.paused && user.notifPrefs?.renewal !== false) {
             const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
             sendNotificationEmail("renewal", {
@@ -273,6 +285,17 @@ router.post("/webhook", async (req, res) => {
             endDate:  end,
             isRenewal,
           });
+
+          sendNotificationEmail("admin-new-sub", {
+            userName:  user.name,
+            userEmail: user.email,
+            plan,
+            amount:    mp.transaction_amount,
+            currency:  mp.currency_id,
+            startDate: now,
+            endDate:   end,
+            isRenewal,
+          }).catch(() => {});
         }
       }
     }
@@ -336,7 +359,22 @@ router.post("/toggle-renew", authMiddleware, async (req, res) => {
     const sub = await Subscription.findOne({ user: req.user._id });
     if (!sub) return res.status(404).json({ error: "No tenés una suscripción." });
 
-    sub.autoRenew = !sub.autoRenew;
+    const newAutoRenew = !sub.autoRenew;
+
+    // Si se desactiva: cancelar el preapproval en MP para detener el cobro automático
+    // El status queda "active" — el usuario conserva acceso hasta endDate
+    if (!newAutoRenew && sub.mpSubscriptionId) {
+      try {
+        await mpFetch(`/preapproval/${sub.mpSubscriptionId}`, {
+          method: "PUT",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+      } catch (mpErr) {
+        console.error("Error al cancelar preapproval en MP:", mpErr.message);
+      }
+    }
+
+    sub.autoRenew = newAutoRenew;
     await sub.save();
 
     return res.json({ autoRenew: sub.autoRenew });
