@@ -193,7 +193,7 @@ export default function TermsPage() {
             <P>
               Para consultas sobre estos Términos y Condiciones, puede contactarnos en:
               <br />
-              📧 <strong>info@raccoonnow.com.ar</strong>
+              📧 <strong>info@nuiapp.com</strong>
             </P>
           </Section>
 

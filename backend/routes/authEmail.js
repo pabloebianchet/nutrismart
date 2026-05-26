@@ -154,13 +154,13 @@ router.post("/forgot-password", forgotLimiter, async (req, res) => {
 
     const transporter = createTransporter();
     await transporter.sendMail({
-      from: `"NutriSmart" <${process.env.EMAIL_USER}>`,
+      from: `"Nui" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: "Restablecer contraseña — NutriSmart",
+      subject: "Restablecer contraseña — Nui",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f7faf9; border-radius: 16px;">
           <div style="text-align: center; margin-bottom: 28px;">
-            <h1 style="color: #0B5E55; font-size: 22px; margin: 0;">NutriSmart</h1>
+            <h1 style="color: #0B5E55; font-size: 22px; margin: 0;">Nui</h1>
           </div>
           <h2 style="color: #0F2420; font-size: 20px; margin-bottom: 12px;">Restablecer contraseña</h2>
           <p style="color: #4A6B67; line-height: 1.6; margin-bottom: 24px;">
@@ -178,7 +178,7 @@ router.post("/forgot-password", forgotLimiter, async (req, res) => {
           </p>
           <hr style="border: none; border-top: 1px solid #e0eeec; margin: 24px 0;" />
           <p style="color: #B2DDD9; font-size: 12px; text-align: center; margin: 0;">
-            © ${new Date().getFullYear()} NutriSmart
+            © ${new Date().getFullYear()} Nui
           </p>
         </div>
       `,

@@ -41,7 +41,7 @@ export default function PrivacyPage() {
             <P>
               El responsable del tratamiento de sus datos personales es el titular del servicio <strong>Nui</strong>,
               con domicilio en la República Argentina. Para cualquier consulta relacionada con el tratamiento
-              de sus datos personales puede contactarnos a través de: <strong>info@raccoonnow.com.ar</strong>
+              de sus datos personales puede contactarnos a través de: <strong>info@nuiapp.com</strong>
             </P>
           </Section>
 
@@ -132,7 +132,7 @@ export default function PrivacyPage() {
               <Li><strong>Oposición:</strong> oponerse al tratamiento de sus datos en determinadas circunstancias.</Li>
             </Box>
             <P>
-              Para ejercer cualquiera de estos derechos, envíe una solicitud a <strong>info@raccoonnow.com.ar</strong> indicando
+              Para ejercer cualquiera de estos derechos, envíe una solicitud a <strong>info@nuiapp.com</strong> indicando
               su nombre completo, correo electrónico registrado y el derecho que desea ejercer.
               Responderemos en un plazo máximo de <strong>5 días hábiles</strong>.
             </P>

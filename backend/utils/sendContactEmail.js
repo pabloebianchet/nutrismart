@@ -17,7 +17,7 @@ export const sendContactEmail = async ({ name, email, subject, message }) => {
     return;
   }
 
-  const adminEmail = process.env.CONTACT_RECIPIENT || "raccoonitweb@gmail.com";
+  const adminEmail = process.env.CONTACT_RECIPIENT || process.env.ADMIN_EMAIL || "info@nuiapp.com";
   const year = new Date().getFullYear();
 
   const html = `
@@ -122,7 +122,7 @@ ${message}
 
   const transporter = createTransporter();
   await transporter.sendMail({
-    from: `"NutriSmart Contacto" <${process.env.EMAIL_USER}>`,
+    from: `"Nui" <${process.env.EMAIL_USER}>`,
     to: adminEmail,
     replyTo: `"${name}" <${email}>`,
     subject: `[NutriSmart] ${subject}`,

@@ -269,7 +269,7 @@ const ContactPage = () => {
                 {
                   Icon: MailOutlineRoundedIcon,
                   label: "Email",
-                  value: "info@raccoonnow.com.ar",
+                  value: "info@nuiapp.com",
                 },
                 {
                   Icon: AccessTimeRoundedIcon,

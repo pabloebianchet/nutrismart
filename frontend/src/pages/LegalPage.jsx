@@ -60,7 +60,7 @@ export default function LegalPage() {
               <Typography sx={{ fontSize: 14, color: C.muted, lineHeight: 2 }}>
                 <strong>Nombre del servicio:</strong> Nui<br />
                 <strong>País de operación:</strong> República Argentina<br />
-                <strong>Correo de contacto:</strong> info@raccoonnow.com.ar<br />
+                <strong>Correo de contacto:</strong> info@nuiapp.com<br />
                 <strong>Normativa aplicable:</strong> Ley 25.326 (Protección de Datos Personales), Ley 24.240 (Defensa del Consumidor), Ley 26.994 (Código Civil y Comercial)
               </Typography>
             </Box>
@@ -220,7 +220,7 @@ export default function LegalPage() {
           <Section title="Contacto">
             <P>
               Para consultas sobre esta Política de Cookies o sobre el Aviso Legal,
-              puede contactarnos en: <strong>info@raccoonnow.com.ar</strong>
+              puede contactarnos en: <strong>info@nuiapp.com</strong>
             </P>
           </Section>
 
