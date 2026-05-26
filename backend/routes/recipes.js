@@ -2,6 +2,7 @@ import express from "express";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
+import { requireActiveSub } from "../middleware/requireActiveSub.js";
 import SavedRecipe from "../models/SavedRecipe.js";
 
 const router = express.Router();
@@ -30,7 +31,7 @@ const userCtxStr = (ud) =>
     : "";
 
 /* ── 3 sugerencias ─────────────────────────────────── */
-router.post("/suggestions", authMiddleware, recipesLimiter, async (req, res) => {
+router.post("/suggestions", authMiddleware, requireActiveSub, recipesLimiter, async (req, res) => {
   const { modalidad, momento, userData } = req.body;
   if (!modalidad || !momento)
     return res.status(400).json({ error: "Modalidad y momento son requeridos." });
@@ -74,7 +75,7 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
 });
 
 /* ── Receta completa ───────────────────────────────── */
-router.post("/detail", authMiddleware, recipesLimiter, async (req, res) => {
+router.post("/detail", authMiddleware, requireActiveSub, recipesLimiter, async (req, res) => {
   const { name, emoji, modalidad, momento, userData } = req.body;
   if (!name || !modalidad || !momento)
     return res.status(400).json({ error: "Datos incompletos." });

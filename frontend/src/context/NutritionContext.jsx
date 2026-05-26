@@ -161,6 +161,11 @@ export const NutritionProvider = ({ children }) => {
   // El trial expiró si el plan es free y la fecha de fin ya pasó
   const isTrialExpired = subPlan === "free" && subStatus === "expired";
 
+  // Una suscripción de pago (silver/gold) venció o fue cancelada
+  const isSubscriptionExpired =
+    (subPlan === "silver" || subPlan === "gold") &&
+    (subStatus === "expired" || subStatus === "cancelled");
+
   // Días que quedan en el trial (solo cuando free + activo)
   const trialDaysLeft = subPlan === "free" && subStatus === "active" && subEndDate
     ? Math.max(0, Math.ceil((subEndDate - new Date()) / (1000 * 60 * 60 * 24)))
@@ -231,6 +236,7 @@ export const NutritionProvider = ({ children }) => {
         subStatus,
         subEndDate,
         isTrialExpired,
+        isSubscriptionExpired,
         trialDaysLeft,
         hasActiveAccess,
         refreshSubscription,

@@ -123,7 +123,7 @@ const WeightChart = ({ weights }) => {
 // ─── main component ───────────────────────────────────────────────────────────
 
 const TrainingPage = () => {
-  const { user, userData, updateUserData, subPlan } = useNutrition();
+  const { user, userData, updateUserData, subPlan, isSubscriptionExpired } = useNutrition();
 
   // Free activo y Gold pueden tener 2 planes simultáneos; Silver solo 1
   const canHaveMultiplePlans = subPlan === "free" || subPlan === "gold";
@@ -274,6 +274,11 @@ const TrainingPage = () => {
     // correctamente tanto en el flujo normal como en "mantener + agregar"
     const planType = activePlanType;
     const freq     = isQuick ? 1 : frecuencia;
+
+    if (isSubscriptionExpired) {
+      setError("Tu suscripción venció. Renovar para generar nuevos planes de entrenamiento.");
+      return;
+    }
 
     setError("");
     setLoading(true);
@@ -630,6 +635,23 @@ const TrainingPage = () => {
           {phase === "config" && (
             <motion.div key={`config-${configStep}`} variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.28 }}>
 
+              {/* ── Banner: suscripción vencida ── */}
+              {isSubscriptionExpired && (
+                <Paper elevation={0} sx={{ p: 2.2, borderRadius: 3, border: "1px solid rgba(180,83,9,0.25)", bgcolor: "#FFFBEB", mb: 3 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Typography sx={{ fontSize: 20, lineHeight: 1, mt: 0.2 }}>🔒</Typography>
+                    <Box flex={1}>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#92400E", mb: 0.3 }}>
+                        Suscripción inactiva — modo lectura
+                      </Typography>
+                      <Typography sx={{ fontSize: 12.5, color: "#78350F", lineHeight: 1.55 }}>
+                        Podés ver tu plan actual, pero no generar uno nuevo. Renová tu suscripción para desbloquear la generación con IA.
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
+              )}
+
               {/* ── Step 1: Tipo ── */}
               {configStep === 1 && (
                 <>
@@ -822,13 +844,18 @@ const TrainingPage = () => {
                   <AnimatePresence>
                     {duracion && (frecuencia || duracion === "1 día") && (
                       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-                        <Button fullWidth variant="contained" onClick={handleGenerate} sx={{
-                          py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
-                          background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
-                          boxShadow: `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
-                          "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
-                        }}>
-                          {activeTipo?.emoji} Generar mi plan con IA
+                        <Button fullWidth variant="contained" onClick={handleGenerate}
+                          disabled={isSubscriptionExpired}
+                          sx={{
+                            py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
+                            background: isSubscriptionExpired
+                              ? "rgba(0,0,0,0.12)"
+                              : `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
+                            boxShadow: isSubscriptionExpired ? "none" : `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
+                            "&:hover": { transform: isSubscriptionExpired ? "none" : "translateY(-2px)" },
+                            transition: "all 0.25s ease",
+                          }}>
+                          {isSubscriptionExpired ? "🔒 Renovar suscripción para generar" : `${activeTipo?.emoji} Generar mi plan con IA`}
                         </Button>
                       </motion.div>
                     )}

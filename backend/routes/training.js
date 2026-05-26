@@ -2,6 +2,7 @@ import express from "express";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
+import { requireActiveSub } from "../middleware/requireActiveSub.js";
 import User from "../models/User.js";
 import TrainingPlan from "../models/TrainingPlan.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
@@ -47,7 +48,7 @@ const EQUIP = {
 };
 
 /* ── Generar plan ─────────────────────────────────────────────────────────── */
-router.post("/generate", authMiddleware, trainingLimiter, async (req, res) => {
+router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, async (req, res) => {
   const { tipo, lugar, duracion, frecuencia, userData, prevPlan } = req.body;
 
   // ── Whitelist: todos los valores enumerables deben estar en la lista ──────
@@ -144,7 +145,7 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
 });
 
 /* ── Tips personalizados ──────────────────────────────────────────────────── */
-router.post("/tips", authMiddleware, trainingLimiter, async (req, res) => {
+router.post("/tips", authMiddleware, requireActiveSub, trainingLimiter, async (req, res) => {
   const { tipo, semana, planSummary } = req.body;
 
   // Whitelist tipo

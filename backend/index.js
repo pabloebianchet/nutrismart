@@ -188,7 +188,23 @@ app.post("/api/analyze", async (req, res) => {
       }
 
       if (!sub) {
-        // Sin suscripción activa: verificar si tuvo trial expirado
+        // ── Suscripción de pago vencida o cancelada ──────────────
+        const expiredPaid = await Subscription.findOne({
+          user:   authUser._id,
+          plan:   { $in: ["silver", "gold"] },
+          status: { $in: ["expired", "cancelled"] },
+        });
+        if (expiredPaid) {
+          return res.status(403).json({
+            error:     "subscription_required",
+            code:      "SUBSCRIPTION_REQUIRED",
+            message:   "Tu suscripción venció. Renovar para continuar analizando.",
+            subStatus: expiredPaid.status,
+            subPlan:   expiredPaid.plan,
+          });
+        }
+
+        // ── Sin suscripción activa: verificar trial expirado ──────
         const expiredTrial = await Subscription.findOne({ user: authUser._id, plan: "free", status: "expired" });
         if (expiredTrial) {
           return res.status(403).json({

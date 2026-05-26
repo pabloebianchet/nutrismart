@@ -196,8 +196,8 @@ router.get("/subscription", authMiddleware, async (req, res) => {
   try {
     const sub = await Subscription.findOne({ user: req.user._id });
 
-    // Auto-expirar free trial vencido
-    if (sub?.plan === "free" && sub.status === "active" && sub.endDate < new Date()) {
+    // Auto-expirar cualquier suscripción vencida (free trial o plan pago)
+    if (sub?.status === "active" && sub.endDate && sub.endDate < new Date()) {
       sub.status = "expired";
       await sub.save();
     }
