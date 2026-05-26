@@ -556,10 +556,10 @@ const CostComparisonSection = ({ onCTA }) => (
             Nutricionista
           </Typography>
           <Typography sx={{ fontSize: 13, color: C.muted, lineHeight: 1.7, mb: 2 }}>
-            Una consulta con un nutricionista en Argentina cuesta entre
+            Una consulta con un nutricionista en Argentina cuesta alrededor de
           </Typography>
           <Typography sx={{ fontSize: 36, fontWeight: 900, color: C.text, lineHeight: 1, mb: 0.5 }}>
-            $15.000 – $30.000
+            $70.000
           </Typography>
           <Typography sx={{ fontSize: 12.5, color: C.muted }}>por consulta · sin seguimiento diario</Typography>
           <Box sx={{ mt: 2.5, pt: 2.5, borderTop: `1px solid rgba(0,0,0,0.06)` }}>
@@ -583,9 +583,9 @@ const CostComparisonSection = ({ onCTA }) => (
             Una sesión con personal trainer en Argentina tiene un costo de
           </Typography>
           <Typography sx={{ fontSize: 36, fontWeight: 900, color: C.text, lineHeight: 1, mb: 0.5 }}>
-            $8.000 – $20.000
+            $15.000 – $30.000
           </Typography>
-          <Typography sx={{ fontSize: 12.5, color: C.muted }}>por sesión · sin personalización continua</Typography>
+          <Typography sx={{ fontSize: 12.5, color: C.muted }}>por hora · sin personalización continua</Typography>
           <Box sx={{ mt: 2.5, pt: 2.5, borderTop: `1px solid rgba(0,0,0,0.06)` }}>
             {["Rutina genérica o semigenérica", "Seguimiento presencial", "Sin análisis nutricional"].map((f) => (
               <Stack key={f} direction="row" spacing={1} alignItems="center" mb={0.8}>
