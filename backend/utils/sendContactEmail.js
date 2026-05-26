@@ -122,7 +122,7 @@ ${message}
 
   const transporter = createTransporter();
   await transporter.sendMail({
-    from: `"Nui" <${process.env.EMAIL_USER}>`,
+    from: `"Nui" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
     to: adminEmail,
     replyTo: `"${name}" <${email}>`,
     subject: `[NutriSmart] ${subject}`,

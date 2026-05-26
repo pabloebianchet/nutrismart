@@ -154,7 +154,7 @@ router.post("/forgot-password", forgotLimiter, async (req, res) => {
 
     const transporter = createTransporter();
     await transporter.sendMail({
-      from: `"Nui" <${process.env.EMAIL_USER}>`,
+      from: `"Nui" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Restablecer contraseña — Nui",
       html: `

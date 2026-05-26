@@ -216,7 +216,7 @@ export const sendWelcomeEmail = async ({ name, email, trialEnd = null }) => {
     const transporter = createTransporter();
     await transporter.verify();
     await transporter.sendMail({
-      from: `"Nui" <${process.env.EMAIL_USER}>`,
+      from: `"Nui" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: email,
       subject: `¡Bienvenido a Nui, ${firstName}! 🌿`,
       html,
