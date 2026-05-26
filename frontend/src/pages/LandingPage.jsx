@@ -74,10 +74,11 @@ const LandingNav = ({ scrolled }) => {
             px: 2, py: 0.9, borderRadius: 2, "&:hover": { bgcolor: "rgba(255,255,255,0.07)", color: "#fff" } }}>
           Iniciar sesión
         </Button>
-        <Button onClick={() => navigate("/login")} variant="contained"
-          sx={{ fontSize: 13, fontWeight: 800, textTransform: "none", bgcolor: C.heroAccent, color: "#fff",
-            px: 2.5, py: 0.9, borderRadius: 2.5, boxShadow: "0 4px 16px rgba(16,185,129,0.35)",
-            "&:hover": { bgcolor: "#0ea271" } }}>
+        <Button onClick={() => navigate("/login")}
+          sx={{ fontSize: 13, fontWeight: 800, textTransform: "none", color: C.heroAccent,
+            px: 2.5, py: 0.9, borderRadius: 999, border: `1.5px solid ${C.heroAccent}`,
+            bgcolor: "transparent",
+            "&:hover": { bgcolor: "rgba(16,185,129,0.08)" } }}>
           Empezar gratis
         </Button>
       </Stack>
@@ -154,16 +155,16 @@ const HeroSection = ({ onCTA }) => (
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}
           sx={{ mb: 5, animation: "fadeUp 0.6s 0.3s ease both" }}>
           <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
-            bgcolor: C.heroAccent, color: "#fff", fontWeight: 800, fontSize: 15.5,
-            textTransform: "none", px: 3.5, py: 1.5, borderRadius: 3,
-            boxShadow: "0 6px 24px rgba(16,185,129,0.38)",
-            "&:hover": { bgcolor: "#0ea271", transform: "translateY(-1px)" }, transition: "all 0.2s",
+            color: C.heroAccent, fontWeight: 800, fontSize: 15.5,
+            textTransform: "none", px: 3.5, py: 1.5, borderRadius: 999,
+            border: `1.5px solid ${C.heroAccent}`, bgcolor: "transparent",
+            "&:hover": { bgcolor: "rgba(16,185,129,0.08)", transform: "translateY(-1px)" }, transition: "all 0.2s",
           }}>
             Empezar gratis — 7 días
           </Button>
           <Button onClick={onCTA} sx={{
-            color: "rgba(255,255,255,0.70)", fontWeight: 700, fontSize: 14.5,
-            textTransform: "none", px: 3, py: 1.5, borderRadius: 3,
+            color: "rgba(255,255,255,0.55)", fontWeight: 700, fontSize: 14.5,
+            textTransform: "none", px: 3, py: 1.5, borderRadius: 999,
             border: "1px solid rgba(255,255,255,0.12)",
             "&:hover": { bgcolor: "rgba(255,255,255,0.05)", color: "#fff" },
           }}>
@@ -342,9 +343,9 @@ const ModulesSection = () => (
             {m.photo ? (
               <Box sx={{ position: "relative", height: 180, overflow: "hidden" }}>
                 <Box component="img" src={m.photo} alt={m.title} sx={{
-                  width: "100%", height: "100%", objectFit: "cover", opacity: 0.45,
-                  transition: "transform 0.4s ease, opacity 0.4s ease",
-                  ".MuiBox-root:hover &": { transform: "scale(1.04)", opacity: 0.52 },
+                  width: "100%", height: "100%", objectFit: "cover", opacity: 1,
+                  transition: "transform 0.4s ease",
+                  ".MuiBox-root:hover &": { transform: "scale(1.04)" },
                 }} />
                 <Box sx={{ position: "absolute", inset: 0,
                   background: `linear-gradient(160deg, ${m.color}50 0%, ${m.color}10 60%, transparent 100%)` }} />
@@ -610,10 +611,10 @@ const FinalCTA = ({ onCTA }) => (
         Probá los 3 módulos sin límites y descubrí cómo Nui puede transformar tus hábitos.
       </Typography>
       <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
-        bgcolor: C.heroAccent, color: "#fff", fontWeight: 800, fontSize: 16,
-        textTransform: "none", px: 4.5, py: 1.6, borderRadius: 3,
-        boxShadow: "0 8px 28px rgba(16,185,129,0.38)",
-        "&:hover": { bgcolor: "#0ea271", transform: "translateY(-2px)", boxShadow: "0 12px 32px rgba(16,185,129,0.48)" },
+        color: C.heroAccent, fontWeight: 800, fontSize: 16,
+        textTransform: "none", px: 4.5, py: 1.6, borderRadius: 999,
+        border: `1.5px solid ${C.heroAccent}`, bgcolor: "transparent",
+        "&:hover": { bgcolor: "rgba(16,185,129,0.08)", transform: "translateY(-2px)" },
         transition: "all 0.2s",
       }}>
         Crear cuenta gratis
