@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, TextField, Snackbar, Alert,
@@ -135,35 +135,30 @@ const TrainingPage = () => {
   const mainKey  = _uid ? `${MAIN_KEY}_${_uid}` : MAIN_KEY;
   const quickKey = _uid ? `${QUICK_KEY}_${_uid}` : QUICK_KEY;
 
-  // Determinar qué slot mostrar al abrir
-  // Preferencia: plan principal si existe; si no, plan rápido; si no, config
-  const _mainData  = loadPlan(mainKey);
-  const _quickData = loadPlan(quickKey);
-  const _initType  = _mainData?.plan ? "main" : (_quickData?.plan ? "quick" : "main");
-  const _initData  = _initType === "main" ? _mainData : _quickData;
+  // ── Caché en memoria de ambos planes (hidratado desde DB al montar)
+  const [planCache, setPlanCache] = useState({ main: null, quick: null });
 
   // ── qué slot está activo ahora
-  const [activePlanType, setActivePlanType] = useState(_initType);
-  const activeKey = activePlanType === "main" ? mainKey : quickKey;
+  const [activePlanType, setActivePlanType] = useState("main");
 
   // ── existencia de planes (para mostrar el toggle)
-  const [hasMainPlan,  setHasMainPlan]  = useState(() => !!loadPlan(mainKey)?.plan);
-  const [hasQuickPlan, setHasQuickPlan] = useState(() => !!loadPlan(quickKey)?.plan);
+  const [hasMainPlan,  setHasMainPlan]  = useState(false);
+  const [hasQuickPlan, setHasQuickPlan] = useState(false);
 
-  // ── flow
-  const [phase,       setPhase]       = useState(() => getPhaseForData(_initData));
+  // ── flow — "db-loading" mientras carga desde la DB
+  const [phase,       setPhase]       = useState("db-loading");
   const [configStep,  setConfigStep]  = useState(1);
   const [tipo,        setTipo]        = useState(null);
   const [lugar,       setLugar]       = useState(null);
   const [duracion,    setDuracion]    = useState(null);
   const [frecuencia,  setFrecuencia]  = useState(null);
 
-  // ── plan data (del slot activo)
-  const [plan,       setPlan]       = useState(_initData?.plan     || null);
-  const [config,     setConfig]     = useState(_initData?.config   || null);
-  const [sessions,   setSessions]   = useState(_initData?.sessions || []);
-  const [startDate,  setStartDate]  = useState(_initData?.startDate || null);
-  const [totalDays,  setTotalDays]  = useState(_initData?.totalDays || 0);
+  // ── plan data (del slot activo) — hidratado desde DB en el useEffect
+  const [plan,       setPlan]       = useState(null);
+  const [config,     setConfig]     = useState(null);
+  const [sessions,   setSessions]   = useState([]);
+  const [startDate,  setStartDate]  = useState(null);
+  const [totalDays,  setTotalDays]  = useState(0);
 
   // ── UI
   const [activeTab,    setActiveTab]    = useState("semana");
@@ -178,6 +173,71 @@ const TrainingPage = () => {
   const [loadingTips,  setLoadingTips]  = useState(false);
   const [expandedSess,   setExpandedSess]   = useState(null);
   const [sessionSuccess, setSessionSuccess] = useState(null); // { earned, total, dayName, tipoColor }
+
+  // ── Cargar planes desde la DB al montar ──────────────────────────────────
+  useEffect(() => {
+    if (!token) { setPhase("config"); return; }
+    const fetchPlans = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/training/plans`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Error al cargar los planes");
+        const data = await res.json();
+
+        // ── Migración one-time desde localStorage ───────────────────────
+        let mainData  = data.main;
+        let quickData = data.quick;
+        const migr = [];
+        if (!mainData) {
+          const ls = loadPlan(mainKey);
+          if (ls?.plan) {
+            mainData = ls;
+            migr.push(
+              fetch(`${API_URL}/api/training/plan/main`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(ls),
+              }).then(() => clearPlan(mainKey)).catch(() => {})
+            );
+          }
+        }
+        if (!quickData) {
+          const ls = loadPlan(quickKey);
+          if (ls?.plan) {
+            quickData = ls;
+            migr.push(
+              fetch(`${API_URL}/api/training/plan/quick`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(ls),
+              }).then(() => clearPlan(quickKey)).catch(() => {})
+            );
+          }
+        }
+        if (migr.length) await Promise.allSettled(migr);
+        // ────────────────────────────────────────────────────────────────
+
+        setPlanCache({ main: mainData, quick: quickData });
+        const initType = mainData?.plan ? "main" : (quickData?.plan ? "quick" : "main");
+        const initData = initType === "main" ? mainData : quickData;
+
+        setActivePlanType(initType);
+        setHasMainPlan(!!mainData?.plan);
+        setHasQuickPlan(!!quickData?.plan);
+        setPlan(initData?.plan      || null);
+        setConfig(initData?.config  || null);
+        setSessions(initData?.sessions   || []);
+        setStartDate(initData?.startDate || null);
+        setTotalDays(initData?.totalDays || 0);
+        setPhase(getPhaseForData(initData));
+      } catch (err) {
+        console.error("Error cargando planes:", err);
+        setPhase("config");
+      }
+    };
+    fetchPlans();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── computed
   const elapsed     = startDate ? Math.floor((Date.now() - new Date(startDate)) / 86400000) : 0;
@@ -194,8 +254,7 @@ const TrainingPage = () => {
 
   // ── cambiar entre slot principal y rápido
   const switchToPlan = (planType) => {
-    const key  = planType === "main" ? mainKey : quickKey;
-    const data = loadPlan(key);
+    const data = planCache[planType];
     setActivePlanType(planType);
     setPlan(data?.plan || null);
     setConfig(data?.config || null);
@@ -214,7 +273,6 @@ const TrainingPage = () => {
     // Usar siempre activePlanType como slot destino — ya fue seteado
     // correctamente tanto en el flujo normal como en "mantener + agregar"
     const planType = activePlanType;
-    const key      = planType === "quick" ? quickKey : mainKey;
     const freq     = isQuick ? 1 : frecuencia;
 
     setError("");
@@ -233,8 +291,15 @@ const TrainingPage = () => {
       const durObj = DURACIONES.find(d => d.id === duracion);
       const start  = new Date().toISOString();
       const days   = durObj?.days || 30;
+      const planData = { config: cfg, plan: data, startDate: start, totalDays: days, sessions: [] };
 
-      savePlan(key, { config: cfg, plan: data, startDate: start, totalDays: days, sessions: [] });
+      // Persistir en DB
+      await fetch(`${API_URL}/api/training/plan/${planType}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(planData),
+      });
+      setPlanCache(prev => ({ ...prev, [planType]: planData }));
       setActivePlanType(planType);
       setPlan(data); setConfig(cfg); setStartDate(start); setTotalDays(days); setSessions([]);
       if (planType === "main") setHasMainPlan(true);
@@ -280,8 +345,17 @@ const TrainingPage = () => {
     const newSession = { date: todayStr, dayKey: activeDay, dayName, exercises: sessionLog };
     const updated    = [...sessions, newSession];
     setSessions(updated);
-    const stored = loadPlan(activeKey);
-    savePlan(activeKey, { ...stored, sessions: updated });
+    // Persistir sesión en DB (fire-and-forget, no bloquea la UI)
+    const _planType = activePlanType;
+    fetch(`${API_URL}/api/training/plan/${_planType}/session`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ date: todayStr, dayKey: activeDay, dayName, exercises: sessionLog }),
+    }).catch(() => {});
+    setPlanCache(prev => ({
+      ...prev,
+      [_planType]: { ...prev[_planType], sessions: updated },
+    }));
     setActiveDay(null);
 
     // +5 puntos saludables — mostrar overlay de celebración si el API responde
@@ -322,7 +396,12 @@ const TrainingPage = () => {
     const prevPlan = plan;
     const wasQuick = activePlanType === "quick";
 
-    clearPlan(activeKey);
+    const _delType = activePlanType;
+    fetch(`${API_URL}/api/training/plan/${_delType}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }).catch(() => {});
+    setPlanCache(prev => ({ ...prev, [_delType]: null }));
     if (activePlanType === "main") setHasMainPlan(false);
     else                           setHasQuickPlan(false);
 
@@ -347,7 +426,6 @@ const TrainingPage = () => {
       setTimeout(async () => {
         const isQuick  = prevCfg.duracion === "1 día";
         const planType = isQuick ? "quick" : "main";
-        const key      = isQuick ? quickKey : mainKey;
         setPhase("loading");
         try {
           const res = await fetch(`${API_URL}/api/training/generate`, {
@@ -359,7 +437,13 @@ const TrainingPage = () => {
           if (!res.ok) throw new Error(data.error);
           const start = new Date().toISOString();
           const days  = DURACIONES.find(d => d.id === prevCfg.duracion)?.days || 30;
-          savePlan(key, { config: prevCfg, plan: data, startDate: start, totalDays: days, sessions: [] });
+          const _newPlanData = { config: prevCfg, plan: data, startDate: start, totalDays: days, sessions: [] };
+          await fetch(`${API_URL}/api/training/plan/${planType}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify(_newPlanData),
+          });
+          setPlanCache(prev => ({ ...prev, [planType]: _newPlanData }));
           setActivePlanType(planType);
           setPlan(data); setConfig(prevCfg); setStartDate(start); setTotalDays(days); setSessions([]);
           if (planType === "main") setHasMainPlan(true);
@@ -500,8 +584,8 @@ const TrainingPage = () => {
 
           {/* ── Toggle entre Plan A y Plan B (los dos slots) ── */}
           {hasMainPlan && hasQuickPlan && phase === "plan" && !activeDay && (() => {
-            const cfg1 = loadPlan(mainKey)?.config;
-            const cfg2 = loadPlan(quickKey)?.config;
+            const cfg1 = planCache.main?.config;
+            const cfg2 = planCache.quick?.config;
             const label = (cfg) => {
               if (!cfg) return "Plan";
               const t = TIPOS.find(t => t.id === cfg.tipo);
@@ -754,11 +838,11 @@ const TrainingPage = () => {
             </motion.div>
           )}
 
-          {/* ══════════════ LOADING ══════════════ */}
-          {phase === "loading" && (
+          {/* ══════════════ LOADING (carga DB o generación IA) ══════════════ */}
+          {(phase === "loading" || phase === "db-loading") && (
             <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
               <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                <PlanLoader message="Creando tu plan personalizado…" />
+                <PlanLoader message={phase === "db-loading" ? "Cargando tu plan…" : "Creando tu plan personalizado…"} />
               </Paper>
             </motion.div>
           )}

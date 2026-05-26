@@ -4,7 +4,8 @@
       "Bash(npx pwa-assets-generator *)",
       "Bash(cp public/img/favicon.ico public/favicon.ico)",
       "Bash(cp public/img/apple-touch-icon-180x180.png public/apple-touch-icon-180x180.png)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node --input-type=module --eval \"import './backend/routes/training.js'\")"
     ]
   }
 }

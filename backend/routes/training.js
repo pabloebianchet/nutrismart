@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
 import User from "../models/User.js";
+import TrainingPlan from "../models/TrainingPlan.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 
 const router = express.Router();
@@ -215,6 +216,86 @@ router.post("/session", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Training session points error:", err.message);
     return res.status(500).json({ error: "No se pudieron actualizar los puntos." });
+  }
+});
+
+/* ── GET /plans — devuelve los dos slots del usuario ─────────────────────── */
+router.get("/plans", authMiddleware, async (req, res) => {
+  try {
+    const [mainDoc, quickDoc] = await Promise.all([
+      TrainingPlan.findOne({ user: req.user._id, planType: "main" }),
+      TrainingPlan.findOne({ user: req.user._id, planType: "quick" }),
+    ]);
+
+    const toObj = (doc) =>
+      doc
+        ? { config: doc.config, plan: doc.plan, startDate: doc.startDate, totalDays: doc.totalDays, sessions: doc.sessions }
+        : null;
+
+    return res.json({ main: toObj(mainDoc), quick: toObj(quickDoc) });
+  } catch (err) {
+    console.error("GET /training/plans error:", err.message);
+    return res.status(500).json({ error: "Error al obtener los planes." });
+  }
+});
+
+/* ── PUT /plan/:planType — upsert completo ────────────────────────────────── */
+router.put("/plan/:planType", authMiddleware, async (req, res) => {
+  const { planType } = req.params;
+  if (!["main", "quick"].includes(planType))
+    return res.status(400).json({ error: "Tipo de plan no válido." });
+
+  const { config, plan, startDate, totalDays, sessions } = req.body;
+
+  try {
+    const doc = await TrainingPlan.findOneAndUpdate(
+      { user: req.user._id, planType },
+      { $set: { config, plan, startDate, totalDays, sessions: sessions || [] } },
+      { upsert: true, new: true, runValidators: false }
+    );
+    return res.json({ ok: true, id: doc._id });
+  } catch (err) {
+    console.error("PUT /training/plan error:", err.message);
+    return res.status(500).json({ error: "Error al guardar el plan." });
+  }
+});
+
+/* ── POST /plan/:planType/session — agrega una sesión ─────────────────────── */
+router.post("/plan/:planType/session", authMiddleware, async (req, res) => {
+  const { planType } = req.params;
+  if (!["main", "quick"].includes(planType))
+    return res.status(400).json({ error: "Tipo de plan no válido." });
+
+  const { date, dayKey, dayName, exercises } = req.body;
+  if (!date || !dayKey)
+    return res.status(400).json({ error: "Faltan datos de la sesión." });
+
+  try {
+    const doc = await TrainingPlan.findOneAndUpdate(
+      { user: req.user._id, planType },
+      { $push: { sessions: { date, dayKey, dayName: dayName || dayKey, exercises: exercises || {} } } },
+      { new: true }
+    );
+    if (!doc) return res.status(404).json({ error: "Plan no encontrado." });
+    return res.json({ ok: true, sessionsCount: doc.sessions.length });
+  } catch (err) {
+    console.error("POST /training/plan/session error:", err.message);
+    return res.status(500).json({ error: "Error al guardar la sesión." });
+  }
+});
+
+/* ── DELETE /plan/:planType — borra el slot ───────────────────────────────── */
+router.delete("/plan/:planType", authMiddleware, async (req, res) => {
+  const { planType } = req.params;
+  if (!["main", "quick"].includes(planType))
+    return res.status(400).json({ error: "Tipo de plan no válido." });
+
+  try {
+    await TrainingPlan.deleteOne({ user: req.user._id, planType });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("DELETE /training/plan error:", err.message);
+    return res.status(500).json({ error: "Error al eliminar el plan." });
   }
 });
 

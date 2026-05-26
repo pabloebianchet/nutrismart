@@ -443,15 +443,23 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
 ──────────────────────────────────────────── */
 const CrossModuleNudge = ({ historyCount, loading }) => {
   const navigate = useNavigate();
-  const { user: _cmUser } = useNutrition();
-  if (loading) return null;
+  const [totalSessions, setTotalSessions] = useState(null); // null = todavía cargando
+  const token = localStorage.getItem("nutrismartToken");
 
-  const _cmUid    = _cmUser?._id || _cmUser?.googleId;
-  const _cmMain   = _cmUid ? `${T_MAIN_KEY}_${_cmUid}` : T_MAIN_KEY;
-  const _cmQuick  = _cmUid ? `${T_QUICK_KEY}_${_cmUid}` : T_QUICK_KEY;
-  const mainSessions  = loadTPlan(_cmMain)?.sessions?.length  || 0;
-  const quickSessions = loadTPlan(_cmQuick)?.sessions?.length || 0;
-  const totalSessions = mainSessions + quickSessions;
+  useEffect(() => {
+    if (!token) { setTotalSessions(0); return; }
+    fetch(`${API_URL}/api/training/plans`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.ok ? r.json() : { main: null, quick: null })
+      .then(data => {
+        const total = (data.main?.sessions?.length || 0) + (data.quick?.sessions?.length || 0);
+        setTotalSessions(total);
+      })
+      .catch(() => setTotalSessions(0));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (loading || totalSessions === null) return null;
 
   // Analiza comida pero nunca entrenó → sugerir entrenamiento
   if (historyCount > 2 && totalSessions === 0) {
@@ -554,9 +562,6 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
    Entrenamiento Widget
 ──────────────────────────────────────────── */
 
-const T_MAIN_KEY  = "nutrismart_training_main";
-const T_QUICK_KEY = "nutrismart_training_quick";
-
 const TIPO_META = {
   "Calistenia":        { color: "#1565C0", bg: "#E3F2FD", emoji: "🤸" },
   "Hipertrofia":       { color: "#BF360C", bg: "#FBE9E7", emoji: "💪" },
@@ -564,8 +569,6 @@ const TIPO_META = {
   "Ejercicio en Casa": { color: "#2E7D32", bg: "#E8F5E9", emoji: "🏠" },
   "Running":           { color: "#E65100", bg: "#FFF3E0", emoji: "🏃" },
 };
-
-const loadTPlan = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
 
 /* ── Sub-card de un plan individual ── */
 const PlanCard = ({ data, navigate }) => {
@@ -666,16 +669,30 @@ const PlanCard = ({ data, navigate }) => {
 
 const EntrenamientoWidget = () => {
   const navigate = useNavigate();
-  const { user: _ewUser } = useNutrition();
+  const [mainData,      setMainData]      = useState(null);
+  const [quickData,     setQuickData]     = useState(null);
+  const [widgetLoading, setWidgetLoading] = useState(true);
+  const token = localStorage.getItem("nutrismartToken");
 
-  const _ewUid    = _ewUser?._id || _ewUser?.googleId;
-  const _ewMain   = _ewUid ? `${T_MAIN_KEY}_${_ewUid}` : T_MAIN_KEY;
-  const _ewQuick  = _ewUid ? `${T_QUICK_KEY}_${_ewUid}` : T_QUICK_KEY;
-  const mainData  = loadTPlan(_ewMain);
-  const quickData = loadTPlan(_ewQuick);
+  useEffect(() => {
+    if (!token) { setWidgetLoading(false); return; }
+    fetch(`${API_URL}/api/training/plans`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.ok ? r.json() : { main: null, quick: null })
+      .then(data => {
+        setMainData(data.main);
+        setQuickData(data.quick);
+        setWidgetLoading(false);
+      })
+      .catch(() => setWidgetLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const hasMain   = !!mainData?.plan;
   const hasQuick  = !!quickData?.plan;
   const hasBoth   = hasMain && hasQuick;
+
+  if (widgetLoading) return null;
 
   /* ── Sin ningún plan: banner promo ── */
   if (!hasMain && !hasQuick) {
