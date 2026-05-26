@@ -168,7 +168,10 @@ router.post("/webhook", async (req, res) => {
 
         const user = await User.findById(userId);
         if (user) {
-          const isRenewal = sub.paymentHistory.length > 1;
+          // Es renovación solo si el pago anterior fue del mismo plan
+          // paymentHistory[0] = nuevo pago (position:0), [1] = anterior
+          const isRenewal = sub.paymentHistory.length > 1 &&
+            sub.paymentHistory[1]?.plan === plan;
 
           await sendPaymentEmail({
             name:     user.name,
@@ -275,7 +278,8 @@ router.post("/webhook", async (req, res) => {
 
         const user = await User.findById(userId);
         if (user) {
-          const isRenewal = sub.paymentHistory.length > 1;
+          const isRenewal = sub.paymentHistory.length > 1 &&
+            sub.paymentHistory[1]?.plan === plan;
           await sendPaymentEmail({
             name:     user.name,
             email:    user.email,
@@ -346,6 +350,18 @@ router.post("/cancel", authMiddleware, async (req, res) => {
     sub.status    = "cancelled";
     sub.autoRenew = false;
     await sub.save();
+
+    // Email de confirmación de cancelación al usuario
+    const cancelUser = await User.findById(req.user._id);
+    if (cancelUser) {
+      const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
+      sendNotificationEmail("cancellation", {
+        name:     cancelUser.name,
+        email:    cancelUser.email,
+        planName: PLAN_NAMES[sub.plan] || sub.plan,
+        endDate:  sub.endDate,
+      }).catch(() => {});
+    }
 
     return res.json({ message: "Suscripción cancelada. Seguís teniendo acceso hasta el fin del período." });
   } catch (err) {
