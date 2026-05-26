@@ -69,15 +69,19 @@ const UserDataPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential }),
       });
-      if (!res.ok) throw new Error("Error autenticando con Google");
       const data = await res.json();
+      if (!res.ok) {
+        // Propagar el mensaje exacto del backend (ej: cuenta con contraseña existente)
+        setError(data.error || "Error al iniciar sesión con Google.");
+        return;
+      }
       if (!data.user) throw new Error("Respuesta inválida del servidor");
       // Guardar el JWT propio (7 días) en lugar del credential de Google (1 hora)
       localStorage.setItem("nutrismartToken", data.token || credential);
       setUser(data.user);
     } catch (err) {
       console.error("Google login error:", err);
-      setError("Error al iniciar sesión con Google.");
+      setError("Error al iniciar sesión con Google. Intentá de nuevo.");
     }
   };
 

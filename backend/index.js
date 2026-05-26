@@ -411,23 +411,44 @@ app.post("/api/auth/google", async (req, res) => {
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
 
+    // 1. Buscar usuario por googleId (ya logueó con Google antes)
     let user = await User.findOne({ googleId });
 
     if (!user) {
-      user = await User.create({
-        googleId,
-        email,
-        name,
-        picture,
-      });
-      // Activar período de prueba gratuito (7 días)
-      const trial = await activateFreeTrial(user._id).catch((e) => {
-        console.error("Free trial activation failed:", e.message);
-        return null;
-      });
-      // Email de bienvenida con info del trial
-      const trialEnd = trial?.endDate || null;
-      sendWelcomeEmail({ name, email, trialEnd }).catch((e) => console.error("Welcome email failed:", e.message));
+      // 2. Verificar si el email ya tiene una cuenta con email/contraseña
+      const existingByEmail = await User.findOne({ email: email.toLowerCase() });
+
+      if (existingByEmail) {
+        if (existingByEmail.provider === "email") {
+          // Cuenta de email/contraseña — bloquear el acceso con Google
+          return res.status(409).json({
+            error: "Este email ya tiene una cuenta con contraseña. Ingresá con email y contraseña.",
+            provider: "email",
+          });
+        }
+        // Cuenta Google con email coincidente pero distinto googleId (edge case)
+        // → vincular el googleId al usuario existente
+        existingByEmail.googleId = googleId;
+        existingByEmail.picture  = picture || existingByEmail.picture;
+        await existingByEmail.save();
+        user = existingByEmail;
+      } else {
+        // 3. Email nuevo — crear cuenta Google
+        user = await User.create({
+          googleId,
+          email: email.toLowerCase(),
+          name,
+          picture,
+          provider: "google",
+        });
+        // Activar período de prueba gratuito (7 días)
+        const trial = await activateFreeTrial(user._id).catch((e) => {
+          console.error("Free trial activation failed:", e.message);
+          return null;
+        });
+        const trialEnd = trial?.endDate || null;
+        sendWelcomeEmail({ name, email, trialEnd }).catch((e) => console.error("Welcome email failed:", e.message));
+      }
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
