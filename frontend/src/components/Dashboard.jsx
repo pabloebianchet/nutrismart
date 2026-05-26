@@ -443,10 +443,14 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
 ──────────────────────────────────────────── */
 const CrossModuleNudge = ({ historyCount, loading }) => {
   const navigate = useNavigate();
+  const { user: _cmUser } = useNutrition();
   if (loading) return null;
 
-  const mainSessions  = loadTPlan(T_MAIN_KEY)?.sessions?.length  || 0;
-  const quickSessions = loadTPlan(T_QUICK_KEY)?.sessions?.length || 0;
+  const _cmUid    = _cmUser?._id || _cmUser?.googleId;
+  const _cmMain   = _cmUid ? `${T_MAIN_KEY}_${_cmUid}` : T_MAIN_KEY;
+  const _cmQuick  = _cmUid ? `${T_QUICK_KEY}_${_cmUid}` : T_QUICK_KEY;
+  const mainSessions  = loadTPlan(_cmMain)?.sessions?.length  || 0;
+  const quickSessions = loadTPlan(_cmQuick)?.sessions?.length || 0;
   const totalSessions = mainSessions + quickSessions;
 
   // Analiza comida pero nunca entrenó → sugerir entrenamiento
@@ -662,9 +666,13 @@ const PlanCard = ({ data, navigate }) => {
 
 const EntrenamientoWidget = () => {
   const navigate = useNavigate();
+  const { user: _ewUser } = useNutrition();
 
-  const mainData  = loadTPlan(T_MAIN_KEY);
-  const quickData = loadTPlan(T_QUICK_KEY);
+  const _ewUid    = _ewUser?._id || _ewUser?.googleId;
+  const _ewMain   = _ewUid ? `${T_MAIN_KEY}_${_ewUid}` : T_MAIN_KEY;
+  const _ewQuick  = _ewUid ? `${T_QUICK_KEY}_${_ewUid}` : T_QUICK_KEY;
+  const mainData  = loadTPlan(_ewMain);
+  const quickData = loadTPlan(_ewQuick);
   const hasMain   = !!mainData?.plan;
   const hasQuick  = !!quickData?.plan;
   const hasBoth   = hasMain && hasQuick;
@@ -1064,30 +1072,45 @@ const NotifPrefsPanel = () => {
     setSaving(false);
   };
 
-  const Row = ({ label, icon, fieldKey, disabled }) => {
-    const active = prefs ? (prefs.paused ? false : prefs[fieldKey]) : true;
+  // Los toggles individuales SIEMPRE son clickeables.
+  // El master pause controla el envío, no la configuración de preferencias.
+  // Cuando hay pausa activa + toggle ON → verde tenue (preferencia guardada, en pausa global).
+  const Row = ({ label, icon, fieldKey }) => {
+    const active    = prefs ? !!prefs[fieldKey] : true;
+    const isPaused  = !!prefs?.paused;
+    const trackColor = active
+      ? (isPaused ? C.brandMuted : C.brand)   // verde tenue si pausa global, verde lleno si activo
+      : C.border;                              // gris si apagado
     return (
       <Stack direction="row" alignItems="center" justifyContent="space-between"
         sx={{ py: 1.2, borderBottom: `1px solid ${C.border}`, "&:last-child": { borderBottom: "none" } }}>
-        <Stack direction="row" alignItems="center" spacing={1.2}>
-          <Typography sx={{ fontSize: 18 }}>{icon}</Typography>
-          <Typography sx={{ fontSize: 13, color: disabled ? C.textMuted : C.textPrimary, fontWeight: 500 }}>
-            {label}
-          </Typography>
+        <Stack direction="row" alignItems="center" spacing={1.2} flex={1} minWidth={0}>
+          <Typography sx={{ fontSize: 18, flexShrink: 0 }}>{icon}</Typography>
+          <Box minWidth={0}>
+            <Typography sx={{ fontSize: 13, color: C.textPrimary, fontWeight: 500 }}>
+              {label}
+            </Typography>
+            {active && isPaused && (
+              <Typography sx={{ fontSize: 10.5, color: C.textMuted, lineHeight: 1.3 }}>
+                Guardado · inactivo por pausa global
+              </Typography>
+            )}
+          </Box>
         </Stack>
         <Box
-          onClick={() => !disabled && toggle(fieldKey)}
+          onClick={() => toggle(fieldKey)}
           sx={{
-            width: 44, height: 24, borderRadius: 12,
-            bgcolor: active && !disabled ? C.brand : C.border,
-            cursor: disabled ? "not-allowed" : "pointer",
+            width: 44, height: 24, borderRadius: 12, flexShrink: 0, ml: 1.5,
+            bgcolor: trackColor,
+            cursor: "pointer",
             position: "relative",
             transition: "background 0.22s",
             opacity: saving ? 0.6 : 1,
+            "&:active": { transform: "scale(0.95)" },
             "&::after": {
               content: '""',
               position: "absolute",
-              top: 3, left: active && !disabled ? 23 : 3,
+              top: 3, left: active ? 23 : 3,
               width: 18, height: 18, borderRadius: "50%",
               background: "#fff",
               transition: "left 0.22s",
@@ -1180,12 +1203,29 @@ const NotifPrefsPanel = () => {
                 />
               </Stack>
 
-              <Row label="Resultado de cada análisis" icon="🔍" fieldKey="analysis" disabled={prefs.paused} />
-              <Row label="Sesión de entrenamiento"    icon="🏋️" fieldKey="training" disabled={prefs.paused} />
-              <Row label="Renovación de plan"         icon="🔄" fieldKey="renewal"  disabled={prefs.paused} />
+              {/* Banner contextual cuando la pausa global está activa */}
+              {prefs.paused && (
+                <Box sx={{
+                  display: "flex", alignItems: "flex-start", gap: 1,
+                  bgcolor: "rgba(226,75,74,0.06)",
+                  border: "1px solid rgba(226,75,74,0.18)",
+                  borderRadius: 2.5,
+                  px: 1.8, py: 1.2,
+                  mb: 1.5,
+                }}>
+                  <Typography sx={{ fontSize: 15, lineHeight: 1, flexShrink: 0, mt: 0.1 }}>⏸️</Typography>
+                  <Typography sx={{ fontSize: 11.5, color: "#C0392B", lineHeight: 1.5 }}>
+                    Emails pausados globalmente. Podés configurar tus preferencias; se activarán cuando desactives la pausa.
+                  </Typography>
+                </Box>
+              )}
+
+              <Row label="Resultado de cada análisis" icon="🔍" fieldKey="analysis" />
+              <Row label="Sesión de entrenamiento"    icon="🏋️" fieldKey="training" />
+              <Row label="Renovación de plan"         icon="🔄" fieldKey="renewal"  />
 
               <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 1.5, lineHeight: 1.6 }}>
-                Los emails se envían solo si la notificación correspondiente está activa y el tipo no está pausado.
+                Los emails se envían solo si la notificación correspondiente está activa y la pausa global está desactivada.
               </Typography>
             </>
           )}
@@ -1588,6 +1628,12 @@ const Dashboard = () => {
         );
       })()}
 
+      {/* ── ACCESO RÁPIDO: ENTRENAMIENTO ────────── */}
+      <EntrenamientoWidget />
+
+      {/* ── ACCESO RÁPIDO: RECETAS YA ───────────── */}
+      <RecetasYABanner />
+
       {/* ── STATS RÁPIDAS ────────────────────────── */}
       {history.length > 0 && (
         <Box
@@ -1974,12 +2020,6 @@ const Dashboard = () => {
 
       {/* ── RANKING GLOBAL ──────────────────────── */}
       <LeaderboardWidget />
-
-      {/* ── ENTRENAMIENTO ───────────────────────── */}
-      <EntrenamientoWidget />
-
-      {/* ── RECETAS YA ──────────────────────────── */}
-      <RecetasYABanner />
 
       {/* ── NOTIFICACIONES ──────────────────────── */}
       <NotifPrefsPanel />

@@ -123,26 +123,32 @@ const WeightChart = ({ weights }) => {
 // ─── main component ───────────────────────────────────────────────────────────
 
 const TrainingPage = () => {
-  const { userData, updateUserData, subPlan } = useNutrition();
+  const { user, userData, updateUserData, subPlan } = useNutrition();
 
   // Free activo y Gold pueden tener 2 planes simultáneos; Silver solo 1
   const canHaveMultiplePlans = subPlan === "free" || subPlan === "gold";
   const token = localStorage.getItem("nutrismartToken");
 
+  // Claves de localStorage vinculadas al usuario — evita que un usuario nuevo
+  // herede el plan de entrenamiento del usuario anterior en el mismo browser
+  const _uid     = user?._id || user?.googleId;
+  const mainKey  = _uid ? `${MAIN_KEY}_${_uid}` : MAIN_KEY;
+  const quickKey = _uid ? `${QUICK_KEY}_${_uid}` : QUICK_KEY;
+
   // Determinar qué slot mostrar al abrir
   // Preferencia: plan principal si existe; si no, plan rápido; si no, config
-  const _mainData  = loadPlan(MAIN_KEY);
-  const _quickData = loadPlan(QUICK_KEY);
+  const _mainData  = loadPlan(mainKey);
+  const _quickData = loadPlan(quickKey);
   const _initType  = _mainData?.plan ? "main" : (_quickData?.plan ? "quick" : "main");
   const _initData  = _initType === "main" ? _mainData : _quickData;
 
   // ── qué slot está activo ahora
   const [activePlanType, setActivePlanType] = useState(_initType);
-  const activeKey = activePlanType === "main" ? MAIN_KEY : QUICK_KEY;
+  const activeKey = activePlanType === "main" ? mainKey : quickKey;
 
   // ── existencia de planes (para mostrar el toggle)
-  const [hasMainPlan,  setHasMainPlan]  = useState(() => !!loadPlan(MAIN_KEY)?.plan);
-  const [hasQuickPlan, setHasQuickPlan] = useState(() => !!loadPlan(QUICK_KEY)?.plan);
+  const [hasMainPlan,  setHasMainPlan]  = useState(() => !!loadPlan(mainKey)?.plan);
+  const [hasQuickPlan, setHasQuickPlan] = useState(() => !!loadPlan(quickKey)?.plan);
 
   // ── flow
   const [phase,       setPhase]       = useState(() => getPhaseForData(_initData));
@@ -188,7 +194,7 @@ const TrainingPage = () => {
 
   // ── cambiar entre slot principal y rápido
   const switchToPlan = (planType) => {
-    const key  = planType === "main" ? MAIN_KEY : QUICK_KEY;
+    const key  = planType === "main" ? mainKey : quickKey;
     const data = loadPlan(key);
     setActivePlanType(planType);
     setPlan(data?.plan || null);
@@ -208,7 +214,7 @@ const TrainingPage = () => {
     // Usar siempre activePlanType como slot destino — ya fue seteado
     // correctamente tanto en el flujo normal como en "mantener + agregar"
     const planType = activePlanType;
-    const key      = planType === "quick" ? QUICK_KEY : MAIN_KEY;
+    const key      = planType === "quick" ? quickKey : mainKey;
     const freq     = isQuick ? 1 : frecuencia;
 
     setError("");
@@ -341,7 +347,7 @@ const TrainingPage = () => {
       setTimeout(async () => {
         const isQuick  = prevCfg.duracion === "1 día";
         const planType = isQuick ? "quick" : "main";
-        const key      = isQuick ? QUICK_KEY : MAIN_KEY;
+        const key      = isQuick ? quickKey : mainKey;
         setPhase("loading");
         try {
           const res = await fetch(`${API_URL}/api/training/generate`, {
@@ -494,8 +500,8 @@ const TrainingPage = () => {
 
           {/* ── Toggle entre Plan A y Plan B (los dos slots) ── */}
           {hasMainPlan && hasQuickPlan && phase === "plan" && !activeDay && (() => {
-            const cfg1 = loadPlan(MAIN_KEY)?.config;
-            const cfg2 = loadPlan(QUICK_KEY)?.config;
+            const cfg1 = loadPlan(mainKey)?.config;
+            const cfg2 = loadPlan(quickKey)?.config;
             const label = (cfg) => {
               if (!cfg) return "Plan";
               const t = TIPOS.find(t => t.id === cfg.tipo);

@@ -23,6 +23,7 @@ import LegalPage         from "./pages/LegalPage.jsx";
 import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
 import AppFooter         from "./components/AppFooter.jsx";
 import TrialGate         from "./components/TrialGate.jsx";
+import PWAInstallPrompt  from "./components/PWAInstallPrompt.jsx";
 import { useNutrition }  from "./context/NutritionContext.jsx";
 
 /* ── Gate: perfil no completado ─────────────────────────────── */
@@ -109,6 +110,7 @@ const App = () => {
       <TrialBanner />
       <TrialGate />
       <FloatingAnalyzeButton />
+      <PWAInstallPrompt />
       <Routes>
         <Route path="/"                       element={<UserDataPage />} />
         <Route path="/capture"                element={<CapturePage />} />
