@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 
+import LandingPage       from "./pages/LandingPage.jsx";
 import UserDataPage      from "./pages/UserDataPage.jsx";
 import CapturePage       from "./pages/CapturePage.jsx";
 import ResultScreen      from "./components/ResultScreen.jsx";
@@ -101,18 +102,47 @@ const TrialBanner = () => {
   );
 };
 
-/* ── App ──────────────────────────────────────────────────────── */
-const App = () => {
+/* ── HomeRoute: landing para visitantes, dashboard para logueados ── */
+const HomeRoute = () => {
+  const { user, authLoading } = useNutrition();
+  if (authLoading) return null;
+  return user ? <UserDataPage /> : <LandingPage />;
+};
+
+/* ── Ocultar chrome de app en la landing ──────────────────────── */
+const AppChrome = () => {
+  const { user } = useNutrition();
+  const location = useLocation();
+  const isLanding = !user && (location.pathname === "/" || location.pathname === "");
+  if (isLanding) return null;
   return (
-    <Router>
+    <>
       <AppHeader />
       <ProfileGate />
       <TrialBanner />
       <TrialGate />
       <FloatingAnalyzeButton />
       <PWAInstallPrompt />
+    </>
+  );
+};
+
+const AppFooterConditional = () => {
+  const { user } = useNutrition();
+  const location = useLocation();
+  const isLanding = !user && (location.pathname === "/" || location.pathname === "");
+  if (isLanding) return null;
+  return <AppFooter />;
+};
+
+/* ── App ──────────────────────────────────────────────────────── */
+const App = () => {
+  return (
+    <Router>
+      <AppChrome />
       <Routes>
-        <Route path="/"                       element={<UserDataPage />} />
+        <Route path="/"                       element={<HomeRoute />} />
+        <Route path="/login"                  element={<UserDataPage />} />
         <Route path="/capture"                element={<CapturePage />} />
         <Route path="/result"                 element={<ResultScreen />} />
         <Route path="/profile"                element={<ProfilePage />} />
@@ -131,7 +161,7 @@ const App = () => {
         <Route path="/terminos"               element={<TermsPage />} />
         <Route path="/legal"                  element={<LegalPage />} />
       </Routes>
-      <AppFooter />
+      <AppFooterConditional />
     </Router>
   );
 };
