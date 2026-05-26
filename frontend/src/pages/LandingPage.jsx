@@ -47,11 +47,10 @@ const LandingNav = ({ scrolled }) => {
       transition: "all 0.3s ease",
     }}>
       {/* Logo real sin fondo — mix-blend-mode sobre oscuro */}
-      <Box component="img" src="/img/nui-icon-source.png" alt="Nui"
+      <Box component="img" src="/img/logo_landing.png" alt="Nui"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         sx={{
           height: 34, cursor: "pointer",
-          filter: "brightness(0) invert(1)",
           opacity: 0.9,
           transition: "opacity 0.2s",
           "&:hover": { opacity: 1 },
@@ -106,9 +105,13 @@ const HeroSection = ({ onCTA }) => (
     pt: { xs: 10, md: 0 }, pb: { xs: 8, md: 0 },
   }}>
     {/* Foto hero con overlay */}
-    <Box component="img" src="/img/fondoVerde.jpg" alt="" aria-hidden sx={{
-      position: "absolute", inset: 0, width: "100%", height: "100%",
-      objectFit: "cover", opacity: 0.13, pointerEvents: "none",
+    <Box aria-hidden sx={{
+      position: "absolute", inset: 0,
+      backgroundImage: "url(/img/fondoVerde.jpg)",
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat",
+      opacity: 0.13, pointerEvents: "none",
     }} />
 
     {/* Ilustración decorativa */}
@@ -398,9 +401,13 @@ const HowItWorksSection = () => (
     px: { xs: 2.5, sm: 5, md: 8 }, position: "relative", overflow: "hidden" }}>
 
     {/* Foto de fondo con overlay */}
-    <Box component="img" src="/img/fondoVerde2.jpg" alt="" aria-hidden sx={{
-      position: "absolute", inset: 0, width: "100%", height: "100%",
-      objectFit: "cover", opacity: 0.10, pointerEvents: "none",
+    <Box aria-hidden sx={{
+      position: "absolute", inset: 0,
+      backgroundImage: "url(/img/fondoVerde2.jpg)",
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat",
+      opacity: 0.10, pointerEvents: "none",
     }} />
 
     {/* Ilustración decorativa */}
@@ -585,10 +592,13 @@ const FinalCTA = ({ onCTA }) => (
     textAlign: "center", position: "relative", overflow: "hidden",
   }}>
     {/* Foto de fondo con overlay */}
-    <Box component="img" src="/img/fondoNaranja.jpg" alt="" aria-hidden sx={{
-      position: "absolute", inset: 0, width: "100%", height: "100%",
-      objectFit: "cover", opacity: 0.09, pointerEvents: "none",
-      mixBlendMode: "soft-light",
+    <Box aria-hidden sx={{
+      position: "absolute", inset: 0,
+      backgroundImage: "url(/img/fondoNaranja.jpg)",
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat",
+      opacity: 0.09, mixBlendMode: "soft-light", pointerEvents: "none",
     }} />
 
     <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
@@ -627,8 +637,8 @@ const LandingFooter = () => (
     py: 4, px: { xs: 2.5, sm: 5, md: 8 } }}>
     <Box sx={{ maxWidth: 1100, mx: "auto", display: "flex", alignItems: "center",
       justifyContent: "space-between", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-      <Box component="img" src="/img/nui-icon-source.png" alt="Nui"
-        sx={{ height: 28, filter: "brightness(0) invert(1)", opacity: 0.65 }} />
+      <Box component="img" src="/img/logo_landing.png" alt="Nui"
+        sx={{ height: 28, opacity: 0.65 }} />
       <Stack direction="row" spacing={3} flexWrap="wrap" justifyContent="center">
         {[["Privacidad", "/privacidad"], ["Términos", "/terminos"], ["Contacto", "/contact"], ["Precios", "/pricing"]].map(([label, path]) => (
           <Box key={label} component={Link} to={path}
