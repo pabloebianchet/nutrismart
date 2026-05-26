@@ -351,16 +351,32 @@ router.post("/cancel", authMiddleware, async (req, res) => {
     sub.autoRenew = false;
     await sub.save();
 
-    // Email de confirmación de cancelación al usuario
-    const cancelUser = await User.findById(req.user._id);
-    if (cancelUser) {
+    // Emails de confirmación de cancelación
+    const cancelUser = req.user; // ya viene populado del authMiddleware
+    if (cancelUser?.email) {
       const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
+      const planName   = PLAN_NAMES[sub.plan] || sub.plan;
+
+      // Al usuario
       sendNotificationEmail("cancellation", {
         name:     cancelUser.name,
         email:    cancelUser.email,
-        planName: PLAN_NAMES[sub.plan] || sub.plan,
+        planName,
         endDate:  sub.endDate,
-      }).catch(() => {});
+      }).catch((err) => console.error("❌ Email cancelación usuario:", err.message));
+
+      // Al admin
+      sendNotificationEmail("admin-new-sub", {
+        userName:  cancelUser.name,
+        userEmail: cancelUser.email,
+        plan:      sub.plan,
+        amount:    sub.amount,
+        currency:  sub.currency || "ARS",
+        startDate: sub.startDate,
+        endDate:   sub.endDate,
+        isRenewal: false,
+        isCancellation: true,
+      }).catch((err) => console.error("❌ Email cancelación admin:", err.message));
     }
 
     return res.json({ message: "Suscripción cancelada. Seguís teniendo acceso hasta el fin del período." });

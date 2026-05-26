@@ -330,6 +330,120 @@ const buildTrialExpiryHtml = ({ firstName, trialEndDate, appUrl, year }) => {
 </html>`;
 };
 
+/* ── Email: cancelación de suscripción ──────────────────────────────────── */
+
+const buildCancellationHtml = ({ firstName, planName, endDate, appUrl, supportEmail, year }) => {
+  const fechaFin = new Date(endDate).toLocaleDateString("es-AR", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Suscripción cancelada — Nui</title>
+</head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr><td align="center">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+      <!-- HEADER -->
+      <tr>
+        <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:28px 36px;text-align:center;">
+          <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Nui</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.08em;">NUTRICIÓN INTELIGENTE CON IA</div>
+        </td>
+      </tr>
+
+      <!-- HERO -->
+      <tr>
+        <td style="background:#fff;padding:36px 36px 28px;text-align:center;">
+          <div style="font-size:40px;margin-bottom:12px;">✅</div>
+          <div style="font-size:20px;font-weight:800;color:#0F2420;margin-bottom:8px;">
+            Cancelación confirmada, ${firstName}
+          </div>
+          <p style="font-size:14px;color:#4A6B67;line-height:1.75;margin:0;max-width:380px;margin:0 auto;">
+            Tu suscripción al <strong>Plan ${planName}</strong> fue cancelada correctamente. No se realizarán más cobros automáticos.
+          </p>
+        </td>
+      </tr>
+
+      <!-- ACCESO HASTA -->
+      <tr>
+        <td style="background:#fff;padding:0 36px 28px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="background:#E6F5F3;border:1.5px solid rgba(11,94,85,0.20);border-radius:14px;padding:20px 24px;text-align:center;">
+                <div style="font-size:12px;font-weight:700;color:#0B5E55;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">
+                  Seguís con acceso hasta
+                </div>
+                <div style="font-size:22px;font-weight:900;color:#0B5E55;">${fechaFin}</div>
+                <div style="font-size:12.5px;color:#4A6B67;margin-top:8px;line-height:1.6;">
+                  Hasta esa fecha podés seguir usando todos los beneficios de tu plan normalmente.
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- TUS DATOS -->
+      <tr>
+        <td style="background:#F7FAF9;padding:24px 36px;border-top:1px solid #e0eeec;">
+          <div style="font-size:12px;font-weight:700;color:#4A6B67;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">
+            Tus datos siempre son tuyos
+          </div>
+          <p style="font-size:13px;color:#4A6B67;line-height:1.75;margin:0;">
+            Tu historial de análisis, plan de entrenamiento, recetas y puntos saludables están guardados y seguros.
+            Si querés volver a suscribirte en cualquier momento, encontrarás todo como lo dejaste.
+          </p>
+        </td>
+      </tr>
+
+      <!-- SOPORTE -->
+      <tr>
+        <td style="background:#F7FAF9;padding:0 36px 24px;border-top:1px solid #e0eeec;">
+          <div style="font-size:12px;font-weight:700;color:#4A6B67;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">
+            ¿Fue un error o tenés alguna consulta?
+          </div>
+          <p style="font-size:13px;color:#4A6B67;line-height:1.75;margin:0;">
+            Si cancelaste por error o tenés algún inconveniente, escribinos a
+            <a href="mailto:${supportEmail}" style="color:#0B5E55;font-weight:700;text-decoration:none;">${supportEmail}</a>
+            y lo resolvemos juntos.
+          </p>
+        </td>
+      </tr>
+
+      <!-- CTA Renovar -->
+      <tr>
+        <td style="background:#fff;padding:24px 36px;text-align:center;border-top:1px solid #e0eeec;">
+          <p style="font-size:13px;color:#8AADAA;margin:0 0 14px;">¿Querés renovar tu plan?</p>
+          <a href="${appUrl}/pricing" style="display:inline-block;background:#0B5E55;color:#fff;text-decoration:none;padding:12px 32px;border-radius:999px;font-weight:700;font-size:14px;">
+            Ver planes →
+          </a>
+        </td>
+      </tr>
+
+      <!-- FOOTER -->
+      <tr>
+        <td style="background:#0B5E55;border-radius:0 0 16px 16px;padding:18px 36px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.50);line-height:1.7;">
+            © ${year} Nui · Nutrición inteligente con IA<br/>
+            Este correo confirma la cancelación de tu suscripción.
+          </div>
+        </td>
+      </tr>
+
+    </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
+
 /* ── Email: renovación de plan ───────────────────────────────────────────── */
 
 const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year }) => {
@@ -431,7 +545,7 @@ const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year }) => {
 
 /* ── Email interno: nuevo suscriptor (va al admin) ──────────────────────── */
 
-const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, startDate, endDate, isRenewal, year }) => {
+const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, startDate, endDate, isRenewal, isCancellation, year }) => {
   const planLabel   = plan === "gold" ? "🥇 Gold" : "🥈 Silver";
   const planColor   = plan === "gold" ? "#C9952A" : "#71879C";
   const formatDate  = (d) => new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "long", year: "numeric" });
@@ -453,7 +567,7 @@ const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, sta
           <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:24px 32px;text-align:center;">
             <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Nui · Admin</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.08em;">
-              ${isRenewal ? "RENOVACIÓN DE SUSCRIPCIÓN" : "NUEVA SUSCRIPCIÓN"}
+              ${isCancellation ? "CANCELACIÓN DE SUSCRIPCIÓN" : isRenewal ? "RENOVACIÓN DE SUSCRIPCIÓN" : "NUEVA SUSCRIPCIÓN"}
             </div>
           </td>
         </tr>
@@ -461,9 +575,9 @@ const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, sta
         <tr>
           <td style="background:#fff;padding:32px;">
             <div style="text-align:center;margin-bottom:24px;">
-              <div style="font-size:36px;">${isRenewal ? "🔄" : "💰"}</div>
+              <div style="font-size:36px;">${isCancellation ? "❌" : isRenewal ? "🔄" : "💰"}</div>
               <div style="font-size:20px;font-weight:800;color:#0F2420;margin-top:8px;">
-                ${isRenewal ? "Renovación exitosa" : "¡Nuevo suscriptor!"}
+                ${isCancellation ? "Suscripción cancelada" : isRenewal ? "Renovación exitosa" : "¡Nuevo suscriptor!"}
               </div>
             </div>
 
@@ -471,7 +585,9 @@ const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, sta
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
               <tr>
                 <td style="text-align:center;background:${planColor}18;border:1.5px solid ${planColor}55;border-radius:12px;padding:16px 20px;">
-                  <div style="font-size:13px;font-weight:700;color:${planColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Plan contratado</div>
+                  <div style="font-size:13px;font-weight:700;color:${planColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">
+                    ${isCancellation ? "Plan cancelado" : "Plan contratado"}
+                  </div>
                   <div style="font-size:22px;font-weight:900;color:${planColor};">${planLabel}</div>
                   <div style="font-size:18px;font-weight:700;color:#0F2420;margin-top:6px;">${formatARS(amount)} / mes</div>
                 </td>
@@ -533,11 +649,17 @@ export const sendNotificationEmail = async (type, opts) => {
   } else if (type === "renewal") {
     subject = `¡Tu plan sigue activo, ${firstName}! 💚 — Nui`;
     html    = buildRenewalHtml({ firstName, ...opts, appUrl, year });
+  } else if (type === "cancellation") {
+    const supportEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+    subject = `Cancelación confirmada — Plan ${opts.planName || ""} · Nui`;
+    html    = buildCancellationHtml({ firstName, ...opts, appUrl, supportEmail, year });
   } else if (type === "admin-new-sub") {
     const adminEmail = process.env.ADMIN_EMAIL;
     if (!adminEmail) return;
     const planLabel = opts.plan === "gold" ? "Gold" : "Silver";
-    subject = `${opts.isRenewal ? "🔄 Renovación" : "💰 Nuevo suscriptor"} — Plan ${planLabel} | Nui`;
+    subject = opts.isCancellation
+      ? `❌ Cancelación — Plan ${planLabel} | Nui`
+      : `${opts.isRenewal ? "🔄 Renovación" : "💰 Nuevo suscriptor"} — Plan ${planLabel} | Nui`;
     html    = buildAdminNewSubHtml({ ...opts, year });
 
     try {
