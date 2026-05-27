@@ -1269,9 +1269,9 @@ const TrainingPage = () => {
           {/* ══════════════ SESSION TRACKING ══════════════ */}
           {phase === "plan" && plan && activeDay && (
             <motion.div key="session" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.28 }}>
-              {/* Volver — auto-guarda borrador */}
+              {/* Volver — solo navega, NO guarda borrador automáticamente */}
               <Button
-                onClick={() => { saveDraft(); setActiveDay(null); setSnackMsg("Borrador guardado 📝"); }}
+                onClick={() => setActiveDay(null)}
                 startIcon={<ArrowBackRoundedIcon />} size="small"
                 sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
               >
