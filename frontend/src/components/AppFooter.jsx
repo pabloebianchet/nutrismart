@@ -22,8 +22,31 @@ const Link = ({ to, children }) => {
   );
 };
 
+const ExternalLink = ({ href, children }) => (
+  <Typography
+    component="a"
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    sx={{
+      fontSize: 11,
+      color: "rgba(255,255,255,0.40)",
+      textDecoration: "none",
+      whiteSpace: "nowrap",
+      transition: "color 0.2s",
+      "&:hover": { color: "rgba(255,255,255,0.75)" },
+    }}
+  >
+    {children}
+  </Typography>
+);
+
 const Dot = () => (
   <Typography sx={{ color: "rgba(255,255,255,0.2)", fontSize: 12, userSelect: "none" }}>·</Typography>
+);
+
+const SmallDot = () => (
+  <Typography sx={{ color: "rgba(255,255,255,0.15)", fontSize: 11, userSelect: "none" }}>·</Typography>
 );
 
 export default function AppFooter() {
@@ -99,6 +122,57 @@ export default function AppFooter() {
           © {year} Nui
         </Typography>
       </Stack>
+
+      {/* ── CUMPLIMIENTO NORMATIVO ── */}
+      <Box sx={{
+        mt: 2.5,
+        pt: 2,
+        borderTop: "1px solid rgba(255,255,255,0.10)",
+      }}>
+        {/* Desktop */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          spacing={1.5}
+          sx={{ display: { xs: "none", sm: "flex" } }}
+        >
+          <ExternalLink href="https://www.argentina.gob.ar/produccion/defensadelconsumidor">
+            🛡️ Defensa del Consumidor
+          </ExternalLink>
+          <SmallDot />
+          <Typography component="a" href="tel:08006661518"
+            sx={{ fontSize: 11, color: "rgba(255,255,255,0.40)", textDecoration: "none", "&:hover": { color: "rgba(255,255,255,0.75)" } }}>
+            0800-666-1518
+          </Typography>
+          <SmallDot />
+          <ExternalLink href="https://www.argentina.gob.ar/produccion/defensadelconsumidor/formulario">
+            Botón de arrepentimiento
+          </ExternalLink>
+        </Stack>
+
+        {/* Mobile */}
+        <Stack
+          direction="column"
+          alignItems="center"
+          spacing={1}
+          sx={{ display: { xs: "flex", sm: "none" } }}
+        >
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <ExternalLink href="https://www.argentina.gob.ar/produccion/defensadelconsumidor">
+              🛡️ Defensa del Consumidor
+            </ExternalLink>
+            <SmallDot />
+            <Typography component="a" href="tel:08006661518"
+              sx={{ fontSize: 11, color: "rgba(255,255,255,0.40)", textDecoration: "none", "&:hover": { color: "rgba(255,255,255,0.75)" } }}>
+              0800-666-1518
+            </Typography>
+          </Stack>
+          <ExternalLink href="https://www.argentina.gob.ar/produccion/defensadelconsumidor/formulario">
+            Botón de arrepentimiento
+          </ExternalLink>
+        </Stack>
+      </Box>
     </Box>
   );
 }
