@@ -580,9 +580,14 @@ const PlanCard = ({ data, navigate }) => {
   const plan      = data.plan   || {};
   const elapsed   = Math.floor((Date.now() - new Date(data.startDate)) / 86400000);
   const total     = data.totalDays || 1;
-  const pct       = Math.min(100, Math.round((elapsed / total) * 100));
-  const week      = Math.max(1, Math.ceil((elapsed + 1) / 7));
   const sessCount = data.sessions?.length || 0;
+  const week      = Math.max(1, Math.ceil((elapsed + 1) / 7));
+
+  // Progreso = máximo entre avance por sesiones y avance por tiempo transcurrido
+  const expectedSessions = total > 1 ? Math.max(1, Math.round((total / 7) * (cfg.frecuencia || 3))) : 1;
+  const sessionPct = Math.min(100, Math.round((sessCount / expectedSessions) * 100));
+  const timePct    = total > 1 ? Math.min(100, Math.round((elapsed / total) * 100)) : 0;
+  const pct        = Math.max(sessionPct, timePct);
   const meta      = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
 
   return (
@@ -634,7 +639,9 @@ const PlanCard = ({ data, navigate }) => {
         <Box>
           <Stack direction="row" justifyContent="space-between" mb={0.5}>
             <Typography sx={{ fontSize: 11, color: "#4A6B67", fontWeight: 600 }}>
-              {Math.min(elapsed, total)} / {total} días
+              {sessCount > 0
+                ? `${sessCount} sesión${sessCount > 1 ? "es" : ""} · día ${Math.min(elapsed, total)} de ${total}`
+                : `${Math.min(elapsed, total)} / ${total} días`}
             </Typography>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color }}>
               {pct}%

@@ -359,6 +359,12 @@ const TrainingPage = () => {
   const hasDraft  = (dayKey) => !!drafts[_draftId(dayKey)];
 
   const saveDraft = (dayKey = activeDay, log = sessionLog) => {
+    // Solo guardar si hay al menos un dato ingresado; si no, borrar cualquier borrador previo
+    const hasData = Object.values(log).some(v => v?.weight || v?.reps);
+    if (!hasData) {
+      deleteDraft(dayKey);
+      return;
+    }
     const id       = `${activePlanType}_${dayKey}`;
     const updated  = { ...drafts, [id]: { log, timestamp: new Date().toISOString() } };
     setDrafts(updated);
@@ -1371,7 +1377,7 @@ const TrainingPage = () => {
                 {hasDraft(activeDay) && (
                   <Button
                     fullWidth size="small"
-                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setSnackMsg("Borrador eliminado"); }}
+                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setActiveDay(null); setSnackMsg("Borrador eliminado"); }}
                     sx={{ textTransform: "none", fontWeight: 600, fontSize: 13, color: "#B0C4C0", "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.06)" } }}
                   >
                     Eliminar borrador
