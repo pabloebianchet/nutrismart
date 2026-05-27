@@ -13,10 +13,13 @@ import ContentCopyRoundedIcon     from "@mui/icons-material/ContentCopyRounded";
 import DeleteOutlineRoundedIcon   from "@mui/icons-material/DeleteOutlineRounded";
 import ExpandMoreRoundedIcon      from "@mui/icons-material/ExpandMoreRounded";
 import ExpandLessRoundedIcon      from "@mui/icons-material/ExpandLessRounded";
+import AddShoppingCartRoundedIcon from "@mui/icons-material/AddShoppingCartRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }           from "../context/NutritionContext";
 import { useLocation }            from "react-router-dom";
 import { API_URL }                from "../config/api";
+import ShoppingListDrawer, { ShoppingFab } from "../components/ShoppingListDrawer";
+import { parseIngredient, mergeIngredients, loadList, saveList } from "../utils/shoppingList";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -304,6 +307,11 @@ const RecipesPage = () => {
   const [deletingId,   setDeletingId]   = useState(null);
   const [snackMsg,     setSnackMsg]     = useState("");
 
+  // shopping list
+  const [shoppingList,    setShoppingList]    = useState(() => loadList());
+  const [drawerOpen,      setDrawerOpen]      = useState(false);
+  const [addedToList,     setAddedToList]     = useState(false); // feedback inmediato
+
   const token       = localStorage.getItem("nutrismartToken");
   const canGenerate = modalidad && momento;
   const activeMod   = MODALIDADES.find((m) => m.id === modalidad);
@@ -412,6 +420,20 @@ const RecipesPage = () => {
     } catch {
       setSnackMsg("No se pudo copiar.");
     }
+  };
+
+  // ── add ingredients to shopping list ──
+  const handleAddToList = () => {
+    if (!detail?.ingredients?.length) return;
+    const newItems = detail.ingredients.map((ing) =>
+      parseIngredient(ing, detail.name)
+    );
+    const merged = mergeIngredients(shoppingList, newItems);
+    setShoppingList(merged);
+    saveList(merged);
+    setAddedToList(true);
+    setTimeout(() => setAddedToList(false), 2500);
+    setSnackMsg(`🛒 ${newItems.length} ingrediente${newItems.length > 1 ? "s" : ""} agregado${newItems.length > 1 ? "s" : ""} a tu lista`);
   };
 
   // ── delete saved recipe ──
@@ -757,6 +779,31 @@ const RecipesPage = () => {
                   </Paper>
                 </motion.div>
 
+                {/* Agregar a lista de compras */}
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                  <Button
+                    fullWidth
+                    onClick={handleAddToList}
+                    startIcon={<AddShoppingCartRoundedIcon />}
+                    sx={{
+                      mb: 2,
+                      py: 1.4, borderRadius: 3,
+                      textTransform: "none", fontWeight: 800, fontSize: 14.5,
+                      letterSpacing: "-0.2px",
+                      bgcolor: addedToList ? "rgba(16,185,129,0.12)" : "rgba(11,94,85,0.07)",
+                      color: addedToList ? "#059669" : "#0B5E55",
+                      border: `1.5px solid ${addedToList ? "rgba(16,185,129,0.30)" : "rgba(11,94,85,0.15)"}`,
+                      "&:hover": {
+                        bgcolor: "rgba(11,94,85,0.12)",
+                        borderColor: "#0B5E55",
+                      },
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {addedToList ? "✓ Ingredientes agregados a tu lista" : "Agregar ingredientes a mi lista"}
+                  </Button>
+                </motion.div>
+
                 {/* Save & Share row */}
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center"
@@ -949,6 +996,24 @@ const RecipesPage = () => {
 
         <Box sx={{ height: 80 }} />
       </Box>
+
+      {/* ── Shopping List FAB ── */}
+      <AnimatePresence>
+        {shoppingList.length > 0 && (
+          <ShoppingFab
+            count={shoppingList.filter((i) => !i.checked).length}
+            onClick={() => setDrawerOpen(true)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Shopping List Drawer ── */}
+      <ShoppingListDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        items={shoppingList}
+        setItems={setShoppingList}
+      />
 
       {/* ── Snackbar ── */}
       <Snackbar
