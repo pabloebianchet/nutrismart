@@ -69,7 +69,7 @@ const mpFetch = (path, options = {}) => {
   });
 };
 
-/* ─── CREAR SUSCRIPCIÓN (Preapproval recurrente) ─────────────── */
+/* ─── CREAR PAGO (Checkout Pro — pago único mensual) ─────────── */
 router.post("/subscribe", authMiddleware, async (req, res) => {
   const { plan } = req.body;
 
@@ -82,69 +82,66 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
   }
 
   try {
-    const user     = req.user;
-    const planInfo = PLANS[plan];
+    const user        = req.user;
+    const planInfo    = PLANS[plan];
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
-    const preapprovalBody = {
-      reason:             `Nui · ${planInfo.name}`,
+    const preferenceBody = {
+      items: [{
+        title:      `Nui · ${planInfo.name}`,
+        description: planInfo.description,
+        quantity:   1,
+        unit_price: planInfo.amount,
+        currency_id: planInfo.currency,
+      }],
+      payer: { email: user.email },
       external_reference: `${user._id}|${plan}`,
-      payer_email:        user.email,
-      auto_recurring: {
-        frequency:          1,
-        frequency_type:     "months",
-        transaction_amount: planInfo.amount,
-        currency_id:        planInfo.currency,
+      back_urls: {
+        success: `${frontendUrl}/subscription/success`,
+        failure: `${frontendUrl}/pricing`,
+        pending: `${frontendUrl}/pricing`,
       },
-      back_url: `${frontendUrl}/subscription/success`,
-      status:   "pending",
+      auto_return: "approved",
     };
 
-    // notification_url solo si está configurada (MP la rechaza si es inválida)
+    // notification_url solo si está configurada
     if (process.env.MP_WEBHOOK_URL) {
-      preapprovalBody.notification_url = process.env.MP_WEBHOOK_URL;
+      preferenceBody.notification_url = process.env.MP_WEBHOOK_URL;
     }
 
-    const mpRes = await mpFetch("/preapproval", {
+    const mpRes = await mpFetch("/checkout/preferences", {
       method: "POST",
-      body: JSON.stringify(preapprovalBody),
+      body: JSON.stringify(preferenceBody),
     });
 
     if (!mpRes.ok) {
       const errBody = await mpRes.json().catch(() => ({}));
-      console.error("MP Preapproval error:", JSON.stringify(errBody));
+      console.error("MP Preference error:", JSON.stringify(errBody));
       const mpMessage = errBody?.message || errBody?.cause?.[0]?.description || "Error en Mercado Pago";
-      return res.status(502).json({ error: `Error al crear la suscripción: ${mpMessage}` });
+      return res.status(502).json({ error: `Error al crear el pago: ${mpMessage}` });
     }
 
     const mpData = await mpRes.json();
 
-    // No pisar una suscripción activa (ej: free trial vigente)
-    const existingSub = await Subscription.findOne({ user: user._id });
-
-    if (existingSub?.status === "active") {
-      existingSub.mpSubscriptionId = mpData.id;
-      await existingSub.save();
-    } else {
-      await Subscription.findOneAndUpdate(
-        { user: user._id },
-        {
-          user: user._id,
-          plan,
-          status:          "pending",
-          mpSubscriptionId: mpData.id,
-          amount:          planInfo.amount,
-          currency:        planInfo.currency,
-          autoRenew:       true,
-        },
-        { upsert: true, returnDocument: "after" }
-      );
-    }
+    // Guardar preferencia pendiente
+    await Subscription.findOneAndUpdate(
+      { user: user._id },
+      {
+        user:             user._id,
+        plan,
+        status:           "pending",
+        mpSubscriptionId: mpData.id,
+        amount:           planInfo.amount,
+        currency:         planInfo.currency,
+        autoRenew:        false,
+      },
+      { upsert: true, new: true }
+    );
 
     return res.json({ initPoint: mpData.init_point });
   } catch (err) {
     console.error("Subscribe error:", err);
-    return res.status(500).json({ error: err.message || "Error al crear la suscripción." });
+    return res.status(500).json({ error: err.message || "Error al crear el pago." });
   }
 });
 
