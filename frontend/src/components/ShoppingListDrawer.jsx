@@ -350,7 +350,9 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
         <Box
           sx={{
             px: 2.5,
-            py: 2,
+            pt: 2,
+            // pb amplio en mobile para no quedar tapado por el FAB "Analizar producto" (bottom:24 + h:54)
+            pb: { xs: "88px", sm: 2 },
             borderTop: "1px solid rgba(11,94,85,0.08)",
             bgcolor: "#fff",
             flexShrink: 0,
