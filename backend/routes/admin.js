@@ -134,14 +134,36 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
 });
 
 /* =====================================================
-   👥 GET ALL USERS
+   👥 GET ALL USERS (+ subscription data)
    ===================================================== */
 router.get("/users", authMiddleware, isAdmin, async (req, res) => {
   try {
     const users = await User.find()
       .select("_id name email edad altura peso sexo actividad createdAt profileCompleted")
-      .sort({ createdAt: -1 });
-    return res.json({ users });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Auto-expirar suscripciones vencidas antes de devolver
+    const now = new Date();
+    await Subscription.updateMany(
+      { status: "active", endDate: { $lt: now } },
+      { $set: { status: "expired" } }
+    );
+
+    const userIds = users.map((u) => u._id);
+    const subs    = await Subscription.find({ user: { $in: userIds } })
+      .select("user plan status startDate endDate amount currency paymentHistory mpSubscriptionId autoRenew")
+      .lean();
+
+    const subMap = {};
+    subs.forEach((s) => { subMap[s.user.toString()] = s; });
+
+    const enriched = users.map((u) => ({
+      ...u,
+      subscription: subMap[u._id.toString()] ?? null,
+    }));
+
+    return res.json({ users: enriched });
   } catch (err) {
     console.error("Admin users error:", err);
     return res.status(500).json({ error: "Error fetching users" });
