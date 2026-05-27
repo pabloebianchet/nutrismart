@@ -102,7 +102,7 @@ const HeroSection = ({ onCTA }) => (
     alignItems: "center", justifyContent: "center",
     position: "relative", overflow: "hidden",
     px: { xs: 3, sm: 5, md: 8 },
-    pt: { xs: 12, md: 0 }, pb: { xs: 8, md: 0 },
+    pt: { xs: 14, md: 8 }, pb: { xs: 8, md: 6 },
   }}>
     {/* Dot grid texture */}
     <Box sx={{
@@ -230,7 +230,7 @@ const MarqueeTicker = () => {
       background: C.heroBg,
       borderTop: "1px solid rgba(16,185,129,0.12)",
       borderBottom: "1px solid rgba(255,255,255,0.04)",
-      py: 1.5, overflow: "hidden",
+      py: 2, overflow: "hidden",
     }}>
       <Box sx={{
         display: "flex", gap: 4, width: "max-content",
@@ -325,27 +325,39 @@ const WhyMattersSection = ({ onCTA }) => (
           letterSpacing: "0.12em", textTransform: "uppercase", mb: 3 }}>
           Clasificación NOVA — El estándar internacional
         </Typography>
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4,1fr)" }, gap: 2 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4,1fr)" }, gap: 1.5 }}>
           {[
-            { grupo: "Grupo 1", label: "Frescos o mínimamente procesados", ej: "Frutas, verduras, huevos, carnes", ok: true },
-            { grupo: "Grupo 2", label: "Ingredientes culinarios",           ej: "Aceites, sal, azúcar, vinagre",   ok: true },
-            { grupo: "Grupo 3", label: "Alimentos procesados",              ej: "Conservas, queso, pan, embutidos",ok: true },
+            { grupo: "Grupo 1", label: "Frescos o mínimamente procesados", ej: "Frutas, verduras, huevos, carnes", ok: true  },
+            { grupo: "Grupo 2", label: "Ingredientes culinarios",           ej: "Aceites, sal, azúcar, vinagre",   ok: true  },
+            { grupo: "Grupo 3", label: "Alimentos procesados",              ej: "Conservas, queso, pan, embutidos",ok: true  },
             { grupo: "Grupo 4", label: "Ultraprocesados",                   ej: "Snacks, cereales, refrescos, galletas", ok: false },
           ].map((g) => (
             <Box key={g.grupo} sx={{
-              borderRadius: 3, p: 2.5,
-              background: g.ok ? "rgba(16,185,129,0.07)" : "rgba(239,68,68,0.08)",
-              border: `1px solid ${g.ok ? "rgba(16,185,129,0.16)" : "rgba(239,68,68,0.22)"}`,
-              borderTop: `3px solid ${g.ok ? C.emerald : C.danger}`,
+              borderRadius: 4, p: 2.5,
+              background: g.ok
+                ? "linear-gradient(145deg, rgba(16,185,129,0.10), rgba(16,185,129,0.04))"
+                : "linear-gradient(145deg, rgba(239,68,68,0.12), rgba(239,68,68,0.05))",
+              border: `1px solid ${g.ok ? "rgba(16,185,129,0.14)" : "rgba(239,68,68,0.18)"}`,
+              transition: "transform 0.2s",
+              "&:hover": { transform: "translateY(-2px)" },
             }}>
-              <Typography sx={{ fontSize: 10.5, fontWeight: 800,
-                color: g.ok ? C.emerald : C.danger, letterSpacing: "0.05em", mb: 0.8 }}>
-                {g.grupo}
-              </Typography>
-              <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#fff", mb: 0.5, lineHeight: 1.3 }}>
+              {/* Pill */}
+              <Box sx={{
+                display: "inline-flex", alignItems: "center", gap: 0.6,
+                bgcolor: g.ok ? "rgba(16,185,129,0.14)" : "rgba(239,68,68,0.14)",
+                borderRadius: 999, px: 1.2, py: 0.3, mb: 1.5,
+              }}>
+                <Box sx={{ width: 5, height: 5, borderRadius: "50%",
+                  bgcolor: g.ok ? C.emerald : C.danger, flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 10, fontWeight: 800,
+                  color: g.ok ? C.emerald : C.danger, letterSpacing: "0.04em" }}>
+                  {g.grupo}
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: "#fff", mb: 0.6, lineHeight: 1.35 }}>
                 {g.label}
               </Typography>
-              <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.38)", lineHeight: 1.6 }}>
+              <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)", lineHeight: 1.65 }}>
                 {g.ej}
               </Typography>
             </Box>
