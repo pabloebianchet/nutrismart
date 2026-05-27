@@ -346,6 +346,11 @@ router.post("/webhook", async (req, res) => {
             endDate:   end,
             isRenewal,
           }).catch(() => {});
+
+          logInfo("payment", isRenewal ? "subscription.renewed" : "subscription.created",
+            `${isRenewal ? "Renovación" : "Nueva suscripción"} ${planInfo.name} — ${user.email}`,
+            { userId: user._id, userName: user.name, userEmail: user.email,
+              meta: { plan, amount: mp.transaction_amount, currency: mp.currency_id, isRenewal, mpPaymentId: mp.id } });
         }
       }
     }
