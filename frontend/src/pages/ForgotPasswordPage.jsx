@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Box, Paper, TextField, Button, Typography, Alert } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
@@ -7,7 +7,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand: "#bae0dc",
+  brand: "#0B5E55",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
   border: "rgba(11,94,85,0.12)",
@@ -75,7 +75,7 @@ const ForgotPasswordPage = () => {
         }}
       >
         {/* Header */}
-        <Box sx={{ bgcolor: "#2a6e67", px: 4, pt: 4, pb: 3, textAlign: "center" }}>
+        <Box sx={{ bgcolor: C.brand, px: 4, pt: 4, pb: 3, textAlign: "center" }}>
           <Box
             sx={{
               width: 52,
@@ -117,7 +117,7 @@ const ForgotPasswordPage = () => {
                   mb: 2.5,
                 }}
               >
-                <CheckCircleRoundedIcon sx={{ fontSize: 32, color: "#2a6e67" }} />
+                <CheckCircleRoundedIcon sx={{ fontSize: 32, color: C.brand }} />
               </Box>
               <Typography sx={{ fontWeight: 700, fontSize: 17, color: C.textPrimary, mb: 1 }}>
                 Revisá tu correo
@@ -152,9 +152,9 @@ const ForgotPasswordPage = () => {
                         textTransform: "none",
                         fontWeight: 700,
                         fontSize: 14,
-                        bordercolor: "#2a6e67",
-                        color: "#2a6e67",
-                        "&:hover": { bgcolor: C.brandSurface, borderColor: "#2a6e67" },
+                        borderColor: C.brand,
+                        color: C.brand,
+                        "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
                       }}
                     >
                       Crear cuenta nueva
@@ -178,9 +178,9 @@ const ForgotPasswordPage = () => {
                     fontSize: 14,
                     "& fieldset": { borderColor: C.border },
                     "&:hover fieldset": { borderColor: C.brandMuted },
-                    "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 1.5 },
+                    "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 },
                   },
-                  "& .MuiInputLabel-root.Mui-focused": { color: "#2a6e67" },
+                  "& .MuiInputLabel-root.Mui-focused": { color: C.brand },
                 }}
               />
 
@@ -190,7 +190,7 @@ const ForgotPasswordPage = () => {
                 fullWidth
                 disabled={loading}
                 sx={{
-                  bgcolor: "#2a6e67",
+                  bgcolor: C.brand,
                   borderRadius: 2.5,
                   py: 1.3,
                   textTransform: "none",
@@ -218,7 +218,7 @@ const ForgotPasswordPage = () => {
                 color: C.textSecondary,
                 textDecoration: "none",
                 fontWeight: 600,
-                "&:hover": { color: "#2a6e67" },
+                "&:hover": { color: C.brand },
               }}
             >
               <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />

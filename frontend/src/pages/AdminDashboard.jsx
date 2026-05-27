@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AdminLogs from "../components/AdminLogs.jsx";
 import {
   Box, Typography, Stack, Paper,
@@ -27,7 +27,7 @@ import BarChartRoundedIcon            from "@mui/icons-material/BarChartRounded"
 
 /* ─── Tokens ──────────────────────────────────────────────── */
 const C = {
-  brand:        "#bae0dc",
+  brand:        "#0B5E55",
   brandLight:   "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted:   "#B2DDD9",
@@ -240,7 +240,7 @@ const AdminDashboard = () => {
       renderCell: (params) => (
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <Avatar sx={{ width: 32, height: 32, fontSize: 11, fontWeight: 700,
-            bgcolor: C.brandSurface, color: "#2a6e67", border: `1px solid ${C.brandMuted}` }}>
+            bgcolor: C.brandSurface, color: C.brand, border: `1px solid ${C.brandMuted}` }}>
             {(params.row.name || params.value || "?").slice(0, 2).toUpperCase()}
           </Avatar>
           <Box>
@@ -309,7 +309,7 @@ const AdminDashboard = () => {
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center", gap: 2 }}>
       <Box sx={{ width: 44, height: 44, borderRadius: "50%",
-        border: `3px solid ${C.brandMuted}`, borderTopcolor: "#2a6e67",
+        border: `3px solid ${C.brandMuted}`, borderTopColor: C.brand,
         animation: "spin 0.8s linear infinite",
         "@keyframes spin": { to: { transform: "rotate(360deg)" } } }} />
       <Typography sx={{ color: C.textMuted, fontSize: 14 }}>Cargando datos…</Typography>
@@ -328,7 +328,7 @@ const AdminDashboard = () => {
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between"
         alignItems={{ xs: "flex-start", sm: "center" }} mb={5} gap={2}>
         <Stack direction="row" spacing={2} alignItems="center">
-          <Box sx={{ width: 48, height: 48, borderRadius: 3, bgcolor: "#2a6e67",
+          <Box sx={{ width: 48, height: 48, borderRadius: 3, bgcolor: C.brand,
             display: "flex", alignItems: "center", justifyContent: "center", boxShadow: shadow.md }}>
             <AdminPanelSettingsOutlinedIcon sx={{ fontSize: 24, color: "#fff" }} />
           </Box>
@@ -347,7 +347,7 @@ const AdminDashboard = () => {
           <Button startIcon={<ArrowBackRoundedIcon />} onClick={() => navigate("/")}
             sx={{ textTransform: "none", color: C.textSec, fontWeight: 600, fontSize: 13,
               borderRadius: 999, px: 2.5, border: `1px solid ${C.border}`, bgcolor: C.surface,
-              boxShadow: shadow.sm, "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted, color: "#2a6e67" } }}>
+              boxShadow: shadow.sm, "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted, color: C.brand } }}>
             Volver al panel
           </Button>
           <IconButton onClick={() => fetchAdminData({ silent: true })} disabled={refreshing}
@@ -373,7 +373,7 @@ const AdminDashboard = () => {
             transition: "all 0.2s ease",
           }}>
             <Typography sx={{ fontSize: 13.5, fontWeight: activeTab === tab.id ? 800 : 600,
-              color: activeTab === tab.id ? "#bae0dc" : "#4A6B67", whiteSpace: "nowrap" }}>
+              color: activeTab === tab.id ? "#0B5E55" : "#4A6B67", whiteSpace: "nowrap" }}>
               {tab.label}
             </Typography>
           </Box>
@@ -448,7 +448,7 @@ const AdminDashboard = () => {
         {[
           { label: "Silver", color: C.silver, today: s.silverToday, week: s.silverWeek, year: s.silverYear },
           { label: "Gold",   color: C.gold,   today: s.goldToday,   week: s.goldWeek,   year: s.goldYear   },
-          { label: "Total",  color: "#2a6e67",
+          { label: "Total",  color: C.brand,
             today: (s.silverToday ?? 0) + (s.goldToday ?? 0),
             week:  (s.silverWeek  ?? 0) + (s.goldWeek  ?? 0),
             year:  (s.silverYear  ?? 0) + (s.goldYear  ?? 0),
@@ -479,10 +479,10 @@ const AdminDashboard = () => {
         {/* Edad */}
         <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md }}>
           <Stack direction="row" alignItems="center" spacing={1} mb={2.5}>
-            <BarChartRoundedIcon sx={{ fontSize: 18, color: "#2a6e67" }} />
+            <BarChartRoundedIcon sx={{ fontSize: 18, color: C.brand }} />
             <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>Edad</Typography>
             <Box sx={{ ml: "auto !important" }}>
-              <Typography sx={{ fontSize: 28, fontWeight: 900, color: "#2a6e67", lineHeight: 1 }}>
+              <Typography sx={{ fontSize: 28, fontWeight: 900, color: C.brand, lineHeight: 1 }}>
                 {d.edadAvg ?? "—"}
               </Typography>
               <Typography sx={{ fontSize: 10, color: C.textMuted, textAlign: "right" }}>promedio</Typography>
@@ -548,7 +548,7 @@ const AdminDashboard = () => {
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Box sx={{ width: 36, height: 36, borderRadius: 2.5, bgcolor: C.brandSurface,
               display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <PeopleAltOutlinedIcon sx={{ fontSize: 18, color: "#2a6e67" }} />
+              <PeopleAltOutlinedIcon sx={{ fontSize: 18, color: C.brand }} />
             </Box>
             <Box>
               <Typography sx={{ fontSize: 15, fontWeight: 700, color: C.text }}>
@@ -567,7 +567,7 @@ const AdminDashboard = () => {
               "& .MuiOutlinedInput-root": { borderRadius: 999, bgcolor: C.surface, fontSize: 13,
                 "& fieldset": { borderColor: C.border },
                 "&:hover fieldset": { borderColor: C.brandMuted },
-                "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 1.5 } } }}
+                "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 } } }}
             slotProps={{ input: { startAdornment: (
               <InputAdornment position="start">
                 <SearchRoundedIcon sx={{ fontSize: 18, color: C.textMuted }} />

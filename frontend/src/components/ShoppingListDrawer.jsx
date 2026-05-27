@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ShoppingListDrawer
  * ─────────────────────────────────────────────────────────────────────────────
  * Drawer deslizable con la lista de compras acumulativa.
@@ -59,7 +59,7 @@ export const ShoppingFab = ({ count, onClick }) => (
             display: "flex",
             alignItems: "center",
             gap: 1,
-            bgcolor: "#bae0dc",
+            bgcolor: "#0B5E55",
             color: "#fff",
             borderRadius: 999,
             px: 2.2,
@@ -104,7 +104,7 @@ const ListItem = ({ item, onChange, onRemove }) => (
         size="small"
         sx={{
           color: "rgba(11,94,85,0.28)",
-          "&.Mui-checked": { color: "#bae0dc" },
+          "&.Mui-checked": { color: "#0B5E55" },
           p: 0.6,
           flexShrink: 0,
         }}
@@ -216,7 +216,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
           px: 2.5,
           pt: 2.5,
           pb: 2,
-          background: "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
+          background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
           color: "#fff",
           flexShrink: 0,
         }}
@@ -294,7 +294,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
                   disabled={!newItem.trim()}
                   size="small"
                   sx={{
-                    bgcolor: newItem.trim() ? "#bae0dc" : "transparent",
+                    bgcolor: newItem.trim() ? "#0B5E55" : "transparent",
                     color: newItem.trim() ? "#fff" : "#B0C4C0",
                     "&:hover": { bgcolor: "#0f7a6e" },
                     transition: "all 0.2s",
@@ -312,7 +312,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
               bgcolor: "#fff",
               "& fieldset": { borderColor: "rgba(11,94,85,0.15)" },
               "&:hover fieldset": { borderColor: "rgba(11,94,85,0.30) !important" },
-              "&.Mui-focused fieldset": { borderColor: "#bae0dc !important" },
+              "&.Mui-focused fieldset": { borderColor: "#0B5E55 !important" },
             },
           }}
         />
@@ -371,7 +371,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
                   borderRadius: 2.5,
                   py: 1.1,
                   bgcolor: "rgba(11,94,85,0.07)",
-                  color: "#bae0dc",
+                  color: "#0B5E55",
                   "&:hover": { bgcolor: "rgba(11,94,85,0.12)" },
                 }}
               >

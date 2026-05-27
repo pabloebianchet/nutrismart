@@ -1,4 +1,4 @@
-﻿import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
+import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
@@ -8,7 +8,7 @@ import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
 import DocumentScannerRoundedIcon from "@mui/icons-material/DocumentScannerRounded";
 
 const C = {
-  brand: "#bae0dc",
+  brand: "#0B5E55",
   brandLight: "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
@@ -59,7 +59,7 @@ const STEPS = [
     Icon: PhotoCameraRoundedIcon,
     title: "Fotografiá el envase",
     body: "Capturás la tabla nutricional y la lista de ingredientes. NUI App puede analizar desde una simple foto del celular hasta el código de barras del producto.",
-    color: "#bae0dc",
+    color: "#0B5E55",
     accent: "rgba(11,94,85,0.12)",
   },
   {
@@ -85,7 +85,7 @@ const MODULES = [
   {
     emoji: "🔍",
     title: "Análisis de alimentos",
-    color: "#bae0dc",
+    color: "#0B5E55",
     bg: "#E6F5F3",
     border: "rgba(11,94,85,0.20)",
     features: [
@@ -194,7 +194,7 @@ const HowItWorksPage = () => (
           sx={{
             mb: 3,
             bgcolor: C.brandSurface,
-            color: "#2a6e67",
+            color: C.brand,
             fontWeight: 700,
             fontSize: 12,
             border: `1px solid ${C.brandMuted}`,
@@ -245,7 +245,7 @@ const HowItWorksPage = () => (
             sx={{
               fontSize: 11,
               fontWeight: 800,
-              color: "#2a6e67",
+              color: C.brand,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               mb: 1.5,
@@ -400,7 +400,7 @@ const HowItWorksPage = () => (
             sx={{
               fontSize: 11,
               fontWeight: 800,
-              color: "#2a6e67",
+              color: C.brand,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               mb: 1.5,
@@ -551,7 +551,7 @@ const HowItWorksPage = () => (
               sx={{
                 fontSize: 11,
                 fontWeight: 800,
-                color: "#2a6e67",
+                color: C.brand,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 mb: 1.5,
@@ -642,7 +642,7 @@ const HowItWorksPage = () => (
               sx={{
                 fontSize: 11,
                 fontWeight: 800,
-                color: "#2a6e67",
+                color: C.brand,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
                 mb: 1.5,
@@ -751,7 +751,7 @@ const HowItWorksPage = () => (
             sx={{
               fontSize: 11,
               fontWeight: 800,
-              color: "#2a6e67",
+              color: C.brand,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               mb: 1.5,
@@ -893,7 +893,7 @@ const HowItWorksPage = () => (
               justifyContent: "center",
             }}
           >
-            <InfoOutlinedIcon sx={{ fontSize: 20, color: "#2a6e67" }} />
+            <InfoOutlinedIcon sx={{ fontSize: 20, color: C.brand }} />
           </Box>
           <Box>
             <Typography

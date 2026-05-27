@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box, Paper, Stack, Typography, Divider,
   TextField, Button, IconButton, InputAdornment, Tab, Tabs, Alert,
@@ -13,7 +13,7 @@ import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand: "#bae0dc",
+  brand: "#0B5E55",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
   border: "rgba(11,94,85,0.12)",
@@ -26,9 +26,9 @@ const fieldSx = {
     fontSize: 14,
     "& fieldset": { borderColor: C.border },
     "&:hover fieldset": { borderColor: C.brandMuted },
-    "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 1.5 },
+    "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 },
   },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#2a6e67" },
+  "& .MuiInputLabel-root.Mui-focused": { color: C.brand },
 };
 
 const UserDataPage = () => {
@@ -128,7 +128,7 @@ const UserDataPage = () => {
         sx={{
           position: "fixed",
           inset: 0,
-          background: "linear-gradient(150deg, #071e1b 0%, #bae0dc 60%, #0d5449 100%)",
+          background: "linear-gradient(150deg, #071e1b 0%, #0B5E55 60%, #0d5449 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -278,7 +278,7 @@ const UserDataPage = () => {
           {/* Header verde */}
           <Box
             sx={{
-              bgcolor: "#2a6e67",
+              bgcolor: C.brand,
               px: 4,
               pt: 4,
               pb: 3,
@@ -308,7 +308,7 @@ const UserDataPage = () => {
               sx={{
                 mb: 3,
                 "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: 13.5 },
-                "& .MuiTabs-indicator": { bgcolor: "#2a6e67" },
+                "& .MuiTabs-indicator": { bgcolor: C.brand },
                 "& .Mui-selected": { color: `${C.brand} !important` },
               }}
             >
@@ -409,7 +409,7 @@ const UserDataPage = () => {
                       <Typography
                         component={Link}
                         to="/forgot-password"
-                        sx={{ fontSize: 12.5, color: "#2a6e67", fontWeight: 600, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+                        sx={{ fontSize: 12.5, color: C.brand, fontWeight: 600, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
                       >
                         ¿Olvidaste tu contraseña?
                       </Typography>
@@ -422,7 +422,7 @@ const UserDataPage = () => {
                     fullWidth
                     disabled={loading}
                     sx={{
-                      bgcolor: "#2a6e67",
+                      bgcolor: C.brand,
                       borderRadius: 2.5,
                       py: 1.3,
                       textTransform: "none",
@@ -443,7 +443,7 @@ const UserDataPage = () => {
                     <Typography
                       component="span"
                       onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}
-                      sx={{ color: "#2a6e67", fontWeight: 700, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                      sx={{ color: C.brand, fontWeight: 700, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
                     >
                       {mode === "login" ? "Registrate" : "Iniciá sesión"}
                     </Typography>

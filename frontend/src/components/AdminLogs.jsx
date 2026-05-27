@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box, Typography, Stack, Paper, Chip, TextField, Button,
   MenuItem, Select, InputAdornment, IconButton, CircularProgress,
@@ -15,13 +15,13 @@ import InfoOutlinedIcon         from "@mui/icons-material/InfoOutlined";
 import { API_URL }              from "../config/api";
 
 const C = {
-  brand: "#bae0dc", brandSurface: "#E6F5F3", brandMuted: "#B2DDD9",
+  brand: "#0B5E55", brandSurface: "#E6F5F3", brandMuted: "#B2DDD9",
   surface: "#fff", surfaceAlt: "#F7F9F8", border: "rgba(11,94,85,0.10)",
   text: "#0F2420", textSec: "#4A6B67", textMuted: "#8AADAA",
 };
 
 const LEVEL_META = {
-  info:  { label: "Info",  color: "#bae0dc", bg: "#E6F5F3", Icon: InfoOutlinedIcon },
+  info:  { label: "Info",  color: "#0B5E55", bg: "#E6F5F3", Icon: InfoOutlinedIcon },
   warn:  { label: "Aviso", color: "#B45309", bg: "#FFFBEB", Icon: WarningAmberRoundedIcon },
   error: { label: "Error", color: "#B91C1C", bg: "#FEF2F2", Icon: ErrorOutlineRoundedIcon },
 };
@@ -29,7 +29,7 @@ const LEVEL_META = {
 const CAT_META = {
   auth:     { label: "Auth",        color: "#1D4ED8", bg: "#EFF6FF" },
   payment:  { label: "Pagos",       color: "#B45309", bg: "#FFFBEB" },
-  analysis: { label: "Análisis",    color: "#bae0dc", bg: "#E6F5F3" },
+  analysis: { label: "Análisis",    color: "#0B5E55", bg: "#E6F5F3" },
   training: { label: "Entreno",     color: "#BF360C", bg: "#FBE9E7" },
   recipe:   { label: "Recetas",     color: "#6A1B9A", bg: "#F3E5F5" },
   contact:  { label: "Contacto",    color: "#0369A1", bg: "#E0F2FE" },
@@ -169,7 +169,7 @@ const selectSx = {
   borderRadius: 2.5, fontSize: 13, bgcolor: C.surface,
   "& fieldset": { borderColor: C.border },
   "&:hover fieldset": { borderColor: C.brandMuted },
-  "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 1.5 },
+  "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 },
 };
 
 const AdminLogs = () => {
@@ -248,7 +248,7 @@ const AdminLogs = () => {
             <Stack direction="row" spacing={1}>
               <Tooltip title="Actualizar">
                 <IconButton size="small" onClick={() => fetchLogs(page)} disabled={loading}
-                  sx={{ bgcolor: C.brandSurface, color: "#2a6e67", "&:hover": { bgcolor: C.brandMuted } }}>
+                  sx={{ bgcolor: C.brandSurface, color: C.brand, "&:hover": { bgcolor: C.brandMuted } }}>
                   <RefreshRoundedIcon sx={{ fontSize: 16 }} />
                 </IconButton>
               </Tooltip>
@@ -277,7 +277,7 @@ const AdminLogs = () => {
                 sx={{ "& .MuiOutlinedInput-root": { ...selectSx, borderRadius: 999 } }}
               />
               <Button type="submit" variant="contained" size="small"
-                sx={{ bgcolor: "#2a6e67", borderRadius: 999, textTransform: "none", fontWeight: 700, px: 2, flexShrink: 0, "&:hover": { bgcolor: "#0f7a6e" } }}>
+                sx={{ bgcolor: C.brand, borderRadius: 999, textTransform: "none", fontWeight: 700, px: 2, flexShrink: 0, "&:hover": { bgcolor: "#0f7a6e" } }}>
                 Buscar
               </Button>
             </Box>
@@ -321,7 +321,7 @@ const AdminLogs = () => {
         {/* Log rows */}
         {loading ? (
           <Box sx={{ py: 6, textAlign: "center" }}>
-            <CircularProgress size={28} sx={{ color: "#2a6e67" }} />
+            <CircularProgress size={28} sx={{ color: C.brand }} />
           </Box>
         ) : logs.length === 0 ? (
           <Box sx={{ py: 8, textAlign: "center" }}>
@@ -338,7 +338,7 @@ const AdminLogs = () => {
       {totalPages > 1 && (
         <Stack direction="row" justifyContent="center" spacing={1} alignItems="center">
           <Button size="small" disabled={page === 1} onClick={() => setPage(p => p - 1)}
-            sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#2a6e67", borderRadius: 999,
+            sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: C.brand, borderRadius: 999,
               "&:hover": { bgcolor: C.brandSurface } }}>
             ← Anterior
           </Button>
@@ -346,7 +346,7 @@ const AdminLogs = () => {
             Página {page} de {totalPages}
           </Typography>
           <Button size="small" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
-            sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#2a6e67", borderRadius: 999,
+            sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: C.brand, borderRadius: 999,
               "&:hover": { bgcolor: C.brandSurface } }}>
             Siguiente →
           </Button>

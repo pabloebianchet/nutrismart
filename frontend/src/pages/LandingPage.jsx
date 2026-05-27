@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LandingPage — Premium v2
  * Diseño dinámico, secciones luz/oscuro alternadas, CTAs rellenas
  */
@@ -26,14 +26,12 @@ import AutorenewRoundedIcon      from "@mui/icons-material/AutorenewRounded";
 const C = {
   heroBg:      "#03211F",
   darkBg:      "#042A28",
-  brand:       "#bae0dc",
+  brand:       "#0B5E55",
   brandMid:    "#0f7a6e",
   brandSurf:   "#E6F5F3",
   brandBorder: "rgba(11,94,85,0.15)",
   emerald:     "#10B981",
   emeraldDark: "#059669",
-  orange:      "#ef8e38",
-  orangeDark:  "#d4781e",
   mint:        "#34D399",
   white:       "#FFFFFF",
   cream:       "#F8FBFA",
@@ -85,11 +83,10 @@ const LandingNav = ({ scrolled }) => {
           Iniciar sesión
         </Button>
         <Button onClick={() => navigate("/login")} sx={{
-          fontSize: 13, fontWeight: 800, textTransform: "none", color: "#0F2420",
+          fontSize: 13, fontWeight: 800, textTransform: "none", color: "#fff",
           px: 2.5, py: 0.9, borderRadius: 999,
-          bgcolor: C.brand,
-          boxShadow: "0 3px 12px rgba(186,224,220,0.40)",
-          "&:hover": { bgcolor: "#a0d0cb", boxShadow: "0 5px 18px rgba(186,224,220,0.55)" },
+          bgcolor: C.emerald,
+          "&:hover": { bgcolor: C.emeraldDark },
           transition: "all 0.2s",
         }}>
           Empezar gratis
@@ -162,7 +159,10 @@ const HeroSection = ({ onCTA }) => (
         Comé mejor.<br />
         Entrenás mejor.<br />
         <Box component="span" sx={{
-          color: C.orange,
+          background: `linear-gradient(130deg, ${C.emerald} 0%, ${C.mint} 100%)`,
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
         }}>Vivís mejor.</Box>
       </Typography>
 
@@ -182,14 +182,14 @@ const HeroSection = ({ onCTA }) => (
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center"
         sx={{ mb: 8, animation: "fadeUp 0.6s 0.3s ease both" }}>
         <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
-          bgcolor: C.brand, color: "#0F2420",
+          bgcolor: C.emerald, color: "#fff",
           fontWeight: 800, fontSize: 16,
           textTransform: "none",
           px: 4.5, py: 1.7, borderRadius: 999,
-          boxShadow: "0 4px 20px rgba(186,224,220,0.45)",
+          boxShadow: "none",
           "&:hover": {
-            bgcolor: "#a0d0cb",
-            boxShadow: "0 8px 28px rgba(186,224,220,0.60)",
+            bgcolor: C.emeraldDark,
+            boxShadow: "none",
             transform: "translateY(-2px)",
           },
           transition: "all 0.25s",
@@ -632,7 +632,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
           }}>
             {/* App header simulado */}
             <Box sx={{
-              background: "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
+              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
               px: 2.5, py: 2,
             }}>
               <Stack direction="row" alignItems="center" spacing={1} mb={0.4}>
@@ -663,8 +663,8 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                   {/* Checkbox simulado */}
                   <Box sx={{
                     width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
-                    border: `2px solid ${item.checked ? "#bae0dc" : "rgba(11,94,85,0.25)"}`,
-                    bgcolor: item.checked ? "#bae0dc" : "transparent",
+                    border: `2px solid ${item.checked ? "#0B5E55" : "rgba(11,94,85,0.25)"}`,
+                    bgcolor: item.checked ? "#0B5E55" : "transparent",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     {item.checked && <Typography sx={{ fontSize: 9, color: "#fff", lineHeight: 1 }}>✓</Typography>}
@@ -1011,7 +1011,7 @@ const PRICING_PLANS = [
   {
     id: "free", name: "Free", Icon: RocketLaunchRoundedIcon,
     price: null, sub: "Gratis · 7 días",
-    color: "#2a6e67", border: "rgba(42,110,103,0.18)", bg: C.white,
+    color: C.brand, border: C.brandBorder, bg: C.white,
     highlight: false, badge: null,
     features: ["Todos los módulos sin límite", "Análisis ilimitados", "Recetas con IA ilimitadas", "Plan de entrenamiento", "Dashboard completo"],
     cta: "Empezar gratis",
@@ -1039,7 +1039,7 @@ const PricingSection = ({ onCTA }) => (
     <Box sx={{ maxWidth: 1100, mx: "auto" }}>
       <Box textAlign="center" mb={8}>
         <Box sx={{
-          display: "inline-block", fontSize: 11, fontWeight: 800, color: "#2a6e67",
+          display: "inline-block", fontSize: 11, fontWeight: 800, color: C.brand,
           letterSpacing: "0.12em", textTransform: "uppercase",
           bgcolor: C.brandSurf, border: `1px solid ${C.brandBorder}`,
           borderRadius: 999, px: 2, py: 0.6, mb: 2.5,
@@ -1049,7 +1049,7 @@ const PricingSection = ({ onCTA }) => (
         <Typography sx={{ fontSize: { xs: 30, sm: 46 }, fontWeight: 900, color: C.ink,
           letterSpacing: { xs: "-1px", sm: "-2px" }, lineHeight: 1.1, mb: 2 }}>
           Elegí el plan que<br />
-          <Box component="span" sx={{ color: "#2a6e67" }}>mejor te quede</Box>
+          <Box component="span" sx={{ color: C.brand }}>mejor te quede</Box>
         </Typography>
         <Typography sx={{ fontSize: 17, color: C.muted, lineHeight: 1.8 }}>
           Empezá con 7 días gratis. Cancelá cuando quieras, sin penalidades.

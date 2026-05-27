@@ -1,11 +1,11 @@
-﻿import { Box, Typography, Container, Paper, Divider } from "@mui/material";
+import { Box, Typography, Container, Paper, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const C = { brand: "#bae0dc", surface: "#F7F9F8", border: "rgba(11,94,85,0.12)", text: "#0F2420", muted: "#4A6B67", faint: "#8AADAA" };
+const C = { brand: "#0B5E55", surface: "#F7F9F8", border: "rgba(11,94,85,0.12)", text: "#0F2420", muted: "#4A6B67", faint: "#8AADAA" };
 
 const Section = ({ title, children }) => (
   <Box sx={{ mb: 4 }}>
-    <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#2a6e67", mb: 1.5, letterSpacing: "-0.2px" }}>{title}</Typography>
+    <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.brand, mb: 1.5, letterSpacing: "-0.2px" }}>{title}</Typography>
     <Box sx={{ fontSize: 14, color: C.muted, lineHeight: 1.85 }}>{children}</Box>
   </Box>
 );
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <Box sx={{ mb: 5 }}>
           <Typography
             onClick={() => navigate("/")}
-            sx={{ fontSize: 13, color: "#2a6e67", fontWeight: 700, cursor: "pointer", mb: 2, "&:hover": { textDecoration: "underline" } }}
+            sx={{ fontSize: 13, color: C.brand, fontWeight: 700, cursor: "pointer", mb: 2, "&:hover": { textDecoration: "underline" } }}
           >
             ← Volver a Nui
           </Typography>
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
               <Typography
                 component="span"
                 onClick={() => navigate("/legal")}
-                sx={{ color: "#2a6e67", fontWeight: 700, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                sx={{ color: C.brand, fontWeight: 700, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
               >
                 Política de Cookies
               </Typography>.
@@ -191,7 +191,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Box sx={{ mt: 4, p: 3, borderRadius: 3, bgcolor: "#E6F5F3", border: `1px solid rgba(11,94,85,0.15)` }}>
-            <Typography sx={{ fontSize: 13, color: "#2a6e67", fontWeight: 700, mb: 0.5 }}>
+            <Typography sx={{ fontSize: 13, color: C.brand, fontWeight: 700, mb: 0.5 }}>
               🔒 Compromiso con su privacidad
             </Typography>
             <Typography sx={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>

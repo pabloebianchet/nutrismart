@@ -1,4 +1,4 @@
-﻿import { Box, Typography, Chip, Paper } from "@mui/material";
+import { Box, Typography, Chip, Paper } from "@mui/material";
 import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip } from "chart.js";
 
@@ -6,7 +6,7 @@ Chart.register(ArcElement, Tooltip);
 
 /* ─── Tokens ──────────────────────────────────────────────── */
 const C = {
-  brand: "#bae0dc",
+  brand: "#0B5E55",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
   surface: "#FFFFFF",
@@ -195,7 +195,7 @@ const GaugeCard = ({ imc, altura }) => {
         >
           Peso ideal para {altura} cm
         </Typography>
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#2a6e67" }}>
+        <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.brand }}>
           {ideal.min} – {ideal.max} kg
         </Typography>
       </Box>
@@ -502,7 +502,7 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
               ? "Para alcanzar zona normal, reducir"
               : "Para alcanzar zona normal, ganar"}
             {" "}
-            <Typography component="span" sx={{ fontWeight: 800, color: "#2a6e67", fontSize: 13.5 }}>
+            <Typography component="span" sx={{ fontWeight: 800, color: C.brand, fontSize: 13.5 }}>
               {diff} kg
             </Typography>
           </Typography>
@@ -523,7 +523,7 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
             sx={{
               fontSize: 10,
               fontWeight: 700,
-              color: "#2a6e67",
+              color: C.brand,
               textTransform: "uppercase",
               letterSpacing: "0.06em",
               mb: 0.3,
@@ -531,7 +531,7 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
           >
             Peso ideal Hamwi ({sexo})
           </Typography>
-          <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#2a6e67" }}>
+          <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.brand }}>
             {hamwi} kg
           </Typography>
         </Box>

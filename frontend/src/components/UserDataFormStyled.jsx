@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box, Typography, Button, Stack,
   TextField, LinearProgress, InputAdornment,
@@ -13,7 +13,7 @@ import { API_URL }      from "../config/api";
 
 /* ── Paleta ─────────────────────────────────────────────────── */
 const C = {
-  brand:        "#bae0dc",
+  brand:        "#0B5E55",
   brandLight:   "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted:   "#B2DDD9",
@@ -42,8 +42,8 @@ const fieldSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: 2.5,
     "& fieldset":             { borderColor: C.border },
-    "&:hover fieldset":       { borderColor: "#2a6e67" },
-    "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 2 },
+    "&:hover fieldset":       { borderColor: C.brand },
+    "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 2 },
   },
 };
 
@@ -158,7 +158,7 @@ const UserDataFormStyled = () => {
           sx={{
             height: 5, borderRadius: 99,
             bgcolor: C.brandSurface,
-            "& .MuiLinearProgress-bar": { bgcolor: "#2a6e67", borderRadius: 99 },
+            "& .MuiLinearProgress-bar": { bgcolor: C.brand, borderRadius: 99 },
           }}
         />
 
@@ -169,7 +169,7 @@ const UserDataFormStyled = () => {
               sx={{
                 width: i === step ? 22 : 7, height: 7,
                 borderRadius: 99,
-                bgcolor: "#2a6e67",
+                bgcolor: C.brand,
                 opacity: i < step ? 0.3 : i === step ? 1 : 0.12,
                 transition: "all 0.3s ease",
               }}
@@ -229,7 +229,7 @@ const UserDataFormStyled = () => {
                           bgcolor: sel ? C.brandSurface : "#fafafa",
                           cursor: "pointer", textAlign: "center",
                           transition: "all 0.18s ease",
-                          "&:hover": { bordercolor: "#2a6e67", bgcolor: C.brandSurface },
+                          "&:hover": { borderColor: C.brand, bgcolor: C.brandSurface },
                           userSelect: "none",
                         }}
                       >
@@ -332,7 +332,7 @@ const UserDataFormStyled = () => {
                       cursor: "pointer",
                       display: "flex", alignItems: "center", gap: 2,
                       transition: "all 0.18s ease",
-                      "&:hover": { bordercolor: "#2a6e67", bgcolor: C.brandSurface },
+                      "&:hover": { borderColor: C.brand, bgcolor: C.brandSurface },
                       userSelect: "none",
                     }}
                   >
@@ -345,7 +345,7 @@ const UserDataFormStyled = () => {
                         {desc}
                       </Typography>
                     </Box>
-                    {sel && <CheckCircleRoundedIcon sx={{ color: "#2a6e67", fontSize: 20, flexShrink: 0 }} />}
+                    {sel && <CheckCircleRoundedIcon sx={{ color: C.brand, fontSize: 20, flexShrink: 0 }} />}
                   </Box>
                 );
               })}
@@ -366,7 +366,7 @@ const UserDataFormStyled = () => {
                   borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14,
                   color: C.textSecondary, border: `1.5px solid ${C.border}`,
                   px: 2.5, py: 1.2, flexShrink: 0,
-                  "&:hover": { bgcolor: C.brandSurface, bordercolor: "#2a6e67", color: "#2a6e67" },
+                  "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand, color: C.brand },
                 }}
               >
                 Atrás
@@ -381,7 +381,7 @@ const UserDataFormStyled = () => {
               sx={{
                 borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 15,
                 py: 1.3,
-                bgcolor: "#2a6e67", color: "#fff",
+                bgcolor: C.brand, color: "#fff",
                 boxShadow: "0 4px 18px rgba(11,94,85,0.30)",
                 transition: "all 0.18s",
                 "&:hover": { bgcolor: C.brandLight, boxShadow: "0 6px 22px rgba(11,94,85,0.38)" },
