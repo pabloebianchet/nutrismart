@@ -85,11 +85,11 @@ const LandingNav = ({ scrolled }) => {
           Iniciar sesión
         </Button>
         <Button onClick={() => navigate("/login")} sx={{
-          fontSize: 13, fontWeight: 800, textTransform: "none", color: "#fff",
+          fontSize: 13, fontWeight: 800, textTransform: "none", color: "#0F2420",
           px: 2.5, py: 0.9, borderRadius: 999,
-          bgcolor: C.orange,
-          boxShadow: "0 3px 12px rgba(239,142,56,0.35)",
-          "&:hover": { bgcolor: C.orangeDark, boxShadow: "0 5px 18px rgba(239,142,56,0.45)" },
+          bgcolor: C.brand,
+          boxShadow: "0 3px 12px rgba(186,224,220,0.40)",
+          "&:hover": { bgcolor: "#a0d0cb", boxShadow: "0 5px 18px rgba(186,224,220,0.55)" },
           transition: "all 0.2s",
         }}>
           Empezar gratis
@@ -162,10 +162,7 @@ const HeroSection = ({ onCTA }) => (
         Comé mejor.<br />
         Entrenás mejor.<br />
         <Box component="span" sx={{
-          background: `linear-gradient(130deg, ${C.emerald} 0%, ${C.mint} 100%)`,
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
+          color: C.orange,
         }}>Vivís mejor.</Box>
       </Typography>
 
@@ -185,14 +182,14 @@ const HeroSection = ({ onCTA }) => (
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center"
         sx={{ mb: 8, animation: "fadeUp 0.6s 0.3s ease both" }}>
         <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
-          bgcolor: C.orange, color: "#fff",
+          bgcolor: C.brand, color: "#0F2420",
           fontWeight: 800, fontSize: 16,
           textTransform: "none",
           px: 4.5, py: 1.7, borderRadius: 999,
-          boxShadow: "0 4px 20px rgba(239,142,56,0.40)",
+          boxShadow: "0 4px 20px rgba(186,224,220,0.45)",
           "&:hover": {
-            bgcolor: C.orangeDark,
-            boxShadow: "0 8px 28px rgba(239,142,56,0.50)",
+            bgcolor: "#a0d0cb",
+            boxShadow: "0 8px 28px rgba(186,224,220,0.60)",
             transform: "translateY(-2px)",
           },
           transition: "all 0.25s",
@@ -1014,7 +1011,7 @@ const PRICING_PLANS = [
   {
     id: "free", name: "Free", Icon: RocketLaunchRoundedIcon,
     price: null, sub: "Gratis · 7 días",
-    color: C.brand, border: C.brandBorder, bg: C.white,
+    color: "#2a6e67", border: "rgba(42,110,103,0.18)", bg: C.white,
     highlight: false, badge: null,
     features: ["Todos los módulos sin límite", "Análisis ilimitados", "Recetas con IA ilimitadas", "Plan de entrenamiento", "Dashboard completo"],
     cta: "Empezar gratis",
@@ -1042,7 +1039,7 @@ const PricingSection = ({ onCTA }) => (
     <Box sx={{ maxWidth: 1100, mx: "auto" }}>
       <Box textAlign="center" mb={8}>
         <Box sx={{
-          display: "inline-block", fontSize: 11, fontWeight: 800, color: C.brand,
+          display: "inline-block", fontSize: 11, fontWeight: 800, color: "#2a6e67",
           letterSpacing: "0.12em", textTransform: "uppercase",
           bgcolor: C.brandSurf, border: `1px solid ${C.brandBorder}`,
           borderRadius: 999, px: 2, py: 0.6, mb: 2.5,
@@ -1052,7 +1049,7 @@ const PricingSection = ({ onCTA }) => (
         <Typography sx={{ fontSize: { xs: 30, sm: 46 }, fontWeight: 900, color: C.ink,
           letterSpacing: { xs: "-1px", sm: "-2px" }, lineHeight: 1.1, mb: 2 }}>
           Elegí el plan que<br />
-          <Box component="span" sx={{ color: C.brand }}>mejor te quede</Box>
+          <Box component="span" sx={{ color: "#2a6e67" }}>mejor te quede</Box>
         </Typography>
         <Typography sx={{ fontSize: 17, color: C.muted, lineHeight: 1.8 }}>
           Empezá con 7 días gratis. Cancelá cuando quieras, sin penalidades.

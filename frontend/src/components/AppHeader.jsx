@@ -242,12 +242,12 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
             sx={{
               display: "flex", alignItems: "center", gap: 0.8,
               px: 2, py: 0.75, borderRadius: 999,
-              bgcolor: "#ef8e38", color: "#fff",
+              bgcolor: C.brand, color: "#0F2420",
               fontSize: 13.5, fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 3px 12px rgba(239,142,56,0.32)",
+              boxShadow: "0 3px 12px rgba(186,224,220,0.40)",
               transition: "all 0.18s",
-              "&:hover": { bgcolor: "#d4781e", transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(239,142,56,0.42)" },
+              "&:hover": { bgcolor: "#a0d0cb", transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(186,224,220,0.55)" },
             }}
           >
             Iniciar sesión →
@@ -386,9 +386,9 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
               sx={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 p: 1.8, borderRadius: 3, textDecoration: "none",
-                bgcolor: "#ef8e38", color: "#fff",
+                bgcolor: C.brand, color: "#0F2420",
                 fontWeight: 800, fontSize: 15,
-                boxShadow: "0 4px 16px rgba(239,142,56,0.32)",
+                boxShadow: "0 4px 16px rgba(186,224,220,0.40)",
               }}
             >
               Iniciar sesión →
