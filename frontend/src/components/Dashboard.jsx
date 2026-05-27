@@ -18,7 +18,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PeanutMascot, { getMood, MOOD_META } from "./PeanutMascot";
 import AvatarMascot, { getAvatarState } from "./AvatarMascot";
-import axios from "axios";
+import api from "../config/axiosInstance";
 import TestCard from "./TestCard";
 import SubscriptionWidget from "./SubscriptionWidget";
 import LeaderboardWidget from "./LeaderboardWidget";
@@ -1591,7 +1591,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("nutrismartToken");
-      const res = await axios.get(
+      const res = await api.get(
         `${API_URL}/api/user/analysis/${identifier}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
