@@ -64,9 +64,11 @@ const AvatarMascot = ({
 }) => {
   const state = getAvatarState(points);
   const prefix = genderPrefix(sexo);
-  const src = `/avatars/${prefix}_${state}.png`;
+  const srcSvg = `/avatars/${prefix}_${state}.svg`;
+  const srcPng = `/avatars/${prefix}_${state}.png`;
 
-  const [imgOk, setImgOk] = useState(true);
+  const [src, setSrc]       = useState(srcSvg);
+  const [imgOk, setImgOk]   = useState(true);
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -99,8 +101,12 @@ const AvatarMascot = ({
           alt={`avatar nivel ${state}`}
           onLoad={() => setLoaded(true)}
           onError={() => {
-            setImgOk(false);
-            setLoaded(true);
+            if (src === srcSvg) {
+              setSrc(srcPng);
+            } else {
+              setImgOk(false);
+              setLoaded(true);
+            }
           }}
           sx={{
             width: "100%",
