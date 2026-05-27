@@ -17,6 +17,7 @@ const FloatingAnalyzeButton = () => {
   return (
     <Box
       sx={{
+        display: { xs: "flex", md: "none" },
         position: "fixed",
         bottom: { xs: 24, sm: 32 },
         right:  { xs: 20, sm: 28 },
