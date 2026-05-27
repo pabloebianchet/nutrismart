@@ -45,12 +45,15 @@ const FRECUENCIAS = [2, 3, 4, 5, 6];
 // MAIN_KEY: planes multi-semana (15d / 1m / 3m / 6m)
 // QUICK_KEY: plan de 1 día — no interfiere con el plan principal
 
-const MAIN_KEY  = "nutrismart_training_main";
-const QUICK_KEY = "nutrismart_training_quick";
+const MAIN_KEY   = "nutrismart_training_main";
+const QUICK_KEY  = "nutrismart_training_quick";
+const DRAFTS_KEY = "nutrismart_training_drafts";
 
-const loadPlan  = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
-const savePlan  = (k, d) => localStorage.setItem(k, JSON.stringify(d));
-const clearPlan = (k)    => localStorage.removeItem(k);
+const loadPlan    = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
+const savePlan    = (k, d) => localStorage.setItem(k, JSON.stringify(d));
+const clearPlan   = (k)    => localStorage.removeItem(k);
+const loadDraftsLS = ()    => { try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || "{}"); } catch { return {}; } };
+const saveDraftsLS = (d)   => localStorage.setItem(DRAFTS_KEY, JSON.stringify(d));
 
 const getPhaseForData = (data) => {
   if (!data?.plan) return "config";
@@ -171,8 +174,13 @@ const TrainingPage = () => {
   const [deleteStep,         setDeleteStep]          = useState(0); // 0=cerrado 1=primer aviso 2=confirmar
   const [tipsData,     setTipsData]     = useState(null);
   const [loadingTips,  setLoadingTips]  = useState(false);
-  const [expandedSess,   setExpandedSess]   = useState(null);
-  const [sessionSuccess, setSessionSuccess] = useState(null); // { earned, total, dayName, tipoColor }
+  const [expandedSess,    setExpandedSess]    = useState(null);
+  const [sessionSuccess,  setSessionSuccess]  = useState(null); // { earned, total, dayName, tipoColor }
+  const [drafts,          setDrafts]          = useState({});   // { [planType_dayKey]: { log, timestamp } }
+  const [confirmRegister, setConfirmRegister] = useState(false);
+
+  // ── Cargar borradores de localStorage al montar ──────────────────────────
+  useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Cargar planes desde la DB al montar ──────────────────────────────────
   useEffect(() => {
@@ -248,6 +256,14 @@ const TrainingPage = () => {
   const todayStr    = new Date().toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
   const todayDays   = new Set(sessions.filter(s => s.date === todayStr).map(s => s.dayKey));
   const loggedExs   = [...new Set(sessions.flatMap(s => Object.keys(s.exercises)))];
+
+  // Progreso — toma el mayor entre sesiones completadas y días transcurridos
+  const expectedSessions = totalDays > 1
+    ? Math.max(1, Math.round((totalDays / 7) * (config?.frecuencia || 3)))
+    : 1;
+  const sessionPct = Math.min(100, Math.round((sessions.length / expectedSessions) * 100));
+  const timePct    = totalDays > 1 ? Math.min(100, Math.round((elapsed / totalDays) * 100)) : 0;
+  const progressPct = Math.max(sessionPct, timePct);
 
   const getExHistory = (name) =>
     sessions.filter(s => s.exercises[name]).map(s => ({ date: s.date, ...s.exercises[name] }));
@@ -338,12 +354,35 @@ const TrainingPage = () => {
     }
   };
 
-  // ── sesión
-  const openSession = (dayKey) => { setActiveDay(dayKey); setSessionLog({}); };
+  // ── sesión — helpers de borrador ────────────────────────────────────────
+  const _draftId  = (dayKey) => `${activePlanType}_${dayKey}`;
+  const hasDraft  = (dayKey) => !!drafts[_draftId(dayKey)];
 
-  const saveSession = async () => {
+  const saveDraft = (dayKey = activeDay, log = sessionLog) => {
+    const id       = `${activePlanType}_${dayKey}`;
+    const updated  = { ...drafts, [id]: { log, timestamp: new Date().toISOString() } };
+    setDrafts(updated);
+    saveDraftsLS(updated);
+  };
+
+  const deleteDraft = (dayKey = activeDay) => {
+    const id      = `${activePlanType}_${dayKey}`;
+    const updated = { ...drafts };
+    delete updated[id];
+    setDrafts(updated);
+    saveDraftsLS(updated);
+  };
+
+  const openSession = (dayKey) => {
+    setActiveDay(dayKey);
+    const existing = drafts[`${activePlanType}_${dayKey}`];
+    setSessionLog(existing?.log || {});
+  };
+
+  const registerSession = async () => {
+    setConfirmRegister(false);
     const hasData = Object.values(sessionLog).some(v => v.weight || v.reps);
-    if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de guardar."); return; }
+    if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de registrar."); return; }
 
     const dayInfo = plan.weekStructure[activeDay];
     const dayName = dayInfo?.name || activeDay;
@@ -361,6 +400,7 @@ const TrainingPage = () => {
       ...prev,
       [_planType]: { ...prev[_planType], sessions: updated },
     }));
+    deleteDraft(activeDay);  // borra borrador al registrar
     setActiveDay(null);
 
     // +5 puntos saludables — mostrar overlay de celebración si el API responde
@@ -912,9 +952,11 @@ const TrainingPage = () => {
                   <Box sx={{ px: 3, py: 1.5 }}>
                     <Stack direction="row" justifyContent="space-between" mb={0.8}>
                       <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#4A6B67" }}>Semana {currentWeek}</Typography>
-                      <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{Math.round(Math.min(100, (elapsed / totalDays) * 100))}% completado</Typography>
+                      <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>
+                        {sessions.length} sesión{sessions.length !== 1 ? "es" : ""} · {progressPct}% completado
+                      </Typography>
                     </Stack>
-                    <ProgBar value={(elapsed / totalDays) * 100} color={activeTipo?.color} />
+                    <ProgBar value={progressPct} color={activeTipo?.color} />
                   </Box>
                 )}
               </Paper>
@@ -947,16 +989,17 @@ const TrainingPage = () => {
                   <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3, lineHeight: 1.7 }}>{plan.summary}</Typography>
                   <Stack spacing={2}>
                     {Object.entries(plan.weekStructure).map(([dayKey, day], i) => {
-                      const doneToday = todayDays.has(dayKey);
-                      const sessCount = sessions.filter(s => s.dayKey === dayKey).length;
-                      const exs       = day.exercises || [];
+                      const doneToday  = todayDays.has(dayKey);
+                      const sessCount  = sessions.filter(s => s.dayKey === dayKey).length;
+                      const isDraft    = hasDraft(dayKey);
+                      const exs        = day.exercises || [];
                       return (
                         <motion.div key={dayKey} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
                           <Paper elevation={0} sx={{
                             borderRadius: 4, overflow: "hidden",
-                            border: `1px solid ${doneToday ? (activeTipo?.color || "#0B5E55") + "40" : "rgba(11,94,85,0.10)"}`,
+                            border: `1px solid ${isDraft ? "rgba(180,120,0,0.35)" : doneToday ? (activeTipo?.color || "#0B5E55") + "40" : "rgba(11,94,85,0.10)"}`,
                             boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
-                            bgcolor: doneToday ? (activeTipo?.bg || "#E6F5F3") : "#fff",
+                            bgcolor: isDraft ? "#FFFBEB" : doneToday ? (activeTipo?.bg || "#E6F5F3") : "#fff",
                           }}>
                             <Box sx={{ px: 2.5, pt: 2, pb: 1.5 }}>
                               <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1}>
@@ -964,6 +1007,9 @@ const TrainingPage = () => {
                                   <Stack direction="row" spacing={0.8} alignItems="center" mb={0.3}>
                                     {doneToday && <CheckRoundedIcon sx={{ fontSize: 15, color: activeTipo?.color || "#0B5E55" }} />}
                                     <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px" }}>{day.name}</Typography>
+                                    {isDraft && (
+                                      <Chip label="Borrador" size="small" sx={{ height: 18, fontSize: 10, fontWeight: 800, bgcolor: "rgba(180,120,0,0.12)", color: "#92400E", letterSpacing: "0.02em" }} />
+                                    )}
                                   </Stack>
                                   <Typography sx={{ fontSize: 12, color: "#4A6B67" }}>{day.focus}</Typography>
                                 </Box>
@@ -988,18 +1034,20 @@ const TrainingPage = () => {
                             <Box sx={{ px: 2.5, pb: 2 }}>
                               <Button
                                 fullWidth onClick={() => openSession(dayKey)}
-                                variant={doneToday ? "outlined" : "contained"}
+                                variant={doneToday && !isDraft ? "outlined" : "contained"}
                                 sx={{
                                   py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13.5,
-                                  ...(doneToday
+                                  ...(doneToday && !isDraft
                                     ? { border: `1.5px solid ${activeTipo?.color || "#0B5E55"}50`, color: activeTipo?.color || "#0B5E55" }
+                                    : isDraft
+                                    ? { background: "linear-gradient(135deg, #B45309 0%, #D97706 100%)", boxShadow: "0 4px 16px rgba(180,83,9,0.28)" }
                                     : {
                                         background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
                                         boxShadow: `0 4px 16px ${activeTipo?.border || "rgba(11,94,85,0.25)"}`,
                                       }),
                                 }}
                               >
-                                {doneToday ? "Registrar otra sesión" : "Registrar sesión 💪"}
+                                {isDraft ? "✏️ Retomar borrador" : doneToday ? "Registrar otra sesión" : "Registrar sesión 💪"}
                               </Button>
                             </Box>
                           </Paper>
@@ -1215,8 +1263,12 @@ const TrainingPage = () => {
           {/* ══════════════ SESSION TRACKING ══════════════ */}
           {phase === "plan" && plan && activeDay && (
             <motion.div key="session" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.28 }}>
-              <Button onClick={() => setActiveDay(null)} startIcon={<ArrowBackRoundedIcon />} size="small"
-                sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
+              {/* Volver — auto-guarda borrador */}
+              <Button
+                onClick={() => { saveDraft(); setActiveDay(null); setSnackMsg("Borrador guardado 📝"); }}
+                startIcon={<ArrowBackRoundedIcon />} size="small"
+                sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
+              >
                 Volver al plan
               </Button>
 
@@ -1287,14 +1339,45 @@ const TrainingPage = () => {
                 })}
               </Stack>
 
-              <Button fullWidth variant="contained" onClick={saveSession} sx={{
-                py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
-                background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}BB 100%)`,
-                boxShadow: `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
-                "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
-              }}>
-                Guardar sesión ✓
-              </Button>
+              {/* ── Botones de sesión ── */}
+              <Stack spacing={1.5}>
+                <Button
+                  fullWidth variant="contained"
+                  onClick={() => {
+                    const hasData = Object.values(sessionLog).some(v => v.weight || v.reps);
+                    if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de registrar."); return; }
+                    setConfirmRegister(true);
+                  }}
+                  sx={{
+                    py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
+                    background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}BB 100%)`,
+                    boxShadow: `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
+                    "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
+                  }}
+                >
+                  Registrar sesión 💪
+                </Button>
+                <Button
+                  fullWidth
+                  onClick={() => { saveDraft(); setActiveDay(null); setSnackMsg("Borrador guardado 📝"); }}
+                  sx={{
+                    py: 1.4, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
+                    border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
+                    "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
+                  }}
+                >
+                  Guardar borrador
+                </Button>
+                {hasDraft(activeDay) && (
+                  <Button
+                    fullWidth size="small"
+                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setSnackMsg("Borrador eliminado"); }}
+                    sx={{ textTransform: "none", fontWeight: 600, fontSize: 13, color: "#B0C4C0", "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.06)" } }}
+                  >
+                    Eliminar borrador
+                  </Button>
+                )}
+              </Stack>
             </motion.div>
           )}
 
@@ -1593,6 +1676,47 @@ const TrainingPage = () => {
             <Button
               onClick={() => setShowNewPlanDialog(false)}
               sx={{ textTransform: "none", color: "#8AADAA", fontWeight: 600, fontSize: 13.5, py: 0.8, borderRadius: 2 }}
+            >
+              Cancelar
+            </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══════════ DIALOG: Confirmar registro de sesión ═══════════ */}
+      <Dialog
+        open={confirmRegister}
+        onClose={() => setConfirmRegister(false)}
+        PaperProps={{ sx: { borderRadius: 5, mx: 2, maxWidth: 380, width: "100%" } }}
+      >
+        <DialogContent sx={{ p: 3 }}>
+          <Box sx={{ textAlign: "center", mb: 2.5 }}>
+            <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: activeTipo?.bg || "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 1.5 }}>
+              <Typography sx={{ fontSize: 24 }}>{activeTipo?.emoji || "💪"}</Typography>
+            </Box>
+            <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+              ¿Registrar esta sesión?
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.65 }}>
+              Una vez registrada <strong>no podrás editarla</strong>. Se guardarán tus datos, sumarás puntos y recibirás un email de seguimiento.
+            </Typography>
+          </Box>
+          <Stack spacing={1}>
+            <Button
+              fullWidth onClick={registerSession}
+              sx={{
+                py: 1.4, borderRadius: 2.5, textTransform: "none", fontWeight: 800, fontSize: 15,
+                background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}BB 100%)`,
+                color: "#fff",
+                boxShadow: `0 4px 16px ${activeTipo?.border || "rgba(11,94,85,0.28)"}`,
+                "&:hover": { transform: "translateY(-1px)" }, transition: "all 0.2s",
+              }}
+            >
+              Sí, registrar sesión
+            </Button>
+            <Button
+              fullWidth onClick={() => setConfirmRegister(false)}
+              sx={{ py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14, color: "#4A6B67", "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
             >
               Cancelar
             </Button>
