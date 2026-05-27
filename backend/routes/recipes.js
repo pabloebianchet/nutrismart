@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireActiveSub } from "../middleware/requireActiveSub.js";
 import SavedRecipe from "../models/SavedRecipe.js";
+import { logInfo, logWarn, logError } from "../utils/logger.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -115,6 +116,7 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
       max_tokens: 700,
     });
     const data = parseJSON(completion.choices[0].message.content);
+    logInfo("recipe", "recipe.generated", `Receta: ${req.user.email}`, { userId: req.user._id, userEmail: req.user.email, meta: { recipeName: data.name } });
     return res.json(data);
   } catch (err) {
     console.error("Recipes detail error:", err.message);

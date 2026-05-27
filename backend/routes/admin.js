@@ -2,6 +2,7 @@ import express from "express";
 import User         from "../models/User.js";
 import Analysis     from "../models/Analysis.js";
 import Subscription from "../models/Subscription.js";
+import Log          from "../models/Log.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { isAdmin }        from "../middleware/isAdmin.js";
 
@@ -164,6 +165,51 @@ router.delete("/users/:id", authMiddleware, isAdmin, async (req, res) => {
   } catch (err) {
     console.error("Admin delete user error:", err);
     return res.status(500).json({ error: "Error deleting user" });
+  }
+});
+
+/* =====================================================
+   📋 LOGS
+   ===================================================== */
+router.get("/logs", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { page = 1, limit = 50, level, category, search, from, to } = req.query;
+    const filter = {};
+    if (level    && level    !== "all") filter.level    = level;
+    if (category && category !== "all") filter.category = category;
+    if (from || to) {
+      filter.createdAt = {};
+      if (from) filter.createdAt.$gte = new Date(from);
+      if (to)   filter.createdAt.$lte = new Date(new Date(to).setHours(23,59,59,999));
+    }
+    if (search) {
+      filter.$or = [
+        { message:   { $regex: search, $options: "i" } },
+        { action:    { $regex: search, $options: "i" } },
+        { userName:  { $regex: search, $options: "i" } },
+        { userEmail: { $regex: search, $options: "i" } },
+      ];
+    }
+    const skip  = (Number(page) - 1) * Number(limit);
+    const total = await Log.countDocuments(filter);
+    const logs  = await Log.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean();
+    return res.json({ logs, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
+  } catch (err) {
+    console.error("Admin logs error:", err);
+    return res.status(500).json({ error: "Error fetching logs" });
+  }
+});
+
+router.delete("/logs", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { olderThan } = req.query; // days
+    const cutoff = olderThan
+      ? new Date(Date.now() - Number(olderThan) * 86400000)
+      : new Date(0);
+    const { deletedCount } = await Log.deleteMany({ createdAt: { $lte: cutoff } });
+    return res.json({ deleted: deletedCount });
+  } catch (err) {
+    return res.status(500).json({ error: "Error deleting logs" });
   }
 });
 

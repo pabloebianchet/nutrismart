@@ -6,6 +6,7 @@ import User from "../models/User.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
+import { logInfo, logWarn, logError } from "../utils/logger.js";
 
 /* ─── Validación de firma de webhook MP ─────────────────────────────────── */
 const verifyMPSignature = (req) => {
@@ -240,6 +241,11 @@ router.post("/webhook", async (req, res) => {
               endDate:  end,
             }).catch(() => {});
           }
+
+          logInfo("payment", isRenewal ? "subscription.renewed" : "subscription.created",
+            `${isRenewal ? "Renovación" : "Nueva suscripción"} ${planInfo.name} — ${user?.email}`,
+            { userId: user?._id, userName: user?.name, userEmail: user?.email,
+              meta: { plan, amount: payment.transaction_amount ?? planInfo.amount, isRenewal } });
         }
       }
     }
@@ -343,6 +349,7 @@ router.post("/webhook", async (req, res) => {
     return res.sendStatus(200);
   } catch (err) {
     console.error("Webhook error:", err.message);
+    logError("payment", "webhook.error", `Error en webhook: ${err.message}`, { meta: { error: err.message } });
     return res.sendStatus(500);
   }
 });
@@ -386,6 +393,11 @@ router.post("/cancel", authMiddleware, async (req, res) => {
     sub.status    = "cancelled";
     sub.autoRenew = false;
     await sub.save();
+
+    logInfo("payment", "subscription.cancelled",
+      `Cancelación Plan ${sub.plan} — ${req.user.email}`,
+      { userId: req.user._id, userName: req.user.name, userEmail: req.user.email,
+        meta: { plan: sub.plan, amount: sub.amount } });
 
     // Emails de confirmación de cancelación
     const cancelUser = req.user; // ya viene populado del authMiddleware

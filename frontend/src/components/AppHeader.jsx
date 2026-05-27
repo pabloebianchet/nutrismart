@@ -15,10 +15,20 @@ import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRigh
 import RamenDiningRoundedIcon    from "@mui/icons-material/RamenDiningRounded";
 import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
 
+// Items visibles para usuarios con sesión
 const NAV = [
   { to: "/",             label: "Inicio",         Icon: HomeRoundedIcon         },
   { to: "/recipes",      label: "Recetas YA",      Icon: RamenDiningRoundedIcon    },
   { to: "/training",    label: "Entrenamiento",   Icon: FitnessCenterRoundedIcon  },
+  { to: "/about",        label: "Quiénes somos",  Icon: InfoRoundedIcon         },
+  { to: "/how-it-works", label: "Cómo funciona",  Icon: AutoAwesomeRoundedIcon  },
+  { to: "/pricing",      label: "Planes",          Icon: DiamondOutlinedIcon     },
+  { to: "/contact",      label: "Contacto",        Icon: MailRoundedIcon         },
+];
+
+// Items visibles para visitantes sin sesión
+const PUBLIC_NAV = [
+  { to: "/",             label: "Inicio",         Icon: HomeRoundedIcon         },
   { to: "/about",        label: "Quiénes somos",  Icon: InfoRoundedIcon         },
   { to: "/how-it-works", label: "Cómo funciona",  Icon: AutoAwesomeRoundedIcon  },
   { to: "/pricing",      label: "Planes",          Icon: DiamondOutlinedIcon     },
@@ -86,7 +96,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
 
       {/* Links nav */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 1 }}>
-        {NAV.map(({ to, label, Icon }) => {
+        {(user ? NAV : PUBLIC_NAV).map(({ to, label, Icon }) => {
           const active = isActive(to, pathname);
           return (
             <Box
@@ -125,101 +135,123 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
       {/* Spacer */}
       <Box sx={{ flex: 1 }} />
 
-      {/* Avatar + dropdown */}
+      {/* Avatar (logueado) o botón Iniciar sesión (visitante) */}
       <Box sx={{ position: "relative", flexShrink: 0 }}>
-        <Box
-          onClick={() => setAvatarOpen((p) => !p)}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            px: 1.2,
-            py: 0.5,
-            borderRadius: "999px",
-            cursor: "pointer",
-            border: "1px solid transparent",
-            transition: "all 0.18s",
-            "&:hover": {
-              bgcolor: "rgba(11,94,85,0.07)",
-              borderColor: C.brandMuted,
-            },
-          }}
-        >
-          <Avatar
-            src={user.picture}
-            alt={user.name}
-            sx={{ width: 32, height: 32, border: `2px solid ${C.brandMuted}` }}
-          />
-          <Typography
-            sx={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: C.textPrimary,
-              maxWidth: 110,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {user.name?.split(" ")[0]}
-          </Typography>
-        </Box>
-
-        {avatarOpen && (
+        {user ? (
           <>
             <Box
-              onClick={() => setAvatarOpen(false)}
-              sx={{ position: "fixed", inset: 0, zIndex: 1 }}
-            />
-            <Box
+              onClick={() => setAvatarOpen((p) => !p)}
               sx={{
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                zIndex: 2,
-                minWidth: 210,
-                borderRadius: 3,
-                background: "rgba(245,252,250,0.97)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                border: "1px solid rgba(11,94,85,0.12)",
-                boxShadow: "0 12px 40px rgba(11,94,85,0.16)",
-                overflow: "hidden",
-                "@keyframes fadeDown": {
-                  from: { opacity: 0, transform: "translateY(-6px)" },
-                  to:   { opacity: 1, transform: "translateY(0)"     },
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: 1.2,
+                py: 0.5,
+                borderRadius: "999px",
+                cursor: "pointer",
+                border: "1px solid transparent",
+                transition: "all 0.18s",
+                "&:hover": {
+                  bgcolor: "rgba(11,94,85,0.07)",
+                  borderColor: C.brandMuted,
                 },
-                animation: "fadeDown 0.16s ease both",
               }}
             >
-              <Box sx={{ px: 2, py: 1.8, borderBottom: "1px solid rgba(11,94,85,0.08)" }}>
-                <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textPrimary }}>
-                  {user.name}
-                </Typography>
-                <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 0.2 }}>
-                  {user.email}
-                </Typography>
-              </Box>
-              <Box
-                onClick={() => { setAvatarOpen(false); onLogout(); }}
+              <Avatar
+                src={user.picture}
+                alt={user.name}
+                sx={{ width: 32, height: 32, border: `2px solid ${C.brandMuted}` }}
+              />
+              <Typography
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.2,
-                  px: 2,
-                  py: 1.4,
-                  cursor: "pointer",
-                  transition: "background 0.15s",
-                  "&:hover": { bgcolor: "rgba(226,75,74,0.07)" },
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: C.textPrimary,
+                  maxWidth: 110,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
-                <LogoutRoundedIcon sx={{ fontSize: 16, color: "#E24B4A" }} />
-                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#E24B4A" }}>
-                  Cerrar sesión
-                </Typography>
-              </Box>
+                {user.name?.split(" ")[0]}
+              </Typography>
             </Box>
+
+            {avatarOpen && (
+              <>
+                <Box
+                  onClick={() => setAvatarOpen(false)}
+                  sx={{ position: "fixed", inset: 0, zIndex: 1 }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    zIndex: 2,
+                    minWidth: 210,
+                    borderRadius: 3,
+                    background: "rgba(245,252,250,0.97)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    border: "1px solid rgba(11,94,85,0.12)",
+                    boxShadow: "0 12px 40px rgba(11,94,85,0.16)",
+                    overflow: "hidden",
+                    "@keyframes fadeDown": {
+                      from: { opacity: 0, transform: "translateY(-6px)" },
+                      to:   { opacity: 1, transform: "translateY(0)"     },
+                    },
+                    animation: "fadeDown 0.16s ease both",
+                  }}
+                >
+                  <Box sx={{ px: 2, py: 1.8, borderBottom: "1px solid rgba(11,94,85,0.08)" }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textPrimary }}>
+                      {user.name}
+                    </Typography>
+                    <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 0.2 }}>
+                      {user.email}
+                    </Typography>
+                  </Box>
+                  <Box
+                    onClick={() => { setAvatarOpen(false); onLogout(); }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.2,
+                      px: 2,
+                      py: 1.4,
+                      cursor: "pointer",
+                      transition: "background 0.15s",
+                      "&:hover": { bgcolor: "rgba(226,75,74,0.07)" },
+                    }}
+                  >
+                    <LogoutRoundedIcon sx={{ fontSize: 16, color: "#E24B4A" }} />
+                    <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#E24B4A" }}>
+                      Cerrar sesión
+                    </Typography>
+                  </Box>
+                </Box>
+              </>
+            )}
           </>
+        ) : (
+          /* Visitante sin sesión */
+          <Box
+            component={Link}
+            to="/login"
+            sx={{
+              display: "flex", alignItems: "center", gap: 0.8,
+              px: 2, py: 0.75, borderRadius: 999,
+              bgcolor: C.brand, color: "#fff",
+              fontSize: 13.5, fontWeight: 700,
+              textDecoration: "none",
+              boxShadow: "0 3px 12px rgba(11,94,85,0.28)",
+              transition: "all 0.18s",
+              "&:hover": { bgcolor: C.brandLight, transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(11,94,85,0.35)" },
+            }}
+          >
+            Iniciar sesión →
+          </Box>
         )}
       </Box>
     </Box>
@@ -269,11 +301,13 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Avatar
-            src={user.picture}
-            alt={user.name}
-            sx={{ width: 28, height: 28, border: `1.5px solid ${C.brandMuted}` }}
-          />
+          {user && (
+            <Avatar
+              src={user.picture}
+              alt={user.name}
+              sx={{ width: 28, height: 28, border: `1.5px solid ${C.brandMuted}` }}
+            />
+          )}
           <IconButton
             onClick={() => setDrawerOpen(true)}
             size="small"
@@ -317,35 +351,54 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
           <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: "rgba(11,94,85,0.16)" }} />
         </Box>
 
-        {/* User info */}
-        <Box
-          sx={{
-            mx: 2, mt: 1, mb: 2, p: 2,
-            borderRadius: 3,
-            bgcolor: C.brandSurface,
-            border: `1px solid ${C.brandMuted}`,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-          }}
-        >
-          <Avatar src={user.picture} alt={user.name} sx={{ width: 44, height: 44, border: `2px solid ${C.brandMuted}` }} />
-          <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 700, fontSize: 14, color: C.textPrimary }} noWrap>
-              {user.name}
-            </Typography>
-            <Typography sx={{ fontSize: 12, color: C.textMuted }} noWrap>
-              {user.email}
-            </Typography>
+        {/* User info (logueado) o acceso (visitante) */}
+        {user ? (
+          <Box
+            sx={{
+              mx: 2, mt: 1, mb: 2, p: 2,
+              borderRadius: 3,
+              bgcolor: C.brandSurface,
+              border: `1px solid ${C.brandMuted}`,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <Avatar src={user.picture} alt={user.name} sx={{ width: 44, height: 44, border: `2px solid ${C.brandMuted}` }} />
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: 14, color: C.textPrimary }} noWrap>
+                {user.name}
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: C.textMuted }} noWrap>
+                {user.email}
+              </Typography>
+            </Box>
+            <IconButton size="small" onClick={() => setDrawerOpen(false)} sx={{ ml: "auto", color: C.textMuted, flexShrink: 0 }}>
+              <CloseRoundedIcon sx={{ fontSize: 18 }} />
+            </IconButton>
           </Box>
-          <IconButton size="small" onClick={() => setDrawerOpen(false)} sx={{ ml: "auto", color: C.textMuted, flexShrink: 0 }}>
-            <CloseRoundedIcon sx={{ fontSize: 18 }} />
-          </IconButton>
-        </Box>
+        ) : (
+          <Box sx={{ mx: 2, mt: 1, mb: 2 }}>
+            <Box
+              component={Link}
+              to="/login"
+              onClick={() => setDrawerOpen(false)}
+              sx={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                p: 1.8, borderRadius: 3, textDecoration: "none",
+                bgcolor: C.brand, color: "#fff",
+                fontWeight: 800, fontSize: 15,
+                boxShadow: "0 4px 16px rgba(11,94,85,0.28)",
+              }}
+            >
+              Iniciar sesión →
+            </Box>
+          </Box>
+        )}
 
         {/* Nav items */}
         <Box sx={{ px: 2, display: "flex", flexDirection: "column", gap: 0.5 }}>
-          {NAV.map(({ to, label, Icon }) => {
+          {(user ? NAV : PUBLIC_NAV).map(({ to, label, Icon }) => {
             const active = isActive(to, pathname);
             return (
               <Box
@@ -384,33 +437,36 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
           })}
         </Box>
 
-        <Box sx={{ mx: 2, my: 1.5, height: 1, bgcolor: "rgba(11,94,85,0.08)" }} />
-
-        {/* Logout */}
-        <Box sx={{ px: 2 }}>
-          <Box
-            onClick={() => { setDrawerOpen(false); onLogout(); }}
-            sx={{
-              display: "flex", alignItems: "center", gap: 1.5,
-              px: 2, py: 1.4, borderRadius: 2.5, cursor: "pointer",
-              transition: "background 0.18s",
-              "&:hover": { bgcolor: "rgba(226,75,74,0.07)" },
-            }}
-          >
-            <Box
-              sx={{
-                width: 36, height: 36, borderRadius: 2, flexShrink: 0,
-                bgcolor: "rgba(226,75,74,0.08)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
-              <LogoutRoundedIcon sx={{ fontSize: 18, color: "#E24B4A" }} />
+        {user && (
+          <>
+            <Box sx={{ mx: 2, my: 1.5, height: 1, bgcolor: "rgba(11,94,85,0.08)" }} />
+            {/* Logout */}
+            <Box sx={{ px: 2 }}>
+              <Box
+                onClick={() => { setDrawerOpen(false); onLogout(); }}
+                sx={{
+                  display: "flex", alignItems: "center", gap: 1.5,
+                  px: 2, py: 1.4, borderRadius: 2.5, cursor: "pointer",
+                  transition: "background 0.18s",
+                  "&:hover": { bgcolor: "rgba(226,75,74,0.07)" },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 36, height: 36, borderRadius: 2, flexShrink: 0,
+                    bgcolor: "rgba(226,75,74,0.08)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <LogoutRoundedIcon sx={{ fontSize: 18, color: "#E24B4A" }} />
+                </Box>
+                <Typography sx={{ fontSize: 15, fontWeight: 600, color: "#E24B4A" }}>
+                  Cerrar sesión
+                </Typography>
+              </Box>
             </Box>
-            <Typography sx={{ fontSize: 15, fontWeight: 600, color: "#E24B4A" }}>
-              Cerrar sesión
-            </Typography>
-          </Box>
-        </Box>
+          </>
+        )}
       </Drawer>
     </>
   );
@@ -431,7 +487,7 @@ const AppHeader = () => {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  if (authLoading || !user) return null;
+  if (authLoading) return null;
 
   const handleLogout = () => { logout(); navigate("/"); };
 

@@ -6,6 +6,7 @@ import { requireActiveSub } from "../middleware/requireActiveSub.js";
 import User from "../models/User.js";
 import TrainingPlan from "../models/TrainingPlan.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
+import { logInfo, logWarn, logError } from "../utils/logger.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -137,6 +138,7 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
       max_tokens: 2000,
     });
     const data = parseJSON(completion.choices[0].message.content);
+    logInfo("training", "plan.generated", `Plan generado: ${req.user.email}`, { userId: req.user._id, userName: req.user.name, userEmail: req.user.email, meta: { tipo, duracion } });
     return res.json(data);
   } catch (err) {
     console.error("Training generate error:", err.message);
@@ -254,6 +256,7 @@ router.put("/plan/:planType", authMiddleware, async (req, res) => {
       { $set: { config, plan, startDate, totalDays, sessions: sessions || [] } },
       { upsert: true, returnDocument: "after", runValidators: false }
     );
+    logInfo("training", "session.saved", `Sesión: ${req.user.email}`, { userId: req.user._id, userEmail: req.user.email, meta: { dayKey: null, planType } });
     return res.json({ ok: true, id: doc._id });
   } catch (err) {
     console.error("PUT /training/plan error:", err.message);
@@ -278,6 +281,7 @@ router.post("/plan/:planType/session", authMiddleware, async (req, res) => {
       { returnDocument: "after" }
     );
     if (!doc) return res.status(404).json({ error: "Plan no encontrado." });
+    logInfo("training", "session.saved", `Sesión: ${req.user.email}`, { userId: req.user._id, userEmail: req.user.email, meta: { dayKey, planType } });
     return res.json({ ok: true, sessionsCount: doc.sessions.length });
   } catch (err) {
     console.error("POST /training/plan/session error:", err.message);

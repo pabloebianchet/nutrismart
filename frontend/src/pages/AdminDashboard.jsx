@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import AdminLogs from "../components/AdminLogs.jsx";
 import {
   Box, Typography, Stack, Paper,
   TextField, InputAdornment, IconButton,
@@ -172,6 +173,7 @@ const AdminDashboard = () => {
   const { user }   = useNutrition();
   const navigate   = useNavigate();
 
+  const [activeTab,  setActiveTab]  = useState("stats");
   const [stats,      setStats]      = useState(null);
   const [users,      setUsers]      = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -357,6 +359,30 @@ const AdminDashboard = () => {
           </IconButton>
         </Stack>
       </Stack>
+
+      {/* Tab switcher */}
+      <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex", mb: 4 }}>
+        {[
+          { id: "stats", label: "📊 Estadísticas" },
+          { id: "logs",  label: "📋 Logs" },
+        ].map((tab) => (
+          <Box key={tab.id} onClick={() => setActiveTab(tab.id)} sx={{
+            px: 2.5, py: 0.9, borderRadius: 999, cursor: "pointer",
+            bgcolor: activeTab === tab.id ? "#fff" : "transparent",
+            boxShadow: activeTab === tab.id ? "0 2px 8px rgba(11,94,85,0.12)" : "none",
+            transition: "all 0.2s ease",
+          }}>
+            <Typography sx={{ fontSize: 13.5, fontWeight: activeTab === tab.id ? 800 : 600,
+              color: activeTab === tab.id ? "#0B5E55" : "#4A6B67", whiteSpace: "nowrap" }}>
+              {tab.label}
+            </Typography>
+          </Box>
+        ))}
+      </Stack>
+
+      {activeTab === "logs" && <AdminLogs />}
+
+      {activeTab === "stats" && (<>
 
       {/* ── SECCIÓN: KPIs GENERALES ───────────────────── */}
       <SectionHeader title="Resumen general" subtitle="Usuarios y actividad de la plataforma" />
@@ -581,6 +607,7 @@ const AdminDashboard = () => {
       </Paper>
 
       <Box sx={{ height: 48 }} />
+      </>)}
     </Box>
     </Box>
   );

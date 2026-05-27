@@ -24,6 +24,7 @@ import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
 import { activateFreeTrial } from "./utils/activateFreeTrial.js";
 import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
+import { logInfo, logWarn, logError } from "./utils/logger.js";
 
 connectDB();
 startTrialExpiryJob();
@@ -333,12 +334,14 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
 
     const score = match ? parseInt(match[1], 10) : 0;
 
-    await Analysis.create({
+    const analysisDoc = await Analysis.create({
       user: authUser._id,
       score,
       analysisText: analysis,
       productText,
     });
+
+    logInfo("analysis", "analysis.created", `Análisis: ${authUser.email}`, { userId: authUser._id, userName: authUser.name, userEmail: authUser.email, meta: { score, product: productText?.slice(0, 60) } });
 
     // Puntos saludables
     let pointsEarned = 0;
@@ -453,9 +456,11 @@ app.post("/api/auth/google", async (req, res) => {
         });
         const trialEnd = trial?.endDate || null;
         sendWelcomeEmail({ name, email, trialEnd }).catch((e) => console.error("Welcome email failed:", e.message));
+        logInfo("auth", "user.register.google", `Registro Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
       }
     }
 
+    logInfo("auth", "user.login.google", `Login Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     return res.json({ user, token });
   } catch (err) {
@@ -647,6 +652,7 @@ app.post("/api/contact", contactLimiter, async (req, res) => {
 
   try {
     await sendContactEmail({ name: name.trim(), email: email.trim(), subject: subject.trim(), message: message.trim() });
+    logInfo("contact", "contact.form", `Form contacto: ${subject.trim()}`, { userName: name.trim(), userEmail: email.trim(), meta: { subject: subject.trim() } });
     return res.json({ ok: true });
   } catch (err) {
     console.error("Contact email error:", err.message);

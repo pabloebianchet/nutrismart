@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import User from "../models/User.js";
 import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
 import { activateFreeTrial } from "../utils/activateFreeTrial.js";
+import { logInfo, logWarn, logError } from "../utils/logger.js";
 
 const router = express.Router();
 
@@ -88,6 +89,8 @@ router.post("/register", authLimiter, async (req, res) => {
       console.error("Welcome email failed:", e.message)
     );
 
+    logInfo("auth", "user.register.email", `Registro email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+
     return res.status(201).json({ token, user: safeUser(user) });
   } catch (err) {
     console.error("Register error:", err.message);
@@ -109,9 +112,12 @@ router.post("/login", authLimiter, async (req, res) => {
       return res.status(401).json({ error: "Email o contraseña incorrectos" });
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid)
+    if (!valid) {
+      logWarn("auth", "user.login.failed", `Login fallido: ${req.body.email}`, { userEmail: req.body.email, ip: req.ip, meta: { reason: "invalid_password" } });
       return res.status(401).json({ error: "Email o contraseña incorrectos" });
+    }
 
+    logInfo("auth", "user.login.email", `Login email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
     const token = signToken(user._id);
     return res.json({ token, user: safeUser(user) });
   } catch (err) {
