@@ -5,6 +5,7 @@ import Subscription from "../models/Subscription.js";
 import Log          from "../models/Log.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { isAdmin }        from "../middleware/isAdmin.js";
+import { logInfo, logWarn, logError } from "../utils/logger.js";
 
 const router = express.Router();
 
@@ -179,13 +180,45 @@ router.delete("/users/:id", authMiddleware, isAdmin, async (req, res) => {
     if (req.user._id.toString() === id)
       return res.status(400).json({ error: "Cannot delete admin user" });
 
+    // Obtener datos del usuario antes de borrarlo para el log
+    const targetUser = await User.findById(id).lean();
+    if (!targetUser) {
+      logWarn("admin", "user.delete.notfound",
+        `Intento de eliminar usuario inexistente: ${id}`,
+        { userId: req.user._id, userName: req.user.name, userEmail: req.user.email,
+          meta: { targetId: id } });
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    const targetSub = await Subscription.findOne({ user: id }).lean();
+
     await User.findByIdAndDelete(id);
     await Analysis.deleteMany({ user: id });
     await Subscription.deleteMany({ user: id });
 
+    logInfo("admin", "user.deleted",
+      `Usuario eliminado: ${targetUser.email} (${targetUser.name || "sin nombre"})`,
+      {
+        userId:    req.user._id,
+        userName:  req.user.name,
+        userEmail: req.user.email,
+        meta: {
+          deletedUserId:    targetUser._id,
+          deletedUserEmail: targetUser.email,
+          deletedUserName:  targetUser.name,
+          hadSubscription:  !!targetSub,
+          subscriptionPlan: targetSub?.plan   ?? null,
+          subscriptionStatus: targetSub?.status ?? null,
+        },
+      }
+    );
+
     return res.json({ success: true });
   } catch (err) {
     console.error("Admin delete user error:", err);
+    logError("admin", "user.delete.error",
+      `Error al eliminar usuario: ${err.message}`,
+      { userId: req.user._id, meta: { error: err.message } });
     return res.status(500).json({ error: "Error deleting user" });
   }
 });
