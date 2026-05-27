@@ -18,6 +18,9 @@ import RocketLaunchRoundedIcon   from "@mui/icons-material/RocketLaunchRounded";
 import PersonAddRoundedIcon      from "@mui/icons-material/PersonAddRounded";
 import AccountCircleRoundedIcon  from "@mui/icons-material/AccountCircleRounded";
 import TrendingUpRoundedIcon     from "@mui/icons-material/TrendingUpRounded";
+import ShoppingCartRoundedIcon   from "@mui/icons-material/ShoppingCartRounded";
+import AddRoundedIcon            from "@mui/icons-material/AddRounded";
+import AutorenewRoundedIcon      from "@mui/icons-material/AutorenewRounded";
 
 /* ─── Tokens ──────────────────────────────────────────────────────────────── */
 const C = {
@@ -222,7 +225,7 @@ const HeroSection = ({ onCTA }) => (
 
 /* ─── TICKER ──────────────────────────────────────────────────────────────── */
 const MarqueeTicker = () => {
-  const items = ["ANÁLISIS NUTRICIONAL", "ALIMENTOS ULTRAPROCESADOS", "CLASIFICACIÓN NOVA", "RUTINA DE HIPERTROFIA", "ENTRENAMIENTO RUNNING", "PLAN DE CALISTENIA", "MARATÓN", "ARMAR DIETA", "NUTRICIONISTA IA", "ETIQUETAS", "NUI", "MICROBIOTA", "PERSONAL TRAINER", "NUTRICIÓN INTELIGENTE"];
+  const items = ["ANÁLISIS NUTRICIONAL", "ALIMENTOS ULTRAPROCESADOS", "CLASIFICACIÓN NOVA", "RUTINA DE HIPERTROFIA", "ENTRENAMIENTO RUNNING", "PLAN DE CALISTENIA", "LISTA DE COMPRAS IA", "RECETAS CON IA", "NUTRICIONISTA IA", "TABLA NUTRICIONAL", "NUI", "MICROBIOTA", "PERSONAL TRAINER", "NUTRICIÓN INTELIGENTE"];
   const repeated = [...items, ...items];
   return (
     <Box sx={{
@@ -384,7 +387,7 @@ const MODULES = [
   {
     Icon:  SearchRoundedIcon,
     title: "Análisis de alimentos",
-    desc:  "Fotografiá cualquier etiqueta y obtené al instante si es ultraprocesado, su clasificación NOVA, macros, aditivos y recomendaciones personalizadas.",
+    desc:  "Fotografiá la tabla nutricional y los ingredientes del producto. Obtenés al instante su clasificación NOVA, macros, aditivos y recomendaciones personalizadas.",
     color: C.brand, bg: C.brandSurf,
     tags:  ["Clasificación NOVA", "Macros", "Aditivos", "Score nutricional"],
     photo: "/img/150096600078176441.jpg",
@@ -392,17 +395,17 @@ const MODULES = [
   {
     Icon:  RestaurantMenuRoundedIcon,
     title: "Recetas con IA",
-    desc:  "Recibí recetas saludables adaptadas a tu perfil, objetivos y preferencias. Generadas al instante, fáciles de preparar y con toda la info nutricional.",
+    desc:  "Generá recetas saludables adaptadas a tu perfil y objetivo. Fit, Hipertrofia o Rápidas — con ingredientes reales, pasos detallados y lista de compras automática.",
     color: "#7C3AED", bg: "#F5F3FF",
-    tags:  ["Personalizadas", "Ingredientes reales", "Calorías", "Favoritas"],
+    tags:  ["Personalizadas", "Ingredientes reales", "Lista de compras", "Favoritas"],
     photo: "/img/368521182029510975.jpg",
   },
   {
     Icon:  FitnessCenterRoundedIcon,
     title: "Entrenamiento personalizado",
-    desc:  "Generá tu rutina: hipertrofia, running, calistenia, preparación para maratón o pérdida de peso. Seguí tu progreso sesión a sesión.",
+    desc:  "Generá tu plan de entrenamiento: Hipertrofia, Running, Calistenia, Ejercicios en Casa o Fit. Seguí tu progreso sesión a sesión con registro completo.",
     color: "#D97706", bg: "#FFFBEB",
-    tags:  ["Hipertrofia", "Running", "Calistenia", "Maratón"],
+    tags:  ["Hipertrofia", "Running", "Calistenia", "Fit", "En Casa"],
     photo: "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
   },
 ];
@@ -486,11 +489,321 @@ const ModulesSection = () => (
   </Box>
 );
 
+/* ─── LISTA DE COMPRAS FEATURE ───────────────────────────────────────────── */
+const SHOPPING_STEPS = [
+  {
+    emoji: "🍽️",
+    color: "#7C3AED", bg: "#F5F3FF", border: "rgba(124,58,237,0.14)",
+    title: "Generás una receta",
+    desc:  "Elegís el tipo de plato — Fit, Hipertrofia o Rápidas — y la IA genera ingredientes y pasos al instante.",
+  },
+  {
+    emoji: "🛒",
+    color: C.brand, bg: C.brandSurf, border: C.brandBorder,
+    title: "Agregás con un tap",
+    desc:  "\"Agregar a mi lista\" suma todos los ingredientes necesarios. Sin copiar, sin escribir nada.",
+  },
+  {
+    emoji: "🔢",
+    color: "#D97706", bg: "#FFFBEB", border: "rgba(217,119,6,0.14)",
+    title: "Se acumula solo",
+    desc:  "¿Una receta lleva 3 huevos y otra 2? Nui pone 5 huevos — sin duplicados, sin confusiones.",
+  },
+  {
+    emoji: "✏️",
+    color: "#0891B2", bg: "#F0FDFF", border: "rgba(8,145,178,0.14)",
+    title: "Agregás lo que quieras",
+    desc:  "¿Jabón, papel, yogur? Escribilo a mano y se suma a la misma lista. Todo en un lugar.",
+  },
+];
+
+/* ─── Mock visual de la lista ── */
+const MOCK_ITEMS = [
+  { emoji: "🥚", label: "5 huevos",         source: "2 recetas", checked: true },
+  { emoji: "🐔", label: "300g pollo",        source: "Taco de Pollo",  checked: true },
+  { emoji: "🌽", label: "2 tortillas maíz",  source: "Taco de Pollo",  checked: false },
+  { emoji: "🫒", label: "1 cda aceite oliva",source: "Ensalada Fit",   checked: false },
+  { emoji: "🧅", label: "1 cebolla",         source: "Manual",         checked: false },
+  { emoji: "🥦", label: "200g brócoli",      source: "Salteado Fit",   checked: false },
+];
+
+const ShoppingListFeatureSection = ({ onCTA }) => (
+  <Box sx={{ background: C.white, py: { xs: 9, md: 14 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
+    <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+
+      {/* ── Header ── */}
+      <Box textAlign="center" mb={{ xs: 6, md: 9 }}>
+        <Box sx={{
+          display: "inline-flex", alignItems: "center", gap: 0.8,
+          fontSize: 11, fontWeight: 800, color: C.brand,
+          letterSpacing: "0.12em", textTransform: "uppercase",
+          bgcolor: C.brandSurf, border: `1px solid ${C.brandBorder}`,
+          borderRadius: 999, px: 2, py: 0.6, mb: 2.5,
+        }}>
+          <ShoppingCartRoundedIcon sx={{ fontSize: 13 }} /> Nueva funcionalidad
+        </Box>
+        <Typography component="h2" sx={{
+          fontSize: { xs: 30, sm: 46 }, fontWeight: 900, color: C.ink,
+          letterSpacing: { xs: "-1px", sm: "-2px" }, lineHeight: 1.1, mb: 2,
+        }}>
+          Tu super, organizado<br />
+          <Box component="span" sx={{ color: C.brand }}>antes de salir de casa</Box>
+        </Typography>
+        <Typography sx={{ fontSize: 17, color: C.muted, maxWidth: 520, mx: "auto", lineHeight: 1.8 }}>
+          Generás recetas y Nui arma tu lista de compras automáticamente.
+          Acumulativa, sin repetidos, con opción de agregar lo que quieras a mano.
+        </Typography>
+      </Box>
+
+      {/* ── Layout 2 columnas: steps izq + mock der ── */}
+      <Box sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: { xs: 6, md: 8 },
+        alignItems: "center",
+        mb: { xs: 6, md: 10 },
+      }}>
+        {/* Columna izquierda: pasos */}
+        <Box>
+          <Stack spacing={3}>
+            {SHOPPING_STEPS.map((step, i) => (
+              <Stack key={i} direction="row" spacing={2.5} alignItems="flex-start">
+                {/* Icono */}
+                <Box sx={{
+                  width: 52, height: 52, borderRadius: 3, flexShrink: 0,
+                  bgcolor: step.bg, border: `1.5px solid ${step.border}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 24, lineHeight: 1,
+                }}>
+                  {step.emoji}
+                </Box>
+                {/* Texto */}
+                <Box>
+                  <Stack direction="row" spacing={1} alignItems="center" mb={0.4}>
+                    <Box sx={{
+                      fontSize: 10.5, fontWeight: 800, color: step.color,
+                      bgcolor: step.bg, border: `1px solid ${step.border}`,
+                      borderRadius: 999, px: 1.2, py: 0.2,
+                    }}>
+                      Paso {i + 1}
+                    </Box>
+                  </Stack>
+                  <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.ink, mb: 0.5, letterSpacing: "-0.3px" }}>
+                    {step.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: 13.5, color: C.muted, lineHeight: 1.75 }}>
+                    {step.desc}
+                  </Typography>
+                </Box>
+              </Stack>
+            ))}
+          </Stack>
+
+          <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
+            mt: 5, bgcolor: C.emerald, color: "#fff", fontWeight: 800, fontSize: 14.5,
+            textTransform: "none", px: 4, py: 1.4, borderRadius: 999,
+            boxShadow: "none",
+            "&:hover": { bgcolor: C.emeraldDark, transform: "translateY(-2px)", boxShadow: "none" },
+            transition: "all 0.22s",
+          }}>
+            Probá la lista de compras gratis
+          </Button>
+        </Box>
+
+        {/* Columna derecha: mock UI */}
+        <Box sx={{ position: "relative" }}>
+          {/* Glow de fondo */}
+          <Box sx={{
+            position: "absolute", top: "50%", left: "50%",
+            transform: "translate(-50%,-50%)",
+            width: 460, height: 460, borderRadius: "50%", pointerEvents: "none",
+            background: "radial-gradient(circle, rgba(11,94,85,0.07) 0%, transparent 65%)",
+          }} />
+
+          {/* Phone frame */}
+          <Box sx={{
+            position: "relative", mx: "auto",
+            maxWidth: 340,
+            bgcolor: C.white,
+            borderRadius: 6,
+            border: "1.5px solid rgba(11,94,85,0.12)",
+            boxShadow: "0 24px 64px rgba(11,94,85,0.12), 0 4px 16px rgba(0,0,0,0.06)",
+            overflow: "hidden",
+          }}>
+            {/* App header simulado */}
+            <Box sx={{
+              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              px: 2.5, py: 2,
+            }}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={0.4}>
+                <ShoppingCartRoundedIcon sx={{ fontSize: 18, color: "#fff" }} />
+                <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px" }}>
+                  Mi lista de compras
+                </Typography>
+              </Stack>
+              <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.65)" }}>
+                4 pendientes · 2 comprados
+              </Typography>
+              {/* Progress bar */}
+              <Box sx={{ mt: 1.2, bgcolor: "rgba(255,255,255,0.18)", borderRadius: 999, height: 4, overflow: "hidden" }}>
+                <Box sx={{ height: "100%", width: "33%", bgcolor: "#34D399", borderRadius: 999 }} />
+              </Box>
+            </Box>
+
+            {/* Items simulados */}
+            <Box sx={{ px: 1.5, py: 1.5 }}>
+              {MOCK_ITEMS.map((item, i) => (
+                <Stack key={i} direction="row" alignItems="center" spacing={1.2}
+                  sx={{
+                    py: 1, px: 0.5, borderRadius: 2,
+                    opacity: item.checked ? 0.42 : 1,
+                    borderBottom: i < MOCK_ITEMS.length - 1 ? "1px solid rgba(11,94,85,0.06)" : "none",
+                  }}
+                >
+                  {/* Checkbox simulado */}
+                  <Box sx={{
+                    width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
+                    border: `2px solid ${item.checked ? "#0B5E55" : "rgba(11,94,85,0.25)"}`,
+                    bgcolor: item.checked ? "#0B5E55" : "transparent",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    {item.checked && <Typography sx={{ fontSize: 9, color: "#fff", lineHeight: 1 }}>✓</Typography>}
+                  </Box>
+                  <Typography sx={{ fontSize: 13.5, lineHeight: 1 }}>{item.emoji}</Typography>
+                  <Box flex={1} minWidth={0}>
+                    <Typography sx={{
+                      fontSize: 13, fontWeight: 600, color: "#0F2420",
+                      textDecoration: item.checked ? "line-through" : "none",
+                      lineHeight: 1.3,
+                    }}>
+                      {item.label}
+                    </Typography>
+                    <Typography sx={{ fontSize: 10.5, color: "#8AADAA", lineHeight: 1 }}>
+                      {item.source}
+                    </Typography>
+                  </Box>
+                </Stack>
+              ))}
+
+              {/* Add manual simulado */}
+              <Box sx={{
+                mt: 1, mx: 0.5, px: 1.8, py: 1.2,
+                borderRadius: 2.5, bgcolor: C.brandSurf,
+                border: `1.5px dashed rgba(11,94,85,0.22)`,
+                display: "flex", alignItems: "center", gap: 1,
+              }}>
+                <AddRoundedIcon sx={{ fontSize: 16, color: C.brand }} />
+                <Typography sx={{ fontSize: 12.5, color: C.brand, fontWeight: 600 }}>
+                  Agregar item manualmente…
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Footer simulado */}
+            <Box sx={{ px: 2, py: 1.5, borderTop: "1px solid rgba(11,94,85,0.07)", bgcolor: "#FAFCFB" }}>
+              <Box sx={{
+                py: 1, px: 2, borderRadius: 2, textAlign: "center",
+                bgcolor: "rgba(11,94,85,0.07)",
+              }}>
+                <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: C.brand }}>
+                  Quitar comprados (2)
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Badge flotante "Auto-suma" */}
+          <Box sx={{
+            position: "absolute",
+            top: { xs: "auto", md: "18%" },
+            bottom: { xs: -20, md: "auto" },
+            right: { xs: "8%", md: -24 },
+            bgcolor: "#fff",
+            borderRadius: 4,
+            px: 2, py: 1.5,
+            boxShadow: "0 8px 28px rgba(11,94,85,0.14)",
+            border: "1.5px solid rgba(11,94,85,0.10)",
+            minWidth: 160,
+          }}>
+            <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
+              <AutorenewRoundedIcon sx={{ fontSize: 16, color: C.emerald }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.ink }}>
+                Suma automática
+              </Typography>
+            </Stack>
+            <Typography sx={{ fontSize: 12, color: C.muted, lineHeight: 1.4 }}>
+              3 huevos + 2 huevos
+            </Typography>
+            <Stack direction="row" spacing={0.8} alignItems="center" mt={0.5}>
+              <Typography sx={{ fontSize: 11, color: C.muted }}>= </Typography>
+              <Box sx={{
+                fontSize: 12, fontWeight: 800, color: C.brand,
+                bgcolor: C.brandSurf, borderRadius: 999,
+                px: 1.2, py: 0.2,
+              }}>
+                5 huevos ✓
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* Badge flotante "Desde recetas" */}
+          <Box sx={{
+            position: "absolute",
+            top: { xs: "auto", md: "62%" },
+            bottom: { xs: "auto", md: "auto" },
+            left: { xs: "auto", md: -32 },
+            display: { xs: "none", md: "block" },
+            bgcolor: "#fff",
+            borderRadius: 4,
+            px: 2, py: 1.5,
+            boxShadow: "0 8px 28px rgba(124,58,237,0.12)",
+            border: "1.5px solid rgba(124,58,237,0.12)",
+            minWidth: 148,
+          }}>
+            <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
+              <Typography sx={{ fontSize: 15 }}>🍽️</Typography>
+              <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.ink }}>
+                Desde la receta
+              </Typography>
+            </Stack>
+            <Typography sx={{ fontSize: 12, color: C.muted, lineHeight: 1.4 }}>
+              1 tap agrega todos los ingredientes
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* ── Strip de beneficios ── */}
+      <Box sx={{
+        bgcolor: C.ink, borderRadius: 5,
+        p: { xs: 3, md: 4 },
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" },
+        gap: 3,
+      }}>
+        {[
+          { icon: "🔄", title: "Sin duplicados",  desc: "Ingredientes iguales de distintas recetas se suman, no se repiten." },
+          { icon: "✏️", title: "Agregar a mano",  desc: "Sumá cualquier item manualmente: limpieza, snacks, lo que sea." },
+          { icon: "✅", title: "Check al comprar", desc: "Marcá cada item mientras comprás. La app recuerda tu progreso." },
+          { icon: "📲", title: "Siempre en tu cel", desc: "Accedé desde el Dashboard o desde cualquier receta generada." },
+        ].map((b) => (
+          <Box key={b.title}>
+            <Typography sx={{ fontSize: 28, mb: 1.2, lineHeight: 1 }}>{b.icon}</Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#fff", mb: 0.6 }}>{b.title}</Typography>
+            <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.42)", lineHeight: 1.65 }}>{b.desc}</Typography>
+          </Box>
+        ))}
+      </Box>
+
+    </Box>
+  </Box>
+);
+
 /* ─── SECCIÓN DE VALOR — FONDO VERDE ─────────────────────────────────────── */
 const TRAINING_TYPES = [
-  "Rutina de hipertrofia", "Entrenamiento running", "Preparación maratón",
-  "Rutina calistenia", "Pérdida de peso", "Fuerza y potencia",
-  "Entrenamiento en casa", "Armar dieta personalizada",
+  "Rutina de hipertrofia", "Entrenamiento running", "Plan de calistenia",
+  "Ejercicios en casa", "Entrenamiento Fit", "Recetas saludables con IA",
+  "Lista de compras automática", "Análisis NOVA de productos",
 ];
 
 const CostComparisonSection = ({ onCTA }) => (
@@ -529,7 +842,7 @@ const CostComparisonSection = ({ onCTA }) => (
           <Box component="span" sx={{ color: C.mint }}>siempre disponible</Box>
         </Typography>
         <Typography sx={{ fontSize: 17, color: "rgba(255,255,255,0.60)", maxWidth: 480, mx: "auto", lineHeight: 1.8 }}>
-          Análisis nutricional, dieta personalizada y plan de entrenamiento adaptado a tus metas,
+          Análisis nutricional, recetas personalizadas y plan de entrenamiento adaptado a tus metas,
           disponibles las 24 hs desde tu celular.
         </Typography>
       </Box>
@@ -557,8 +870,9 @@ const CostComparisonSection = ({ onCTA }) => (
           <Box sx={{ flex: 1 }}>
             {[
               "Análisis nutricional ilimitado",
-              "Dieta y recetas personalizadas con IA",
-              "Rutina de hipertrofia, running, calistenia y más",
+              "Recetas saludables con IA (Fit, Hipertrofia, Rápidas)",
+              "Lista de compras automática desde tus recetas",
+              "Planes de entrenamiento personalizados",
               "Seguimiento diario en la app",
             ].map((f) => (
               <Stack key={f} direction="row" spacing={1.5} alignItems="center" mb={1.3}>
@@ -924,6 +1238,7 @@ const LandingPage = () => {
       <MarqueeTicker />
       <WhyMattersSection onCTA={goToApp} />
       <ModulesSection />
+      <ShoppingListFeatureSection onCTA={goToApp} />
       <CostComparisonSection onCTA={goToApp} />
       <HowItWorksSection />
       <PricingSection onCTA={goToApp} />
