@@ -2,23 +2,26 @@
  * ShoppingListDrawer
  * ─────────────────────────────────────────────────────────────────────────────
  * Drawer deslizable con la lista de compras acumulativa.
- * - Items con checkbox para marcar como comprados
- * - Contador de pendientes en el FAB
- * - Agrupados por fuente (receta)
- * - Borrar item individual o vaciar toda la lista
+ *
+ * Fixes v2:
+ *  - mt en Paper para evitar solapamiento con nav flotante (mobile/desktop)
+ *  - Orden estable (los items NO se mueven al checkearlos) → bug uncheck resuelto
+ *  - Input para agregar items manualmente
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Drawer, Box, Typography, Stack, IconButton,
-  Checkbox, Divider, Button, Tooltip, Chip, Badge,
+  Checkbox, Button, Tooltip, Badge, TextField,
+  InputAdornment,
 } from "@mui/material";
-import CloseRoundedIcon        from "@mui/icons-material/CloseRounded";
+import CloseRoundedIcon         from "@mui/icons-material/CloseRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import ShoppingCartRoundedIcon  from "@mui/icons-material/ShoppingCartRounded";
 import DeleteSweepRoundedIcon   from "@mui/icons-material/DeleteSweepRounded";
+import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { motion, AnimatePresence } from "framer-motion";
-import { saveList, formatItemLabel } from "../utils/shoppingList";
+import { saveList, formatItemLabel, parseIngredient, mergeIngredients } from "../utils/shoppingList";
 
 /* ─── FAB flotante ──────────────────────────────────────────────────────────── */
 export const ShoppingFab = ({ count, onClick }) => (
@@ -26,7 +29,7 @@ export const ShoppingFab = ({ count, onClick }) => (
     onClick={onClick}
     sx={{
       position: "fixed",
-      bottom: { xs: 96, sm: 32 },
+      bottom: { xs: 100, sm: 32 },
       right: { xs: 16, sm: 32 },
       zIndex: 1200,
       cursor: "pointer",
@@ -74,26 +77,25 @@ export const ShoppingFab = ({ count, onClick }) => (
   </Box>
 );
 
-/* ─── Ítem individual ───────────────────────────────────────────────────────── */
+/* ─── Ítem individual (orden estable, sin saltos) ───────────────────────────── */
 const ListItem = ({ item, onChange, onRemove }) => (
   <motion.div
-    layout
-    initial={{ opacity: 0, x: 20 }}
-    animate={{ opacity: 1, x: 0 }}
-    exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0 }}
-    transition={{ duration: 0.22 }}
+    layout="position"
+    initial={{ opacity: 0, y: -6 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, height: 0, overflow: "hidden" }}
+    transition={{ duration: 0.2 }}
   >
     <Stack
       direction="row"
       alignItems="center"
       spacing={0.5}
       sx={{
-        py: 0.8,
+        py: 0.7,
         px: 0.5,
         borderRadius: 2,
         transition: "background 0.15s",
         "&:hover": { bgcolor: "rgba(11,94,85,0.035)" },
-        opacity: item.checked ? 0.45 : 1,
       }}
     >
       <Checkbox
@@ -101,25 +103,27 @@ const ListItem = ({ item, onChange, onRemove }) => (
         onChange={(e) => onChange(item._id, e.target.checked)}
         size="small"
         sx={{
-          color: "rgba(11,94,85,0.30)",
+          color: "rgba(11,94,85,0.28)",
           "&.Mui-checked": { color: "#0B5E55" },
           p: 0.6,
+          flexShrink: 0,
         }}
       />
       <Box flex={1} minWidth={0}>
         <Typography
           sx={{
             fontSize: 14,
-            fontWeight: 600,
-            color: "#0F2420",
+            fontWeight: item.checked ? 400 : 600,
+            color: item.checked ? "#9ABAB7" : "#0F2420",
             textDecoration: item.checked ? "line-through" : "none",
             lineHeight: 1.4,
+            transition: "all 0.2s",
           }}
         >
           {formatItemLabel(item)}
         </Typography>
         {item.sources?.length > 0 && (
-          <Typography sx={{ fontSize: 11, color: "#8AADAA", mt: 0.1 }}>
+          <Typography sx={{ fontSize: 11, color: "#B0C4C0", mt: 0.1 }}>
             {item.sources.join(", ")}
           </Typography>
         )}
@@ -128,7 +132,12 @@ const ListItem = ({ item, onChange, onRemove }) => (
         <IconButton
           size="small"
           onClick={() => onRemove(item._id)}
-          sx={{ color: "#C0D5D2", "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.08)" }, p: 0.5 }}
+          sx={{
+            color: "#C0D5D2",
+            "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.08)" },
+            p: 0.5,
+            flexShrink: 0,
+          }}
         >
           <DeleteOutlineRoundedIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -140,12 +149,15 @@ const ListItem = ({ item, onChange, onRemove }) => (
 /* ─── Drawer principal ──────────────────────────────────────────────────────── */
 const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
   const [confirmClear, setConfirmClear] = useState(false);
+  const [newItem,      setNewItem]      = useState("");
+  const inputRef = useRef(null);
 
   const pending   = items.filter((i) => !i.checked).length;
   const completed = items.filter((i) => i.checked).length;
 
+  /* ── handlers ── */
   const handleToggle = (id, checked) => {
-    const next = items.map((i) => i._id === id ? { ...i, checked } : i);
+    const next = items.map((i) => (i._id === id ? { ...i, checked } : i));
     setItems(next);
     saveList(next);
   };
@@ -168,8 +180,17 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
     setConfirmClear(false);
   };
 
-  // Ordenar: pendientes primero, luego tachados
-  const sorted = [...items].sort((a, b) => Number(a.checked) - Number(b.checked));
+  const handleAddManual = (e) => {
+    e.preventDefault();
+    const txt = newItem.trim();
+    if (!txt) return;
+    const parsed = parseIngredient(txt, "Manual");
+    const merged = mergeIngredients(items, [parsed]);
+    setItems(merged);
+    saveList(merged);
+    setNewItem("");
+    inputRef.current?.focus();
+  };
 
   return (
     <Drawer
@@ -178,18 +199,23 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: { xs: "100vw", sm: 380 },
+          width:  { xs: "100vw", sm: 390 },
           maxWidth: "100vw",
           bgcolor: "#FAFCFB",
           display: "flex",
           flexDirection: "column",
+          // Arrancar debajo del nav flotante en mobile / fijo en desktop
+          mt:     { xs: "68px", md: "64px" },
+          height: { xs: "calc(100dvh - 68px)", md: "calc(100dvh - 64px)" },
         },
       }}
     >
       {/* ── Header ── */}
       <Box
         sx={{
-          px: 2.5, pt: 3, pb: 2,
+          px: 2.5,
+          pt: 2.5,
+          pb: 2,
           background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
           color: "#fff",
           flexShrink: 0,
@@ -197,28 +223,43 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
       >
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
           <Box>
-            <Stack direction="row" spacing={1} alignItems="center" mb={0.4}>
-              <ShoppingCartRoundedIcon sx={{ fontSize: 22 }} />
-              <Typography sx={{ fontSize: 20, fontWeight: 900, letterSpacing: "-0.5px" }}>
+            <Stack direction="row" spacing={1} alignItems="center" mb={0.3}>
+              <ShoppingCartRoundedIcon sx={{ fontSize: 21 }} />
+              <Typography sx={{ fontSize: 19, fontWeight: 900, letterSpacing: "-0.4px" }}>
                 Mi lista de compras
               </Typography>
             </Stack>
-            <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.70)" }}>
-              {pending > 0
-                ? `${pending} pendiente${pending > 1 ? "s" : ""}`
-                : items.length > 0
-                  ? "¡Todo listo! ✓"
-                  : "Agregá ingredientes desde tus recetas"}
+            <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.68)" }}>
+              {items.length === 0
+                ? "Agregá ingredientes desde tus recetas o manualmente"
+                : pending > 0
+                  ? `${pending} pendiente${pending > 1 ? "s" : ""} · ${completed} comprado${completed !== 1 ? "s" : ""}`
+                  : "¡Todo listo! ✓"}
             </Typography>
           </Box>
-          <IconButton onClick={onClose} sx={{ color: "rgba(255,255,255,0.75)", mt: -0.5, "&:hover": { color: "#fff", bgcolor: "rgba(255,255,255,0.12)" } }}>
+          <IconButton
+            onClick={onClose}
+            sx={{
+              color: "rgba(255,255,255,0.75)",
+              mt: -0.5,
+              "&:hover": { color: "#fff", bgcolor: "rgba(255,255,255,0.12)" },
+            }}
+          >
             <CloseRoundedIcon />
           </IconButton>
         </Stack>
 
         {/* Progress bar */}
         {items.length > 0 && (
-          <Box sx={{ mt: 2, bgcolor: "rgba(255,255,255,0.20)", borderRadius: 999, height: 6, overflow: "hidden" }}>
+          <Box
+            sx={{
+              mt: 1.8,
+              bgcolor: "rgba(255,255,255,0.18)",
+              borderRadius: 999,
+              height: 5,
+              overflow: "hidden",
+            }}
+          >
             <Box
               sx={{
                 height: "100%",
@@ -232,45 +273,67 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
         )}
       </Box>
 
-      {/* ── Body ── */}
-      <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 2 }}>
+      {/* ── Input manual ── */}
+      <Box
+        component="form"
+        onSubmit={handleAddManual}
+        sx={{ px: 2, pt: 2, pb: 1, flexShrink: 0, borderBottom: "1px solid rgba(11,94,85,0.07)" }}
+      >
+        <TextField
+          inputRef={inputRef}
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          placeholder="Agregar item (ej: 3 huevos, leche…)"
+          size="small"
+          fullWidth
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  type="submit"
+                  disabled={!newItem.trim()}
+                  size="small"
+                  sx={{
+                    bgcolor: newItem.trim() ? "#0B5E55" : "transparent",
+                    color: newItem.trim() ? "#fff" : "#B0C4C0",
+                    "&:hover": { bgcolor: "#0f7a6e" },
+                    transition: "all 0.2s",
+                    width: 30,
+                    height: 30,
+                  }}
+                >
+                  <AddRoundedIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+              </InputAdornment>
+            ),
+            sx: {
+              borderRadius: 2.5,
+              fontSize: 13.5,
+              bgcolor: "#fff",
+              "& fieldset": { borderColor: "rgba(11,94,85,0.15)" },
+              "&:hover fieldset": { borderColor: "rgba(11,94,85,0.30) !important" },
+              "&.Mui-focused fieldset": { borderColor: "#0B5E55 !important" },
+            },
+          }}
+        />
+      </Box>
+
+      {/* ── Lista (orden estable, sin saltos) ── */}
+      <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 1.5 }}>
         {items.length === 0 ? (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography sx={{ fontSize: 52, mb: 1.5 }}>🛒</Typography>
-            <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#0F2420", mb: 0.5 }}>
+          <Box sx={{ textAlign: "center", py: 6 }}>
+            <Typography sx={{ fontSize: 48, mb: 1.5 }}>🛒</Typography>
+            <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", mb: 0.5 }}>
               La lista está vacía
             </Typography>
-            <Typography sx={{ fontSize: 13.5, color: "#6B8C88", lineHeight: 1.6 }}>
-              Generá una receta y tocá<br />
-              <strong>"Agregar a mi lista"</strong> para empezar
+            <Typography sx={{ fontSize: 13, color: "#6B8C88", lineHeight: 1.6 }}>
+              Escribí un item arriba o generá una receta<br />
+              y tocá <strong>"Agregar a mi lista"</strong>
             </Typography>
           </Box>
         ) : (
           <AnimatePresence mode="popLayout">
-            {/* Pendientes */}
-            {sorted.filter((i) => !i.checked).map((item) => (
-              <ListItem
-                key={item._id}
-                item={item}
-                onChange={handleToggle}
-                onRemove={handleRemove}
-              />
-            ))}
-
-            {/* Separador de completados */}
-            {completed > 0 && pending > 0 && (
-              <motion.div key="divider" layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <Divider sx={{ my: 1.5 }}>
-                  <Chip
-                    label={`${completed} comprado${completed > 1 ? "s" : ""}`}
-                    size="small"
-                    sx={{ fontSize: 11, fontWeight: 700, color: "#8AADAA", bgcolor: "rgba(11,94,85,0.06)" }}
-                  />
-                </Divider>
-              </motion.div>
-            )}
-
-            {sorted.filter((i) => i.checked).map((item) => (
+            {items.map((item) => (
               <ListItem
                 key={item._id}
                 item={item}
@@ -282,25 +345,29 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
         )}
       </Box>
 
-      {/* ── Footer con acciones ── */}
+      {/* ── Footer ── */}
       {items.length > 0 && (
         <Box
           sx={{
-            px: 2.5, py: 2,
+            px: 2.5,
+            py: 2,
             borderTop: "1px solid rgba(11,94,85,0.08)",
             bgcolor: "#fff",
             flexShrink: 0,
           }}
         >
-          <Stack spacing={1.2}>
+          <Stack spacing={1}>
             {completed > 0 && (
               <Button
                 fullWidth
                 onClick={handleClearCompleted}
                 startIcon={<DeleteSweepRoundedIcon />}
                 sx={{
-                  textTransform: "none", fontWeight: 700, fontSize: 13.5,
-                  borderRadius: 2.5, py: 1.2,
+                  textTransform: "none",
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  borderRadius: 2.5,
+                  py: 1.1,
                   bgcolor: "rgba(11,94,85,0.07)",
                   color: "#0B5E55",
                   "&:hover": { bgcolor: "rgba(11,94,85,0.12)" },
@@ -310,14 +377,16 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
               </Button>
             )}
 
-            {/* Confirm clear all */}
             {!confirmClear ? (
               <Button
                 fullWidth
                 onClick={() => setConfirmClear(true)}
                 sx={{
-                  textTransform: "none", fontWeight: 600, fontSize: 13,
-                  borderRadius: 2.5, py: 1,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  fontSize: 13,
+                  borderRadius: 2.5,
+                  py: 0.9,
                   color: "#B0C4C0",
                   "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.06)" },
                 }}
@@ -325,23 +394,47 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
                 Vaciar lista
               </Button>
             ) : (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
                 <Box sx={{ bgcolor: "rgba(239,68,68,0.06)", borderRadius: 2.5, p: 1.5 }}>
-                  <Typography sx={{ fontSize: 13, color: "#E24B4A", fontWeight: 700, textAlign: "center", mb: 1 }}>
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      color: "#E24B4A",
+                      fontWeight: 700,
+                      textAlign: "center",
+                      mb: 1,
+                    }}
+                  >
                     ¿Vaciar toda la lista?
                   </Typography>
                   <Stack direction="row" spacing={1}>
                     <Button
-                      fullWidth size="small"
+                      fullWidth
+                      size="small"
                       onClick={() => setConfirmClear(false)}
-                      sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, color: "#4A6B67", bgcolor: "rgba(11,94,85,0.06)", "&:hover": { bgcolor: "rgba(11,94,85,0.10)" } }}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: 700,
+                        borderRadius: 2,
+                        color: "#4A6B67",
+                        bgcolor: "rgba(11,94,85,0.06)",
+                        "&:hover": { bgcolor: "rgba(11,94,85,0.10)" },
+                      }}
                     >
                       Cancelar
                     </Button>
                     <Button
-                      fullWidth size="small"
+                      fullWidth
+                      size="small"
                       onClick={handleClearAll}
-                      sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, bgcolor: "#E24B4A", color: "#fff", "&:hover": { bgcolor: "#C0392B" } }}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: 700,
+                        borderRadius: 2,
+                        bgcolor: "#E24B4A",
+                        color: "#fff",
+                        "&:hover": { bgcolor: "#C0392B" },
+                      }}
                     >
                       Sí, vaciar
                     </Button>

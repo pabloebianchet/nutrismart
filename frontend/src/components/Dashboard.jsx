@@ -33,7 +33,11 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
+import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { API_URL } from "../config/api";
+import ShoppingListDrawer       from "./ShoppingListDrawer";
+import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel } from "../utils/shoppingList";
 
 /* ────────────────────────────────────────────
    Paleta y tokens de diseño
@@ -1253,6 +1257,262 @@ const NotifPrefsPanel = () => {
 };
 
 /* ────────────────────────────────────────────
+   Shopping List Widget
+──────────────────────────────────────────── */
+const ShoppingListWidget = () => {
+  const navigate = useNavigate();
+  const [items,       setItems]       = useState(() => loadList());
+  const [drawerOpen,  setDrawerOpen]  = useState(false);
+  const [newItem,     setNewItem]     = useState("");
+
+  const pending   = items.filter((i) => !i.checked).length;
+  const completed = items.filter((i) => i.checked).length;
+  const preview   = items.slice(0, 4);
+
+  const handleToggle = (id, checked) => {
+    const next = items.map((i) => (i._id === id ? { ...i, checked } : i));
+    setItems(next);
+    saveList(next);
+  };
+
+  const handleAddManual = (e) => {
+    e.preventDefault();
+    const txt = newItem.trim();
+    if (!txt) return;
+    const parsed = parseIngredient(txt, "Manual");
+    const merged = mergeIngredients(items, [parsed]);
+    setItems(merged);
+    saveList(merged);
+    setNewItem("");
+  };
+
+  return (
+    <>
+      <Paper
+        elevation={0}
+        sx={{
+          mb: 4,
+          borderRadius: 5,
+          overflow: "hidden",
+          border: "1px solid rgba(11,94,85,0.14)",
+          boxShadow: shadow.lg,
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        }}
+      >
+        {/* ── Columna izquierda: header + add ── */}
+        <Box
+          sx={{
+            p: { xs: 3, md: 3.5 },
+            background: "linear-gradient(145deg, #042A28 0%, #0B5E55 100%)",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* blobs */}
+          <Box sx={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+
+          <Box sx={{ position: "relative" }}>
+            {/* Badge */}
+            <Box sx={{
+              display: "inline-flex", alignItems: "center", gap: 0.8,
+              px: 1.4, py: 0.4, borderRadius: 999, mb: 2,
+              bgcolor: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)",
+            }}>
+              <ShoppingCartRoundedIcon sx={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Lista de compras
+              </Typography>
+            </Box>
+
+            <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1.1, mb: 0.6 }}>
+              🛒 Mi lista
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55, mb: 2.5 }}>
+              {items.length === 0
+                ? "Agregá ingredientes desde tus recetas o escribilos manualmente."
+                : `${pending} item${pending !== 1 ? "s" : ""} pendiente${pending !== 1 ? "s" : ""}${completed > 0 ? ` · ${completed} comprado${completed !== 1 ? "s" : ""}` : ""}`}
+            </Typography>
+
+            {/* Input manual */}
+            <Box component="form" onSubmit={handleAddManual} sx={{ mb: 2.5 }}>
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  value={newItem}
+                  onChange={(e) => setNewItem(e.target.value)}
+                  placeholder="Ej: 3 huevos, 200g pollo, leche…"
+                  size="small"
+                  fullWidth
+                  InputProps={{
+                    sx: {
+                      borderRadius: 2.5,
+                      fontSize: 13.5,
+                      bgcolor: "rgba(255,255,255,0.10)",
+                      color: "#fff",
+                      "& fieldset": { borderColor: "rgba(255,255,255,0.22)" },
+                      "&:hover fieldset": { borderColor: "rgba(255,255,255,0.40) !important" },
+                      "&.Mui-focused fieldset": { borderColor: "rgba(255,255,255,0.70) !important" },
+                      "& input": { color: "#fff" },
+                      "& input::placeholder": { color: "rgba(255,255,255,0.45)", opacity: 1 },
+                    },
+                  }}
+                />
+                <Button
+                  type="submit"
+                  disabled={!newItem.trim()}
+                  sx={{
+                    minWidth: 44, width: 44, height: 40, p: 0, borderRadius: 2.5, flexShrink: 0,
+                    bgcolor: newItem.trim() ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.15)",
+                    color: newItem.trim() ? "#0B5E55" : "rgba(255,255,255,0.45)",
+                    "&:hover": { bgcolor: "#fff" },
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <AddRoundedIcon sx={{ fontSize: 20 }} />
+                </Button>
+              </Stack>
+            </Box>
+
+            {/* CTA */}
+            <Button
+              variant="contained"
+              onClick={() => setDrawerOpen(true)}
+              sx={{
+                bgcolor: "#fff", color: "#0B5E55",
+                borderRadius: 999, px: 3, py: 1.2,
+                textTransform: "none", fontWeight: 800, fontSize: 14,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+                "&:hover": { bgcolor: "#edf8f5", transform: "translateY(-1px)", boxShadow: "0 8px 28px rgba(0,0,0,0.22)" },
+                transition: "all 0.2s ease",
+              }}
+            >
+              {items.length > 0 ? "Ver lista completa →" : "Abrir mi lista →"}
+            </Button>
+          </Box>
+        </Box>
+
+        {/* ── Columna derecha: preview de items ── */}
+        <Box
+          sx={{
+            p: { xs: 3, md: 3.5 },
+            bgcolor: "#F7FBF9",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: items.length === 0 ? "center" : "flex-start",
+          }}
+        >
+          {items.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: { xs: 2, md: 0 } }}>
+              <Typography sx={{ fontSize: 40, mb: 1 }}>🛒</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary, mb: 0.5 }}>
+                La lista está vacía
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55 }}>
+                Generá una receta y tocá<br /><strong>"Agregar a mi lista"</strong>
+              </Typography>
+              <Button
+                onClick={() => navigate("/recipes")}
+                sx={{
+                  mt: 2, textTransform: "none", fontWeight: 700, fontSize: 13,
+                  color: C.brand, borderRadius: 999,
+                  border: `1.5px solid rgba(11,94,85,0.20)`, px: 2.5, py: 0.8,
+                  "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
+                }}
+              >
+                Ir a Recetas YA →
+              </Button>
+            </Box>
+          ) : (
+            <>
+              <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
+                {pending > 0 ? "Pendientes" : "Todos comprados ✓"}
+              </Typography>
+
+              {/* Progress bar */}
+              {completed > 0 && (
+                <Box sx={{ mb: 2, bgcolor: "rgba(11,94,85,0.10)", borderRadius: 999, height: 5, overflow: "hidden" }}>
+                  <Box sx={{
+                    height: "100%", borderRadius: 999, bgcolor: "#0B5E55",
+                    width: `${Math.round((completed / items.length) * 100)}%`,
+                    transition: "width 0.4s ease",
+                  }} />
+                </Box>
+              )}
+
+              {/* Preview list */}
+              <Stack spacing={0.2}>
+                {preview.map((item) => (
+                  <Stack
+                    key={item._id}
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.8}
+                    sx={{
+                      py: 0.6,
+                      px: 0.5,
+                      borderRadius: 2,
+                      "&:hover": { bgcolor: "rgba(11,94,85,0.04)" },
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleToggle(item._id, !item.checked)}
+                  >
+                    <Box
+                      sx={{
+                        width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
+                        border: `2px solid ${item.checked ? "#0B5E55" : "rgba(11,94,85,0.25)"}`,
+                        bgcolor: item.checked ? "#0B5E55" : "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {item.checked && (
+                        <Box component="span" sx={{ fontSize: 10, color: "#fff", lineHeight: 1 }}>✓</Box>
+                      )}
+                    </Box>
+                    <Typography sx={{
+                      fontSize: 13.5,
+                      fontWeight: item.checked ? 400 : 600,
+                      color: item.checked ? C.textMuted : C.textPrimary,
+                      textDecoration: item.checked ? "line-through" : "none",
+                      transition: "all 0.2s",
+                      flex: 1,
+                    }}>
+                      {formatItemLabel(item)}
+                    </Typography>
+                  </Stack>
+                ))}
+              </Stack>
+
+              {items.length > 4 && (
+                <Button
+                  onClick={() => setDrawerOpen(true)}
+                  sx={{
+                    mt: 1.5, textTransform: "none", fontWeight: 700, fontSize: 13,
+                    color: C.brand, borderRadius: 999,
+                    border: `1.5px solid rgba(11,94,85,0.18)`, px: 2, py: 0.7,
+                    alignSelf: "flex-start",
+                    "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
+                  }}
+                >
+                  + {items.length - 4} item{items.length - 4 !== 1 ? "s" : ""} más →
+                </Button>
+              )}
+            </>
+          )}
+        </Box>
+      </Paper>
+
+      <ShoppingListDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        items={items}
+        setItems={setItems}
+      />
+    </>
+  );
+};
+
+/* ────────────────────────────────────────────
    Dashboard principal
 ──────────────────────────────────────────── */
 const Dashboard = () => {
@@ -1650,6 +1910,9 @@ const Dashboard = () => {
 
       {/* ── ACCESO RÁPIDO: RECETAS YA ───────────── */}
       <RecetasYABanner />
+
+      {/* ── MI LISTA DE COMPRAS ─────────────────── */}
+      <ShoppingListWidget />
 
       {/* ── STATS RÁPIDAS ────────────────────────── */}
       {history.length > 0 && (
