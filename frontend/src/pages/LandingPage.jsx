@@ -213,7 +213,7 @@ const HeroSection = ({ onCTA }) => (
               <Typography sx={{ fontSize: { xs: 24, sm: 30 }, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{val}</Typography>
               <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.32)", fontWeight: 600, mt: 0.5 }}>{label}</Typography>
             </Box>
-            {i < 2 && <Box sx={{ width: 1, height: 32, bgcolor: "rgba(255,255,255,0.08)" }} />}
+            {i < 2 && <Box sx={{ width: "1px", height: "32px", bgcolor: "rgba(255,255,255,0.08)", flexShrink: 0 }} />}
           </Box>
         ))}
       </Stack>
