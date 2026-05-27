@@ -86,28 +86,35 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
     const planInfo = PLANS[plan];
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
+    const preapprovalBody = {
+      reason:             `Nui · ${planInfo.name}`,
+      external_reference: `${user._id}|${plan}`,
+      payer_email:        user.email,
+      auto_recurring: {
+        frequency:          1,
+        frequency_type:     "months",
+        transaction_amount: planInfo.amount,
+        currency_id:        planInfo.currency,
+      },
+      back_url: `${frontendUrl}/subscription/success`,
+      status:   "pending",
+    };
+
+    // notification_url solo si está configurada (MP la rechaza si es inválida)
+    if (process.env.MP_WEBHOOK_URL) {
+      preapprovalBody.notification_url = process.env.MP_WEBHOOK_URL;
+    }
+
     const mpRes = await mpFetch("/preapproval", {
       method: "POST",
-      body: JSON.stringify({
-        reason:             `NutriSmart · ${planInfo.name}`,
-        external_reference: `${user._id}|${plan}`,
-        payer_email:        user.email,
-        auto_recurring: {
-          frequency:          1,
-          frequency_type:     "months",
-          transaction_amount: planInfo.amount,
-          currency_id:        planInfo.currency,
-        },
-        back_url:         `${frontendUrl}/subscription/success`,
-        notification_url: process.env.MP_WEBHOOK_URL,
-        status:           "pending",
-      }),
+      body: JSON.stringify(preapprovalBody),
     });
 
     if (!mpRes.ok) {
       const errBody = await mpRes.json().catch(() => ({}));
-      console.error("MP Preapproval error:", errBody);
-      return res.status(502).json({ error: "Error al crear la suscripción en Mercado Pago." });
+      console.error("MP Preapproval error:", JSON.stringify(errBody));
+      const mpMessage = errBody?.message || errBody?.cause?.[0]?.description || "Error en Mercado Pago";
+      return res.status(502).json({ error: `Error al crear la suscripción: ${mpMessage}` });
     }
 
     const mpData = await mpRes.json();
