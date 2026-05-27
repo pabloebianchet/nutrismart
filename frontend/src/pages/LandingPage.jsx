@@ -183,10 +183,10 @@ const HeroSection = ({ onCTA }) => (
           fontWeight: 800, fontSize: 16,
           textTransform: "none",
           px: 4.5, py: 1.7, borderRadius: 999,
-          boxShadow: `0 8px 32px rgba(16,185,129,0.38)`,
+          boxShadow: "none",
           "&:hover": {
             bgcolor: C.emeraldDark,
-            boxShadow: `0 14px 44px rgba(16,185,129,0.50)`,
+            boxShadow: "none",
             transform: "translateY(-2px)",
           },
           transition: "all 0.25s",
@@ -206,14 +206,13 @@ const HeroSection = ({ onCTA }) => (
 
       {/* Stats */}
       <Stack direction="row" justifyContent="center" alignItems="center"
+        divider={<Box sx={{ width: "1px", height: "28px", bgcolor: "rgba(255,255,255,0.10)", flexShrink: 0 }} />}
+        spacing={{ xs: 3, sm: 5 }}
         sx={{ animation: "fadeUp 0.6s 0.4s ease both" }}>
-        {[["3", "módulos IA"], ["7 días", "prueba gratis"], ["100%", "personalizado"]].map(([val, label], i) => (
-          <Box key={label} sx={{ display: "flex", alignItems: "center" }}>
-            <Box textAlign="center" sx={{ px: { xs: 2.5, sm: 4 } }}>
-              <Typography sx={{ fontSize: { xs: 24, sm: 30 }, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{val}</Typography>
-              <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.32)", fontWeight: 600, mt: 0.5 }}>{label}</Typography>
-            </Box>
-            {i < 2 && <Box sx={{ width: "1px", height: "32px", bgcolor: "rgba(255,255,255,0.08)", flexShrink: 0 }} />}
+        {[["3", "módulos IA"], ["7 días", "prueba gratis"], ["100%", "personalizado"]].map(([val, label]) => (
+          <Box key={label} textAlign="center">
+            <Typography sx={{ fontSize: { xs: 24, sm: 30 }, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{val}</Typography>
+            <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.32)", fontWeight: 600, mt: 0.5 }}>{label}</Typography>
           </Box>
         ))}
       </Stack>
@@ -369,8 +368,8 @@ const WhyMattersSection = ({ onCTA }) => (
         <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
           bgcolor: C.emerald, color: "#fff", fontWeight: 800, fontSize: 15,
           textTransform: "none", px: 4.5, py: 1.5, borderRadius: 999,
-          boxShadow: `0 8px 28px rgba(16,185,129,0.32)`,
-          "&:hover": { bgcolor: C.emeraldDark, transform: "translateY(-2px)", boxShadow: `0 14px 36px rgba(16,185,129,0.44)` },
+          boxShadow: "none",
+          "&:hover": { bgcolor: C.emeraldDark, transform: "translateY(-2px)", boxShadow: "none" },
           transition: "all 0.22s",
         }}>
           Analizá tu primer producto gratis
@@ -601,8 +600,8 @@ const CostComparisonSection = ({ onCTA }) => (
           bgcolor: "#fff", color: C.brand,
           fontWeight: 800, fontSize: 15,
           textTransform: "none", px: 4.5, py: 1.5, borderRadius: 999,
-          boxShadow: "0 8px 28px rgba(0,0,0,0.16)",
-          "&:hover": { bgcolor: "rgba(255,255,255,0.92)", transform: "translateY(-2px)", boxShadow: "0 14px 36px rgba(0,0,0,0.22)" },
+          boxShadow: "none",
+          "&:hover": { bgcolor: "rgba(255,255,255,0.92)", transform: "translateY(-2px)", boxShadow: "none" },
           transition: "all 0.22s",
         }}>
           Probá gratis 7 días
@@ -868,10 +867,10 @@ const FinalCTA = ({ onCTA }) => (
         bgcolor: C.emerald, color: "#fff",
         fontWeight: 800, fontSize: 17,
         textTransform: "none", px: 5.5, py: 1.9, borderRadius: 999,
-        boxShadow: `0 12px 44px rgba(16,185,129,0.38)`,
+        boxShadow: "none",
         "&:hover": {
           bgcolor: C.emeraldDark,
-          boxShadow: `0 18px 56px rgba(16,185,129,0.52)`,
+          boxShadow: "none",
           transform: "translateY(-2px)",
         },
         transition: "all 0.25s",
