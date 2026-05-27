@@ -12,7 +12,7 @@
  */
 
 import { Box, Typography } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 /* ── Umbrales ──────────────────────────────────────────────────────────────── */
@@ -71,6 +71,9 @@ const AvatarMascot = ({
   const [imgOk, setImgOk]   = useState(true);
   const [loaded, setLoaded] = useState(false);
 
+  // Resetear cuando cambia la src (ej: fallback svg→png)
+  useEffect(() => { setLoaded(false); }, [src]);
+
   return (
     <Box
       sx={{
@@ -97,6 +100,7 @@ const AvatarMascot = ({
       {imgOk ? (
         <Box
           component="img"
+          key={src}
           src={src}
           alt={`avatar nivel ${state}`}
           onLoad={() => setLoaded(true)}
