@@ -265,7 +265,7 @@ const SubscriptionWidget = () => {
         <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 1 }}>
           {isFree
             ? "Al vencer tu prueba, elegí el plan que mejor te quede."
-            : (sub.autoRenew ? `Renovación automática el ${formatDate(sub.endDate)}` : "Sin renovación automática")}
+            : `Vence el ${formatDate(sub.endDate)} · renovación manual`}
         </Typography>
 
         {isFree && (

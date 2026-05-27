@@ -201,7 +201,7 @@ const SubscriptionPage = () => {
                 <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2.5 }}>
                   {[
                     { label: "Monto mensual",      value: formatARS(sub.amount) },
-                    { label: isCancelled ? "Acceso hasta" : "Próxima renovación", value: formatDate(sub.endDate) },
+                    { label: "Vence el", value: formatDate(sub.endDate) },
                     { label: "Suscripción desde",  value: formatDate(sub.startDate) },
                     { label: "Método de pago",     value: "Mercado Pago" },
                   ].map(({ label, value }) => (
@@ -214,30 +214,19 @@ const SubscriptionPage = () => {
               </Box>
             </Paper>
 
-            {/* ── Auto-renovación (solo si activa) ── */}
+            {/* ── Renovación manual (info) ── */}
             {isActive && (
               <Paper elevation={0} sx={{ p: 3.5, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md, animation: "fadeUp 0.5s 0.1s ease both" }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: C.brandSurface, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <AutorenewRoundedIcon sx={{ fontSize: 20, color: C.brand }} />
-                    </Box>
-                    <Box>
-                      <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>Renovación automática</Typography>
-                      <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
-                        {sub.autoRenew ? `Se renueva el ${formatDate(sub.endDate)}` : "Desactivada · no se cobra más"}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                  <Switch
-                    checked={!!sub.autoRenew}
-                    onChange={handleToggleRenew}
-                    disabled={togglingRenew}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": { color: C.brand },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { bgcolor: C.brand },
-                    }}
-                  />
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: C.brandSurface, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <AutorenewRoundedIcon sx={{ fontSize: 20, color: C.brand }} />
+                  </Box>
+                  <Box>
+                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>Renovación manual</Typography>
+                    <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
+                      Te avisamos por mail antes del {formatDate(sub.endDate)} para que puedas renovar cuando quieras.
+                    </Typography>
+                  </Box>
                 </Stack>
               </Paper>
             )}

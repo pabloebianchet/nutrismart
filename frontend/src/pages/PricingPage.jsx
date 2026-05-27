@@ -54,7 +54,7 @@ const PLANS = [
     name:      "Silver",
     subtitle:  "Para uso diario",
     price:     2990,
-    label:     "Por mes · renovación automática",
+    label:     "Por mes · renovación manual",
     Icon:      DiamondOutlinedIcon,
     color:     "#71879C",
     bg:        "#EEF2F5",
@@ -75,7 +75,7 @@ const PLANS = [
     name:      "Gold",
     subtitle:  "Sin límites, sin compromisos",
     price:     5990,
-    label:     "Por mes · renovación automática",
+    label:     "Por mes · renovación manual",
     Icon:      WorkspacePremiumOutlinedIcon,
     color:     "#C9952A",
     bg:        "linear-gradient(135deg, #FDF6E3 0%, #FEF9EC 100%)",
@@ -375,7 +375,7 @@ const PricingPage = () => {
         {/* Nota pie */}
         <Typography sx={{ textAlign: "center", fontSize: 12.5, color: C.textMuted, mt: 5, lineHeight: 1.8 }}>
           El pago se procesa de forma segura a través de Mercado Pago.<br />
-          Podés cancelar la renovación automática en cualquier momento desde tu dashboard.
+          Te avisamos por mail antes del vencimiento para que puedas renovar cuando quieras.
         </Typography>
       </Box>
     </Box>
