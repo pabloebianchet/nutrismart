@@ -26,7 +26,7 @@ export const sendContactEmail = async ({ name, email, subject, message }) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nuevo mensaje de contacto — NutriSmart</title>
+  <title>Nuevo mensaje de contacto — Nui</title>
 </head>
 <body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
 
@@ -38,7 +38,7 @@ export const sendContactEmail = async ({ name, email, subject, message }) => {
           <!-- HEADER -->
           <tr>
             <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:28px 36px;text-align:center;">
-              <div style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">NutriSmart</div>
+              <div style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">Nui</div>
               <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:4px;letter-spacing:0.06em;">NUEVO MENSAJE DE CONTACTO</div>
             </td>
           </tr>
@@ -106,7 +106,7 @@ ${message}
           <tr>
             <td style="background:#0B5E55;border-radius:0 0 16px 16px;padding:20px 36px;text-align:center;">
               <div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;">
-                Notificación automática de NutriSmart &nbsp;·&nbsp; © ${year}
+                Notificación automática de Nui &nbsp;·&nbsp; © ${year}
               </div>
             </td>
           </tr>
@@ -125,7 +125,7 @@ ${message}
     from: `"Nui" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
     to: adminEmail,
     replyTo: `"${name}" <${email}>`,
-    subject: `[NutriSmart] ${subject}`,
+    subject: `[Nui] ${subject}`,
     html,
   });
 
