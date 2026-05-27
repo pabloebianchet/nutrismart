@@ -1,4 +1,4 @@
-import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
+﻿import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
 import SpaRoundedIcon             from "@mui/icons-material/SpaRounded";
 import InsightsRoundedIcon        from "@mui/icons-material/InsightsRounded";
 import VerifiedRoundedIcon        from "@mui/icons-material/VerifiedRounded";
@@ -6,7 +6,7 @@ import PsychologyRoundedIcon      from "@mui/icons-material/PsychologyRounded";
 import AutoAwesomeRoundedIcon     from "@mui/icons-material/AutoAwesomeRounded";
 
 const C = {
-  brand:        "#0B5E55",
+  brand:        "#bae0dc",
   brandLight:   "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted:   "#B2DDD9",
@@ -25,7 +25,7 @@ const MODULES = [
     emoji: "🔍",
     title: "Análisis de alimentos",
     subtitle: "El núcleo de Nui",
-    color: "#0B5E55",
+    color: "#bae0dc",
     bg:    "#E6F5F3",
     border:"rgba(11,94,85,0.20)",
     body:  "Fotografiás el envase de cualquier alimento y Nui te dice si es natural, procesado o ultraprocesado — con un puntaje del 0 al 100 y recomendaciones claras. El objetivo es simple: ayudarte a reducir los ultraprocesados en tu dieta cotidiana.",
@@ -59,7 +59,7 @@ const PRINCIPIOS = [
     Icon: VerifiedRoundedIcon,
     title: "Sin inventar nada",
     body:  "El análisis de alimentos se basa exclusivamente en lo que el fabricante declara en el envase. Aplicamos criterios objetivos — no opiniones.",
-    grad:  "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+    grad:  "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
   },
   {
     Icon: InsightsRoundedIcon,
@@ -77,7 +77,7 @@ const PRINCIPIOS = [
     Icon: AutoAwesomeRoundedIcon,
     title: "Integral: comida y movimiento",
     body:  "Cuidar lo que comés y mantenerse activo son las dos caras de la misma moneda. Nui trabaja los dos hábitos juntos, con puntos saludables que reflejan ambos.",
-    grad:  "linear-gradient(135deg, #0a5249 0%, #0B5E55 100%)",
+    grad:  "linear-gradient(135deg, #0a5249 0%, #bae0dc 100%)",
   },
 ];
 
@@ -102,7 +102,7 @@ const AboutPage = () => (
         <Chip
           icon={<SpaRoundedIcon sx={{ fontSize: "14px !important", color: `${C.brand} !important` }} />}
           label="Quiénes somos"
-          sx={{ mb: 3, bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
+          sx={{ mb: 3, bgcolor: C.brandSurface, color: "#2a6e67", fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
         />
 
         <Typography variant="h3" fontWeight={900} sx={{
@@ -121,7 +121,7 @@ const AboutPage = () => (
         {/* 3 módulos en píldoras */}
         <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap" useFlexGap mt={4}>
           {[
-            { emoji: "🔍", label: "Análisis",      color: "#0B5E55", bg: "#E6F5F3" },
+            { emoji: "🔍", label: "Análisis",      color: "#bae0dc", bg: "#E6F5F3" },
             { emoji: "🍽️", label: "Recetas YA",    color: "#6A1B9A", bg: "#F3E5F5" },
             { emoji: "🏋️", label: "Entrenamiento", color: "#BF360C", bg: "#FBE9E7" },
           ].map((p) => (
@@ -156,7 +156,7 @@ const AboutPage = () => (
 
           {/* Der: la solución */}
           <Box sx={{ p: { xs: 3.5, md: 5 }, bgcolor: C.surfaceAlt }}>
-            <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#2a6e67", textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
               La solución
             </Typography>
             <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
@@ -172,7 +172,7 @@ const AboutPage = () => (
       {/* ══════════ LOS 3 MÓDULOS ══════════ */}
       <Box sx={{ mb: 10 }}>
         <Box textAlign="center" mb={5} sx={{ animation: "fadeUp 0.65s 0.15s ease both" }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
+          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#2a6e67", textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
             Qué hace Nui
           </Typography>
           <Typography variant="h5" fontWeight={900} sx={{ letterSpacing: "-0.8px", color: C.textPrimary, fontSize: { xs: 22, sm: 28 } }}>
@@ -231,7 +231,7 @@ const AboutPage = () => (
       {/* ══════════ PRINCIPIOS ══════════ */}
       <Box sx={{ mb: 10 }}>
         <Box textAlign="center" mb={5} sx={{ animation: "fadeUp 0.65s 0.35s ease both" }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
+          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#2a6e67", textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
             Cómo lo hacemos
           </Typography>
           <Typography variant="h5" fontWeight={900} sx={{ letterSpacing: "-0.8px", color: C.textPrimary, fontSize: { xs: 22, sm: 28 } }}>

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+﻿import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 
 import LandingPage       from "./pages/LandingPage.jsx";
@@ -75,7 +75,7 @@ const TrialBanner = () => {
         left: 0,
         right: 0,
         zIndex: 1200,
-        bgcolor: urgente ? "#B71C1C" : "#0B5E55",
+        bgcolor: urgente ? "#B71C1C" : "#bae0dc",
         py: 0.75,
         px: 2,
         display: "flex",

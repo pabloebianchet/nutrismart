@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 
 const MESSAGES = [
@@ -109,7 +109,7 @@ const AnalyzingLoader = ({ message }) => {
         <Typography sx={{
           fontSize: { xs: 17, sm: 19 },
           fontWeight: 800,
-          color: "#0B5E55",
+          color: "#bae0dc",
           letterSpacing: "-0.4px",
           mb: 0.5,
           transition: "opacity 0.35s ease, transform 0.35s ease",
@@ -129,7 +129,7 @@ const AnalyzingLoader = ({ message }) => {
           <Box key={i} sx={{
             width: 9, height: 9,
             borderRadius: "50%",
-            bgcolor: "#0B5E55",
+            bgcolor: "#bae0dc",
             animation: "dotBounce 1.1s ease-in-out infinite",
             animationDelay: `${i * 0.18}s`,
           }} />

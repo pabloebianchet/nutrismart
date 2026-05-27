@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Box, Typography, Button, Stack, Paper, Chip } from "@mui/material";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import CollectionsRoundedIcon from "@mui/icons-material/CollectionsRounded";
@@ -12,7 +12,7 @@ import AnalyzingLoader from "./AnalyzingLoader";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand: "#0B5E55",
+  brand: "#bae0dc",
   brandLight: "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
@@ -61,7 +61,7 @@ const UploadZone = ({ label, sublabel, emoji, inputId, image, setImage, onFileCh
             justifyContent: "center",
             transition: "all 0.22s ease",
             "&:hover": {
-              borderColor: C.brand,
+              bordercolor: "#2a6e67",
               bgcolor: "rgba(11,94,85,0.06)",
               transform: "translateY(-2px)",
               boxShadow: "0 8px 24px rgba(11,94,85,0.12)",
@@ -128,7 +128,7 @@ const UploadZone = ({ label, sublabel, emoji, inputId, image, setImage, onFileCh
                   gap: 0.8,
                   px: 1.8, py: 0.7,
                   borderRadius: 999,
-                  bgcolor: C.brand,
+                  bgcolor: "#2a6e67",
                   mt: 0.5,
                 }}
               >
@@ -258,7 +258,7 @@ const ImageCaptureStep = () => {
                   size="small"
                   sx={{
                     bgcolor: isDone ? "rgba(46,204,113,0.12)" : C.brandSurface,
-                    color:   isDone ? "#1a9e58" : C.brand,
+                    color:   isDone ? "#1a9e58" : "#2a6e67",
                     fontWeight: 700,
                     fontSize: 12,
                     border: `1px solid ${isDone ? "rgba(46,204,113,0.30)" : C.brandMuted}`,
@@ -302,8 +302,8 @@ const ImageCaptureStep = () => {
           animation: "fadeUp 0.5s 0.2s ease both",
         }}>
           <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-            <LightbulbOutlinedIcon sx={{ fontSize: 16, color: C.brand }} />
-            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: C.brand, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <LightbulbOutlinedIcon sx={{ fontSize: 16, color: "#2a6e67" }} />
+            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: "#2a6e67", textTransform: "uppercase", letterSpacing: "0.06em" }}>
               Tips para mejores resultados
             </Typography>
           </Stack>

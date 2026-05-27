@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Box, Typography, Chip, Button, Stack, Paper, Divider, Switch, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
@@ -13,7 +13,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand: "#0B5E55",
+  brand: "#bae0dc",
   brandLight: "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
@@ -129,7 +129,7 @@ const SubscriptionPage = () => {
 
         {/* Back */}
         <Button startIcon={<ArrowBackRoundedIcon />} onClick={() => navigate("/")}
-          sx={{ mb: 3, textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 13, borderRadius: 999, px: 2, border: `1px solid ${C.border}`, bgcolor: C.surface, boxShadow: "0 1px 4px rgba(11,94,85,0.06)", "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted, color: C.brand } }}>
+          sx={{ mb: 3, textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 13, borderRadius: 999, px: 2, border: `1px solid ${C.border}`, bgcolor: C.surface, boxShadow: "0 1px 4px rgba(11,94,85,0.06)", "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted, color: "#2a6e67" } }}>
           Volver al panel
         </Button>
 
@@ -141,7 +141,7 @@ const SubscriptionPage = () => {
         {isExpired ? (
           <Paper elevation={0} sx={{ p: 4, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md, textAlign: "center", animation: "fadeUp 0.5s 0.1s ease both" }}>
             <Box sx={{ width: 64, height: 64, borderRadius: "50%", bgcolor: C.brandSurface, border: `2px solid ${C.brandMuted}`, display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 2.5 }}>
-              <AddCircleOutlineRoundedIcon sx={{ fontSize: 30, color: C.brand }} />
+              <AddCircleOutlineRoundedIcon sx={{ fontSize: 30, color: "#2a6e67" }} />
             </Box>
             <Typography sx={{ fontWeight: 700, fontSize: 18, color: C.textPrimary, mb: 1 }}>
               Sin membresía activa
@@ -150,7 +150,7 @@ const SubscriptionPage = () => {
               Elegí un plan para acceder a análisis ilimitados y funciones premium.
             </Typography>
             <Button variant="contained" onClick={() => navigate("/pricing")}
-              sx={{ bgcolor: C.brand, borderRadius: 2.5, py: 1.3, px: 4, textTransform: "none", fontWeight: 700, fontSize: 14.5, "&:hover": { bgcolor: C.brandLight } }}>
+              sx={{ bgcolor: "#2a6e67", borderRadius: 2.5, py: 1.3, px: 4, textTransform: "none", fontWeight: 700, fontSize: 14.5, "&:hover": { bgcolor: C.brandLight } }}>
               Ver planes
             </Button>
           </Paper>
@@ -220,7 +220,7 @@ const SubscriptionPage = () => {
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: C.brandSurface, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <AutorenewRoundedIcon sx={{ fontSize: 20, color: C.brand }} />
+                      <AutorenewRoundedIcon sx={{ fontSize: 20, color: "#2a6e67" }} />
                     </Box>
                     <Box>
                       <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>Renovación automática</Typography>
@@ -234,8 +234,8 @@ const SubscriptionPage = () => {
                     onChange={handleToggleRenew}
                     disabled={togglingRenew}
                     sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": { color: C.brand },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { bgcolor: C.brand },
+                      "& .MuiSwitch-switchBase.Mui-checked": { color: "#2a6e67" },
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { bgcolor: "#2a6e67" },
                     }}
                   />
                 </Stack>
@@ -246,7 +246,7 @@ const SubscriptionPage = () => {
             {hasHistory && (
               <Paper elevation={0} sx={{ borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md, overflow: "hidden", animation: "fadeUp 0.5s 0.15s ease both" }}>
                 <Box sx={{ px: 3.5, py: 2.5, borderBottom: `1px solid ${C.border}`, bgcolor: C.surfaceAlt, display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <ReceiptLongOutlinedIcon sx={{ fontSize: 18, color: C.brand }} />
+                  <ReceiptLongOutlinedIcon sx={{ fontSize: 18, color: "#2a6e67" }} />
                   <Typography sx={{ fontWeight: 700, fontSize: 15, color: C.textPrimary }}>Historial de pagos</Typography>
                 </Box>
                 <Stack divider={<Divider sx={{ borderColor: C.border }} />}>
@@ -330,7 +330,7 @@ const SubscriptionPage = () => {
                     </Typography>
                   </Box>
                   <Button onClick={() => navigate("/pricing")} variant="contained"
-                    sx={{ bgcolor: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, px: 2.5, "&:hover": { bgcolor: C.brandLight } }}>
+                    sx={{ bgcolor: "#2a6e67", borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, px: 2.5, "&:hover": { bgcolor: C.brandLight } }}>
                     Ver planes
                   </Button>
                 </Stack>

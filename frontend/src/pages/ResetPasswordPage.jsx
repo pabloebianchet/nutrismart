@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Box, Paper, TextField, Button, Typography, Alert, IconButton, InputAdornment } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
@@ -9,7 +9,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand: "#0B5E55",
+  brand: "#bae0dc",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
   border: "rgba(11,94,85,0.12)",
@@ -24,9 +24,9 @@ const fieldSx = {
     fontSize: 14,
     "& fieldset": { borderColor: C.border },
     "&:hover fieldset": { borderColor: C.brandMuted },
-    "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 },
+    "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 1.5 },
   },
-  "& .MuiInputLabel-root.Mui-focused": { color: C.brand },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#2a6e67" },
 };
 
 const ResetPasswordPage = () => {
@@ -94,7 +94,7 @@ const ResetPasswordPage = () => {
         }}
       >
         {/* Header */}
-        <Box sx={{ bgcolor: C.brand, px: 4, pt: 4, pb: 3, textAlign: "center" }}>
+        <Box sx={{ bgcolor: "#2a6e67", px: 4, pt: 4, pb: 3, textAlign: "center" }}>
           <Box
             sx={{
               width: 52,
@@ -136,7 +136,7 @@ const ResetPasswordPage = () => {
                   mb: 2.5,
                 }}
               >
-                <CheckCircleRoundedIcon sx={{ fontSize: 32, color: C.brand }} />
+                <CheckCircleRoundedIcon sx={{ fontSize: 32, color: "#2a6e67" }} />
               </Box>
               <Typography sx={{ fontWeight: 700, fontSize: 17, color: C.textPrimary, mb: 1 }}>
                 Contraseña actualizada
@@ -148,7 +148,7 @@ const ResetPasswordPage = () => {
                 variant="contained"
                 onClick={() => navigate("/")}
                 sx={{
-                  bgcolor: C.brand,
+                  bgcolor: "#2a6e67",
                   borderRadius: 2.5,
                   py: 1.2,
                   px: 4,
@@ -215,7 +215,7 @@ const ResetPasswordPage = () => {
                   fullWidth
                   disabled={loading}
                   sx={{
-                    bgcolor: C.brand,
+                    bgcolor: "#2a6e67",
                     borderRadius: 2.5,
                     py: 1.3,
                     textTransform: "none",
@@ -244,7 +244,7 @@ const ResetPasswordPage = () => {
                   color: C.textSecondary,
                   textDecoration: "none",
                   fontWeight: 600,
-                  "&:hover": { color: C.brand },
+                  "&:hover": { color: "#2a6e67" },
                 }}
               >
                 <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />

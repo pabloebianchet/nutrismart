@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, IconButton, Tooltip, Snackbar, Alert,
@@ -83,7 +83,7 @@ const StepLabel = ({ n, label }) => (
   <Stack direction="row" spacing={1} alignItems="center" mb={3}>
     <Box sx={{
       width: 26, height: 26, borderRadius: "50%",
-      bgcolor: "#0B5E55", display: "flex", alignItems: "center", justifyContent: "center",
+      bgcolor: "#bae0dc", display: "flex", alignItems: "center", justifyContent: "center",
     }}>
       <Typography sx={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>{n}</Typography>
     </Box>
@@ -107,7 +107,7 @@ const RecipeLoader = ({ message }) => (
     <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
       {[0, 1, 2].map((i) => (
         <Box key={i} sx={{
-          width: 7, height: 7, borderRadius: "50%", bgcolor: "#0B5E55",
+          width: 7, height: 7, borderRadius: "50%", bgcolor: "#bae0dc",
           "@keyframes bounce": { "0%,80%,100%": { transform: "scale(0.8)", opacity: 0.4 }, "40%": { transform: "scale(1.2)", opacity: 1 } },
           animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
         }} />
@@ -210,13 +210,13 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
         <Box sx={{ px: 2.5, pb: 2, pt: 0.5, borderTop: "1px solid rgba(11,94,85,0.07)" }}>
 
           {/* ingredients */}
-          <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2, mt: 1.5 }}>
+          <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#bae0dc", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2, mt: 1.5 }}>
             Ingredientes
           </Typography>
           <Stack spacing={0.7} mb={2}>
             {(recipe.ingredients || []).map((ing, i) => (
               <Stack key={i} direction="row" spacing={1.5} alignItems="flex-start">
-                <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#0B5E55", mt: 0.85, flexShrink: 0 }} />
+                <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#bae0dc", mt: 0.85, flexShrink: 0 }} />
                 <Typography sx={{ fontSize: 13.5, color: "#3D5A57", lineHeight: 1.5 }}>{ing}</Typography>
               </Stack>
             ))}
@@ -225,7 +225,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
           {/* steps */}
           {(recipe.steps || []).length > 0 && (
             <>
-              <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2 }}>
+              <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#bae0dc", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2 }}>
                 Preparación
               </Typography>
               <Stack spacing={1.8} mb={2}>
@@ -234,10 +234,10 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
                     <Box sx={{
                       width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
                       bgcolor: mod?.bg || "#E6F5F3",
-                      border: `1.5px solid ${mod?.color || "#0B5E55"}`,
+                      border: `1.5px solid ${mod?.color || "#bae0dc"}`,
                       display: "flex", alignItems: "center", justifyContent: "center",
                     }}>
-                      <Typography sx={{ fontSize: 10, fontWeight: 900, color: mod?.color || "#0B5E55" }}>{i + 1}</Typography>
+                      <Typography sx={{ fontSize: 10, fontWeight: 900, color: mod?.color || "#bae0dc" }}>{i + 1}</Typography>
                     </Box>
                     <Typography sx={{ fontSize: 13.5, color: "#3D5A57", lineHeight: 1.6, pt: 0.1 }}>{s}</Typography>
                   </Stack>
@@ -491,7 +491,7 @@ const RecipesPage = () => {
               <Button
                 onClick={reset}
                 startIcon={<RefreshRoundedIcon />}
-                sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
+                sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#bae0dc", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
               >
                 Nueva
               </Button>
@@ -519,7 +519,7 @@ const RecipesPage = () => {
                   <Typography sx={{
                     fontSize: 13.5,
                     fontWeight: activeTab === tab.id ? 800 : 600,
-                    color: activeTab === tab.id ? "#0B5E55" : "#4A6B67",
+                    color: activeTab === tab.id ? "#bae0dc" : "#4A6B67",
                     whiteSpace: "nowrap",
                   }}>
                     {tab.label}
@@ -615,7 +615,7 @@ const RecipesPage = () => {
                           letterSpacing: "-0.2px",
                           background: activeMod
                             ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}CC 100%)`
-                            : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                            : "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
                           boxShadow: `0 8px 28px ${activeMod?.border || "rgba(11,94,85,0.30)"}`,
                           "&:hover": { transform: "translateY(-2px)", boxShadow: `0 12px 36px ${activeMod?.border || "rgba(11,94,85,0.38)"}` },
                           transition: "all 0.25s ease",
@@ -674,7 +674,7 @@ const RecipesPage = () => {
                           boxShadow: "0 2px 12px rgba(11,94,85,0.06)",
                           display: "flex", alignItems: "center", gap: 2.5,
                           transition: "all 0.2s ease",
-                          "&:hover": { boxShadow: "0 8px 28px rgba(11,94,85,0.14)", transform: "translateY(-2px)", borderColor: "#0B5E55" },
+                          "&:hover": { boxShadow: "0 8px 28px rgba(11,94,85,0.14)", transform: "translateY(-2px)", borderColor: "#bae0dc" },
                         }}
                       >
                         <Box sx={{
@@ -762,14 +762,14 @@ const RecipesPage = () => {
 
                     {/* Ingredients */}
                     <Box sx={{ px: 3, py: 2.5 }}>
-                      <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
+                      <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#bae0dc", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
                         Ingredientes
                       </Typography>
                       <Stack spacing={0.9}>
                         {detail.ingredients?.map((ing, i) => (
                           <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
                             <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                              <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#0B5E55", mt: 0.8, flexShrink: 0 }} />
+                              <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#bae0dc", mt: 0.8, flexShrink: 0 }} />
                               <Typography sx={{ fontSize: 14, color: "#3D5A57", lineHeight: 1.5 }}>{ing}</Typography>
                             </Stack>
                           </motion.div>
@@ -791,11 +791,11 @@ const RecipesPage = () => {
                       textTransform: "none", fontWeight: 800, fontSize: 14.5,
                       letterSpacing: "-0.2px",
                       bgcolor: addedToList ? "rgba(16,185,129,0.12)" : "rgba(11,94,85,0.07)",
-                      color: addedToList ? "#059669" : "#0B5E55",
+                      color: addedToList ? "#059669" : "#bae0dc",
                       border: `1.5px solid ${addedToList ? "rgba(16,185,129,0.30)" : "rgba(11,94,85,0.15)"}`,
                       "&:hover": {
                         bgcolor: "rgba(11,94,85,0.12)",
-                        borderColor: "#0B5E55",
+                        borderColor: "#bae0dc",
                       },
                       transition: "all 0.3s ease",
                     }}
@@ -815,7 +815,7 @@ const RecipesPage = () => {
                       disabled={isSaved || saving}
                       startIcon={
                         saving
-                          ? <CircularProgress size={16} sx={{ color: "#0B5E55" }} />
+                          ? <CircularProgress size={16} sx={{ color: "#bae0dc" }} />
                           : isSaved
                             ? <BookmarkRoundedIcon sx={{ fontSize: 19 }} />
                             : <BookmarkBorderRoundedIcon sx={{ fontSize: 19 }} />
@@ -823,12 +823,12 @@ const RecipesPage = () => {
                       sx={{
                         textTransform: "none", fontWeight: 700, fontSize: 13.5,
                         borderRadius: 999, px: 2, py: 0.9,
-                        color: isSaved ? "#0B5E55" : "#4A6B67",
+                        color: isSaved ? "#bae0dc" : "#4A6B67",
                         bgcolor: isSaved ? "rgba(11,94,85,0.08)" : "transparent",
                         border: `1.5px solid ${isSaved ? "rgba(11,94,85,0.25)" : "rgba(11,94,85,0.15)"}`,
-                        "&:hover": { bgcolor: "rgba(11,94,85,0.08)", borderColor: "#0B5E55" },
+                        "&:hover": { bgcolor: "rgba(11,94,85,0.08)", borderColor: "#bae0dc" },
                         "&.Mui-disabled": {
-                          color: isSaved ? "#0B5E55" : "#aaa",
+                          color: isSaved ? "#bae0dc" : "#aaa",
                           borderColor: isSaved ? "rgba(11,94,85,0.25)" : "rgba(0,0,0,0.1)",
                           bgcolor: isSaved ? "rgba(11,94,85,0.08)" : "transparent",
                         },
@@ -855,7 +855,7 @@ const RecipesPage = () => {
                           letterSpacing: "-0.2px",
                           background: activeMod
                             ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}BB 100%)`
-                            : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                            : "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
                           boxShadow: `0 8px 28px ${activeMod?.border || "rgba(11,94,85,0.30)"}`,
                           "&:hover": { transform: "translateY(-2px)", boxShadow: `0 12px 36px ${activeMod?.border || "rgba(11,94,85,0.38)"}` },
                           transition: "all 0.25s ease",
@@ -871,7 +871,7 @@ const RecipesPage = () => {
                         boxShadow: "0 4px 20px rgba(11,94,85,0.08)", overflow: "hidden",
                       }}>
                         <Box sx={{ px: 3, py: 2, bgcolor: "#f7fcfa", borderBottom: "1px solid rgba(11,94,85,0.08)" }}>
-                          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em" }}>
+                          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#bae0dc", textTransform: "uppercase", letterSpacing: "0.09em" }}>
                             Preparación paso a paso
                           </Typography>
                         </Box>
@@ -884,7 +884,7 @@ const RecipesPage = () => {
                                     width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
                                     background: activeMod
                                       ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}CC 100%)`
-                                      : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                                      : "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
                                     display: "flex", alignItems: "center", justifyContent: "center",
                                   }}>
                                     <Typography sx={{ fontSize: 12, fontWeight: 900, color: "#fff" }}>{i + 1}</Typography>
@@ -907,7 +907,7 @@ const RecipesPage = () => {
                                 <Stack direction="row" spacing={1.2} alignItems="flex-start">
                                   <Typography sx={{ fontSize: 18, lineHeight: 1 }}>💡</Typography>
                                   <Box>
-                                    <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: activeMod?.color || "#0B5E55", textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.4 }}>
+                                    <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: activeMod?.color || "#bae0dc", textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.4 }}>
                                       Tip
                                     </Typography>
                                     <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6 }}>
@@ -926,8 +926,8 @@ const RecipesPage = () => {
                         startIcon={<RefreshRoundedIcon />}
                         sx={{
                           mt: 2.5, py: 1.5, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
-                          border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
-                          "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
+                          border: "1.5px solid rgba(11,94,85,0.20)", color: "#bae0dc",
+                          "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#bae0dc" },
                         }}
                       >
                         Nueva receta
@@ -946,7 +946,7 @@ const RecipesPage = () => {
           <motion.div key="saved-tab" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
             {loadingSaved ? (
               <Box sx={{ textAlign: "center", py: 8 }}>
-                <CircularProgress size={32} sx={{ color: "#0B5E55" }} />
+                <CircularProgress size={32} sx={{ color: "#bae0dc" }} />
               </Box>
             ) : savedRecipes.length === 0 ? (
               <Box sx={{ textAlign: "center", py: 10 }}>
@@ -962,7 +962,7 @@ const RecipesPage = () => {
                   variant="contained"
                   sx={{
                     textTransform: "none", fontWeight: 700, borderRadius: 999, px: 3,
-                    background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+                    background: "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
                     boxShadow: "0 6px 20px rgba(11,94,85,0.28)",
                   }}
                 >

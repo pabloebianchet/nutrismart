@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Box, Typography, Button, Paper, Stack, Chip, LinearProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import DiamondOutlinedIcon              from "@mui/icons-material/DiamondOutlined";
@@ -10,7 +10,7 @@ import AccessTimeRoundedIcon            from "@mui/icons-material/AccessTimeRoun
 import { API_URL } from "../config/api";
 
 const C = {
-  brand:        "#0B5E55",
+  brand:        "#bae0dc",
   brandLight:   "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted:   "#B2DDD9",
@@ -24,7 +24,7 @@ const C = {
 };
 
 const PLAN_META = {
-  free:   { name: "Prueba gratuita", Icon: RocketLaunchOutlinedIcon,    color: "#0B5E55", bg: "#E6F5F3", totalDays: 7  },
+  free:   { name: "Prueba gratuita", Icon: RocketLaunchOutlinedIcon,    color: "#bae0dc", bg: "#E6F5F3", totalDays: 7  },
   silver: { name: "Silver",          Icon: DiamondOutlinedIcon,          color: "#71879C", bg: "#EEF2F5", totalDays: 30 },
   gold:   { name: "Gold",            Icon: WorkspacePremiumOutlinedIcon, color: "#C9952A", bg: "#FDF6E3", totalDays: 30 },
 };
@@ -91,7 +91,7 @@ const SubscriptionWidget = () => {
             variant="contained"
             onClick={() => navigate("/pricing")}
             endIcon={<ChevronRightRoundedIcon />}
-            sx={{ bgcolor: "#fff", color: C.brand, fontWeight: 700, fontSize: 13, borderRadius: 2.5, textTransform: "none", px: 2.5, py: 1.1, whiteSpace: "nowrap", "&:hover": { bgcolor: C.brandSurface } }}
+            sx={{ bgcolor: "#fff", color: "#2a6e67", fontWeight: 700, fontSize: 13, borderRadius: 2.5, textTransform: "none", px: 2.5, py: 1.1, whiteSpace: "nowrap", "&:hover": { bgcolor: C.brandSurface } }}
           >
             Ver planes
           </Button>
@@ -128,7 +128,7 @@ const SubscriptionWidget = () => {
             variant="contained"
             onClick={() => navigate("/pricing")}
             endIcon={<ChevronRightRoundedIcon />}
-            sx={{ bgcolor: "#fff", color: C.brand, fontWeight: 700, fontSize: 13, borderRadius: 2.5, textTransform: "none", px: 2.5, py: 1.1, whiteSpace: "nowrap", "&:hover": { bgcolor: C.brandSurface } }}
+            sx={{ bgcolor: "#fff", color: "#2a6e67", fontWeight: 700, fontSize: 13, borderRadius: 2.5, textTransform: "none", px: 2.5, py: 1.1, whiteSpace: "nowrap", "&:hover": { bgcolor: C.brandSurface } }}
           >
             Ver planes
           </Button>
@@ -163,7 +163,7 @@ const SubscriptionWidget = () => {
             <Button
               onClick={() => navigate("/subscription")}
               endIcon={<ChevronRightRoundedIcon sx={{ fontSize: 16 }} />}
-              sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: C.brand } }}
+              sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: "#2a6e67" } }}
             >
               Ver historial
             </Button>
@@ -183,7 +183,7 @@ const SubscriptionWidget = () => {
           ) : (
             <Typography sx={{ fontSize: 13, color: C.textSecondary }}>Tu período venció. Elegí un plan para seguir usando la app.</Typography>
           )}
-          <Button onClick={() => navigate("/pricing")} variant="contained" fullWidth sx={{ mt: 2, bgcolor: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13.5, py: 1.1, "&:hover": { bgcolor: C.brandLight } }}>
+          <Button onClick={() => navigate("/pricing")} variant="contained" fullWidth sx={{ mt: 2, bgcolor: "#2a6e67", borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13.5, py: 1.1, "&:hover": { bgcolor: C.brandLight } }}>
             Ver planes y renovar
           </Button>
         </Box>
@@ -235,7 +235,7 @@ const SubscriptionWidget = () => {
             <Button
               onClick={() => navigate("/subscription")}
               endIcon={<ChevronRightRoundedIcon sx={{ fontSize: 16 }} />}
-              sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: C.brand } }}
+              sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: "#2a6e67" } }}
             >
               Gestionar
             </Button>
@@ -272,7 +272,7 @@ const SubscriptionWidget = () => {
           <Button
             onClick={() => navigate("/pricing")}
             variant="outlined"
-            sx={{ mt: 2, borderColor: C.brand, color: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, py: 1, px: 3, "&:hover": { bgcolor: C.brandSurface } }}
+            sx={{ mt: 2, bordercolor: "#2a6e67", color: "#2a6e67", borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, py: 1, px: 3, "&:hover": { bgcolor: C.brandSurface } }}
           >
             Ver planes →
           </Button>

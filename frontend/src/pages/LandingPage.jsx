@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LandingPage — Premium v2
  * Diseño dinámico, secciones luz/oscuro alternadas, CTAs rellenas
  */
@@ -26,12 +26,14 @@ import AutorenewRoundedIcon      from "@mui/icons-material/AutorenewRounded";
 const C = {
   heroBg:      "#03211F",
   darkBg:      "#042A28",
-  brand:       "#0B5E55",
+  brand:       "#bae0dc",
   brandMid:    "#0f7a6e",
   brandSurf:   "#E6F5F3",
   brandBorder: "rgba(11,94,85,0.15)",
   emerald:     "#10B981",
   emeraldDark: "#059669",
+  orange:      "#ef8e38",
+  orangeDark:  "#d4781e",
   mint:        "#34D399",
   white:       "#FFFFFF",
   cream:       "#F8FBFA",
@@ -85,8 +87,9 @@ const LandingNav = ({ scrolled }) => {
         <Button onClick={() => navigate("/login")} sx={{
           fontSize: 13, fontWeight: 800, textTransform: "none", color: "#fff",
           px: 2.5, py: 0.9, borderRadius: 999,
-          bgcolor: C.emerald,
-          "&:hover": { bgcolor: C.emeraldDark },
+          bgcolor: C.orange,
+          boxShadow: "0 3px 12px rgba(239,142,56,0.35)",
+          "&:hover": { bgcolor: C.orangeDark, boxShadow: "0 5px 18px rgba(239,142,56,0.45)" },
           transition: "all 0.2s",
         }}>
           Empezar gratis
@@ -182,14 +185,14 @@ const HeroSection = ({ onCTA }) => (
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center"
         sx={{ mb: 8, animation: "fadeUp 0.6s 0.3s ease both" }}>
         <Button onClick={onCTA} endIcon={<ArrowForwardRoundedIcon />} sx={{
-          bgcolor: C.emerald, color: "#fff",
+          bgcolor: C.orange, color: "#fff",
           fontWeight: 800, fontSize: 16,
           textTransform: "none",
           px: 4.5, py: 1.7, borderRadius: 999,
-          boxShadow: "none",
+          boxShadow: "0 4px 20px rgba(239,142,56,0.40)",
           "&:hover": {
-            bgcolor: C.emeraldDark,
-            boxShadow: "none",
+            bgcolor: C.orangeDark,
+            boxShadow: "0 8px 28px rgba(239,142,56,0.50)",
             transform: "translateY(-2px)",
           },
           transition: "all 0.25s",
@@ -632,7 +635,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
           }}>
             {/* App header simulado */}
             <Box sx={{
-              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              background: "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
               px: 2.5, py: 2,
             }}>
               <Stack direction="row" alignItems="center" spacing={1} mb={0.4}>
@@ -663,8 +666,8 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                   {/* Checkbox simulado */}
                   <Box sx={{
                     width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
-                    border: `2px solid ${item.checked ? "#0B5E55" : "rgba(11,94,85,0.25)"}`,
-                    bgcolor: item.checked ? "#0B5E55" : "transparent",
+                    border: `2px solid ${item.checked ? "#bae0dc" : "rgba(11,94,85,0.25)"}`,
+                    bgcolor: item.checked ? "#bae0dc" : "transparent",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     {item.checked && <Typography sx={{ fontSize: 9, color: "#fff", lineHeight: 1 }}>✓</Typography>}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Box, Typography, Chip, Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
@@ -11,7 +11,7 @@ import AccessTimeRoundedIcon    from "@mui/icons-material/AccessTimeRounded";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand:       "#0B5E55",
+  brand:       "#bae0dc",
   brandLight:  "#0f7a6e",
   brandSurface:"#E6F5F3",
   brandMuted:  "#B2DDD9",
@@ -32,12 +32,12 @@ const PLANS = [
     priceLabel:"Gratis",
     label:     "Sin tarjeta de crédito",
     Icon:      RocketLaunchRoundedIcon,
-    color:     "#0B5E55",
+    color:     "#bae0dc",
     bg:        "#E6F5F3",
     border:    "rgba(11,94,85,0.25)",
     highlight: false,
     badge:     "Empezá hoy",
-    badgeBg:   "#0B5E55",
+    badgeBg:   "#bae0dc",
     features: [
       feat("🔍", "Análisis de alimentos ilimitados"),
       feat("🍽️", "Recetas YA con IA, ilimitadas"),
@@ -170,7 +170,7 @@ const PricingPage = () => {
           <Chip
             icon={<BoltRoundedIcon sx={{ fontSize: "14px !important", color: `${C.brand} !important` }} />}
             label="Planes y precios"
-            sx={{ mb: 3, bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
+            sx={{ mb: 3, bgcolor: C.brandSurface, color: "#2a6e67", fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
           />
           <Typography variant="h3" fontWeight={900} sx={{
             letterSpacing: "-1.5px", lineHeight: 1.12, mb: 3,
@@ -353,7 +353,7 @@ const PricingPage = () => {
                       disabled={loading === plan.id}
                       onClick={() => handleAction(plan)}
                       sx={{
-                        bgcolor: plan.highlight ? plan.color : C.brand,
+                        bgcolor: plan.highlight ? plan.color : "#2a6e67",
                         borderRadius: 2.5, py: 1.4,
                         textTransform: "none", fontWeight: 700, fontSize: 14.5,
                         boxShadow: plan.highlight

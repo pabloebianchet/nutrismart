@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Typography,
   Button,
@@ -43,7 +43,8 @@ import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel 
    Paleta y tokens de diseño
 ──────────────────────────────────────────── */
 const C = {
-  brand: "#0B5E55",
+  brand: "#bae0dc",
+  brandText: "#2a6e67",
   brandLight: "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
@@ -92,14 +93,14 @@ const StatPill = ({ label, value, icon: Icon, accent }) => (
           width: 32,
           height: 32,
           borderRadius: 2,
-          bgcolor: accent ? C.brand : "rgba(11,94,85,0.08)",
+          bgcolor: accent ? C.brand : "rgba(186,224,220,0.20)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
         }}
       >
-        <Icon sx={{ fontSize: 16, color: accent ? "#fff" : C.brand }} />
+        <Icon sx={{ fontSize: 16, color: accent ? "#0F2420" : C.brandText }} />
       </Box>
     )}
     <Box sx={{ minWidth: 0 }}>
@@ -244,7 +245,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
         <Chip
           label={`Promedio ${Math.round(history.reduce((s, i) => s + (i.score ?? 0), 0) / history.length)}/100`}
           size="small"
-          sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
+          sx={{ bgcolor: C.brandSurface, color: C.brandText, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
         />
       </Box>
 
@@ -366,7 +367,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                     {/* Parsed sections */}
                     {parsed?.classification && (
                       <Box mb={1.5}>
-                        <Typography sx={{ fontSize: 10, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
+                        <Typography sx={{ fontSize: 10, fontWeight: 800, color: C.brandText, textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
                           Clasificación
                         </Typography>
                         <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
@@ -425,7 +426,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
               textTransform: "none",
               fontWeight: 700,
               fontSize: 13.5,
-              color: C.brand,
+              color: C.brandText,
               borderRadius: 999,
               px: 3, py: 0.8,
               "&:hover": { bgcolor: C.brandSurface },
@@ -526,7 +527,7 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
           <Stack direction="row" alignItems="flex-start" spacing={2} mb={1.8}>
             <Box sx={{
               width: 44, height: 44, borderRadius: 3, flexShrink: 0,
-              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              background: "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 4px 14px rgba(11,94,85,0.28)",
             }}>
@@ -547,9 +548,9 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
             fullWidth
             sx={{
               textTransform: "none", fontWeight: 700, fontSize: 13.5,
-              color: "#0B5E55", borderRadius: 999,
+              color: "#bae0dc", borderRadius: 999,
               border: "1.5px solid rgba(11,94,85,0.25)", py: 1,
-              "&:hover": { bgcolor: "rgba(11,94,85,0.06)", borderColor: "#0B5E55" },
+              "&:hover": { bgcolor: "rgba(11,94,85,0.06)", borderColor: "#bae0dc" },
             }}
           >
             Analizar un producto ahora →
@@ -588,7 +589,7 @@ const PlanCard = ({ data, navigate }) => {
   const sessionPct = Math.min(100, Math.round((sessCount / expectedSessions) * 100));
   const timePct    = total > 1 ? Math.min(100, Math.round((elapsed / total) * 100)) : 0;
   const pct        = Math.max(sessionPct, timePct);
-  const meta      = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
+  const meta      = TIPO_META[cfg.tipo] || { color: "#bae0dc", bg: "#E6F5F3", emoji: "🏋️" };
 
   return (
     <Box sx={{
@@ -714,7 +715,7 @@ const EntrenamientoWidget = () => {
       }}>
         <Box sx={{
           p: { xs: 3.5, md: 4.5 },
-          background: "linear-gradient(145deg, #1a2f2a 0%, #0d3d34 50%, #0B5E55 100%)",
+          background: "linear-gradient(145deg, #1a2f2a 0%, #0d3d34 50%, #bae0dc 100%)",
           position: "relative", overflow: "hidden",
         }}>
           <Box sx={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
@@ -749,7 +750,7 @@ const EntrenamientoWidget = () => {
             </Stack>
 
             <Button variant="contained" onClick={() => navigate("/training")} sx={{
-              bgcolor: "#fff", color: "#0B5E55", borderRadius: 999,
+              bgcolor: "#fff", color: "#bae0dc", borderRadius: 999,
               px: 3.5, py: 1.3, textTransform: "none", fontWeight: 800, fontSize: 14.5,
               boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
               "&:hover": { bgcolor: "#edf8f5", boxShadow: "0 8px 28px rgba(0,0,0,0.22)", transform: "translateY(-1px)" },
@@ -791,7 +792,7 @@ const EntrenamientoWidget = () => {
           <Chip
             label="2 activos"
             size="small"
-            sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
+            sx={{ bgcolor: C.brandSurface, color: C.brandText, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
           />
         </Box>
 
@@ -813,7 +814,7 @@ const EntrenamientoWidget = () => {
   const pct      = Math.min(100, Math.round((elapsed / total) * 100));
   const week     = Math.max(1, Math.ceil((elapsed + 1) / 7));
   const sessCount = activeData.sessions?.length || 0;
-  const meta     = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
+  const meta     = TIPO_META[cfg.tipo] || { color: "#bae0dc", bg: "#E6F5F3", emoji: "🏋️" };
 
   return (
     <Paper elevation={0} sx={{
@@ -936,7 +937,7 @@ const RecetasYABanner = () => {
       <Box
         sx={{
           p: { xs: 3.5, md: 5 },
-          background: "linear-gradient(145deg, #0B5E55 0%, #0d7268 60%, #0f8a7c 100%)",
+          background: "linear-gradient(145deg, #bae0dc 0%, #0d7268 60%, #0f8a7c 100%)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -987,7 +988,7 @@ const RecetasYABanner = () => {
             onClick={() => navigate("/recipes")}
             sx={{
               bgcolor: "#fff",
-              color: "#0B5E55",
+              color: "#bae0dc",
               borderRadius: 999,
               px: 3.5, py: 1.3,
               textTransform: "none",
@@ -1050,7 +1051,7 @@ const RecetasYABanner = () => {
                 label={m}
                 size="small"
                 onClick={() => navigate("/recipes")}
-                sx={{ bgcolor: "#fff", border: `1px solid ${C.border}`, fontWeight: 600, fontSize: 12, color: C.textSecondary, cursor: "pointer", "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted } }}
+                sx={{ bgcolor: "#fff", border: `1px solid ${C.border}`, fontWeight: 600, fontSize: 12, color: C.textSecondary, cursor: "pointer", "&:hover": { bgcolor: C.brandSurface, bordercolor: C.brandTextMuted } }}
               />
             ))}
           </Stack>
@@ -1311,7 +1312,7 @@ const ShoppingListWidget = () => {
         <Box
           sx={{
             p: { xs: 3, md: 3.5 },
-            background: "linear-gradient(145deg, #042A28 0%, #0B5E55 100%)",
+            background: "linear-gradient(145deg, #042A28 0%, #bae0dc 100%)",
             position: "relative",
             overflow: "hidden",
           }}
@@ -1370,7 +1371,7 @@ const ShoppingListWidget = () => {
                   sx={{
                     minWidth: 44, width: 44, height: 40, p: 0, borderRadius: 2.5, flexShrink: 0,
                     bgcolor: newItem.trim() ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.15)",
-                    color: newItem.trim() ? "#0B5E55" : "rgba(255,255,255,0.45)",
+                    color: newItem.trim() ? "#bae0dc" : "rgba(255,255,255,0.45)",
                     "&:hover": { bgcolor: "#fff" },
                     transition: "all 0.2s",
                   }}
@@ -1385,7 +1386,7 @@ const ShoppingListWidget = () => {
               variant="contained"
               onClick={() => setDrawerOpen(true)}
               sx={{
-                bgcolor: "#fff", color: "#0B5E55",
+                bgcolor: "#fff", color: "#bae0dc",
                 borderRadius: 999, px: 3, py: 1.2,
                 textTransform: "none", fontWeight: 800, fontSize: 14,
                 boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
@@ -1421,9 +1422,9 @@ const ShoppingListWidget = () => {
                 onClick={() => navigate("/recipes")}
                 sx={{
                   mt: 2, textTransform: "none", fontWeight: 700, fontSize: 13,
-                  color: C.brand, borderRadius: 999,
+                  color: C.brandText, borderRadius: 999,
                   border: `1.5px solid rgba(11,94,85,0.20)`, px: 2.5, py: 0.8,
-                  "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
+                  "&:hover": { bgcolor: C.brandSurface, bordercolor: C.brandText },
                 }}
               >
                 Ir a Recetas YA →
@@ -1439,7 +1440,7 @@ const ShoppingListWidget = () => {
               {completed > 0 && (
                 <Box sx={{ mb: 2, bgcolor: "rgba(11,94,85,0.10)", borderRadius: 999, height: 5, overflow: "hidden" }}>
                   <Box sx={{
-                    height: "100%", borderRadius: 999, bgcolor: "#0B5E55",
+                    height: "100%", borderRadius: 999, bgcolor: "#bae0dc",
                     width: `${Math.round((completed / items.length) * 100)}%`,
                     transition: "width 0.4s ease",
                   }} />
@@ -1466,8 +1467,8 @@ const ShoppingListWidget = () => {
                     <Box
                       sx={{
                         width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
-                        border: `2px solid ${item.checked ? "#0B5E55" : "rgba(11,94,85,0.25)"}`,
-                        bgcolor: item.checked ? "#0B5E55" : "transparent",
+                        border: `2px solid ${item.checked ? "#bae0dc" : "rgba(11,94,85,0.25)"}`,
+                        bgcolor: item.checked ? "#bae0dc" : "transparent",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         transition: "all 0.2s",
                       }}
@@ -1495,10 +1496,10 @@ const ShoppingListWidget = () => {
                   onClick={() => setDrawerOpen(true)}
                   sx={{
                     mt: 1.5, textTransform: "none", fontWeight: 700, fontSize: 13,
-                    color: C.brand, borderRadius: 999,
+                    color: C.brandText, borderRadius: 999,
                     border: `1.5px solid rgba(11,94,85,0.18)`, px: 2, py: 0.7,
                     alignSelf: "flex-start",
-                    "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
+                    "&:hover": { bgcolor: C.brandSurface, bordercolor: C.brandText },
                   }}
                 >
                   + {items.length - 4} item{items.length - 4 !== 1 ? "s" : ""} más →
@@ -1709,7 +1710,7 @@ const Dashboard = () => {
             borderRadius: "50%",
             bgcolor: C.brandSurface,
             border: `3px solid ${C.brandMuted}`,
-            borderTopColor: C.brand,
+            borderTopcolor: C.brandText,
             animation: "spin 0.8s linear infinite",
             "@keyframes spin": { to: { transform: "rotate(360deg)" } },
           }}
@@ -1747,7 +1748,7 @@ const Dashboard = () => {
             sx={{
               width: 52,
               height: 52,
-              bgcolor: C.brand,
+              bgcolor: C.brandText,
               fontSize: 18,
               fontWeight: 700,
               boxShadow: `0 0 0 3px ${C.brandMuted}`,
@@ -1813,8 +1814,8 @@ const Dashboard = () => {
               sx={{
                 borderRadius: 999,
                 textTransform: "none",
-                borderColor: C.brand,
-                color: C.brand,
+                bordercolor: C.brandText,
+                color: C.brandText,
                 fontWeight: 600,
                 fontSize: 13,
                 "&:hover": { bgcolor: C.brandSurface },
@@ -1844,7 +1845,7 @@ const Dashboard = () => {
               overflow: "hidden",
               border: "1.5px solid rgba(46,204,113,0.20)",
               boxShadow: "0 4px 24px rgba(11,94,85,0.14)",
-              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              background: "linear-gradient(135deg, #bae0dc 0%, #0f7a6e 100%)",
               position: "relative",
               minHeight: 160,
               "@keyframes breatheMascot": {
@@ -1959,7 +1960,7 @@ const Dashboard = () => {
               sx={{
                 fontSize: 32,
                 fontWeight: 900,
-                color: C.brand,
+                color: C.brandText,
                 lineHeight: 1,
               }}
             >
@@ -2100,7 +2101,7 @@ const Dashboard = () => {
                 justifyContent: "center",
               }}
             >
-              <PersonOutlineRoundedIcon sx={{ fontSize: 18, color: C.brand }} />
+              <PersonOutlineRoundedIcon sx={{ fontSize: 18, color: C.brandText }} />
             </Box>
             <Box>
               <Typography
@@ -2121,7 +2122,7 @@ const Dashboard = () => {
               size="small"
               sx={{
                 textTransform: "none",
-                color: C.brand,
+                color: C.brandText,
                 fontWeight: 600,
                 fontSize: 13,
                 borderRadius: 999,
@@ -2259,7 +2260,7 @@ const Dashboard = () => {
                   disabled={savingProfile}
                   sx={{
                     borderRadius: 999,
-                    bgcolor: C.brand,
+                    bgcolor: C.brandText,
                     textTransform: "none",
                     fontWeight: 600,
                     px: 3,
@@ -2386,7 +2387,7 @@ const Dashboard = () => {
             onClick={() => navigate("/capture")}
             sx={{
               bgcolor: "#fff",
-              color: C.brand,
+              color: C.brandText,
               borderRadius: 999,
               px: 4,
               py: 1.4,
@@ -2416,7 +2417,7 @@ const Dashboard = () => {
               height: 36,
               borderRadius: "50%",
               border: `3px solid ${C.brandMuted}`,
-              borderTopColor: C.brand,
+              borderTopcolor: C.brandText,
               animation: "spin 0.8s linear infinite",
               "@keyframes spin": { to: { transform: "rotate(360deg)" } },
               mx: "auto",
@@ -2451,7 +2452,7 @@ const Dashboard = () => {
               mb: 2,
             }}
           >
-            <TrendingUpRoundedIcon sx={{ fontSize: 28, color: C.brand }} />
+            <TrendingUpRoundedIcon sx={{ fontSize: 28, color: C.brandText }} />
           </Box>
           <Typography
             sx={{
@@ -2470,7 +2471,7 @@ const Dashboard = () => {
             variant="contained"
             onClick={() => navigate("/capture")}
             sx={{
-              bgcolor: C.brand,
+              bgcolor: C.brandText,
               borderRadius: 999,
               textTransform: "none",
               fontWeight: 600,
@@ -2502,13 +2503,13 @@ const Dashboard = () => {
 const inputSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: 3,
-    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: C.brand },
+    "&:hover .MuiOutlinedInput-notchedOutline": { bordercolor: C.brandText },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: C.brand,
+      bordercolor: C.brandText,
       borderWidth: 1.5,
     },
   },
-  "& .MuiInputLabel-root.Mui-focused": { color: C.brand },
+  "& .MuiInputLabel-root.Mui-focused": { color: C.brandText },
 };
 
 export default Dashboard;

@@ -1,4 +1,4 @@
-import { Box, Typography, Stack } from "@mui/material";
+﻿import { Box, Typography, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const year = new Date().getFullYear();
@@ -31,7 +31,7 @@ export default function AppFooter() {
     <Box
       component="footer"
       sx={{
-        background: "#0B5E55",
+        background: "#bae0dc",
         mt: "auto",
         pt: 3,
         pb: { xs: "96px", sm: 3 },

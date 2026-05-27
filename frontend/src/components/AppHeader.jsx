@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Avatar, Box, Drawer, IconButton, Typography } from "@mui/material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
@@ -36,7 +36,7 @@ const PUBLIC_NAV = [
 ];
 
 const C = {
-  brand:       "#0B5E55",
+  brand:       "#bae0dc",
   brandMuted:  "#B2DDD9",
   brandSurface:"#E6F5F3",
   textPrimary: "#0F2420",
@@ -112,16 +112,16 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
                 borderRadius: "999px",
                 fontSize: 13.5,
                 fontWeight: active ? 700 : 500,
-                color: active ? "#fff" : C.textSecondary,
+                color: active ? "#0F2420" : C.textSecondary,
                 bgcolor: active ? C.brand : "transparent",
                 textDecoration: "none",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
                 transition: "all 0.18s ease",
-                boxShadow: active ? "0 3px 10px rgba(11,94,85,0.30)" : "none",
+                boxShadow: active ? "0 3px 10px rgba(186,224,220,0.50)" : "none",
                 "&:hover": active ? {} : {
-                  bgcolor: "rgba(11,94,85,0.08)",
-                  color: C.brand,
+                  bgcolor: "rgba(186,224,220,0.25)",
+                  color: "#2d7a72",
                 },
               }}
             >
@@ -242,12 +242,12 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
             sx={{
               display: "flex", alignItems: "center", gap: 0.8,
               px: 2, py: 0.75, borderRadius: 999,
-              bgcolor: C.brand, color: "#fff",
+              bgcolor: "#ef8e38", color: "#fff",
               fontSize: 13.5, fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 3px 12px rgba(11,94,85,0.28)",
+              boxShadow: "0 3px 12px rgba(239,142,56,0.32)",
               transition: "all 0.18s",
-              "&:hover": { bgcolor: C.brandLight, transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(11,94,85,0.35)" },
+              "&:hover": { bgcolor: "#d4781e", transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(239,142,56,0.42)" },
             }}
           >
             Iniciar sesión →
@@ -314,9 +314,9 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
             sx={{
               width: 34,
               height: 34,
-              bgcolor: "rgba(11,94,85,0.08)",
-              color: C.brand,
-              "&:hover": { bgcolor: C.brand, color: "#fff" },
+              bgcolor: "rgba(186,224,220,0.25)",
+              color: "#2d7a72",
+              "&:hover": { bgcolor: C.brand, color: "#0F2420" },
               transition: "all 0.2s",
             }}
           >
@@ -386,9 +386,9 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
               sx={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 p: 1.8, borderRadius: 3, textDecoration: "none",
-                bgcolor: C.brand, color: "#fff",
+                bgcolor: "#ef8e38", color: "#fff",
                 fontWeight: 800, fontSize: 15,
-                boxShadow: "0 4px 16px rgba(11,94,85,0.28)",
+                boxShadow: "0 4px 16px rgba(239,142,56,0.32)",
               }}
             >
               Iniciar sesión →
@@ -416,22 +416,22 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
                   textDecoration: "none",
                   bgcolor: active ? C.brand : "transparent",
                   transition: "all 0.18s",
-                  "&:hover": active ? {} : { bgcolor: "rgba(11,94,85,0.07)" },
+                  "&:hover": active ? {} : { bgcolor: "rgba(186,224,220,0.20)" },
                 }}
               >
                 <Box
                   sx={{
                     width: 36, height: 36, borderRadius: 2, flexShrink: 0,
-                    bgcolor: active ? "rgba(255,255,255,0.18)" : C.brandSurface,
+                    bgcolor: active ? "rgba(0,0,0,0.10)" : C.brandSurface,
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}
                 >
-                  <Icon sx={{ fontSize: 18, color: active ? "#fff" : C.brand }} />
+                  <Icon sx={{ fontSize: 18, color: active ? "#0F2420" : "#2d7a72" }} />
                 </Box>
-                <Typography sx={{ fontSize: 15, fontWeight: active ? 700 : 500, color: active ? "#fff" : C.textPrimary, flex: 1 }}>
+                <Typography sx={{ fontSize: 15, fontWeight: active ? 700 : 500, color: active ? "#0F2420" : C.textPrimary, flex: 1 }}>
                   {label}
                 </Typography>
-                <KeyboardArrowRightRoundedIcon sx={{ fontSize: 18, color: active ? "rgba(255,255,255,0.5)" : C.textMuted }} />
+                <KeyboardArrowRightRoundedIcon sx={{ fontSize: 18, color: active ? "rgba(0,0,0,0.35)" : C.textMuted }} />
               </Box>
             );
           })}

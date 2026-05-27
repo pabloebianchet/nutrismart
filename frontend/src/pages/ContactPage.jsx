@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Box, Typography, Chip, TextField, Button, Stack, CircularProgress } from "@mui/material";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
@@ -8,7 +8,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { API_URL } from "../config/api";
 
 const C = {
-  brand: "#0B5E55",
+  brand: "#bae0dc",
   brandLight: "#0f7a6e",
   brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9",
@@ -27,9 +27,9 @@ const fieldSx = {
     bgcolor: "#fafefd",
     "& fieldset": { borderColor: C.border },
     "&:hover fieldset": { borderColor: C.brandMuted },
-    "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 },
+    "&.Mui-focused fieldset": { bordercolor: "#2a6e67", borderWidth: 1.5 },
   },
-  "& .MuiInputLabel-root.Mui-focused": { color: C.brand },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#2a6e67" },
 };
 
 const ContactPage = () => {
@@ -138,7 +138,7 @@ const ContactPage = () => {
             sx={{
               mb: 3,
               bgcolor: C.brandSurface,
-              color: C.brand,
+              color: "#2a6e67",
               fontWeight: 700,
               fontSize: 12,
               border: `1px solid ${C.brandMuted}`,
@@ -352,7 +352,7 @@ const ContactPage = () => {
                   }}
                 >
                   <CheckCircleRoundedIcon
-                    sx={{ fontSize: 36, color: C.brand }}
+                    sx={{ fontSize: 36, color: "#2a6e67" }}
                   />
                 </Box>
                 <Typography
@@ -460,7 +460,7 @@ const ContactPage = () => {
                     fullWidth
                     sx={{
                       mt: 0.5,
-                      bgcolor: C.brand,
+                      bgcolor: "#2a6e67",
                       borderRadius: 2.5,
                       py: 1.6,
                       textTransform: "none",

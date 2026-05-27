@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TrialGate
  * ─────────────────────────────────────────────────────────────────────────────
  * Maneja dos escenarios de acceso bloqueado:
@@ -66,7 +66,7 @@ const TrialExpiredOverlay = () => {
         width: 64, height: 64, borderRadius: "50%", bgcolor: "rgba(11,94,85,0.10)",
         display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 2.5,
       }}>
-        <LockRoundedIcon sx={{ fontSize: 30, color: "#0B5E55" }} />
+        <LockRoundedIcon sx={{ fontSize: 30, color: "#bae0dc" }} />
       </Box>
 
       <Typography sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", mb: 1 }}>
@@ -140,7 +140,7 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
         <Button fullWidth variant="contained"
           onClick={() => navigate("/pricing")}
           sx={{
-            bgcolor: "#0B5E55", borderRadius: 2.5, py: 1.4,
+            bgcolor: "#bae0dc", borderRadius: 2.5, py: 1.4,
             textTransform: "none", fontWeight: 700, fontSize: 15,
             boxShadow: "0 4px 16px rgba(11,94,85,0.30)",
             "&:hover": { bgcolor: "#0f7a6e" },
