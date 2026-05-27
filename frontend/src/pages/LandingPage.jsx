@@ -1199,21 +1199,50 @@ const FinalCTA = ({ onCTA }) => (
 const LandingFooter = () => (
   <Box sx={{ background: C.heroBg, borderTop: "1px solid rgba(255,255,255,0.05)",
     py: 5, px: { xs: 2.5, sm: 5, md: 8 } }}>
-    <Box sx={{ maxWidth: 1100, mx: "auto", display: "flex", alignItems: "center",
-      justifyContent: "space-between", flexDirection: { xs: "column", sm: "row" }, gap: 3 }}>
-      <Box component="img" src="/img/logo_landing.png" alt="Nui" sx={{ height: 28, opacity: 0.55 }} />
-      <Stack direction="row" spacing={4} flexWrap="wrap" justifyContent="center">
-        {[["Privacidad", "/privacidad"], ["Términos", "/terminos"], ["Contacto", "/contact"], ["Precios", "/pricing"]].map(([label, path]) => (
-          <Box key={label} component={Link} to={path}
-            sx={{ fontSize: 13, color: "rgba(255,255,255,0.32)", textDecoration: "none", fontWeight: 500,
-              "&:hover": { color: "rgba(255,255,255,0.70)" }, transition: "color 0.2s" }}>
-            {label}
-          </Box>
-        ))}
-      </Stack>
-      <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.20)", fontWeight: 500 }}>
-        © {new Date().getFullYear()} Nui
-      </Typography>
+    <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+
+      {/* Fila principal */}
+      <Box sx={{ display: "flex", alignItems: "center",
+        justifyContent: "space-between", flexDirection: { xs: "column", sm: "row" }, gap: 3 }}>
+        <Box component="img" src="/img/logo_landing.png" alt="Nui" sx={{ height: 28, opacity: 0.55 }} />
+        <Stack direction="row" spacing={4} flexWrap="wrap" justifyContent="center">
+          {[["Privacidad", "/privacidad"], ["Términos", "/terminos"], ["Contacto", "/contact"], ["Precios", "/pricing"]].map(([label, path]) => (
+            <Box key={label} component={Link} to={path}
+              sx={{ fontSize: 13, color: "rgba(255,255,255,0.32)", textDecoration: "none", fontWeight: 500,
+                "&:hover": { color: "rgba(255,255,255,0.70)" }, transition: "color 0.2s" }}>
+              {label}
+            </Box>
+          ))}
+        </Stack>
+        <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.20)", fontWeight: 500 }}>
+          © {new Date().getFullYear()} Nui
+        </Typography>
+      </Box>
+
+      {/* Cumplimiento normativo */}
+      <Box sx={{ mt: 3, pt: 2.5, borderTop: "1px solid rgba(255,255,255,0.06)",
+        display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: { xs: 1.5, sm: 3 } }}>
+        <Box component="a" href="https://www.argentina.gob.ar/produccion/defensadelconsumidor"
+          target="_blank" rel="noopener noreferrer"
+          sx={{ fontSize: 11, color: "rgba(255,255,255,0.28)", textDecoration: "none",
+            "&:hover": { color: "rgba(255,255,255,0.60)" }, transition: "color 0.2s" }}>
+          🛡️ Defensa del Consumidor
+        </Box>
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.15)", userSelect: "none" }}>·</Typography>
+        <Box component="a" href="tel:08006661518"
+          sx={{ fontSize: 11, color: "rgba(255,255,255,0.28)", textDecoration: "none",
+            "&:hover": { color: "rgba(255,255,255,0.60)" }, transition: "color 0.2s" }}>
+          0800-666-1518
+        </Box>
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.15)", userSelect: "none" }}>·</Typography>
+        <Box component="a" href="https://www.argentina.gob.ar/produccion/defensadelconsumidor/formulario"
+          target="_blank" rel="noopener noreferrer"
+          sx={{ fontSize: 11, color: "rgba(255,255,255,0.28)", textDecoration: "none",
+            "&:hover": { color: "rgba(255,255,255,0.60)" }, transition: "color 0.2s" }}>
+          Botón de arrepentimiento
+        </Box>
+      </Box>
+
     </Box>
   </Box>
 );
