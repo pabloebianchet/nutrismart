@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Chip, Button, Stack, Paper, Divider, Switch, Alert } from "@mui/material";
+import { Box, Typography, Chip, Button, Stack, Paper, Divider, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
@@ -7,7 +7,6 @@ import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOu
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { API_URL } from "../config/api";
@@ -65,9 +64,6 @@ const SubscriptionPage = () => {
 
   const [sub, setSub]               = useState(null);
   const [loading, setLoading]       = useState(true);
-  const [cancelling, setCancelling] = useState(false);
-  const [togglingRenew, setTogglingRenew] = useState(false);
-  const [confirmCancel, setConfirmCancel] = useState(false);
 
   const token = localStorage.getItem("nutrismartToken");
   const headers = { Authorization: `Bearer ${token}` };
@@ -81,24 +77,6 @@ const SubscriptionPage = () => {
       .finally(() => setLoading(false));
   }, [user]);
 
-  const handleToggleRenew = async () => {
-    setTogglingRenew(true);
-    try {
-      const res  = await fetch(`${API_URL}/api/payments/toggle-renew`, { method: "POST", headers });
-      const data = await res.json();
-      setSub((p) => ({ ...p, autoRenew: data.autoRenew }));
-    } catch {} finally { setTogglingRenew(false); }
-  };
-
-  const handleCancel = async () => {
-    setCancelling(true);
-    try {
-      const res  = await fetch(`${API_URL}/api/payments/cancel`, { method: "POST", headers });
-      const data = await res.json();
-      if (res.ok) setSub((p) => ({ ...p, status: "cancelled", autoRenew: false }));
-      else alert(data.error);
-    } catch {} finally { setCancelling(false); setConfirmCancel(false); }
-  };
 
   if (loading) {
     return (
@@ -269,44 +247,6 @@ const SubscriptionPage = () => {
               </Paper>
             )}
 
-            {/* ── Cancelar (solo si activa) ── */}
-            {isActive && (
-              <Paper elevation={0} sx={{ p: 3.5, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md, animation: "fadeUp 0.5s 0.2s ease both" }}>
-                {!confirmCancel ? (
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
-                    <Box>
-                      <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary, mb: 0.3 }}>Cancelar suscripción</Typography>
-                      <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
-                        Seguís con acceso hasta el {formatDate(sub.endDate)}.
-                      </Typography>
-                    </Box>
-                    <Button
-                      startIcon={<CancelOutlinedIcon sx={{ fontSize: 16 }} />}
-                      onClick={() => setConfirmCancel(true)}
-                      sx={{ textTransform: "none", color: C.danger, fontWeight: 600, fontSize: 13, borderRadius: 2, px: 2, border: `1px solid ${C.dangerSurface}`, "&:hover": { bgcolor: C.dangerSurface } }}
-                    >
-                      Cancelar plan
-                    </Button>
-                  </Stack>
-                ) : (
-                  <Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, color: C.textPrimary, mb: 1 }}>¿Confirmar cancelación?</Typography>
-                    <Typography sx={{ fontSize: 13.5, color: C.textSecondary, mb: 2.5, lineHeight: 1.6 }}>
-                      Tu acceso continúa hasta el <strong>{formatDate(sub.endDate)}</strong>. Después de esa fecha perdés los beneficios del plan.
-                    </Typography>
-                    <Stack direction="row" spacing={1.5}>
-                      <Button onClick={() => setConfirmCancel(false)} sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, borderRadius: 2, border: `1px solid ${C.border}`, px: 2.5 }}>
-                        No, mantener
-                      </Button>
-                      <Button onClick={handleCancel} disabled={cancelling} variant="contained"
-                        sx={{ textTransform: "none", bgcolor: C.danger, fontWeight: 700, borderRadius: 2, px: 2.5, "&:hover": { bgcolor: "#c73f3e" } }}>
-                        {cancelling ? "Cancelando..." : "Sí, cancelar"}
-                      </Button>
-                    </Stack>
-                  </Box>
-                )}
-              </Paper>
-            )}
 
             {/* ── Renovar / reactivar (si cancelado) ── */}
             {isCancelled && (
