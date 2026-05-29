@@ -19,7 +19,7 @@ import { useNutrition }           from "../context/NutritionContext";
 import { useLocation }            from "react-router-dom";
 import { API_URL }                from "../config/api";
 import ShoppingListDrawer, { ShoppingFab } from "../components/ShoppingListDrawer";
-import { parseIngredient, mergeIngredients, loadList, saveList } from "../utils/shoppingList";
+import { parseIngredient, mergeIngredients, loadList, saveList, fetchListFromServer, syncListToServer } from "../utils/shoppingList";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -314,7 +314,7 @@ const RecipesPage = () => {
   // shopping list
   const [shoppingList,    setShoppingList]    = useState(() => loadList());
   const [drawerOpen,      setDrawerOpen]      = useState(false);
-  const [addedToList,     setAddedToList]     = useState(false); // feedback inmediato
+  const [addedToList,     setAddedToList]     = useState(false);
 
   const token       = localStorage.getItem("nutrismartToken");
   const canGenerate = modalidad && momento;
@@ -340,6 +340,16 @@ const RecipesPage = () => {
   };
 
   useEffect(() => { fetchSaved(); }, []); // eslint-disable-line
+
+  // Cargar lista de compras desde el servidor al montar (sync entre dispositivos)
+  useEffect(() => {
+    fetchListFromServer(token).then((serverItems) => {
+      if (serverItems && serverItems.length > 0) {
+        setShoppingList(serverItems);
+        saveList(serverItems); // actualizar caché local
+      }
+    });
+  }, []); // eslint-disable-line
 
   // ── fetch suggestions ──
   const handleGenerate = async () => {
@@ -445,14 +455,20 @@ const RecipesPage = () => {
   };
 
   // ── add ingredients to shopping list ──
+  // Helper centralizado para actualizar la lista: localStorage + servidor
+  const updateList = (next) => {
+    setShoppingList(next);
+    saveList(next);
+    syncListToServer(token, next);
+  };
+
   const handleAddToList = () => {
     if (!detail?.ingredients?.length) return;
     const newItems = detail.ingredients.map((ing) =>
       parseIngredient(ing, detail.name)
     );
     const merged = mergeIngredients(shoppingList, newItems);
-    setShoppingList(merged);
-    saveList(merged);
+    updateList(merged);
     setAddedToList(true);
     setTimeout(() => setAddedToList(false), 2500);
     setSnackMsg(`🛒 ${newItems.length} ingrediente${newItems.length > 1 ? "s" : ""} agregado${newItems.length > 1 ? "s" : ""} a tu lista`);
@@ -1085,7 +1101,7 @@ const RecipesPage = () => {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         items={shoppingList}
-        setItems={setShoppingList}
+        setItems={updateList}
       />
 
       {/* ── Snackbar ── */}

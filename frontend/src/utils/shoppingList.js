@@ -116,7 +116,7 @@ export const formatItemLabel = (item) => {
   return `${qty} ${unit}${item.name}`.trim();
 };
 
-/* ─── localStorage ───────────────────────────────────────────────── */
+/* ─── localStorage (caché local) ────────────────────────────────── */
 export const loadList = () => {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -127,4 +127,34 @@ export const loadList = () => {
 
 export const saveList = (items) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+};
+
+/* ─── Sync con servidor ──────────────────────────────────────────── */
+import { API_URL } from "../config/api";
+
+export const fetchListFromServer = async (token) => {
+  try {
+    const res  = await fetch(`${API_URL}/api/shopping-list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data.items) ? data.items : null;
+  } catch {
+    return null;
+  }
+};
+
+let _syncTimer = null;
+export const syncListToServer = (token, items) => {
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(async () => {
+    try {
+      await fetch(`${API_URL}/api/shopping-list`, {
+        method:  "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body:    JSON.stringify({ items }),
+      });
+    } catch {}
+  }, 800); // debounce 800ms
 };

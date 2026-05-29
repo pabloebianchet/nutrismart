@@ -21,7 +21,7 @@ import ShoppingCartRoundedIcon  from "@mui/icons-material/ShoppingCartRounded";
 import DeleteSweepRoundedIcon   from "@mui/icons-material/DeleteSweepRounded";
 import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { motion, AnimatePresence } from "framer-motion";
-import { saveList, formatItemLabel, parseIngredient, mergeIngredients } from "../utils/shoppingList";
+import { formatItemLabel, parseIngredient, mergeIngredients } from "../utils/shoppingList";
 
 /* ─── FAB flotante ──────────────────────────────────────────────────────────── */
 export const ShoppingFab = ({ count, onClick }) => (
@@ -157,26 +157,19 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
 
   /* ── handlers ── */
   const handleToggle = (id, checked) => {
-    const next = items.map((i) => (i._id === id ? { ...i, checked } : i));
-    setItems(next);
-    saveList(next);
+    setItems(items.map((i) => (i._id === id ? { ...i, checked } : i)));
   };
 
   const handleRemove = (id) => {
-    const next = items.filter((i) => i._id !== id);
-    setItems(next);
-    saveList(next);
+    setItems(items.filter((i) => i._id !== id));
   };
 
   const handleClearCompleted = () => {
-    const next = items.filter((i) => !i.checked);
-    setItems(next);
-    saveList(next);
+    setItems(items.filter((i) => !i.checked));
   };
 
   const handleClearAll = () => {
     setItems([]);
-    saveList([]);
     setConfirmClear(false);
   };
 
@@ -184,10 +177,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
     e.preventDefault();
     const txt = newItem.trim();
     if (!txt) return;
-    const parsed = parseIngredient(txt, "Manual");
-    const merged = mergeIngredients(items, [parsed]);
-    setItems(merged);
-    saveList(merged);
+    setItems(mergeIngredients(items, [parseIngredient(txt, "Manual")]));
     setNewItem("");
     inputRef.current?.focus();
   };
