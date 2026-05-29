@@ -322,15 +322,18 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   try {
     const openai   = getOpenAI();
     const response = await openai.images.generate({
-      model:   "gpt-image-1",
+      model:              "gpt-image-2",
       prompt,
-      n:       1,
-      size:    "1536x1024",
-      quality: "medium",
+      n:                  1,
+      size:               "1536x1024",
+      quality:            "medium",
+      output_format:      "jpeg",
+      output_compression: 80,
     });
 
     const item = response.data[0];
-    const imageUrl = item.url ?? (item.b64_json ? `data:image/png;base64,${item.b64_json}` : null);
+    const imageUrl = item.url
+      ?? (item.b64_json ? `data:image/jpeg;base64,${item.b64_json}` : null);
     if (!imageUrl) return res.status(500).json({ error: "Sin imagen." });
 
     const result = { imageUrl };
