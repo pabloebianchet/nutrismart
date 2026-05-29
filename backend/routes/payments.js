@@ -6,7 +6,7 @@ import User from "../models/User.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
-import { logInfo, logWarn, logError } from "../utils/logger.js";
+import { logInfo, logError } from "../utils/logger.js";
 
 /* ─── Validación de firma de webhook MP ─────────────────────────────────── */
 const verifyMPSignature = (req) => {
@@ -123,20 +123,10 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
 
     const mpData = await mpRes.json();
 
-    // Guardar preferencia pendiente
-    await Subscription.findOneAndUpdate(
-      { user: user._id },
-      {
-        user:             user._id,
-        plan,
-        status:           "pending",
-        mpSubscriptionId: mpData.id,
-        amount:           planInfo.amount,
-        currency:         planInfo.currency,
-        autoRenew:        false,
-      },
-      { upsert: true, new: true }
-    );
+    // NO se toca la suscripción activa del usuario hasta que el webhook
+    // confirme el pago (type === "payment", status === "approved").
+    // Sobreescribir aquí causaba que un Silver activo se perdiera si
+    // el usuario intentaba pasar a Gold y el pago fallaba.
 
     return res.json({ initPoint: mpData.init_point });
   } catch (err) {
