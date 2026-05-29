@@ -621,6 +621,118 @@ const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, sta
 </html>`;
 };
 
+/* ── Email: cambio de precio de plan ─────────────────────────────────────── */
+
+const buildPriceChangeHtml = ({ firstName, planName, oldAmount, newAmount, couponCode, couponPct, couponMonthsLeft, discountedAmount, appUrl, year }) => {
+  const fmtARS = (n) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
+  const increased = newAmount > oldAmount;
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Actualización de precio — Nui</title>
+</head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:28px 36px;text-align:center;">
+            <div style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">Nui</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.08em;">ACTUALIZACIÓN DE PRECIOS</div>
+          </td>
+        </tr>
+
+        <!-- HERO -->
+        <tr>
+          <td style="background:#ffffff;padding:36px 36px 28px;text-align:center;">
+            <div style="font-size:40px;margin-bottom:12px;">${increased ? "📢" : "🎉"}</div>
+            <div style="font-size:20px;font-weight:800;color:#0F2420;margin-bottom:8px;">
+              Actualización de precio — Plan ${planName}
+            </div>
+            <p style="font-size:14px;color:#4A6B67;line-height:1.75;margin:0;max-width:400px;margin:0 auto;">
+              Hola <strong>${firstName}</strong>, queremos avisarte con tiempo que el precio del <strong>Plan ${planName}</strong> fue actualizado.
+            </p>
+          </td>
+        </tr>
+
+        <!-- PRECIOS -->
+        <tr>
+          <td style="background:#ffffff;padding:0 36px 28px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td width="45%" style="text-align:center;background:#f7faf9;border-radius:12px;padding:16px 20px;">
+                  <div style="font-size:11px;color:#8AADAA;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Precio anterior</div>
+                  <div style="font-size:24px;font-weight:900;color:#8AADAA;text-decoration:line-through;">${fmtARS(oldAmount)}</div>
+                  <div style="font-size:11px;color:#8AADAA;margin-top:4px;">por mes</div>
+                </td>
+                <td width="10%" style="text-align:center;font-size:20px;color:#0B5E55;">→</td>
+                <td width="45%" style="text-align:center;background:#E6F5F3;border:1.5px solid rgba(11,94,85,0.20);border-radius:12px;padding:16px 20px;">
+                  <div style="font-size:11px;color:#0B5E55;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Nuevo precio</div>
+                  <div style="font-size:24px;font-weight:900;color:#0B5E55;">${fmtARS(newAmount)}</div>
+                  <div style="font-size:11px;color:#4A6B67;margin-top:4px;">por mes</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        ${couponCode ? `
+        <!-- CUPÓN ACTIVO -->
+        <tr>
+          <td style="background:#FDF6E3;padding:20px 36px;border-top:1px solid #e0eeec;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="background:#ffffff;border:1.5px solid rgba(201,149,42,0.30);border-radius:14px;padding:18px 20px;">
+                  <div style="font-size:12px;font-weight:700;color:#C9952A;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">
+                    🎟️ Tu descuento sigue activo
+                  </div>
+                  <p style="font-size:13.5px;color:#4A6B67;line-height:1.75;margin:0;">
+                    Tenés el código <strong style="color:#C9952A;">${couponCode}</strong> con un <strong>${couponPct}% de descuento</strong> activo.
+                    Durante ${couponMonthsLeft === 1 ? "el próximo mes" : `los próximos ${couponMonthsLeft} meses`}, seguís pagando
+                    <strong style="color:#0B5E55;">${fmtARS(discountedAmount)}/mes</strong> en lugar del nuevo precio.
+                  </p>
+                  <p style="font-size:12px;color:#8AADAA;margin:8px 0 0;">
+                    Una vez que expire tu descuento, se aplicará el precio vigente en ese momento.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>` : ""}
+
+        <!-- CTA -->
+        <tr>
+          <td style="background:#0B5E55;border-radius:0 0 16px 16px;padding:28px 36px;text-align:center;">
+            <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:14px;">¿Tenés dudas? Estamos para ayudarte.</div>
+            <a href="${appUrl}/subscription" style="display:inline-block;background:#ffffff;color:#0B5E55;text-decoration:none;padding:11px 28px;border-radius:999px;font-weight:700;font-size:13px;">
+              Ver mi membresía
+            </a>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="padding:18px 36px;text-align:center;">
+            <div style="font-size:11px;color:#B2DDD9;line-height:1.6;">
+              Este aviso es automático. El cambio aplica a partir de tu próxima renovación.<br/>
+              © ${year} Nui
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
+
 /* ── Función principal ───────────────────────────────────────────────────── */
 
 /**
@@ -675,6 +787,10 @@ export const sendNotificationEmail = async (type, opts) => {
       console.error(`❌ Error enviando admin email:`, err.message);
     }
     return;
+  } else if (type === "price-change") {
+    const planLabel = opts.plan === "gold" ? "Gold" : "Silver";
+    subject = `📢 Actualización de precio — Plan ${planLabel} · Nui`;
+    html    = buildPriceChangeHtml({ firstName, ...opts, planName: planLabel, appUrl, year });
   } else {
     return;
   }

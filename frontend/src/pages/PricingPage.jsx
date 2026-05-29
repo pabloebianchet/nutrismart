@@ -110,9 +110,16 @@ const PricingPage = () => {
   const [validating,   setValidating]   = useState(false);
   const [couponData,   setCouponData]   = useState(null);  // { code, creatorName, discountPct, originalAmount, discountAmount, finalAmount, monthsLeft }
   const [couponError,  setCouponError]  = useState("");
+  const [planPrices,   setPlanPrices]   = useState({ silver: 2990, gold: 5990 });
 
-  // Refrescar suscripción al entrar a la página (por si volvió de MP)
-  useEffect(() => { refreshSubscription(); }, []); // eslint-disable-line
+  // Refrescar suscripción y precios al entrar
+  useEffect(() => {
+    refreshSubscription();
+    fetch(`${API_URL}/api/payments/plans`)
+      .then((r) => r.json())
+      .then((d) => setPlanPrices({ silver: d.silver?.amount ?? 2990, gold: d.gold?.amount ?? 5990 }))
+      .catch(() => {});
+  }, []); // eslint-disable-line
 
   const validateCoupon = async (planId) => {
     const code = couponInput.trim().toUpperCase();
@@ -187,13 +194,16 @@ const PricingPage = () => {
     }
   };
 
-  // Precio efectivo de un plan considerando cupón
-  const effectivePrice = (planId, originalPrice) => {
-    if (!couponData || !originalPrice) return originalPrice;
-    if (couponData.code && (couponData.originalAmount === originalPrice)) {
-      return couponData.finalAmount;
-    }
-    return originalPrice;
+  // Precio dinámico para un plan (desde la API)
+  const priceFor = (planId) => planId === "silver" ? planPrices.silver : planId === "gold" ? planPrices.gold : null;
+
+  // Precio con descuento de cupón aplicado
+  const effectivePrice = (planId) => {
+    const base = priceFor(planId);
+    if (!base || !couponData) return base;
+    if (couponData.originalAmount === base) return couponData.finalAmount;
+    // Recalcular con el precio actual por si cambió
+    return Math.round(base * (1 - couponData.discountPct / 100));
   };
 
   /* Estado actual del usuario para cada card */
@@ -393,24 +403,24 @@ const PricingPage = () => {
 
                   {/* Precio */}
                   <Box mb={3}>
-                    {plan.price ? (
+                    {plan.id !== "free" ? (
                       <>
-                        {couponData && effectivePrice(plan.id, plan.price) !== plan.price && (
+                        {couponData && effectivePrice(plan.id) !== priceFor(plan.id) && (
                           <Typography sx={{ fontSize: 16, color: C.textMuted, textDecoration: "line-through", lineHeight: 1, mb: 0.3 }}>
-                            {formatARS(plan.price)}
+                            {formatARS(priceFor(plan.id))}
                           </Typography>
                         )}
                         <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8 }}>
                           <Typography sx={{ fontSize: 38, fontWeight: 900, color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>
-                            {formatARS(effectivePrice(plan.id, plan.price))}
+                            {formatARS(effectivePrice(plan.id) ?? priceFor(plan.id))}
                           </Typography>
-                          {couponData && effectivePrice(plan.id, plan.price) !== plan.price && (
+                          {couponData && effectivePrice(plan.id) !== priceFor(plan.id) && (
                             <Chip label={`-${couponData.discountPct}%`} size="small"
                               sx={{ bgcolor: "#E8F5E9", color: "#2E7D32", fontWeight: 800, fontSize: 11, height: 20 }} />
                           )}
                         </Box>
                         <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>
-                          {plan.label}{couponData && effectivePrice(plan.id, plan.price) !== plan.price ? ` · primeros ${couponData.monthsLeft} mes${couponData.monthsLeft !== 1 ? "es" : ""}` : ""}
+                          {plan.label}{couponData && effectivePrice(plan.id) !== priceFor(plan.id) ? ` · primeros ${couponData.monthsLeft} mes${couponData.monthsLeft !== 1 ? "es" : ""}` : ""}
                         </Typography>
                       </>
                     ) : (

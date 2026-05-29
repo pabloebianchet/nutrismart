@@ -3,10 +3,12 @@ import User         from "../models/User.js";
 import Analysis     from "../models/Analysis.js";
 import Subscription from "../models/Subscription.js";
 import Coupon       from "../models/Coupon.js";
+import PlanConfig   from "../models/PlanConfig.js";
 import Log          from "../models/Log.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { isAdmin }        from "../middleware/isAdmin.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
+import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 
 const router = express.Router();
 
@@ -363,6 +365,119 @@ router.delete("/logs", authMiddleware, isAdmin, async (req, res) => {
     return res.json({ deleted: deletedCount });
   } catch (err) {
     return res.status(500).json({ error: "Error deleting logs" });
+  }
+});
+
+/* =====================================================
+   💰 PRECIOS DE PLANES
+   ===================================================== */
+
+// GET precios actuales
+router.get("/plan-prices", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const DEFAULTS = { silver: 2990, gold: 5990 };
+    const configs  = await PlanConfig.find({ plan: { $in: ["silver", "gold"] } }).lean();
+    const result   = {};
+    ["silver", "gold"].forEach((p) => {
+      const cfg  = configs.find((c) => c.plan === p);
+      result[p]  = { amount: cfg?.amount ?? DEFAULTS[p], updatedAt: cfg?.updatedAt ?? null };
+    });
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener precios." });
+  }
+});
+
+// PUT actualizar precio de un plan y notificar a todos los usuarios
+router.put("/plan-prices/:plan", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { plan }   = req.params;
+    const { amount } = req.body;
+
+    if (!["silver", "gold"].includes(plan))
+      return res.status(400).json({ error: "Plan inválido." });
+
+    const newAmount = parseInt(amount);
+    if (!newAmount || newAmount < 1)
+      return res.status(400).json({ error: "Monto inválido." });
+
+    // Precio anterior
+    const prevConfig = await PlanConfig.findOne({ plan }).lean();
+    const oldAmount  = prevConfig?.amount ?? (plan === "silver" ? 2990 : 5990);
+
+    if (oldAmount === newAmount)
+      return res.status(400).json({ error: "El precio nuevo es igual al actual." });
+
+    // Guardar nuevo precio
+    await PlanConfig.findOneAndUpdate(
+      { plan },
+      { $set: { plan, amount: newAmount, currency: "ARS" } },
+      { upsert: true }
+    );
+
+    logInfo("admin", "plan.price.updated",
+      `Precio Plan ${plan} actualizado: $${oldAmount} → $${newAmount}`,
+      { userId: req.user._id, userName: req.user.name, userEmail: req.user.email,
+        meta: { plan, oldAmount, newAmount } });
+
+    // Notificar a todos los usuarios registrados de forma async
+    const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
+    const planName   = PLAN_NAMES[plan];
+
+    setImmediate(async () => {
+      try {
+        const users = await User.find().select("name email").lean();
+        // Obtener suscripciones con cupón activo para este plan
+        const subs  = await Subscription.find({
+          plan, status: "active",
+          couponCode: { $ne: null },
+          couponMonthsUsed: { $lt: 3 },
+        }).select("user couponCode couponMonthsUsed").lean();
+
+        const subMap = {};
+        subs.forEach((s) => { subMap[s.user.toString()] = s; });
+
+        for (const u of users) {
+          if (!u.email) continue;
+          try {
+            const sub        = subMap[u._id.toString()];
+            const monthsLeft = sub ? (3 - (sub.couponMonthsUsed ?? 0)) : 0;
+            let couponPct    = null;
+            let discountedAmount = null;
+
+            if (sub?.couponCode) {
+              const coupon = await Coupon.findOne({ code: sub.couponCode }).lean();
+              if (coupon) {
+                couponPct        = coupon.discountPct;
+                discountedAmount = Math.round(newAmount * (1 - couponPct / 100));
+              }
+            }
+
+            await sendNotificationEmail("price-change", {
+              name:            u.name,
+              email:           u.email,
+              plan,
+              oldAmount,
+              newAmount,
+              couponCode:      sub?.couponCode   ?? null,
+              couponPct,
+              couponMonthsLeft: monthsLeft || null,
+              discountedAmount,
+            });
+          } catch (emailErr) {
+            console.error(`Error email price-change a ${u.email}:`, emailErr.message);
+          }
+        }
+        console.log(`✅ Emails de cambio de precio [${plan}] enviados a ${users.length} usuarios`);
+      } catch (err) {
+        console.error("Error enviando emails price-change:", err.message);
+      }
+    });
+
+    return res.json({ ok: true, plan, oldAmount, newAmount, currency: "ARS" });
+  } catch (err) {
+    console.error("Plan price update error:", err);
+    return res.status(500).json({ error: "Error al actualizar el precio." });
   }
 });
 

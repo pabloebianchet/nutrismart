@@ -9,6 +9,7 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LocalOfferRoundedIcon from "@mui/icons-material/LocalOfferRounded";
 import { API_URL } from "../config/api";
 
 const C = {
@@ -191,6 +192,29 @@ const SubscriptionPage = () => {
                 </Box>
               </Box>
             </Paper>
+
+            {/* ── Cupón activo ── */}
+            {isActive && sub.couponCode && (sub.couponMonthsUsed ?? 0) < 3 && (
+              <Paper elevation={0} sx={{ p: 3.5, borderRadius: 4, border: `1.5px solid rgba(201,149,42,0.30)`, bgcolor: "#FDF6E3", boxShadow: shadow.md, animation: "fadeUp 0.5s 0.08s ease both" }}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: "rgba(201,149,42,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <LocalOfferRoundedIcon sx={{ fontSize: 20, color: "#C9952A" }} />
+                  </Box>
+                  <Box>
+                    <Stack direction="row" spacing={1} alignItems="center" mb={0.3}>
+                      <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>
+                        Descuento activo — código {sub.couponCode}
+                      </Typography>
+                      <Chip label={`${3 - (sub.couponMonthsUsed ?? 0)} mes${3 - sub.couponMonthsUsed !== 1 ? "es" : ""} restantes`}
+                        size="small" sx={{ bgcolor: "rgba(201,149,42,0.15)", color: "#C9952A", fontWeight: 700, fontSize: 11, height: 20 }} />
+                    </Stack>
+                    <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
+                      Tu descuento se aplica automáticamente al renovar. Después del mes {sub.couponMonthsUsed + (3 - (sub.couponMonthsUsed ?? 0))} se cobra el precio vigente.
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Paper>
+            )}
 
             {/* ── Renovación manual (info) ── */}
             {isActive && (

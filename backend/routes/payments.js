@@ -4,6 +4,7 @@ import { MercadoPagoConfig, Payment } from "mercadopago";
 import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
 import Coupon from "../models/Coupon.js";
+import PlanConfig from "../models/PlanConfig.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
@@ -40,22 +41,38 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
-const PLANS = {
-  silver: {
-    name: "Plan Silver",
-    amount: 2990,
-    currency: "ARS",
-    description: "1 análisis por día · renovación mensual",
-    dailyLimit: 1,
-  },
-  gold: {
-    name: "Plan Gold",
-    amount: 5990,
-    currency: "ARS",
-    description: "Análisis ilimitados · renovación mensual",
-    dailyLimit: null,
-  },
+// Precios base (fallback si la DB no tiene configuración aún)
+const PLANS_DEFAULT = {
+  silver: { name: "Plan Silver", amount: 2990, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
+  gold:   { name: "Plan Gold",   amount: 5990, currency: "ARS", description: "Análisis ilimitados · renovación mensual",  dailyLimit: null },
 };
+
+// Lee precios desde DB, con fallback a los valores por defecto
+const getPlans = async () => {
+  try {
+    const configs = await PlanConfig.find({ plan: { $in: ["silver", "gold"] } }).lean();
+    const plans = { ...PLANS_DEFAULT };
+    configs.forEach((c) => {
+      if (plans[c.plan]) plans[c.plan] = { ...plans[c.plan], amount: c.amount, currency: c.currency };
+    });
+    return plans;
+  } catch {
+    return PLANS_DEFAULT;
+  }
+};
+
+/* ─── GET PRECIOS PÚBLICOS ───────────────────────────────────── */
+router.get("/plans", async (_req, res) => {
+  try {
+    const plans = await getPlans();
+    return res.json({
+      silver: { amount: plans.silver.amount, currency: plans.silver.currency },
+      gold:   { amount: plans.gold.amount,   currency: plans.gold.currency },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener precios." });
+  }
+});
 
 /* ─── Helper: fetch autenticado a la API de MP ───────────────── */
 const mpFetch = (path, options = {}) => {
@@ -75,9 +92,10 @@ router.post("/validate-coupon", authMiddleware, async (req, res) => {
   const { code, plan } = req.body;
 
   if (!code || !plan) return res.status(400).json({ error: "Código y plan requeridos." });
-  if (!PLANS[plan])   return res.status(400).json({ error: "Plan inválido." });
 
   try {
+    const PLANS = await getPlans();
+    if (!PLANS[plan]) return res.status(400).json({ error: "Plan inválido." });
     const coupon = await Coupon.findOne({ code: code.toUpperCase().trim(), active: true });
 
     if (!coupon) return res.status(404).json({ error: "Código inválido o inactivo." });
@@ -126,15 +144,14 @@ router.post("/validate-coupon", authMiddleware, async (req, res) => {
 router.post("/subscribe", authMiddleware, async (req, res) => {
   const { plan, couponCode } = req.body;
 
-  if (!PLANS[plan]) {
-    return res.status(400).json({ error: "Plan inválido. Usá 'silver' o 'gold'." });
-  }
-
   if (!process.env.MP_ACCESS_TOKEN) {
     return res.status(503).json({ error: "Pasarela de pago no configurada. Contactá al administrador." });
   }
 
   try {
+    const PLANS   = await getPlans();
+    if (!PLANS[plan]) return res.status(400).json({ error: "Plan inválido. Usá 'silver' o 'gold'." });
+
     const user        = req.user;
     const planInfo    = PLANS[plan];
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -246,7 +263,8 @@ router.post("/webhook", async (req, res) => {
         const [userId, plan] = (preapproval.external_reference || "").split("|");
         if (!userId) return res.sendStatus(200);
 
-        const planInfo = PLANS[plan];
+        const PLANS_WH1 = await getPlans();
+        const planInfo  = PLANS_WH1[plan];
         if (!planInfo) return res.sendStatus(200);
 
         const now = new Date();
@@ -363,7 +381,8 @@ router.post("/webhook", async (req, res) => {
         const [userId, plan] = (mp.external_reference || "").split("|");
         if (!userId) return res.sendStatus(200);
 
-        const planInfo = PLANS[plan];
+        const PLANS_WH2 = await getPlans();
+        const planInfo  = PLANS_WH2[plan];
         if (!planInfo) return res.sendStatus(200);
 
         const now = new Date();

@@ -567,6 +567,97 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
   );
 };
 
+/* ─── PlanPricesPanel ────────────────────────────────────── */
+const PLAN_DEFAULTS = { silver: 2990, gold: 5990 };
+
+const PlanPricesPanel = ({ token }) => {
+  const [prices,   setPrices]   = useState(null);
+  const [inputs,   setInputs]   = useState({});
+  const [saving,   setSaving]   = useState(null);
+  const [result,   setResult]   = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/plan-prices`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((d) => {
+        setPrices(d);
+        setInputs({ silver: d.silver?.amount ?? PLAN_DEFAULTS.silver, gold: d.gold?.amount ?? PLAN_DEFAULTS.gold });
+      })
+      .catch(() => {});
+  }, [token]);
+
+  const handleSave = async (plan) => {
+    const amount = parseInt(inputs[plan]);
+    if (!amount || amount < 1) return;
+    setSaving(plan);
+    setResult(null);
+    try {
+      const res  = await fetch(`${API_URL}/api/admin/plan-prices/${plan}`, {
+        method:  "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body:    JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setResult({ ok: false, msg: data.error }); return; }
+      setPrices((p) => ({ ...p, [plan]: { amount, updatedAt: new Date() } }));
+      setResult({ ok: true, msg: `Plan ${plan === "silver" ? "Silver" : "Gold"} actualizado a $${amount.toLocaleString("es-AR")}. Emails en camino.` });
+    } catch { setResult({ ok: false, msg: "Error de conexión." }); }
+    finally  { setSaving(null); }
+  };
+
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Sin cambios registrados";
+
+  return (
+    <Box>
+      {result && (
+        <Alert severity={result.ok ? "success" : "error"} sx={{ borderRadius: 3, mb: 2, fontSize: 13 }} onClose={() => setResult(null)}>
+          {result.msg}
+        </Alert>
+      )}
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+        {["silver", "gold"].map((plan) => {
+          const meta    = PLAN_META[plan];
+          const current = prices?.[plan]?.amount ?? PLAN_DEFAULTS[plan];
+          return (
+            <Paper key={plan} elevation={0} sx={{ p: 3, borderRadius: 4, border: `1.5px solid ${meta.color}30`, bgcolor: meta.bg, boxShadow: shadow.md }}>
+              <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+                <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: `${meta.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <meta.Icon sx={{ fontSize: 18, color: meta.color }} />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>Plan {meta.label}</Typography>
+                  <Typography sx={{ fontSize: 11, color: C.textMuted }}>Precio actual: <strong>${current.toLocaleString("es-AR")}/mes</strong></Typography>
+                </Box>
+              </Stack>
+              <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5}>
+                <TextField
+                  value={inputs[plan] ?? ""}
+                  onChange={(e) => setInputs((p) => ({ ...p, [plan]: e.target.value.replace(/\D/g, "") }))}
+                  size="small" type="number" placeholder="Nuevo precio"
+                  slotProps={{ input: { startAdornment: <span style={{ fontSize: 13, color: C.textMuted, marginRight: 4 }}>$</span> } }}
+                  sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: C.surface, fontSize: 13 } }}
+                />
+                <Button
+                  onClick={() => handleSave(plan)}
+                  disabled={saving === plan || !inputs[plan] || parseInt(inputs[plan]) === current}
+                  variant="contained"
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, fontSize: 13, px: 2,
+                    bgcolor: meta.color, "&:hover": { filter: "brightness(0.9)" }, "&:disabled": { opacity: 0.5 } }}
+                >
+                  {saving === plan ? "…" : "Guardar"}
+                </Button>
+              </Stack>
+              <Typography sx={{ fontSize: 11, color: C.textMuted }}>
+                Último cambio: {fmtDate(prices?.[plan]?.updatedAt)}
+              </Typography>
+            </Paper>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+};
+
 /* ─── AdminDashboard ─────────────────────────────────────── */
 const AdminDashboard = () => {
   const { user }   = useNutrition();
@@ -1045,6 +1136,10 @@ const AdminDashboard = () => {
           />
         </Box>
       </Paper>
+
+      {/* ── SECCIÓN: PRECIOS DE PLANES ───────────────── */}
+      <SectionHeader title="Precios de planes" subtitle="Al guardar se envía un email a todos los usuarios registrados" />
+      <PlanPricesPanel token={token} />
 
       <Box sx={{ height: 48 }} />
       </>)}
