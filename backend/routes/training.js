@@ -7,6 +7,7 @@ import User from "../models/User.js";
 import TrainingPlan from "../models/TrainingPlan.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
+import { generateImage } from "../utils/generateImage.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -320,28 +321,14 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   const prompt = `Professional fitness photography of a person performing "${name}" exercise with perfect form. Clear gym background, natural lighting, full body shot showing correct technique, athletic person, high quality fitness photography. No text, no watermarks.`;
 
   try {
-    const openai   = getOpenAI();
-    const response = await openai.images.generate({
-      model:              "gpt-image-1",
-      prompt,
-      n:                  1,
-      size:               "1536x1024",
-      quality:            "medium",
-      output_format:      "jpeg",
-      output_compression: 80,
-    });
-
-    const item = response.data[0];
-    const imageUrl = item.url
-      ?? (item.b64_json ? `data:image/jpeg;base64,${item.b64_json}` : null);
-    if (!imageUrl) return res.status(500).json({ error: "Sin imagen." });
-
+    const { imageUrl } = await generateImage(getOpenAI(), { prompt, size: "1536x1024" });
     const result = { imageUrl };
     exerciseImageCache.set(cacheKey, result);
     return res.json(result);
   } catch (err) {
-    console.error("gpt-image-1 exercise error:", err.status, err.message);
-    return res.status(500).json({ error: "Error al generar imagen.", detail: err.message });
+    console.error("Exercise image error:", err.status, err.message);
+    const status = err.allModelsFailed ? 503 : 500;
+    return res.status(status).json({ error: "Error al generar imagen.", detail: err.message });
   }
 });
 

@@ -5,6 +5,7 @@ import { authMiddleware } from "../middleware/auth.js";
 import { requireActiveSub } from "../middleware/requireActiveSub.js";
 import SavedRecipe from "../models/SavedRecipe.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
+import { generateImage } from "../utils/generateImage.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -166,25 +167,12 @@ router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (r
   const prompt = `Professional food photography of "${name}"${safeIngredients ? `, made with ${safeIngredients}` : ""}. Beautifully plated on a white ceramic dish, natural light, top-down angle, fresh and appetizing, high resolution. No text, no watermarks.`;
 
   try {
-    const openai   = getOpenAI();
-    const response = await openai.images.generate({
-      model:             "gpt-image-1",
-      prompt,
-      n:                 1,
-      size:              "1024x1024",
-      quality:           "medium",
-      output_format:     "jpeg",
-      output_compression: 80,
-    });
-
-    const item = response.data[0];
-    const imageUrl = item.url
-      ?? (item.b64_json ? `data:image/jpeg;base64,${item.b64_json}` : null);
-    if (!imageUrl) return res.status(500).json({ error: "Sin imagen." });
+    const { imageUrl } = await generateImage(getOpenAI(), { prompt, size: "1024x1024" });
     return res.json({ imageUrl });
   } catch (err) {
-    console.error("gpt-image-1 recipe error:", err.status, err.message);
-    return res.status(500).json({ error: "Error al generar la imagen.", detail: err.message });
+    console.error("Recipe image error:", err.status, err.message);
+    const status = err.allModelsFailed ? 503 : 500;
+    return res.status(status).json({ error: "Error al generar la imagen.", detail: err.message });
   }
 });
 
