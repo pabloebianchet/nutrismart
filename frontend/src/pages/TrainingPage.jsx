@@ -8,8 +8,10 @@ import ArrowBackRoundedIcon    from "@mui/icons-material/ArrowBackRounded";
 import CheckRoundedIcon        from "@mui/icons-material/CheckRounded";
 import RefreshRoundedIcon      from "@mui/icons-material/RefreshRounded";
 import AutoAwesomeRoundedIcon  from "@mui/icons-material/AutoAwesomeRounded";
-import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
-import WarningAmberRoundedIcon  from "@mui/icons-material/WarningAmberRounded";
+import DeleteOutlineRoundedIcon  from "@mui/icons-material/DeleteOutlineRounded";
+import WarningAmberRoundedIcon   from "@mui/icons-material/WarningAmberRounded";
+import FullscreenRoundedIcon     from "@mui/icons-material/FullscreenRounded";
+import CloseRoundedIcon          from "@mui/icons-material/CloseRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
 import { API_URL }             from "../config/api";
@@ -179,8 +181,8 @@ const TrainingPage = () => {
   const [drafts,          setDrafts]          = useState({});   // { [planType_dayKey]: { log, timestamp } }
   const [confirmRegister, setConfirmRegister] = useState(false);
   const [pendingSession,  setPendingSession]  = useState(null);
-  // Caché de imágenes de ejercicios: { [exerciseName]: { imageUrl, thumbUrl, authorName } | null }
   const [exerciseImages,  setExerciseImages]  = useState({});
+  const [fullscreenImg,   setFullscreenImg]   = useState(null); // URL de imagen a pantalla completa
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1381,15 +1383,22 @@ const TrainingPage = () => {
                                     sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
                                       "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
                                       animation: "fadeIn 0.5s ease" }} />
-                                  {/* Gradiente oscuro para contraste del texto */}
                                   <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "65%",
                                     background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)" }} />
-                                  {/* Nombre del ejercicio sobre la imagen */}
-                                  <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2, pb: 1.5 }}>
+                                  <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2, pb: 1.5,
+                                    display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                                     <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px",
-                                      textShadow: "0 1px 4px rgba(0,0,0,0.4)", lineHeight: 1.2 }}>
+                                      textShadow: "0 1px 4px rgba(0,0,0,0.4)", lineHeight: 1.2, flex: 1 }}>
                                       {ex.name}
                                     </Typography>
+                                    {/* Botón expandir */}
+                                    <IconButton size="small"
+                                      onClick={(e) => { e.stopPropagation(); setFullscreenImg(imgData.imageUrl); }}
+                                      sx={{ color: "rgba(255,255,255,0.85)", bgcolor: "rgba(0,0,0,0.35)",
+                                        "&:hover": { bgcolor: "rgba(0,0,0,0.6)", color: "#fff" },
+                                        width: 30, height: 30, ml: 1, flexShrink: 0 }}>
+                                      <FullscreenRoundedIcon sx={{ fontSize: 17 }} />
+                                    </IconButton>
                                   </Box>
                                 </>
                               )}
@@ -1943,6 +1952,23 @@ const TrainingPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Fullscreen imagen ejercicio ── */}
+      <Dialog open={!!fullscreenImg} onClose={() => setFullscreenImg(null)} maxWidth="md" fullWidth
+        PaperProps={{ sx: { bgcolor: "#000", borderRadius: { xs: 0, sm: 3 }, overflow: "hidden" } }}>
+        <DialogContent sx={{ p: 0, position: "relative" }}>
+          <IconButton onClick={() => setFullscreenImg(null)} size="small"
+            sx={{ position: "absolute", top: 10, right: 10, zIndex: 1,
+              bgcolor: "rgba(0,0,0,0.55)", color: "#fff",
+              "&:hover": { bgcolor: "rgba(0,0,0,0.8)" } }}>
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+          {fullscreenImg && (
+            <Box component="img" src={fullscreenImg}
+              sx={{ width: "100%", height: "auto", display: "block", maxHeight: "90dvh", objectFit: "contain" }} />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

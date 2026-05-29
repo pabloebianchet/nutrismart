@@ -23,6 +23,7 @@ import { sendNotificationEmail } from "./utils/sendNotificationEmail.js";
 import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
 import shoppingRouter from "./routes/shopping.js";
+import postsRouter    from "./routes/posts.js";
 import { activateFreeTrial } from "./utils/activateFreeTrial.js";
 import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
 import { logInfo, logWarn, logError } from "./utils/logger.js";
@@ -620,6 +621,7 @@ app.use("/api/payments", paymentsRouter);
 app.use("/api/recipes",       recipesRouter);
 app.use("/api/training",      trainingRouter);
 app.use("/api/shopping-list", shoppingRouter);
+app.use("/api/posts",         postsRouter);
 
 // Redirige al frontend después del pago — MP no acepta localhost en back_url
 app.get("/payment/return", (req, res) => {

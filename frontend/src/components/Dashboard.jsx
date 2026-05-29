@@ -21,6 +21,7 @@ import AvatarMascot, { getAvatarState } from "./AvatarMascot";
 import api from "../config/axiosInstance";
 import TestCard from "./TestCard";
 import SubscriptionWidget from "./SubscriptionWidget";
+import DailyPostCard      from "./DailyPostCard";
 import LeaderboardWidget from "./LeaderboardWidget";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
@@ -2298,6 +2299,11 @@ const Dashboard = () => {
           sexo={profileForm.sexo}
           edad={profileForm.edad}
         />
+      </Box>
+
+      {/* ── POST DEL DÍA ────────────────────────── */}
+      <Box mb={4}>
+        <DailyPostCard />
       </Box>
 
       {/* ── MEMBRESÍA ───────────────────────────── */}
