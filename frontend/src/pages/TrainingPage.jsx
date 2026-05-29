@@ -178,9 +178,9 @@ const TrainingPage = () => {
   const [sessionSuccess,  setSessionSuccess]  = useState(null); // { earned, total, dayName, tipoColor }
   const [drafts,          setDrafts]          = useState({});   // { [planType_dayKey]: { log, timestamp } }
   const [confirmRegister, setConfirmRegister] = useState(false);
-  // Captura nombre del día y tipo en el momento de abrir la sesión,
-  // evitando leer estado potencialmente desactualizado al confirmar.
-  const [pendingSession, setPendingSession]   = useState(null); // { dayName, tipoLabel }
+  const [pendingSession,  setPendingSession]  = useState(null);
+  // Caché de imágenes de ejercicios: { [exerciseName]: { imageUrl, thumbUrl, authorName } | null }
+  const [exerciseImages,  setExerciseImages]  = useState({});
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -382,6 +382,27 @@ const TrainingPage = () => {
     saveDraftsLS(updated);
   };
 
+  const fetchExerciseImages = async (exercises) => {
+    if (!exercises?.length) return;
+    const token = localStorage.getItem("nutrismartToken");
+    for (const ex of exercises) {
+      if (!ex.name || exerciseImages[ex.name] !== undefined) continue; // ya cargada o en caché
+      setExerciseImages((p) => ({ ...p, [ex.name]: null })); // marca como loading
+      fetch(`${API_URL}/api/training/exercise-image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ name: ex.name }),
+      })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data?.imageUrl) {
+            setExerciseImages((p) => ({ ...p, [ex.name]: data }));
+          }
+        })
+        .catch(() => {});
+    }
+  };
+
   const openSession = (dayKey) => {
     setActiveDay(dayKey);
     // Capturar nombre del día desde planCache (fuente de verdad) en el momento
@@ -394,6 +415,9 @@ const TrainingPage = () => {
     });
     const existing = drafts[`${activePlanType}_${dayKey}`];
     setSessionLog(existing?.log || {});
+    // Cargar imágenes de los ejercicios de este día
+    const dayExercises = planCache[activePlanType]?.plan?.weekStructure?.[dayKey]?.exercises;
+    fetchExerciseImages(dayExercises);
   };
 
   const registerSession = async () => {
@@ -1306,54 +1330,114 @@ const TrainingPage = () => {
                   const exIsRunning = isRunning || runningKeywords.test(ex.name);
                   return (
                     <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                      <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5 }}>
-                        <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: "#0F2420", mb: 0.5 }}>{ex.name}</Typography>
-                        <Stack direction="row" spacing={0.8} mb={1.2}>
-                          <Chip
-                            label={exIsRunning ? `${ex.sets} km` : `${ex.sets} series`}
-                            size="small"
-                            sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo?.bg || "#E6F5F3", color: activeTipo?.color || "#0B5E55" }}
-                          />
-                          <Chip
-                            label={exIsRunning ? `Ritmo: ${ex.reps}` : ex.reps}
-                            size="small"
-                            sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }}
-                          />
-                          <Chip
-                            label={ex.rest}
-                            size="small"
-                            sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }}
-                          />
-                        </Stack>
-                        {ex.notes && <Typography sx={{ fontSize: 11.5, color: "#8AADAA", mb: 1.2, fontStyle: "italic" }}>💡 {ex.notes}</Typography>}
-                        <Stack direction="row" spacing={1.5}>
-                          <TextField size="small"
-                            label={exIsRunning ? "Distancia (km)" : "Peso / Carga (kg)"}
-                            placeholder={exIsRunning ? "ej: 5.2" : "ej: 60"}
-                            value={sessionLog[ex.name]?.weight || ""}
-                            onChange={(e) => {
-                              let val = e.target.value.replace(/[^0-9.]/g, "");
-                              const parts = val.split(".");
-                              if (parts.length > 2) val = parts[0] + "." + parts.slice(1).join("");
-                              if (parseFloat(val) > 999) val = "999";
-                              setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], weight: val } }));
-                            }}
-                            inputProps={{ maxLength: 6, inputMode: "decimal" }}
-                            sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
-                          />
-                          <TextField size="small"
-                            label={exIsRunning ? "Tiempo (min)" : "Repeticiones"}
-                            placeholder={exIsRunning ? "ej: 28" : "ej: 12"}
-                            value={sessionLog[ex.name]?.reps || ""}
-                            onChange={(e) => {
-                              let val = e.target.value.replace(/[^0-9]/g, "");
-                              if (parseInt(val, 10) > 999) val = "999";
-                              setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], reps: val } }));
-                            }}
-                            inputProps={{ maxLength: 3, inputMode: "numeric" }}
-                            sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
-                          />
-                        </Stack>
+                      <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", overflow: "hidden",
+                        boxShadow: "0 2px 12px rgba(11,94,85,0.07)", transition: "box-shadow 0.2s",
+                        "&:hover": { boxShadow: "0 4px 20px rgba(11,94,85,0.13)" } }}>
+
+                        {/* ── Imagen del ejercicio ── */}
+                        {(() => {
+                          const imgData = exerciseImages[ex.name];
+                          return (
+                            <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/7", overflow: "hidden",
+                              bgcolor: `${activeTipo?.color || "#0B5E55"}12` }}>
+                              {imgData === undefined && (
+                                /* skeleton pulsante */
+                                <Box sx={{ position: "absolute", inset: 0,
+                                  background: `linear-gradient(90deg, ${activeTipo?.bg || "#E6F5F3"} 0%, rgba(255,255,255,0.6) 50%, ${activeTipo?.bg || "#E6F5F3"} 100%)`,
+                                  backgroundSize: "200% 100%",
+                                  "@keyframes shimmer": { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
+                                  animation: "shimmer 1.4s ease-in-out infinite",
+                                }} />
+                              )}
+                              {imgData === null && (
+                                /* cargando */
+                                <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <Typography sx={{ fontSize: 28,
+                                    "@keyframes pulse": { "0%,100%": { opacity: 0.4 }, "50%": { opacity: 0.9 } },
+                                    animation: "pulse 1.2s ease-in-out infinite" }}>
+                                    🏋️
+                                  </Typography>
+                                </Box>
+                              )}
+                              {imgData?.imageUrl && (
+                                <>
+                                  <Box component="img" src={imgData.imageUrl} alt={ex.name}
+                                    sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
+                                      "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
+                                      animation: "fadeIn 0.5s ease" }} />
+                                  {/* Gradiente oscuro para contraste del texto */}
+                                  <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "65%",
+                                    background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)" }} />
+                                  {/* Nombre del ejercicio sobre la imagen */}
+                                  <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2, pb: 1.5 }}>
+                                    <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px",
+                                      textShadow: "0 1px 4px rgba(0,0,0,0.4)", lineHeight: 1.2 }}>
+                                      {ex.name}
+                                    </Typography>
+                                  </Box>
+                                  {/* Crédito fotógrafo */}
+                                  <Box component="a" href={`${imgData.unsplashLink}?utm_source=nui_app&utm_medium=referral`}
+                                    target="_blank" rel="noopener noreferrer"
+                                    sx={{ position: "absolute", top: 8, right: 8, px: 1, py: 0.3, borderRadius: 1,
+                                      bgcolor: "rgba(0,0,0,0.40)", fontSize: 9.5, color: "rgba(255,255,255,0.80)",
+                                      textDecoration: "none", "&:hover": { color: "#fff" } }}>
+                                    📷 {imgData.authorName}
+                                  </Box>
+                                </>
+                              )}
+                            </Box>
+                          );
+                        })()}
+
+                        {/* ── Detalles del ejercicio ── */}
+                        <Box sx={{ px: 2.5, pt: exerciseImages[ex.name]?.imageUrl ? 1.5 : 2.5, pb: 2 }}>
+                          {!exerciseImages[ex.name]?.imageUrl && (
+                            <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: "#0F2420", mb: 0.8 }}>{ex.name}</Typography>
+                          )}
+                          <Stack direction="row" spacing={0.8} mb={1.2} flexWrap="wrap" useFlexGap>
+                            <Chip label={exIsRunning ? `${ex.sets} km` : `${ex.sets} series`} size="small"
+                              sx={{ height: 22, fontSize: 11.5, fontWeight: 700, bgcolor: activeTipo?.bg || "#E6F5F3", color: activeTipo?.color || "#0B5E55" }} />
+                            <Chip label={exIsRunning ? `Ritmo: ${ex.reps}` : ex.reps} size="small"
+                              sx={{ height: 22, fontSize: 11.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+                            <Chip label={ex.rest} size="small"
+                              sx={{ height: 22, fontSize: 11.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+                          </Stack>
+                          {ex.notes && (
+                            <Box sx={{ px: 1.5, py: 1, borderRadius: 2, bgcolor: `${activeTipo?.bg || "#E6F5F3"}`, mb: 1.5 }}>
+                              <Typography sx={{ fontSize: 11.5, color: activeTipo?.color || "#0B5E55", fontStyle: "italic", lineHeight: 1.5 }}>
+                                💡 {ex.notes}
+                              </Typography>
+                            </Box>
+                          )}
+                          <Stack direction="row" spacing={1.5}>
+                            <TextField size="small"
+                              label={exIsRunning ? "Distancia (km)" : "Peso / Carga (kg)"}
+                              placeholder={exIsRunning ? "ej: 5.2" : "ej: 60"}
+                              value={sessionLog[ex.name]?.weight || ""}
+                              onChange={(e) => {
+                                let val = e.target.value.replace(/[^0-9.]/g, "");
+                                const parts = val.split(".");
+                                if (parts.length > 2) val = parts[0] + "." + parts.slice(1).join("");
+                                if (parseFloat(val) > 999) val = "999";
+                                setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], weight: val } }));
+                              }}
+                              inputProps={{ maxLength: 6, inputMode: "decimal" }}
+                              sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
+                            />
+                            <TextField size="small"
+                              label={exIsRunning ? "Tiempo (min)" : "Repeticiones"}
+                              placeholder={exIsRunning ? "ej: 28" : "ej: 12"}
+                              value={sessionLog[ex.name]?.reps || ""}
+                              onChange={(e) => {
+                                let val = e.target.value.replace(/[^0-9]/g, "");
+                                if (parseInt(val, 10) > 999) val = "999";
+                                setSessionLog(p => ({ ...p, [ex.name]: { ...p[ex.name], reps: val } }));
+                              }}
+                              inputProps={{ maxLength: 3, inputMode: "numeric" }}
+                              sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
+                            />
+                          </Stack>
+                        </Box>
                       </Paper>
                     </motion.div>
                   );

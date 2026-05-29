@@ -11,6 +11,9 @@ import { logInfo, logWarn, logError } from "../utils/logger.js";
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Caché en memoria para imágenes de ejercicios (evita repetir llamadas a Unsplash)
+const exerciseImageCache = new Map();
+
 const trainingLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 10,
@@ -301,6 +304,47 @@ router.delete("/plan/:planType", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("DELETE /training/plan error:", err.message);
     return res.status(500).json({ error: "Error al eliminar el plan." });
+  }
+});
+
+/* ── Imagen de ejercicio (Unsplash) ────────────────────────────── */
+router.post("/exercise-image", authMiddleware, async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Nombre requerido." });
+
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key) return res.status(503).json({ error: "Servicio no configurado." });
+
+  const cacheKey = name.toLowerCase().trim();
+  if (exerciseImageCache.has(cacheKey)) {
+    return res.json(exerciseImageCache.get(cacheKey));
+  }
+
+  try {
+    const query    = encodeURIComponent(`${name} gym exercise workout`);
+    const url      = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Client-ID ${key}` },
+    });
+
+    if (!response.ok) return res.status(502).json({ error: "Error Unsplash." });
+
+    const data  = await response.json();
+    const photo = data.results?.[0];
+    if (!photo)  return res.status(404).json({ error: "Sin imagen." });
+
+    const result = {
+      imageUrl:    photo.urls.regular,
+      thumbUrl:    photo.urls.small,
+      authorName:  photo.user.name,
+      unsplashLink: photo.links.html,
+    };
+
+    exerciseImageCache.set(cacheKey, result);
+    return res.json(result);
+  } catch (err) {
+    console.error("Exercise image error:", err.message);
+    return res.status(500).json({ error: "Error al obtener imagen." });
   }
 });
 
