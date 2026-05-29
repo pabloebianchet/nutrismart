@@ -54,9 +54,10 @@ const SubscriptionWidget = () => {
 
   if (sub === undefined) return null;
 
+  // "pending" = pago no confirmado → tratarlo como sin plan
   const isActive    = sub?.status === "active";
   const isCancelled = sub?.status === "cancelled";
-  const isExpired   = sub?.status === "expired";
+  const isExpired   = sub?.status === "expired" || sub?.status === "pending";
   const remaining   = (isActive || isCancelled) ? daysLeft(sub.endDate) : null;
   const meta        = PLAN_META[sub?.plan] || PLAN_META.silver;
   const totalDays   = meta.totalDays;

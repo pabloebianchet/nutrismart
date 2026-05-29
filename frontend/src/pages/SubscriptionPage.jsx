@@ -86,9 +86,9 @@ const SubscriptionPage = () => {
     );
   }
 
-  // Determinar estado
+  // Determinar estado — "pending" se trata como sin plan (pago no confirmado)
   const isCancelled = sub?.status === "cancelled";
-  const isExpired   = !sub || sub.status === "expired";
+  const isExpired   = !sub || sub.status === "expired" || sub.status === "pending";
   const isActive    = sub?.status === "active";
   const hasHistory  = sub?.paymentHistory?.length > 0;
   const planMeta    = sub ? (PLAN_META[sub.plan] || PLAN_META.silver) : null;

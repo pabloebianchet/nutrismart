@@ -211,9 +211,10 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
   const [assignResult,  setAssignResult]  = useState(null); // { ok, msg }
 
   if (!user) return null;
-  const sub  = user.subscription;
+  // "pending" = pago no confirmado → tratar como sin suscripción
+  const sub  = user.subscription?.status === "pending" ? null : user.subscription;
   const plan = sub ? (PLAN_META[sub.plan] ?? PLAN_META.silver) : null;
-  const stat = sub ? (STATUS_META[sub.status] ?? STATUS_META.pending) : null;
+  const stat = sub ? (STATUS_META[sub.status] ?? STATUS_META.expired) : null;
 
   const history = sub?.paymentHistory ?? [];
 
@@ -624,7 +625,7 @@ const AdminDashboard = () => {
       valueGetter: (_, row) => row.subscription?.plan ?? "",
       renderCell: (params) => {
         const sub  = params.row.subscription;
-        if (!sub) return <Typography sx={{ fontSize: 12, color: C.textMuted }}>—</Typography>;
+        if (!sub || sub.status === "pending") return <Typography sx={{ fontSize: 12, color: C.textMuted }}>—</Typography>;
         const meta = PLAN_META[sub.plan] ?? PLAN_META.silver;
         return (
           <Chip
@@ -642,8 +643,8 @@ const AdminDashboard = () => {
       valueGetter: (_, row) => row.subscription?.status ?? "",
       renderCell: (params) => {
         const sub  = params.row.subscription;
-        if (!sub) return <Typography sx={{ fontSize: 12, color: C.textMuted }}>—</Typography>;
-        const stat = STATUS_META[sub.status] ?? STATUS_META.pending;
+        if (!sub || sub.status === "pending") return <Typography sx={{ fontSize: 12, color: C.textMuted }}>—</Typography>;
+        const stat = STATUS_META[sub.status] ?? STATUS_META.expired;
         return (
           <Chip label={stat.label} size="small"
             sx={{ bgcolor: stat.bg, color: stat.color, fontWeight: 700, fontSize: 11,
@@ -655,7 +656,7 @@ const AdminDashboard = () => {
       field: "subscription_end", headerName: "Vence", width: 120,
       valueGetter: (_, row) => row.subscription?.endDate ?? "",
       renderCell: (params) => {
-        const endDate = params.row.subscription?.endDate;
+        const endDate = params.row.subscription?.status !== "pending" ? params.row.subscription?.endDate : null;
         if (!endDate) return <Typography sx={{ fontSize: 12, color: C.textMuted }}>—</Typography>;
         const days = Math.ceil((new Date(endDate) - new Date()) / 86400000);
         const color = days < 0 ? C.textMuted : days <= 5 ? C.danger : C.text;
