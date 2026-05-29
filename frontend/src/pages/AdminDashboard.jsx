@@ -207,6 +207,7 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
   const [assignPlan,    setAssignPlan]    = useState("silver");
   const [assignDays,    setAssignDays]    = useState(30);
   const [customDays,    setCustomDays]    = useState("");
+  const [assignRestore, setAssignRestore] = useState(false); // false=promo, true=restaurar plan pago
   const [assigning,     setAssigning]     = useState(false);
   const [assignResult,  setAssignResult]  = useState(null); // { ok, msg }
 
@@ -231,7 +232,7 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
       const res  = await fetch(`${API_URL}/api/admin/users/${user._id}/subscription`, {
         method:  "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body:    JSON.stringify({ plan: assignPlan, days: effectiveDays }),
+        body:    JSON.stringify({ plan: assignPlan, days: effectiveDays, restore: assignRestore }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -431,7 +432,34 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
           </Typography>
         </Stack>
 
-        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: `1.5px solid ${C.brandMuted}`, bgcolor: C.brandSurface, mb: 2 }}>
+        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: `1.5px solid ${assignRestore ? "rgba(201,149,42,0.40)" : C.brandMuted}`, bgcolor: assignRestore ? "#FDF6E3" : C.brandSurface, mb: 2, transition: "all 0.2s" }}>
+
+          {/* Toggle tipo */}
+          <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(0,0,0,0.06)", borderRadius: 2, p: 0.4, mb: 2 }}>
+            {[
+              { val: false, label: "🎁 Promo (sin cargo)" },
+              { val: true,  label: "🔄 Restaurar plan pago" },
+            ].map(({ val, label }) => (
+              <Box key={String(val)} onClick={() => setAssignRestore(val)} sx={{
+                flex: 1, textAlign: "center", py: 0.7, borderRadius: 1.5, cursor: "pointer",
+                bgcolor: assignRestore === val ? "#fff" : "transparent",
+                boxShadow: assignRestore === val ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
+                transition: "all 0.15s",
+              }}>
+                <Typography sx={{ fontSize: 12, fontWeight: assignRestore === val ? 700 : 600, color: assignRestore === val ? (val ? C.gold : C.brand) : C.textSec, whiteSpace: "nowrap" }}>
+                  {label}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+
+          {assignRestore && (
+            <Box sx={{ px: 1.5, py: 1, borderRadius: 2, bgcolor: "rgba(201,149,42,0.10)", border: "1px solid rgba(201,149,42,0.25)", mb: 2 }}>
+              <Typography sx={{ fontSize: 11.5, color: C.gold, fontWeight: 600, lineHeight: 1.5 }}>
+                Cuenta en MRR con el precio real del plan. Usalo para restaurar una suscripción paga que quedó corrupta.
+              </Typography>
+            </Box>
+          )}
 
           {/* Selector de plan */}
           <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 1 }}>
@@ -509,7 +537,12 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
               py: 1.1, bgcolor: C.brand, "&:hover": { bgcolor: C.brandLight },
               "&:disabled": { opacity: 0.6 } }}
           >
-            {assigning ? "Asignando…" : `Asignar Plan ${PLAN_META[assignPlan]?.label} · ${effectiveDays || "—"} días`}
+            {assigning
+              ? "Asignando…"
+              : assignRestore
+                ? `Restaurar Plan ${PLAN_META[assignPlan]?.label} · ${effectiveDays || "—"} días · ${{ silver: "2.990", gold: "5.990", free: "0" }[assignPlan]}/mes`
+                : `Asignar Promo ${PLAN_META[assignPlan]?.label} · ${effectiveDays || "—"} días`
+            }
           </Button>
         </Paper>
 

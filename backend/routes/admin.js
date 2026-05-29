@@ -233,7 +233,7 @@ router.delete("/users/:id", authMiddleware, isAdmin, async (req, res) => {
 router.post("/users/:id/subscription", authMiddleware, isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { plan, days } = req.body;
+    const { plan, days, restore = false } = req.body;
 
     if (!["free", "silver", "gold"].includes(plan))
       return res.status(400).json({ error: "Plan inválido. Usá free, silver o gold." });
@@ -250,7 +250,16 @@ router.post("/users/:id/subscription", authMiddleware, isAdmin, async (req, res)
     const end = new Date(now);
     end.setDate(end.getDate() + daysNum);
 
-    const PLAN_NAMES = { free: "Free", silver: "Silver", gold: "Gold" };
+    const PLAN_NAMES  = { free: "Free", silver: "Silver", gold: "Gold" };
+    const PLAN_AMOUNTS = { free: 0, silver: 2990, gold: 5990 };
+
+    // restore=true → cuenta en MRR (source: "payment", monto real del plan)
+    // restore=false → promo gratuita (source: "admin", amount: 0)
+    const source = restore ? "payment" : "admin";
+    const amount = restore ? PLAN_AMOUNTS[plan] : 0;
+    const description = restore
+      ? `Plan ${PLAN_NAMES[plan]} — restaurado por admin (${daysNum} días)`
+      : `Plan ${PLAN_NAMES[plan]} — asignado por admin (${daysNum} días)`;
 
     const sub = await Subscription.findOneAndUpdate(
       { user: id },
@@ -261,20 +270,20 @@ router.post("/users/:id/subscription", authMiddleware, isAdmin, async (req, res)
           status:    "active",
           startDate: now,
           endDate:   end,
-          amount:    0,
+          amount,
           currency:  "ARS",
           autoRenew: false,
-          source:    "admin",
+          source,
         },
         $push: {
           paymentHistory: {
             $each: [{
               mpPaymentId: `admin_${Date.now()}`,
-              amount:      0,
+              amount,
               currency:    "ARS",
               status:      "approved",
               plan,
-              description: `Plan ${PLAN_NAMES[plan]} — asignado por admin (${daysNum} días)`,
+              description,
             }],
             $position: 0,
           },
@@ -283,8 +292,8 @@ router.post("/users/:id/subscription", authMiddleware, isAdmin, async (req, res)
       { upsert: true, returnDocument: "after" }
     );
 
-    logInfo("admin", "subscription.assigned",
-      `Plan ${PLAN_NAMES[plan]} (${daysNum}d) asignado a ${targetUser.email} por admin`,
+    logInfo("admin", restore ? "subscription.restored" : "subscription.assigned",
+      `Plan ${PLAN_NAMES[plan]} (${daysNum}d) ${restore ? "restaurado" : "asignado"} a ${targetUser.email} por admin`,
       {
         userId:    req.user._id,
         userName:  req.user.name,
@@ -293,8 +302,10 @@ router.post("/users/:id/subscription", authMiddleware, isAdmin, async (req, res)
           targetUserId:    targetUser._id,
           targetUserEmail: targetUser.email,
           plan,
-          days:            daysNum,
-          endDate:         end,
+          days:   daysNum,
+          endDate: end,
+          restore,
+          amount,
         },
       }
     );
