@@ -2,6 +2,7 @@ import express from "express";
 import User         from "../models/User.js";
 import Analysis     from "../models/Analysis.js";
 import Subscription from "../models/Subscription.js";
+import Coupon       from "../models/Coupon.js";
 import Log          from "../models/Log.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { isAdmin }        from "../middleware/isAdmin.js";
@@ -362,6 +363,84 @@ router.delete("/logs", authMiddleware, isAdmin, async (req, res) => {
     return res.json({ deleted: deletedCount });
   } catch (err) {
     return res.status(500).json({ error: "Error deleting logs" });
+  }
+});
+
+/* =====================================================
+   🎟️ CUPONES — CRUD
+   ===================================================== */
+
+// GET todos los cupones (con estadísticas de uso)
+router.get("/coupons", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const coupons = await Coupon.find().sort({ createdAt: -1 }).lean();
+    return res.json({ coupons });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener cupones." });
+  }
+});
+
+// POST crear cupón
+router.post("/coupons", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { code, creatorName, creatorEmail, discountPct, appliesTo, maxUses, validUntil } = req.body;
+
+    if (!code?.trim())       return res.status(400).json({ error: "El código es requerido." });
+    if (!creatorName?.trim())return res.status(400).json({ error: "El nombre del creador es requerido." });
+    const pct = Number(discountPct);
+    if (!pct || pct < 1 || pct > 100) return res.status(400).json({ error: "Descuento debe ser entre 1 y 100." });
+
+    const coupon = await Coupon.create({
+      code:         code.toUpperCase().trim(),
+      creatorName:  creatorName.trim(),
+      creatorEmail: creatorEmail?.trim() || null,
+      discountPct:  pct,
+      appliesTo:    appliesTo || "both",
+      maxUses:      maxUses ? Number(maxUses) : null,
+      validUntil:   validUntil || null,
+    });
+
+    logInfo("admin", "coupon.created",
+      `Cupón ${coupon.code} creado para ${coupon.creatorName}`,
+      { userId: req.user._id, userName: req.user.name, userEmail: req.user.email,
+        meta: { code: coupon.code, discountPct: pct, appliesTo: coupon.appliesTo } });
+
+    return res.json({ coupon });
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ error: "Ya existe un cupón con ese código." });
+    return res.status(500).json({ error: "Error al crear el cupón." });
+  }
+});
+
+// PATCH actualizar cupón (active, discountPct, etc.)
+router.patch("/coupons/:id", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const allowed = ["active", "discountPct", "appliesTo", "maxUses", "validUntil", "creatorEmail"];
+    const update  = {};
+    allowed.forEach((k) => { if (req.body[k] !== undefined) update[k] = req.body[k]; });
+
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
+    if (!coupon) return res.status(404).json({ error: "Cupón no encontrado." });
+    return res.json({ coupon });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al actualizar el cupón." });
+  }
+});
+
+// DELETE eliminar cupón
+router.delete("/coupons/:id", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) return res.status(404).json({ error: "Cupón no encontrado." });
+
+    logInfo("admin", "coupon.deleted",
+      `Cupón ${coupon.code} eliminado`,
+      { userId: req.user._id, userName: req.user.name, userEmail: req.user.email,
+        meta: { code: coupon.code } });
+
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al eliminar el cupón." });
   }
 });
 

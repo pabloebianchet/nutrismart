@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
+import Coupon from "../models/Coupon.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
@@ -69,9 +70,61 @@ const mpFetch = (path, options = {}) => {
   });
 };
 
+/* ─── VALIDAR CUPÓN ──────────────────────────────────────────── */
+router.post("/validate-coupon", authMiddleware, async (req, res) => {
+  const { code, plan } = req.body;
+
+  if (!code || !plan) return res.status(400).json({ error: "Código y plan requeridos." });
+  if (!PLANS[plan])   return res.status(400).json({ error: "Plan inválido." });
+
+  try {
+    const coupon = await Coupon.findOne({ code: code.toUpperCase().trim(), active: true });
+
+    if (!coupon) return res.status(404).json({ error: "Código inválido o inactivo." });
+
+    if (coupon.appliesTo !== "both" && coupon.appliesTo !== plan)
+      return res.status(400).json({
+        error: `Este código solo aplica al Plan ${coupon.appliesTo === "silver" ? "Silver" : "Gold"}.`,
+      });
+
+    if (coupon.maxUses !== null && coupon.usages.length >= coupon.maxUses)
+      return res.status(400).json({ error: "Este código ya alcanzó su límite de usos." });
+
+    if (coupon.validUntil && new Date() > new Date(coupon.validUntil))
+      return res.status(400).json({ error: "Este código de descuento venció." });
+
+    // Verificar si el usuario ya agotó los 3 meses con este cupón
+    const sub = await Subscription.findOne({ user: req.user._id });
+    const monthsUsed = sub?.couponCode === coupon.code ? (sub.couponMonthsUsed ?? 0) : 0;
+
+    if (monthsUsed >= 3)
+      return res.status(400).json({
+        error: "Ya usaste este descuento durante 3 meses. A partir de ahora se cobra el precio completo.",
+      });
+
+    const planInfo      = PLANS[plan];
+    const discountAmount = Math.round(planInfo.amount * coupon.discountPct / 100);
+    const finalAmount    = planInfo.amount - discountAmount;
+
+    return res.json({
+      valid:          true,
+      code:           coupon.code,
+      creatorName:    coupon.creatorName,
+      discountPct:    coupon.discountPct,
+      originalAmount: planInfo.amount,
+      discountAmount,
+      finalAmount,
+      monthsUsed,
+      monthsLeft: 3 - monthsUsed,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al validar el cupón." });
+  }
+});
+
 /* ─── CREAR PAGO (Checkout Pro — pago único mensual) ─────────── */
 router.post("/subscribe", authMiddleware, async (req, res) => {
-  const { plan } = req.body;
+  const { plan, couponCode } = req.body;
 
   if (!PLANS[plan]) {
     return res.status(400).json({ error: "Plan inválido. Usá 'silver' o 'gold'." });
@@ -86,12 +139,38 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
     const planInfo    = PLANS[plan];
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
+    // ── Validar y aplicar cupón (si se envió) ─────────────────────
+    let finalAmount  = planInfo.amount;
+    let pendingCoupon = null;
+
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase().trim(), active: true });
+      if (coupon && (coupon.appliesTo === "both" || coupon.appliesTo === plan)) {
+        if (!coupon.maxUses || coupon.usages.length < coupon.maxUses) {
+          if (!coupon.validUntil || new Date() <= new Date(coupon.validUntil)) {
+            const sub = await Subscription.findOne({ user: user._id });
+            const monthsUsed = sub?.couponCode === coupon.code ? (sub.couponMonthsUsed ?? 0) : 0;
+            if (monthsUsed < 3) {
+              const discountAmount = Math.round(planInfo.amount * coupon.discountPct / 100);
+              finalAmount   = planInfo.amount - discountAmount;
+              pendingCoupon = {
+                code:           coupon.code,
+                discountPct:    coupon.discountPct,
+                originalAmount: planInfo.amount,
+                finalAmount,
+              };
+            }
+          }
+        }
+      }
+    }
+
     const preferenceBody = {
       items: [{
-        title:      `Nui · ${planInfo.name}`,
+        title:       `Nui · ${planInfo.name}${pendingCoupon ? ` (${pendingCoupon.discountPct}% off)` : ""}`,
         description: planInfo.description,
-        quantity:   1,
-        unit_price: planInfo.amount,
+        quantity:    1,
+        unit_price:  finalAmount,
         currency_id: planInfo.currency,
       }],
       payer: { email: user.email },
@@ -123,12 +202,20 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
 
     const mpData = await mpRes.json();
 
-    // NO se toca la suscripción activa del usuario hasta que el webhook
-    // confirme el pago (type === "payment", status === "approved").
-    // Sobreescribir aquí causaba que un Silver activo se perdiera si
-    // el usuario intentaba pasar a Gold y el pago fallaba.
+    // Guardar pendingCoupon sin tocar plan/status (solo el campo de cupón)
+    if (pendingCoupon) {
+      await Subscription.findOneAndUpdate(
+        { user: user._id },
+        { $set: { pendingCoupon } },
+        { upsert: true }
+      );
+    }
 
-    return res.json({ initPoint: mpData.init_point });
+    return res.json({
+      initPoint:    mpData.init_point,
+      finalAmount,
+      couponApplied: !!pendingCoupon,
+    });
   } catch (err) {
     console.error("Subscribe error:", err);
     return res.status(500).json({ error: err.message || "Error al crear el pago." });
@@ -341,6 +428,34 @@ router.post("/webhook", async (req, res) => {
             `${isRenewal ? "Renovación" : "Nueva suscripción"} ${planInfo.name} — ${user.email}`,
             { userId: user._id, userName: user.name, userEmail: user.email,
               meta: { plan, amount: mp.transaction_amount, currency: mp.currency_id, isRenewal, mpPaymentId: mp.id } });
+
+          // ── Registrar uso de cupón (si había pendingCoupon) ──────
+          if (sub.pendingCoupon?.code) {
+            const pc = sub.pendingCoupon;
+            const discountAmount = pc.originalAmount - pc.finalAmount;
+            const prevMonths = sub.couponCode === pc.code ? (sub.couponMonthsUsed ?? 0) : 0;
+
+            await Coupon.findOneAndUpdate(
+              { code: pc.code },
+              { $push: { usages: {
+                  userId:         user._id,
+                  userEmail:      user.email,
+                  plan,
+                  originalAmount: pc.originalAmount,
+                  discountAmount,
+                  finalAmount:    pc.finalAmount,
+                  mpPaymentId:    mp.id?.toString(),
+                }}}
+            );
+
+            await Subscription.findOneAndUpdate(
+              { user: userId },
+              {
+                $set:   { couponCode: pc.code, couponMonthsUsed: prevMonths + 1 },
+                $unset: { pendingCoupon: 1 },
+              }
+            );
+          }
         }
       }
     }

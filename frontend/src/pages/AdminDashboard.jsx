@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import AdminLogs from "../components/AdminLogs.jsx";
+import AdminLogs    from "../components/AdminLogs.jsx";
+import AdminCoupons from "../components/AdminCoupons.jsx";
 import {
   Box, Typography, Stack, Paper,
   TextField, InputAdornment, IconButton,
@@ -789,8 +790,9 @@ const AdminDashboard = () => {
       {/* Tab switcher */}
       <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex", mb: 4 }}>
         {[
-          { id: "stats", label: "📊 Estadísticas" },
-          { id: "logs",  label: "📋 Logs" },
+          { id: "stats",   label: "📊 Estadísticas" },
+          { id: "coupons", label: "🎟️ Cupones" },
+          { id: "logs",    label: "📋 Logs" },
         ].map((tab) => (
           <Box key={tab.id} onClick={() => setActiveTab(tab.id)} sx={{
             px: 2.5, py: 0.9, borderRadius: 999, cursor: "pointer",
@@ -806,7 +808,8 @@ const AdminDashboard = () => {
         ))}
       </Stack>
 
-      {activeTab === "logs" && <AdminLogs />}
+      {activeTab === "logs"    && <AdminLogs />}
+      {activeTab === "coupons" && <AdminCoupons token={token} />}
 
       {activeTab === "stats" && (<>
 

@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Chip, Button, Stack } from "@mui/material";
+import { Box, Typography, Chip, Button, Stack, TextField, InputAdornment, IconButton, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
-import CheckRoundedIcon        from "@mui/icons-material/CheckRounded";
-import RocketLaunchRoundedIcon  from "@mui/icons-material/RocketLaunchRounded";
-import DiamondOutlinedIcon      from "@mui/icons-material/DiamondOutlined";
+import CheckRoundedIcon             from "@mui/icons-material/CheckRounded";
+import RocketLaunchRoundedIcon      from "@mui/icons-material/RocketLaunchRounded";
+import DiamondOutlinedIcon          from "@mui/icons-material/DiamondOutlined";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
-import BoltRoundedIcon          from "@mui/icons-material/BoltRounded";
-import AccessTimeRoundedIcon    from "@mui/icons-material/AccessTimeRounded";
+import BoltRoundedIcon              from "@mui/icons-material/BoltRounded";
+import AccessTimeRoundedIcon        from "@mui/icons-material/AccessTimeRounded";
+import LocalOfferRoundedIcon        from "@mui/icons-material/LocalOfferRounded";
+import CloseRoundedIcon             from "@mui/icons-material/CloseRounded";
 import { API_URL } from "../config/api";
 
 const C = {
@@ -103,17 +105,68 @@ const formatARS = (n) =>
 const PricingPage = () => {
   const { user, subPlan, subStatus, trialDaysLeft, isTrialExpired, refreshSubscription } = useNutrition();
   const navigate  = useNavigate();
-  const [loading, setLoading] = useState(null);
+  const [loading,      setLoading]      = useState(null);
+  const [couponInput,  setCouponInput]  = useState("");
+  const [validating,   setValidating]   = useState(false);
+  const [couponData,   setCouponData]   = useState(null);  // { code, creatorName, discountPct, originalAmount, discountAmount, finalAmount, monthsLeft }
+  const [couponError,  setCouponError]  = useState("");
 
   // Refrescar suscripción al entrar a la página (por si volvió de MP)
   useEffect(() => { refreshSubscription(); }, []); // eslint-disable-line
+
+  const validateCoupon = async (planId) => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    setValidating(true);
+    setCouponError("");
+    setCouponData(null);
+    try {
+      const token = localStorage.getItem("nutrismartToken");
+      const res   = await fetch(`${API_URL}/api/payments/validate-coupon`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ code, plan: planId || "silver" }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setCouponError(data.error || "Código inválido."); return; }
+      setCouponData(data);
+    } catch {
+      setCouponError("Error al validar el código.");
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const clearCoupon = () => {
+    setCouponInput("");
+    setCouponData(null);
+    setCouponError("");
+  };
 
   const handleAction = async (plan) => {
     if (!user) { navigate("/"); return; }
 
     if (plan.ctaAction === "start_free") {
-      navigate("/"); // ya tiene trial activo, ir al dashboard
+      navigate("/");
       return;
+    }
+
+    // Si hay cupón activo, re-validar contra el plan elegido
+    if (couponData && couponData.code) {
+      const code = couponData.code;
+      const token = localStorage.getItem("nutrismartToken");
+      const valRes = await fetch(`${API_URL}/api/payments/validate-coupon`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ code, plan: plan.id }),
+      });
+      const valData = await valRes.json();
+      if (!valRes.ok) {
+        setCouponError(valData.error || "El cupón no aplica a este plan.");
+        setCouponData(null);
+      } else {
+        setCouponData(valData);
+      }
     }
 
     setLoading(plan.id);
@@ -122,7 +175,7 @@ const PricingPage = () => {
       const res = await fetch(`${API_URL}/api/payments/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ plan: plan.id }),
+        body: JSON.stringify({ plan: plan.id, couponCode: couponData?.code || null }),
       });
       const data = await res.json();
       if (!res.ok) { alert(data.error || "Error al procesar el pago."); return; }
@@ -132,6 +185,15 @@ const PricingPage = () => {
     } finally {
       setLoading(null);
     }
+  };
+
+  // Precio efectivo de un plan considerando cupón
+  const effectivePrice = (planId, originalPrice) => {
+    if (!couponData || !originalPrice) return originalPrice;
+    if (couponData.code && (couponData.originalAmount === originalPrice)) {
+      return couponData.finalAmount;
+    }
+    return originalPrice;
   };
 
   /* Estado actual del usuario para cada card */
@@ -185,6 +247,78 @@ const PricingPage = () => {
             Cuando termina tu prueba, elegís el plan que mejor se adapta a tu estilo.
           </Typography>
         </Box>
+
+        {/* ── Cupón de descuento ──────────────────────────── */}
+        {user && (
+          <Box sx={{ maxWidth: 480, mx: "auto", mb: 5, animation: "fadeUp 0.6s 0.15s ease both" }}>
+            {!couponData ? (
+              <Stack direction="row" spacing={1} alignItems="flex-start">
+                <TextField
+                  placeholder="¿Tenés un código de descuento?"
+                  value={couponInput}
+                  onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); }}
+                  onKeyDown={(e) => e.key === "Enter" && validateCoupon()}
+                  size="small"
+                  fullWidth
+                  error={!!couponError}
+                  helperText={couponError}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LocalOfferRoundedIcon sx={{ fontSize: 16, color: C.textMuted }} />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2.5, bgcolor: "#fff", fontSize: 13,
+                      "& fieldset": { borderColor: "rgba(11,94,85,0.20)" },
+                      "&:hover fieldset":  { borderColor: C.brandMuted },
+                      "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 },
+                    },
+                  }}
+                />
+                <Button
+                  onClick={() => validateCoupon()}
+                  disabled={!couponInput.trim() || validating}
+                  variant="outlined"
+                  sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13,
+                    px: 2.5, py: "7px", whiteSpace: "nowrap", borderColor: C.brand, color: C.brand,
+                    "&:hover": { bgcolor: C.brandSurface } }}
+                >
+                  {validating ? <CircularProgress size={16} sx={{ color: C.brand }} /> : "Aplicar"}
+                </Button>
+              </Stack>
+            ) : (
+              <Box sx={{
+                px: 2.5, py: 2, borderRadius: 3,
+                background: "linear-gradient(135deg, #E6F5F3 0%, #F0FAF8 100%)",
+                border: `1.5px solid ${C.brandMuted}`,
+                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5,
+              }}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: C.brand,
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <LocalOfferRoundedIcon sx={{ fontSize: 18, color: "#fff" }} />
+                  </Box>
+                  <Box>
+                    <Typography sx={{ fontSize: 13, fontWeight: 800, color: C.brand }}>
+                      {couponData.discountPct}% OFF · código de {couponData.creatorName}
+                    </Typography>
+                    <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                      Válido por {couponData.monthsLeft} mes{couponData.monthsLeft !== 1 ? "es" : ""} más · se aplica automáticamente
+                    </Typography>
+                  </Box>
+                </Stack>
+                <IconButton size="small" onClick={clearCoupon} sx={{ color: C.textMuted, "&:hover": { color: C.danger } }}>
+                  <CloseRoundedIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            )}
+          </Box>
+        )}
 
         {/* Cards — 3 columnas desktop, 1 mobile */}
         <Box sx={{
@@ -261,13 +395,22 @@ const PricingPage = () => {
                   <Box mb={3}>
                     {plan.price ? (
                       <>
-                        <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
-                          <Typography sx={{ fontSize: 38, fontWeight: 900, color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>
+                        {couponData && effectivePrice(plan.id, plan.price) !== plan.price && (
+                          <Typography sx={{ fontSize: 16, color: C.textMuted, textDecoration: "line-through", lineHeight: 1, mb: 0.3 }}>
                             {formatARS(plan.price)}
                           </Typography>
+                        )}
+                        <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8 }}>
+                          <Typography sx={{ fontSize: 38, fontWeight: 900, color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>
+                            {formatARS(effectivePrice(plan.id, plan.price))}
+                          </Typography>
+                          {couponData && effectivePrice(plan.id, plan.price) !== plan.price && (
+                            <Chip label={`-${couponData.discountPct}%`} size="small"
+                              sx={{ bgcolor: "#E8F5E9", color: "#2E7D32", fontWeight: 800, fontSize: 11, height: 20 }} />
+                          )}
                         </Box>
                         <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>
-                          {plan.label}
+                          {plan.label}{couponData && effectivePrice(plan.id, plan.price) !== plan.price ? ` · primeros ${couponData.monthsLeft} mes${couponData.monthsLeft !== 1 ? "es" : ""}` : ""}
                         </Typography>
                       </>
                     ) : (
