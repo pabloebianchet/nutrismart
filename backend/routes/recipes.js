@@ -170,20 +170,33 @@ router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (r
 
   try {
     const openai = getOpenAI();
-    const response = await openai.images.generate({
-      model:   "dall-e-3",
-      prompt,
-      n:       1,
-      size:    "1024x1024",
-      quality: "standard",
-    });
+
+    // Intentar con dall-e-3, fallback a dall-e-2 si no está disponible
+    let response;
+    try {
+      response = await openai.images.generate({
+        model:   "dall-e-3",
+        prompt,
+        n:       1,
+        size:    "1024x1024",
+        quality: "standard",
+      });
+    } catch (e3) {
+      console.warn("DALL-E 3 falló, intentando con dall-e-2:", e3.message);
+      response = await openai.images.generate({
+        model: "dall-e-2",
+        prompt: prompt.slice(0, 1000), // dall-e-2 tiene límite de 1000 chars
+        n:     1,
+        size:  "512x512",
+      });
+    }
 
     const imageUrl = response.data[0]?.url;
     if (!imageUrl) return res.status(500).json({ error: "No se pudo generar la imagen." });
 
     return res.json({ imageUrl });
   } catch (err) {
-    console.error("DALL-E error:", err.message);
+    console.error("DALL-E error completo:", err.status, err.message, err.error);
     return res.status(500).json({ error: "Error al generar la imagen." });
   }
 });
