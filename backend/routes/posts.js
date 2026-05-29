@@ -1,6 +1,7 @@
 import express from "express";
 import OpenAI from "openai";
 import { authMiddleware } from "../middleware/auth.js";
+import { isAdmin } from "../middleware/isAdmin.js";
 import DailyPost from "../models/DailyPost.js";
 import { generateImage } from "../utils/generateImage.js";
 
@@ -130,6 +131,21 @@ router.get("/:date/image", authMiddleware, async (req, res) => {
     return res.json({ imageUrl: null });
   } catch (err) {
     return res.status(500).json({ error: "Error." });
+  }
+});
+
+/* ─── DELETE /admin/reset — borrar posts recientes (admin) ──── */
+router.delete("/admin/reset", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const dates = [0, 1, 2].map((offset) => {
+      const d = new Date();
+      d.setDate(d.getDate() - offset);
+      return d.toLocaleDateString("en-CA");
+    });
+    const result = await DailyPost.deleteMany({ date: { $in: dates } });
+    return res.json({ deleted: result.deletedCount, message: "Posts eliminados. Se regenerarán con temas distintos." });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 

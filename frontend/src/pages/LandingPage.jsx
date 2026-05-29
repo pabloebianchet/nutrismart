@@ -1220,7 +1220,9 @@ const LandingPostModal = ({ post, open, onClose }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
       PaperProps={{ sx: { borderRadius: { xs: 3, sm: 4 }, mx: { xs: 1.5, sm: 2 },
-        overflow: "hidden", maxHeight: "92dvh", display: "flex", flexDirection: "column" } }}>
+        mt: { xs: "72px", sm: 4 }, mb: { xs: 2, sm: 4 },
+        overflow: "hidden", maxHeight: { xs: "calc(100dvh - 90px)", sm: "88dvh" },
+        display: "flex", flexDirection: "column" } }}>
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Header fijo con botón cerrar */}
         <Stack direction="row" alignItems="center" justifyContent="space-between"
