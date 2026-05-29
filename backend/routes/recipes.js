@@ -154,45 +154,34 @@ router.get("/saved", authMiddleware, async (req, res) => {
   }
 });
 
-/* ── Imagen del plato (GPT traducción + Unsplash) ────── */
+/* ── Imagen del plato con gpt-image-1 ────────────────── */
 router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (req, res) => {
   const { name, ingredients } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre de receta requerido." });
 
-  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!unsplashKey) return res.status(503).json({ error: "Servicio de imágenes no configurado." });
+  const safeIngredients = Array.isArray(ingredients)
+    ? ingredients.slice(0, 4).join(", ")
+    : "";
+
+  const prompt = `Professional food photography of "${name}"${safeIngredients ? `, made with ${safeIngredients}` : ""}. Beautifully plated on a white ceramic dish, natural light, top-down angle, fresh and appetizing, high resolution. No text, no watermarks.`;
 
   try {
-    // Traducir nombre al inglés para mejor búsqueda
-    let searchTerm = name;
-    try {
-      const openai = getOpenAI();
-      const gpt    = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: `Translate this dish name to English for a food photo search. Respond with ONLY 3-5 English keywords. Dish: "${name}"` }],
-        max_tokens: 20, temperature: 0,
-      });
-      const t = gpt.choices[0]?.message?.content?.trim();
-      if (t) searchTerm = t;
-    } catch {}
-
-    const query    = encodeURIComponent(`${searchTerm} food plated dish`);
-    const url      = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`;
-    const response = await fetch(url, { headers: { Authorization: `Client-ID ${unsplashKey}` } });
-    if (!response.ok) return res.status(502).json({ error: "Error al buscar la imagen." });
-
-    const data  = await response.json();
-    const photo = data.results?.[0];
-    if (!photo) return res.status(404).json({ error: "No se encontró imagen." });
-
-    return res.json({
-      imageUrl: photo.urls.regular,
-      authorName: photo.user.name,
-      unsplashLink: photo.links.html,
+    const openai   = getOpenAI();
+    const response = await openai.images.generate({
+      model:   "gpt-image-1",
+      prompt,
+      n:       1,
+      size:    "1024x1024",
+      quality: "standard",
     });
+
+    const item = response.data[0];
+    const imageUrl = item.url ?? (item.b64_json ? `data:image/png;base64,${item.b64_json}` : null);
+    if (!imageUrl) return res.status(500).json({ error: "Sin imagen." });
+    return res.json({ imageUrl });
   } catch (err) {
-    console.error("Recipe image error:", err.message);
-    return res.status(500).json({ error: "Error al obtener la imagen." });
+    console.error("gpt-image-1 recipe error:", err.status, err.message);
+    return res.status(500).json({ error: "Error al generar la imagen.", detail: err.message });
   }
 });
 
