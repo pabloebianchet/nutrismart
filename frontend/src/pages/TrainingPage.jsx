@@ -395,11 +395,12 @@ const TrainingPage = () => {
       })
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {
-          if (data?.imageUrl) {
-            setExerciseImages((p) => ({ ...p, [ex.name]: data }));
-          }
+          // false = falló → no mostrar nada, data válida → mostrar imagen
+          setExerciseImages((p) => ({ ...p, [ex.name]: data?.imageUrl ? data : false }));
         })
-        .catch(() => {});
+        .catch(() => {
+          setExerciseImages((p) => ({ ...p, [ex.name]: false }));
+        });
     }
   };
 
@@ -1334,8 +1335,8 @@ const TrainingPage = () => {
                         boxShadow: "0 2px 12px rgba(11,94,85,0.07)", transition: "box-shadow 0.2s",
                         "&:hover": { boxShadow: "0 4px 20px rgba(11,94,85,0.13)" } }}>
 
-                        {/* ── Imagen del ejercicio ── */}
-                        {(() => {
+                        {/* ── Imagen del ejercicio (solo si cargó o está cargando) ── */}
+                        {exerciseImages[ex.name] !== false && (() => {
                           const imgData = exerciseImages[ex.name];
                           return (
                             <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/7", overflow: "hidden",
@@ -1350,13 +1351,28 @@ const TrainingPage = () => {
                                 }} />
                               )}
                               {imgData === null && (
-                                /* cargando */
-                                <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
                                   <Typography sx={{ fontSize: 28,
-                                    "@keyframes pulse": { "0%,100%": { opacity: 0.4 }, "50%": { opacity: 0.9 } },
-                                    animation: "pulse 1.2s ease-in-out infinite" }}>
+                                    "@keyframes pulse": { "0%,100%": { opacity: 0.4, transform: "scale(0.95)" }, "50%": { opacity: 1, transform: "scale(1.05)" } },
+                                    animation: "pulse 1.4s ease-in-out infinite" }}>
                                     🏋️
                                   </Typography>
+                                  <Box sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>
+                                      Generando imagen de referencia
+                                    </Typography>
+                                    <Stack direction="row" spacing={0.5} justifyContent="center" mt={0.5}>
+                                      {[0, 1, 2].map((i) => (
+                                        <Box key={i} sx={{
+                                          width: 5, height: 5, borderRadius: "50%",
+                                          bgcolor: activeTipo?.color || "#0B5E55",
+                                          opacity: 0.5,
+                                          "@keyframes blink": { "0%,80%,100%": { opacity: 0.2 }, "40%": { opacity: 1 } },
+                                          animation: `blink 1.2s ${i * 0.2}s ease-in-out infinite`,
+                                        }} />
+                                      ))}
+                                    </Stack>
+                                  </Box>
                                 </Box>
                               )}
                               {imgData?.imageUrl && (

@@ -6,6 +6,7 @@ import { requireActiveSub } from "../middleware/requireActiveSub.js";
 import SavedRecipe from "../models/SavedRecipe.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { generateImage } from "../utils/generateImage.js";
+import RecipeImage from "../models/RecipeImage.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -166,13 +167,27 @@ router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (r
 
   const prompt = `Professional food photography of "${name}"${safeIngredients ? `, made with ${safeIngredients}` : ""}. Beautifully plated on a white ceramic dish, natural light, top-down angle, fresh and appetizing, high resolution. No text, no watermarks.`;
 
+  const cacheKey = name.toLowerCase().trim();
+
+  // Caché DB
+  try {
+    const saved = await RecipeImage.findOne({ name: cacheKey });
+    if (saved) return res.json({ imageUrl: saved.imageUrl, fromCache: "db" });
+  } catch {}
+
   try {
     const { imageUrl } = await generateImage(getOpenAI(), { prompt, size: "1024x1024" });
+
+    RecipeImage.findOneAndUpdate(
+      { name: cacheKey },
+      { $set: { name: cacheKey, imageUrl } },
+      { upsert: true }
+    ).catch((e) => console.error("Error guardando imagen receta:", e.message));
+
     return res.json({ imageUrl });
   } catch (err) {
-    console.error("Recipe image error:", err.status, err.message);
-    const status = err.allModelsFailed ? 503 : 500;
-    return res.status(status).json({ error: "Error al generar la imagen.", detail: err.message });
+    console.error("Recipe image error:", err.message);
+    return res.status(500).json({ error: "Error al generar la imagen.", detail: err.message });
   }
 });
 

@@ -8,6 +8,7 @@ import TrainingPlan from "../models/TrainingPlan.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { generateImage } from "../utils/generateImage.js";
+import ExerciseImage from "../models/ExerciseImage.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -323,27 +324,49 @@ router.get("/models-available", authMiddleware, async (req, res) => {
   }
 });
 
-/* ── Imagen de ejercicio con gpt-image-1 ───────────────────────── */
+/* ── Imagen de ejercicio (caché DB + generación IA) ───────────── */
 router.post("/exercise-image", authMiddleware, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre requerido." });
 
   const cacheKey = name.toLowerCase().trim();
+
+  // 1. Caché en memoria (más rápido, evita hasta el query a DB)
   if (exerciseImageCache.has(cacheKey)) {
-    return res.json(exerciseImageCache.get(cacheKey));
+    return res.json({ ...exerciseImageCache.get(cacheKey), fromCache: "memory" });
   }
 
+  // 2. Caché en DB (persiste entre reinicios del servidor)
+  try {
+    const saved = await ExerciseImage.findOne({ name: cacheKey });
+    if (saved) {
+      const result = { imageUrl: saved.imageUrl };
+      exerciseImageCache.set(cacheKey, result); // popular caché en memoria también
+      return res.json({ ...result, fromCache: "db" });
+    }
+  } catch (dbErr) {
+    console.warn("DB cache lookup error:", dbErr.message);
+  }
+
+  // 3. Generar con IA → guardar en DB y memoria
   const prompt = `Professional fitness photography of a person performing "${name}" exercise with perfect form. Clear gym background, natural lighting, full body shot showing correct technique, athletic person, high quality fitness photography. No text, no watermarks.`;
 
   try {
-    const { imageUrl } = await generateImage(getOpenAI(), { prompt, size: "1536x1024" });
+    const { imageUrl } = await generateImage(getOpenAI(), { prompt, size: "1024x1024" });
+
+    // Guardar en DB (fire-and-forget para no demorar la respuesta)
+    ExerciseImage.findOneAndUpdate(
+      { name: cacheKey },
+      { $set: { name: cacheKey, imageUrl } },
+      { upsert: true }
+    ).catch((e) => console.error("Error guardando imagen en DB:", e.message));
+
     const result = { imageUrl };
     exerciseImageCache.set(cacheKey, result);
-    return res.json(result);
+    return res.json({ ...result, fromCache: "none" });
   } catch (err) {
-    console.error("Exercise image error:", err.status, err.message);
-    const status = err.allModelsFailed ? 503 : 500;
-    return res.status(status).json({ error: "Error al generar imagen.", detail: err.message });
+    console.error("Exercise image error:", err.message);
+    return res.status(500).json({ error: "Error al generar imagen.", detail: err.message });
   }
 });
 
