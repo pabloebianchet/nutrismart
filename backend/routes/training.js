@@ -307,63 +307,37 @@ router.delete("/plan/:planType", authMiddleware, async (req, res) => {
   }
 });
 
-/* ── Imagen de ejercicio (GPT traducción + Unsplash) ────────────── */
+/* ── Imagen de ejercicio con DALL-E 3 ──────────────────────────── */
 router.post("/exercise-image", authMiddleware, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre requerido." });
-
-  const key = process.env.UNSPLASH_ACCESS_KEY;
-  if (!key) return res.status(503).json({ error: "Servicio no configurado." });
 
   const cacheKey = name.toLowerCase().trim();
   if (exerciseImageCache.has(cacheKey)) {
     return res.json(exerciseImageCache.get(cacheKey));
   }
 
-  try {
-    // Traducir el nombre del ejercicio al inglés con GPT para mejor búsqueda en Unsplash
-    let searchTerm = name;
-    try {
-      const openai = getOpenAI();
-      const gpt = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{
-          role: "user",
-          content: `Translate this gym exercise name to English for a photo search query. Respond with ONLY 2-4 English keywords, nothing else. Exercise: "${name}"`,
-        }],
-        max_tokens: 20,
-        temperature: 0,
-      });
-      const translated = gpt.choices[0]?.message?.content?.trim();
-      if (translated) searchTerm = translated;
-    } catch {
-      // Si GPT falla, usar el nombre original
-    }
+  const prompt = `Professional fitness photography of a person performing the exercise "${name}" with perfect form. Clean gym background, natural lighting, clear demonstration of the movement, athletic person, high quality fitness photography. No text, no watermarks.`;
 
-    const query    = encodeURIComponent(`${searchTerm} exercise gym`);
-    const url      = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`;
-    const response = await fetch(url, {
-      headers: { Authorization: `Client-ID ${key}` },
+  try {
+    const openai   = getOpenAI();
+    const response = await openai.images.generate({
+      model:   "dall-e-3",
+      prompt,
+      n:       1,
+      size:    "1792x1024",
+      quality: "standard",
     });
 
-    if (!response.ok) return res.status(502).json({ error: "Error Unsplash." });
+    const imageUrl = response.data[0]?.url;
+    if (!imageUrl) return res.status(500).json({ error: "Sin URL de imagen." });
 
-    const data  = await response.json();
-    const photo = data.results?.[0];
-    if (!photo)  return res.status(404).json({ error: "Sin imagen." });
-
-    const result = {
-      imageUrl:    photo.urls.regular,
-      thumbUrl:    photo.urls.small,
-      authorName:  photo.user.name,
-      unsplashLink: photo.links.html,
-    };
-
+    const result = { imageUrl };
     exerciseImageCache.set(cacheKey, result);
     return res.json(result);
   } catch (err) {
-    console.error("Exercise image error:", err.message);
-    return res.status(500).json({ error: "Error al obtener imagen." });
+    console.error("DALL-E exercise image error:", err.status, err.message);
+    return res.status(500).json({ error: "Error al generar imagen.", detail: err.message });
   }
 });
 

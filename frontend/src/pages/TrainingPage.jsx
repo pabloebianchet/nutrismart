@@ -1375,14 +1375,6 @@ const TrainingPage = () => {
                                       {ex.name}
                                     </Typography>
                                   </Box>
-                                  {/* Crédito fotógrafo */}
-                                  <Box component="a" href={`${imgData.unsplashLink}?utm_source=nui_app&utm_medium=referral`}
-                                    target="_blank" rel="noopener noreferrer"
-                                    sx={{ position: "absolute", top: 8, right: 8, px: 1, py: 0.3, borderRadius: 1,
-                                      bgcolor: "rgba(0,0,0,0.40)", fontSize: 9.5, color: "rgba(255,255,255,0.80)",
-                                      textDecoration: "none", "&:hover": { color: "#fff" } }}>
-                                    📷 {imgData.authorName}
-                                  </Box>
                                 </>
                               )}
                             </Box>
