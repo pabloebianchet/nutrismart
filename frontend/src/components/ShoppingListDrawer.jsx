@@ -9,7 +9,7 @@
  *  - Input para agregar items manualmente
  */
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Drawer, Box, Typography, Stack, IconButton,
   Checkbox, Button, Tooltip, Badge, TextField,
@@ -21,7 +21,7 @@ import ShoppingCartRoundedIcon  from "@mui/icons-material/ShoppingCartRounded";
 import DeleteSweepRoundedIcon   from "@mui/icons-material/DeleteSweepRounded";
 import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatItemLabel, parseIngredient, mergeIngredients } from "../utils/shoppingList";
+import { formatItemLabel, parseIngredient, mergeIngredients, fetchListFromServer, saveList } from "../utils/shoppingList";
 
 /* ─── FAB flotante ──────────────────────────────────────────────────────────── */
 export const ShoppingFab = ({ count, onClick }) => (
@@ -147,10 +147,21 @@ const ListItem = ({ item, onChange, onRemove }) => (
 );
 
 /* ─── Drawer principal ──────────────────────────────────────────────────────── */
-const ShoppingListDrawer = ({ open, onClose, items, setItems }) => {
+const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
   const [confirmClear, setConfirmClear] = useState(false);
   const [newItem,      setNewItem]      = useState("");
   const inputRef = useRef(null);
+
+  // Cada vez que se abre el drawer, traer la lista fresca del servidor
+  useEffect(() => {
+    if (!open || !token) return;
+    fetchListFromServer(token).then((serverItems) => {
+      if (serverItems && serverItems.length > 0) {
+        setItems(serverItems);
+        saveList(serverItems);
+      }
+    });
+  }, [open]); // eslint-disable-line
 
   const pending   = items.filter((i) => !i.checked).length;
   const completed = items.filter((i) => i.checked).length;

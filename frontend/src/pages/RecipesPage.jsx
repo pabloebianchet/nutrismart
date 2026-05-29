@@ -1102,6 +1102,7 @@ const RecipesPage = () => {
         onClose={() => setDrawerOpen(false)}
         items={shoppingList}
         setItems={updateList}
+        token={token}
       />
 
       {/* ── Snackbar ── */}
