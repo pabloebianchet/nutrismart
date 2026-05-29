@@ -307,7 +307,7 @@ router.delete("/plan/:planType", authMiddleware, async (req, res) => {
   }
 });
 
-/* ── Imagen de ejercicio (Unsplash) ────────────────────────────── */
+/* ── Imagen de ejercicio (GPT traducción + Unsplash) ────────────── */
 router.post("/exercise-image", authMiddleware, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre requerido." });
@@ -321,7 +321,26 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   }
 
   try {
-    const query    = encodeURIComponent(`${name} gym exercise workout`);
+    // Traducir el nombre del ejercicio al inglés con GPT para mejor búsqueda en Unsplash
+    let searchTerm = name;
+    try {
+      const openai = getOpenAI();
+      const gpt = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{
+          role: "user",
+          content: `Translate this gym exercise name to English for a photo search query. Respond with ONLY 2-4 English keywords, nothing else. Exercise: "${name}"`,
+        }],
+        max_tokens: 20,
+        temperature: 0,
+      });
+      const translated = gpt.choices[0]?.message?.content?.trim();
+      if (translated) searchTerm = translated;
+    } catch {
+      // Si GPT falla, usar el nombre original
+    }
+
+    const query    = encodeURIComponent(`${searchTerm} exercise gym`);
     const url      = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`;
     const response = await fetch(url, {
       headers: { Authorization: `Client-ID ${key}` },
