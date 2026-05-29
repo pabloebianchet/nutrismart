@@ -22,7 +22,6 @@ import ShoppingCartRoundedIcon   from "@mui/icons-material/ShoppingCartRounded";
 import AddRoundedIcon            from "@mui/icons-material/AddRounded";
 import AutorenewRoundedIcon      from "@mui/icons-material/AutorenewRounded";
 import AccessTimeOutlinedIcon    from "@mui/icons-material/AccessTimeOutlined";
-import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
 import ContentCopyRoundedIcon    from "@mui/icons-material/ContentCopyRounded";
 import WhatsAppIcon              from "@mui/icons-material/WhatsApp";
 import CloseRoundedIcon          from "@mui/icons-material/CloseRounded";
