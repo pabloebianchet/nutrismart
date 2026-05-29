@@ -168,7 +168,7 @@ router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (r
   try {
     const openai   = getOpenAI();
     const response = await openai.images.generate({
-      model:             "gpt-image-2",
+      model:             "gpt-image-1",
       prompt,
       n:                 1,
       size:              "1024x1024",
