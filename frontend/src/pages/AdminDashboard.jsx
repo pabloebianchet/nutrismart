@@ -857,8 +857,7 @@ const AdminDashboard = () => {
           icon={CardGiftcardRoundedIcon} name="Promo / Admin" color="#7C3AED"
           bgColor="#F5F3FF" active={s.activeAdmin ?? 0}
           rows={[
-            { label: "No contabilizado en MRR", value: "—" },
-            { label: "Asignados manualmente",   value: s.activeAdmin ?? 0 },
+            { label: "Asignados por admin (fuera del MRR)", value: s.activeAdmin ?? 0 },
           ]}
         />
       </Box>
