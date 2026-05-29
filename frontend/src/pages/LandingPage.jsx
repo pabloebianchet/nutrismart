@@ -1223,10 +1223,10 @@ const LandingPostModal = ({ post, open, onClose }) => {
       PaperProps={{ sx: { borderRadius: { xs: 0, sm: 4 }, mx: { xs: 0, sm: 2 }, overflow: "hidden", maxHeight: "95dvh" } }}>
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
         {post.imageUrl && (
-          <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", flexShrink: 0 }}>
+          <Box sx={{ position: "relative", width: "100%", height: { xs: 160, sm: 200 }, flexShrink: 0, overflow: "hidden" }}>
             <Box component="img" src={post.imageUrl} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%)" }} />
+            <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)" }} />
           </Box>
         )}
         <IconButton onClick={onClose} size="small"

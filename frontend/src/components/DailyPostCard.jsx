@@ -53,9 +53,9 @@ const PostModal = ({ post, open, onClose }) => {
       PaperProps={{ sx: { borderRadius: { xs: 0, sm: 5 }, mx: { xs: 0, sm: 2 }, overflow: "hidden", maxHeight: "95dvh" } }}>
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
 
-        {/* Imagen */}
+        {/* Imagen — altura fija para no dominar el modal */}
         {post.imageUrl && (
-          <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", flexShrink: 0 }}>
+          <Box sx={{ position: "relative", width: "100%", height: { xs: 160, sm: 200 }, flexShrink: 0, overflow: "hidden" }}>
             <Box component="img" src={post.imageUrl} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             <Box sx={{ position: "absolute", inset: 0,
@@ -181,11 +181,14 @@ const DailyPostCard = () => {
   }, []); // eslint-disable-line
 
   if (loading) return (
-    <Paper elevation={0} sx={{ borderRadius: 4, overflow: "hidden", border: `1px solid ${C.border}` }}>
-      <Skeleton variant="rectangular" height={180} />
-      <Box sx={{ p: 2.5 }}>
-        <Skeleton height={28} width="80%" sx={{ mb: 1 }} />
-        <Skeleton height={20} width="60%" />
+    <Paper elevation={0} sx={{ borderRadius: 4, overflow: "hidden", border: `1px solid ${C.border}`,
+      display: "flex", flexDirection: { xs: "column", sm: "row" } }}>
+      <Skeleton variant="rectangular" sx={{ width: { xs: "100%", sm: 260 }, height: { xs: 160, sm: "auto" }, flexShrink: 0 }} />
+      <Box sx={{ p: 2.5, flex: 1 }}>
+        <Skeleton height={16} width="50%" sx={{ mb: 1.5 }} />
+        <Skeleton height={26} width="90%" sx={{ mb: 0.5 }} />
+        <Skeleton height={26} width="70%" sx={{ mb: 1.5 }} />
+        <Skeleton height={16} width="80%" />
       </Box>
     </Paper>
   );
@@ -194,65 +197,67 @@ const DailyPostCard = () => {
 
   return (
     <>
+      {/* Card horizontal en desktop, vertical en mobile */}
       <Paper elevation={0} onClick={() => setOpen(true)} sx={{
         borderRadius: 4, overflow: "hidden",
         border: `1px solid ${C.border}`,
         boxShadow: "0 4px 20px rgba(11,94,85,0.08)",
         cursor: "pointer", transition: "all 0.2s",
+        display: "flex", flexDirection: { xs: "column", sm: "row" },
         "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 28px rgba(11,94,85,0.14)" },
       }}>
-        {/* Imagen */}
-        <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/7", bgcolor: C.brandSurface, overflow: "hidden" }}>
+        {/* Imagen — cuadrada en desktop, banner en mobile */}
+        <Box sx={{
+          position: "relative", flexShrink: 0, bgcolor: C.brandSurface, overflow: "hidden",
+          width:  { xs: "100%", sm: 260 },
+          height: { xs: 160,    sm: "auto" },
+          minHeight: { sm: 180 },
+        }}>
           {post.imageUrl ? (
-            <>
-              <Box component="img" src={post.imageUrl} alt={post.title}
-                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
-                  "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
-                  animation: "fadeIn 0.6s ease" }} />
-              <Box sx={{ position: "absolute", inset: 0,
-                background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)" }} />
-            </>
+            <Box component="img" src={post.imageUrl} alt={post.title}
+              sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
+                "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
+                animation: "fadeIn 0.6s ease" }} />
           ) : (
-            // Imagen generándose
             <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center", gap: 1 }}>
               <Typography sx={{ fontSize: 28,
                 "@keyframes pulse": { "0%,100%": { opacity: 0.4 }, "50%": { opacity: 1 } },
                 animation: "pulse 1.4s ease-in-out infinite" }}>🌿</Typography>
-              <Typography sx={{ fontSize: 11, color: C.textMuted }}>Preparando imagen…</Typography>
+              <Typography sx={{ fontSize: 11, color: C.textMuted }}>Preparando…</Typography>
             </Box>
           )}
-
-          {/* Badge editorial */}
-          <Box sx={{ position: "absolute", top: 12, left: 12,
-            bgcolor: C.brand, color: "#fff", px: 1.5, py: 0.4,
-            borderRadius: 999, fontSize: 10.5, fontWeight: 800, letterSpacing: "0.05em" }}>
+          <Box sx={{ position: "absolute", top: 10, left: 10,
+            bgcolor: C.brand, color: "#fff", px: 1.3, py: 0.3,
+            borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>
             POST DEL DÍA
           </Box>
         </Box>
 
-        {/* Contenido de la card */}
-        <Box sx={{ px: 2.5, pt: 2, pb: 2.5 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-            <Typography sx={{ fontSize: 11, color: C.textMuted }}>
-              <strong style={{ color: C.brand }}>Nui</strong> · {fmtDate(post.publishedAt)} · {fmtTime(post.publishedAt)}
-            </Typography>
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: C.textMuted }} />
-              <Typography sx={{ fontSize: 11, color: C.textMuted }}>{post.readingMinutes} min</Typography>
+        {/* Contenido */}
+        <Box sx={{ px: 2.5, pt: 2, pb: 2.5, flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+              <Typography sx={{ fontSize: 11, color: C.textMuted }}>
+                <strong style={{ color: C.brand }}>Nui</strong> · {fmtDate(post.publishedAt)} · {fmtTime(post.publishedAt)}
+              </Typography>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: C.textMuted }} />
+                <Typography sx={{ fontSize: 11, color: C.textMuted }}>{post.readingMinutes} min</Typography>
+              </Stack>
             </Stack>
-          </Stack>
 
-          <Typography sx={{ fontSize: 16.5, fontWeight: 900, color: C.text, letterSpacing: "-0.3px",
-            lineHeight: 1.3, mb: 1 }}>
-            {post.title}
-          </Typography>
+            <Typography sx={{ fontSize: 16.5, fontWeight: 900, color: C.text, letterSpacing: "-0.3px",
+              lineHeight: 1.3, mb: 1 }}>
+              {post.title}
+            </Typography>
 
-          <Typography sx={{ fontSize: 13, color: C.textSec, lineHeight: 1.55, mb: 2 }}>
-            {post.excerpt}
-          </Typography>
+            <Typography sx={{ fontSize: 13, color: C.textSec, lineHeight: 1.55 }}>
+              {post.excerpt}
+            </Typography>
+          </Box>
 
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mt={2}>
             <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap>
               {post.tags?.slice(0, 2).map((t) => (
                 <Chip key={t} label={`#${t}`} size="small"
