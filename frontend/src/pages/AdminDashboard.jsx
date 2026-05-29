@@ -1138,8 +1138,10 @@ const AdminDashboard = () => {
       </Paper>
 
       {/* ── SECCIÓN: PRECIOS DE PLANES ───────────────── */}
+      <Box sx={{ mt: 5 }}>
       <SectionHeader title="Precios de planes" subtitle="Al guardar se envía un email a todos los usuarios registrados" />
       <PlanPricesPanel token={token} />
+      </Box>
 
       <Box sx={{ height: 48 }} />
       </>)}
