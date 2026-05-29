@@ -4,15 +4,14 @@
  */
 export const generateImage = async (openai, { prompt, size = "1024x1024" }) => {
   const result = await openai.images.generate({
-    model:   "gpt-image-1-mini",
+    model: "gpt-image-2-2026-04-21",
     prompt,
     size,
-    quality: "low",
   });
 
   const base64 = result.data?.[0]?.b64_json;
   if (!base64) throw new Error("OpenAI no devolvió b64_json.");
 
-  console.log("✅ Imagen generada con gpt-image-1-mini");
+  console.log("✅ Imagen generada con gpt-image-2-2026-04-21");
   return { imageUrl: `data:image/png;base64,${base64}` };
 };
