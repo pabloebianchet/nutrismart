@@ -2065,6 +2065,11 @@ const Dashboard = () => {
       {/* ── NUDGE CRUZADO ───────────────────────── */}
       <CrossModuleNudge historyCount={history.length} loading={loading} />
 
+      {/* ── POST DEL DÍA ────────────────────────── */}
+      <Box mb={4}>
+        <DailyPostCard />
+      </Box>
+
       {/* ── PERFIL ──────────────────────────────── */}
       <Paper
         elevation={0}
@@ -2299,11 +2304,6 @@ const Dashboard = () => {
           sexo={profileForm.sexo}
           edad={profileForm.edad}
         />
-      </Box>
-
-      {/* ── POST DEL DÍA ────────────────────────── */}
-      <Box mb={4}>
-        <DailyPostCard />
       </Box>
 
       {/* ── MEMBRESÍA ───────────────────────────── */}

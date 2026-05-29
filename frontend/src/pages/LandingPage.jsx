@@ -5,7 +5,7 @@
 
 import { useEffect, useState }  from "react";
 import { useNavigate, Link }    from "react-router-dom";
-import { Box, Typography, Button, Stack, Chip } from "@mui/material";
+import { Box, Typography, Button, Stack, Chip, Skeleton, Dialog, DialogContent, IconButton, Divider } from "@mui/material";
 import BoltRoundedIcon           from "@mui/icons-material/BoltRounded";
 import CheckRoundedIcon          from "@mui/icons-material/CheckRounded";
 import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
@@ -21,6 +21,12 @@ import TrendingUpRoundedIcon     from "@mui/icons-material/TrendingUpRounded";
 import ShoppingCartRoundedIcon   from "@mui/icons-material/ShoppingCartRounded";
 import AddRoundedIcon            from "@mui/icons-material/AddRounded";
 import AutorenewRoundedIcon      from "@mui/icons-material/AutorenewRounded";
+import AccessTimeOutlinedIcon    from "@mui/icons-material/AccessTimeOutlined";
+import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
+import ContentCopyRoundedIcon    from "@mui/icons-material/ContentCopyRounded";
+import WhatsAppIcon              from "@mui/icons-material/WhatsApp";
+import CloseRoundedIcon          from "@mui/icons-material/CloseRounded";
+import { API_URL } from "../config/api";
 
 /* ─── Tokens ──────────────────────────────────────────────────────────────── */
 const C = {
@@ -1195,6 +1201,200 @@ const FinalCTA = ({ onCTA }) => (
   </Box>
 );
 
+/* ─── POSTS DE SALUD (3 cards, SEO) ──────────────────────────────────────── */
+
+const fmtDateLanding = (d) =>
+  new Date(d).toLocaleDateString("es-AR", { day: "numeric", month: "long" });
+
+const buildShareText = (post) =>
+  `${post.title}\n\n${post.body?.replace(/\n\n/g, "\n")}\n\n— Nui App 💚`;
+
+const LandingPostModal = ({ post, open, onClose }) => {
+  const [copied, setCopied] = useState(false);
+  if (!post) return null;
+  const paragraphs = post.body?.split("\n\n").filter(Boolean) || [];
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(buildShareText(post)).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
+      PaperProps={{ sx: { borderRadius: { xs: 0, sm: 4 }, mx: { xs: 0, sm: 2 }, overflow: "hidden", maxHeight: "95dvh" } }}>
+      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
+        {post.imageUrl && (
+          <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", flexShrink: 0 }}>
+            <Box component="img" src={post.imageUrl} alt={post.title}
+              sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%)" }} />
+          </Box>
+        )}
+        <IconButton onClick={onClose} size="small"
+          sx={{ position: "absolute", top: 12, right: 12, bgcolor: "rgba(0,0,0,0.45)", color: "#fff", "&:hover": { bgcolor: "rgba(0,0,0,0.65)" } }}>
+          <CloseRoundedIcon fontSize="small" />
+        </IconButton>
+        <Box sx={{ flex: 1, overflowY: "auto", px: 3, pt: 2.5, pb: 3 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5} flexWrap="wrap" useFlexGap>
+            <Chip label="Nui Editorial" size="small"
+              sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 10.5 }} />
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: "#8AADAA" }} />
+              <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{post.readingMinutes} min</Typography>
+            </Stack>
+          </Stack>
+          <Typography sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", lineHeight: 1.25, mb: 1 }}>
+            {post.title}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "#8AADAA", mb: 2.5 }}>
+            Publicado por <strong style={{ color: "#0B5E55" }}>Nui</strong> · {fmtDateLanding(post.publishedAt)}
+          </Typography>
+          <Divider sx={{ mb: 2.5 }} />
+          <Typography sx={{ fontSize: 15, fontStyle: "italic", color: "#4A6B67", borderLeft: "3px solid #0B5E55", pl: 2, mb: 2.5, lineHeight: 1.6 }}>
+            {post.excerpt}
+          </Typography>
+          <Stack spacing={2} mb={3}>
+            {paragraphs.map((p, i) => (
+              <Typography key={i} sx={{ fontSize: 14.5, color: "#0F2420", lineHeight: 1.75 }}>{p}</Typography>
+            ))}
+          </Stack>
+          {post.tags?.length > 0 && (
+            <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap mb={3}>
+              {post.tags.map((t) => (
+                <Chip key={t} label={`#${t}`} size="small"
+                  sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600, fontSize: 11, height: 22 }} />
+              ))}
+            </Stack>
+          )}
+          <Divider sx={{ mb: 2.5 }} />
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Typography sx={{ fontSize: 12, color: "#8AADAA", fontWeight: 600 }}>Compartir:</Typography>
+            <IconButton size="small" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildShareText(post))}`, "_blank", "noopener")}
+              sx={{ color: "#25D366", "&:hover": { bgcolor: "rgba(37,211,102,0.10)" } }}>
+              <WhatsAppIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+            <IconButton size="small" onClick={handleCopy}
+              sx={{ color: copied ? "#0B5E55" : "#8AADAA", "&:hover": { bgcolor: "#E6F5F3" } }}>
+              <ContentCopyRoundedIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </Stack>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const LandingPostCard = ({ post, onOpen }) => (
+  <Box onClick={onOpen} sx={{
+    borderRadius: 4, overflow: "hidden", bgcolor: "#fff",
+    border: "1px solid rgba(11,94,85,0.10)",
+    boxShadow: "0 4px 20px rgba(11,94,85,0.07)",
+    cursor: "pointer", display: "flex", flexDirection: "column",
+    transition: "all 0.2s",
+    "&:hover": { transform: "translateY(-3px)", boxShadow: "0 10px 32px rgba(11,94,85,0.14)" },
+  }}>
+    {/* Imagen */}
+    <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", bgcolor: "#E6F5F3", overflow: "hidden", flexShrink: 0 }}>
+      {post.imageUrl
+        ? <Box component="img" src={post.imageUrl} alt={post.title}
+            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        : <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Typography sx={{ fontSize: 32 }}>🌿</Typography>
+          </Box>
+      }
+      <Box sx={{ position: "absolute", top: 10, left: 10,
+        bgcolor: "#0B5E55", color: "#fff", px: 1.2, py: 0.3,
+        borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>
+        SALUD
+      </Box>
+    </Box>
+    {/* Contenido */}
+    <Box sx={{ p: 2.5, flex: 1, display: "flex", flexDirection: "column" }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+        <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
+          <strong style={{ color: "#0B5E55" }}>Nui</strong> · {fmtDateLanding(post.publishedAt)}
+        </Typography>
+        <Stack direction="row" spacing={0.4} alignItems="center">
+          <AccessTimeOutlinedIcon sx={{ fontSize: 11, color: "#8AADAA" }} />
+          <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{post.readingMinutes} min</Typography>
+        </Stack>
+      </Stack>
+      <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", lineHeight: 1.3, mb: 1, letterSpacing: "-0.2px" }}>
+        {post.title}
+      </Typography>
+      <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.55, flex: 1 }}>
+        {post.excerpt}
+      </Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mt={2}>
+        <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap>
+          {post.tags?.slice(0, 2).map((t) => (
+            <Chip key={t} label={`#${t}`} size="small"
+              sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600, fontSize: 10, height: 18 }} />
+          ))}
+        </Stack>
+        <Typography sx={{ fontSize: 12, color: "#0B5E55", fontWeight: 700 }}>Leer →</Typography>
+      </Stack>
+    </Box>
+  </Box>
+);
+
+const LandingPostsSection = () => {
+  const [posts,    setPosts]    = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/posts/recent`)
+      .then((r) => r.json())
+      .then((d) => setPosts(d.posts || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <Box sx={{ bgcolor: "#F7F9F8", py: { xs: 7, md: 10 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
+      <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+
+        {/* Header */}
+        <Box textAlign="center" mb={6}>
+          <Chip label="Nui Editorial" size="small"
+            sx={{ mb: 2, bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 12,
+              border: "1px solid #B2DDD9" }} />
+          <Typography sx={{ fontSize: { xs: 26, sm: 34 }, fontWeight: 900, color: "#0F2420",
+            letterSpacing: "-0.8px", lineHeight: 1.2, mb: 2 }}>
+            Noticias de salud que importan
+          </Typography>
+          <Typography sx={{ fontSize: { xs: 14, sm: 16 }, color: "#4A6B67", maxWidth: 500, mx: "auto", lineHeight: 1.7 }}>
+            Contenido nuevo cada día sobre nutrición, bienestar y ciencia del ejercicio.
+          </Typography>
+        </Box>
+
+        {/* Cards */}
+        {loading ? (
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3,1fr)" }, gap: 3 }}>
+            {[0,1,2].map((i) => (
+              <Box key={i} sx={{ borderRadius: 4, overflow: "hidden", bgcolor: "#fff" }}>
+                <Skeleton variant="rectangular" height={180} />
+                <Box sx={{ p: 2.5 }}>
+                  <Skeleton height={22} width="80%" sx={{ mb: 1 }} />
+                  <Skeleton height={16} width="60%" />
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3,1fr)" }, gap: 3 }}>
+            {posts.map((p) => (
+              <LandingPostCard key={p._id} post={p} onOpen={() => setSelected(p)} />
+            ))}
+          </Box>
+        )}
+      </Box>
+
+      <LandingPostModal post={selected} open={!!selected} onClose={() => setSelected(null)} />
+    </Box>
+  );
+};
+
 /* ─── FOOTER ──────────────────────────────────────────────────────────────── */
 const LandingFooter = () => (
   <Box sx={{ background: C.heroBg, borderTop: "1px solid rgba(255,255,255,0.05)",
@@ -1272,6 +1472,7 @@ const LandingPage = () => {
       <HowItWorksSection />
       <PricingSection onCTA={goToApp} />
       <FinalCTA onCTA={goToApp} />
+      <LandingPostsSection />
       <LandingFooter />
     </Box>
   );

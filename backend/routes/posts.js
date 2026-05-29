@@ -131,4 +131,30 @@ router.get("/:date/image", authMiddleware, async (req, res) => {
   }
 });
 
+/* ─── GET /recent — últimos 3 posts (público, para landing) ─── */
+router.get("/recent", async (req, res) => {
+  try {
+    const openai = getOpenAI();
+
+    // Generar los 3 días más recientes si no existen
+    const dates = [0, 1, 2].map((offset) => {
+      const d = new Date();
+      d.setDate(d.getDate() - offset);
+      return d.toLocaleDateString("en-CA");
+    });
+
+    const posts = [];
+    for (const date of dates) {
+      let post = await DailyPost.findOne({ date });
+      if (!post) post = await generateDailyPost(openai, date);
+      posts.push(post);
+    }
+
+    return res.json({ posts });
+  } catch (err) {
+    console.error("Recent posts error:", err.message);
+    return res.status(500).json({ error: "Error al obtener posts recientes." });
+  }
+});
+
 export default router;
