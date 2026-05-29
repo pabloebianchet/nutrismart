@@ -41,8 +41,10 @@ const TOPICS = [
   { topic: "Mindful eating: comer consciente para perder peso sin dieta",img: "mindful eating healthy relationship food" },
 ];
 
-const todayTopic = () => {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+// Devuelve el tema del día según la fecha específica (YYYY-MM-DD)
+const topicForDate = (dateStr) => {
+  const d = new Date(dateStr);
+  const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
   return TOPICS[dayOfYear % TOPICS.length];
 };
 
@@ -50,7 +52,7 @@ const todayDate = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
 
 /* ─── Generar post del día ───────────────────────────────────── */
 const generateDailyPost = async (openai, date) => {
-  const { topic, img } = todayTopic();
+  const { topic, img } = topicForDate(date);
 
   const gptRes = await openai.chat.completions.create({
     model: "gpt-4o-mini",

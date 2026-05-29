@@ -50,33 +50,42 @@ const PostModal = ({ post, open, onClose }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: { xs: 0, sm: 5 }, mx: { xs: 0, sm: 2 }, overflow: "hidden", maxHeight: "95dvh" } }}>
-      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
+      PaperProps={{ sx: { borderRadius: { xs: 3, sm: 5 }, mx: { xs: 1.5, sm: 2 },
+        overflow: "hidden", maxHeight: "92dvh", display: "flex", flexDirection: "column" } }}>
+      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
-        {/* Imagen — altura fija para no dominar el modal */}
+        {/* Header fijo — siempre visible, botón cerrar siempre accesible */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between"
+          sx={{ px: 2.5, py: 1.5, borderBottom: `1px solid ${C.border}`, flexShrink: 0, bgcolor: C.surface }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip label="Nui Editorial" size="small"
+              sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 10.5 }} />
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: C.textMuted }} />
+              <Typography sx={{ fontSize: 11, color: C.textMuted }}>{post.readingMinutes} min</Typography>
+            </Stack>
+          </Stack>
+          <IconButton onClick={onClose} size="small"
+            sx={{ color: C.textMuted, "&:hover": { bgcolor: C.brandSurface, color: C.brand } }}>
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+
+        {/* Imagen */}
         {post.imageUrl && (
-          <Box sx={{ position: "relative", width: "100%", height: { xs: 160, sm: 200 }, flexShrink: 0, overflow: "hidden" }}>
+          <Box sx={{ position: "relative", width: "100%", height: { xs: 150, sm: 185 }, flexShrink: 0, overflow: "hidden" }}>
             <Box component="img" src={post.imageUrl} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            <Box sx={{ position: "absolute", inset: 0,
-              background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%)" }} />
           </Box>
         )}
 
-        {/* Cerrar */}
-        <IconButton onClick={onClose} size="small"
-          sx={{ position: "absolute", top: 12, right: 12, bgcolor: "rgba(0,0,0,0.45)", color: "#fff",
-            "&:hover": { bgcolor: "rgba(0,0,0,0.65)" } }}>
-          <CloseRoundedIcon fontSize="small" />
-        </IconButton>
-
-        {/* Contenido */}
+        {/* Contenido scrolleable */}
         <Box sx={{ flex: 1, overflowY: "auto", px: 3, pt: 2.5, pb: 3 }}>
 
-          {/* Meta */}
+          {/* Meta — ya está en el header, acá solo fecha */}
           <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5} flexWrap="wrap" useFlexGap>
             <Chip label="Nui Editorial" size="small"
-              sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 10.5 }} />
+              sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 10.5, display: "none" }} />
             <Stack direction="row" spacing={0.5} alignItems="center">
               <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: C.textMuted }} />
               <Typography sx={{ fontSize: 11, color: C.textMuted }}>

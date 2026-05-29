@@ -1219,28 +1219,26 @@ const LandingPostModal = ({ post, open, onClose }) => {
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: { xs: 0, sm: 4 }, mx: { xs: 0, sm: 2 }, overflow: "hidden", maxHeight: "95dvh" } }}>
-      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
+      PaperProps={{ sx: { borderRadius: { xs: 3, sm: 4 }, mx: { xs: 1.5, sm: 2 },
+        overflow: "hidden", maxHeight: "92dvh", display: "flex", flexDirection: "column" } }}>
+      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {/* Header fijo con botón cerrar */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between"
+          sx={{ px: 2.5, py: 1.5, borderBottom: "1px solid rgba(11,94,85,0.10)", flexShrink: 0, bgcolor: "#fff" }}>
+          <Chip label="Nui Editorial" size="small"
+            sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 10.5 }} />
+          <IconButton onClick={onClose} size="small"
+            sx={{ color: "#8AADAA", "&:hover": { bgcolor: "#E6F5F3", color: "#0B5E55" } }}>
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </Stack>
         {post.imageUrl && (
-          <Box sx={{ position: "relative", width: "100%", height: { xs: 160, sm: 200 }, flexShrink: 0, overflow: "hidden" }}>
+          <Box sx={{ position: "relative", width: "100%", height: { xs: 150, sm: 185 }, flexShrink: 0, overflow: "hidden" }}>
             <Box component="img" src={post.imageUrl} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)" }} />
           </Box>
         )}
-        <IconButton onClick={onClose} size="small"
-          sx={{ position: "absolute", top: 12, right: 12, bgcolor: "rgba(0,0,0,0.45)", color: "#fff", "&:hover": { bgcolor: "rgba(0,0,0,0.65)" } }}>
-          <CloseRoundedIcon fontSize="small" />
-        </IconButton>
         <Box sx={{ flex: 1, overflowY: "auto", px: 3, pt: 2.5, pb: 3 }}>
-          <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5} flexWrap="wrap" useFlexGap>
-            <Chip label="Nui Editorial" size="small"
-              sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 10.5 }} />
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: "#8AADAA" }} />
-              <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{post.readingMinutes} min</Typography>
-            </Stack>
-          </Stack>
           <Typography sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", lineHeight: 1.25, mb: 1 }}>
             {post.title}
           </Typography>
