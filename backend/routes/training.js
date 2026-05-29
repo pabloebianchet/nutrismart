@@ -308,6 +308,21 @@ router.delete("/plan/:planType", authMiddleware, async (req, res) => {
   }
 });
 
+/* ── Diagnóstico: modelos disponibles para esta API key ────────── */
+router.get("/models-available", authMiddleware, async (req, res) => {
+  try {
+    const openai  = getOpenAI();
+    const models  = await openai.models.list();
+    const imageModels = models.data
+      .map((m) => m.id)
+      .filter((id) => id.includes("image") || id.includes("dall"));
+    console.log("Modelos de imagen disponibles:", imageModels);
+    return res.json({ imageModels, total: models.data.length });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 /* ── Imagen de ejercicio con gpt-image-1 ───────────────────────── */
 router.post("/exercise-image", authMiddleware, async (req, res) => {
   const { name } = req.body;
