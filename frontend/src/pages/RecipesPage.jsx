@@ -299,9 +299,8 @@ const RecipesPage = () => {
   const [error,        setError]        = useState("");
 
   // save & share
-  // recipe image (DALL-E, async)
-  const [recipeImage,  setRecipeImage]  = useState(null);  // { imageUrl, authorName, authorLink, unsplashLink }
-  const [loadingImage, setLoadingImage] = useState(false);
+  // recipe image: undefined=no iniciado, null=cargando, {imageUrl}=ok, false=error
+  const [recipeImage, setRecipeImage] = useState(undefined);
 
   const [saving,       setSaving]       = useState(false);
   const [savedNames,   setSavedNames]   = useState(new Set());
@@ -373,8 +372,7 @@ const RecipesPage = () => {
 
   // ── fetch full recipe detail ──
   const generateImage = async (name, emoji, ingredients) => {
-    setRecipeImage(null);
-    setLoadingImage(true);
+    setRecipeImage(null); // null = cargando
     try {
       const res  = await fetch(`${API_URL}/api/recipes/image`, {
         method: "POST",
@@ -382,16 +380,17 @@ const RecipesPage = () => {
         body: JSON.stringify({ name, emoji, modalidad, ingredients }),
       });
       const data = await res.json();
-      if (res.ok && data.imageUrl) setRecipeImage(data);
-    } catch {}
-    finally { setLoadingImage(false); }
+      setRecipeImage(res.ok && data.imageUrl ? data : false);
+    } catch {
+      setRecipeImage(false);
+    }
   };
 
   const handleSelectRecipe = async (recipe) => {
     setSelected(recipe);
     setShowSteps(false);
     setDetail(null);
-    setRecipeImage(null);
+    setRecipeImage(undefined);
     setError("");
     setStep("loading-detail");
     try {
@@ -498,7 +497,7 @@ const RecipesPage = () => {
     setStep("select"); setModalidad(preselected); setMomento(null);
     setSuggestions([]); setSelected(null); setDetail(null);
     setShowSteps(false); setError("");
-    setRecipeImage(null); setLoadingImage(false);
+    setRecipeImage(undefined);
   };
 
   return (
@@ -799,34 +798,50 @@ const RecipesPage = () => {
                       </Stack>
                     </Box>
 
-                    {/* Imagen del plato (Unsplash, carga async) */}
-                    {(loadingImage || recipeImage) && (
-                      <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", bgcolor: "#F0F7F5" }}>
-                        {loadingImage && !recipeImage && (
-                          <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
-                            <Typography sx={{
-                              fontSize: 36,
-                              "@keyframes pulse": { "0%,100%": { opacity: 0.5, transform: "scale(0.95)" }, "50%": { opacity: 1, transform: "scale(1.05)" } },
-                              animation: "pulse 1.5s ease-in-out infinite",
-                            }}>
-                              🍳
-                            </Typography>
-                            <Typography sx={{ fontSize: 12, color: "#8AADAA", fontWeight: 600 }}>
-                              Buscando imagen del plato…
-                            </Typography>
-                          </Box>
+                    {/* Imagen del plato — undefined=nada, null=cargando, data=ok, false=error */}
+                    {recipeImage !== false && recipeImage !== undefined && (
+                      <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", bgcolor: "#E6F5F3" }}>
+
+                        {/* Shimmer skeleton */}
+                        {recipeImage === null && (
+                          <>
+                            <Box sx={{
+                              position: "absolute", inset: 0,
+                              background: "linear-gradient(90deg, #E6F5F3 0%, rgba(255,255,255,0.7) 50%, #E6F5F3 100%)",
+                              backgroundSize: "200% 100%",
+                              "@keyframes shimmer": { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
+                              animation: "shimmer 1.4s ease-in-out infinite",
+                            }} />
+                            <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
+                              <Typography sx={{ fontSize: 32,
+                                "@keyframes pulse": { "0%,100%": { opacity: 0.4, transform: "scale(0.95)" }, "50%": { opacity: 1, transform: "scale(1.05)" } },
+                                animation: "pulse 1.4s ease-in-out infinite" }}>
+                                🍳
+                              </Typography>
+                              <Box sx={{ textAlign: "center" }}>
+                                <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#0B5E55" }}>
+                                  Generando imagen del plato
+                                </Typography>
+                                <Stack direction="row" spacing={0.5} justifyContent="center" mt={0.5}>
+                                  {[0,1,2].map((i) => (
+                                    <Box key={i} sx={{
+                                      width: 5, height: 5, borderRadius: "50%", bgcolor: "#0B5E55", opacity: 0.5,
+                                      "@keyframes blink": { "0%,80%,100%": { opacity: 0.2 }, "40%": { opacity: 1 } },
+                                      animation: `blink 1.2s ${i * 0.2}s ease-in-out infinite`,
+                                    }} />
+                                  ))}
+                                </Stack>
+                              </Box>
+                            </Box>
+                          </>
                         )}
-                        {recipeImage && (
-                          <Box
-                            component="img"
-                            src={recipeImage.imageUrl}
-                            alt={detail.name}
-                            sx={{
-                              width: "100%", height: "100%", objectFit: "cover", display: "block",
+
+                        {/* Imagen lista */}
+                        {recipeImage?.imageUrl && (
+                          <Box component="img" src={recipeImage.imageUrl} alt={detail.name}
+                            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
                               "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
-                              animation: "fadeIn 0.6s ease",
-                            }}
-                          />
+                              animation: "fadeIn 0.6s ease" }} />
                         )}
                       </Box>
                     )}
