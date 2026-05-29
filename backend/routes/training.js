@@ -307,37 +307,48 @@ router.delete("/plan/:planType", authMiddleware, async (req, res) => {
   }
 });
 
-/* ── Imagen de ejercicio con DALL-E 3 ──────────────────────────── */
+/* ── Imagen de ejercicio (GPT traducción + Unsplash) ───────────── */
 router.post("/exercise-image", authMiddleware, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre requerido." });
+
+  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+  if (!unsplashKey) return res.status(503).json({ error: "Servicio no configurado." });
 
   const cacheKey = name.toLowerCase().trim();
   if (exerciseImageCache.has(cacheKey)) {
     return res.json(exerciseImageCache.get(cacheKey));
   }
 
-  const prompt = `Professional fitness photography of a person performing the exercise "${name}" with perfect form. Clean gym background, natural lighting, clear demonstration of the movement, athletic person, high quality fitness photography. No text, no watermarks.`;
-
   try {
-    const openai   = getOpenAI();
-    const response = await openai.images.generate({
-      model:   "dall-e-3",
-      prompt,
-      n:       1,
-      size:    "1792x1024",
-      quality: "standard",
-    });
+    // Traducir al inglés con GPT para búsqueda precisa en Unsplash
+    let searchTerm = name;
+    try {
+      const openai = getOpenAI();
+      const gpt    = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: `Translate this gym exercise name to English search keywords. Respond with ONLY 2-4 English keywords. Exercise: "${name}"` }],
+        max_tokens: 20, temperature: 0,
+      });
+      const t = gpt.choices[0]?.message?.content?.trim();
+      if (t) searchTerm = t;
+    } catch {}
 
-    const imageUrl = response.data[0]?.url;
-    if (!imageUrl) return res.status(500).json({ error: "Sin URL de imagen." });
+    const query    = encodeURIComponent(`${searchTerm} exercise gym`);
+    const url      = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`;
+    const response = await fetch(url, { headers: { Authorization: `Client-ID ${unsplashKey}` } });
+    if (!response.ok) return res.status(502).json({ error: "Error Unsplash." });
 
-    const result = { imageUrl };
+    const data  = await response.json();
+    const photo = data.results?.[0];
+    if (!photo) return res.status(404).json({ error: "Sin imagen." });
+
+    const result = { imageUrl: photo.urls.regular };
     exerciseImageCache.set(cacheKey, result);
     return res.json(result);
   } catch (err) {
-    console.error("DALL-E exercise image error:", err.status, err.message);
-    return res.status(500).json({ error: "Error al generar imagen.", detail: err.message });
+    console.error("Exercise image error:", err.message);
+    return res.status(500).json({ error: "Error al obtener imagen." });
   }
 });
 
