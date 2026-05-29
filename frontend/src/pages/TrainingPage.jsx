@@ -178,6 +178,9 @@ const TrainingPage = () => {
   const [sessionSuccess,  setSessionSuccess]  = useState(null); // { earned, total, dayName, tipoColor }
   const [drafts,          setDrafts]          = useState({});   // { [planType_dayKey]: { log, timestamp } }
   const [confirmRegister, setConfirmRegister] = useState(false);
+  // Captura nombre del día y tipo en el momento de abrir la sesión,
+  // evitando leer estado potencialmente desactualizado al confirmar.
+  const [pendingSession, setPendingSession]   = useState(null); // { dayName, tipoLabel }
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -381,6 +384,14 @@ const TrainingPage = () => {
 
   const openSession = (dayKey) => {
     setActiveDay(dayKey);
+    // Capturar nombre del día desde planCache (fuente de verdad) en el momento
+    // en que el usuario abre la sesión, no al confirmar registro.
+    const currentPlanData = planCache[activePlanType];
+    const dayInfo  = currentPlanData?.plan?.weekStructure?.[dayKey];
+    setPendingSession({
+      dayName:    dayInfo?.name || dayKey,
+      tipoLabel:  currentPlanData?.config?.tipo || null,
+    });
     const existing = drafts[`${activePlanType}_${dayKey}`];
     setSessionLog(existing?.log || {});
   };
@@ -390,8 +401,11 @@ const TrainingPage = () => {
     const hasData = Object.values(sessionLog).some(v => v.weight || v.reps);
     if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de registrar."); return; }
 
-    const dayInfo = plan.weekStructure[activeDay];
-    const dayName = dayInfo?.name || activeDay;
+    // Usar nombre capturado al abrir la sesión (evita estado obsoleto).
+    // Fallback: leer de planCache directo para mayor seguridad.
+    const dayName = pendingSession?.dayName
+      ?? planCache[activePlanType]?.plan?.weekStructure?.[activeDay]?.name
+      ?? activeDay;
     const newSession = { date: todayStr, dayKey: activeDay, dayName, exercises: sessionLog };
     const updated    = [...sessions, newSession];
     setSessions(updated);
@@ -406,15 +420,16 @@ const TrainingPage = () => {
       ...prev,
       [_planType]: { ...prev[_planType], sessions: updated },
     }));
-    deleteDraft(activeDay);  // borra borrador al registrar
+    deleteDraft(activeDay);
     setActiveDay(null);
+    setPendingSession(null);
 
     // +5 puntos saludables — mostrar overlay de celebración si el API responde
     try {
       const res = await fetch(`${API_URL}/api/training/session`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ dayName, tipoLabel: activeTipo?.label || null }),
+        body: JSON.stringify({ dayName, tipoLabel: pendingSession?.tipoLabel ?? config?.tipo ?? null }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -1271,7 +1286,7 @@ const TrainingPage = () => {
             <motion.div key="session" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.28 }}>
               {/* Volver — solo navega, NO guarda borrador automáticamente */}
               <Button
-                onClick={() => setActiveDay(null)}
+                onClick={() => { setActiveDay(null); setPendingSession(null); }}
                 startIcon={<ArrowBackRoundedIcon />} size="small"
                 sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
               >
@@ -1365,7 +1380,7 @@ const TrainingPage = () => {
                 </Button>
                 <Button
                   fullWidth
-                  onClick={() => { saveDraft(); setActiveDay(null); setSnackMsg("Borrador guardado 📝"); }}
+                  onClick={() => { saveDraft(); setActiveDay(null); setPendingSession(null); setSnackMsg("Borrador guardado 📝"); }}
                   sx={{
                     py: 1.4, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
                     border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
@@ -1377,7 +1392,7 @@ const TrainingPage = () => {
                 {hasDraft(activeDay) && (
                   <Button
                     fullWidth size="small"
-                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setActiveDay(null); setSnackMsg("Borrador eliminado"); }}
+                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setActiveDay(null); setPendingSession(null); setSnackMsg("Borrador eliminado"); }}
                     sx={{ textTransform: "none", fontWeight: 600, fontSize: 13, color: "#B0C4C0", "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.06)" } }}
                   >
                     Eliminar borrador
