@@ -172,7 +172,7 @@ router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (r
       prompt,
       n:       1,
       size:    "1024x1024",
-      quality: "standard",
+      quality: "medium",
     });
 
     const item = response.data[0];

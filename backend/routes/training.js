@@ -326,7 +326,7 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
       prompt,
       n:       1,
       size:    "1536x1024",
-      quality: "standard",
+      quality: "medium",
     });
 
     const item = response.data[0];
