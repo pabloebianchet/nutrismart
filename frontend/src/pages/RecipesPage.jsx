@@ -300,7 +300,7 @@ const RecipesPage = () => {
 
   // save & share
   // recipe image (DALL-E, async)
-  const [recipeImage,  setRecipeImage]  = useState(null);  // url | null
+  const [recipeImage,  setRecipeImage]  = useState(null);  // { imageUrl, authorName, authorLink, unsplashLink }
   const [loadingImage, setLoadingImage] = useState(false);
 
   const [saving,       setSaving]       = useState(false);
@@ -372,7 +372,7 @@ const RecipesPage = () => {
         body: JSON.stringify({ name, emoji, modalidad, ingredients }),
       });
       const data = await res.json();
-      if (res.ok && data.imageUrl) setRecipeImage(data.imageUrl);
+      if (res.ok && data.imageUrl) setRecipeImage(data);
     } catch {}
     finally { setLoadingImage(false); }
   };
@@ -783,7 +783,7 @@ const RecipesPage = () => {
                       </Stack>
                     </Box>
 
-                    {/* Imagen del plato (DALL-E, carga async) */}
+                    {/* Imagen del plato (Unsplash, carga async) */}
                     {(loadingImage || recipeImage) && (
                       <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", bgcolor: "#F0F7F5" }}>
                         {loadingImage && !recipeImage && (
@@ -796,22 +796,39 @@ const RecipesPage = () => {
                               🍳
                             </Typography>
                             <Typography sx={{ fontSize: 12, color: "#8AADAA", fontWeight: 600 }}>
-                              Generando imagen del plato…
+                              Buscando imagen del plato…
                             </Typography>
                           </Box>
                         )}
                         {recipeImage && (
-                          <Box
-                            component="img"
-                            src={recipeImage}
-                            alt={detail.name}
-                            sx={{
-                              width: "100%", height: "100%", objectFit: "cover",
-                              display: "block",
-                              "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
-                              animation: "fadeIn 0.6s ease",
-                            }}
-                          />
+                          <>
+                            <Box
+                              component="img"
+                              src={recipeImage.imageUrl}
+                              alt={detail.name}
+                              sx={{
+                                width: "100%", height: "100%", objectFit: "cover", display: "block",
+                                "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
+                                animation: "fadeIn 0.6s ease",
+                              }}
+                            />
+                            {/* Crédito Unsplash (requerido por sus términos) */}
+                            <Box
+                              component="a"
+                              href={`${recipeImage.unsplashLink}?utm_source=nui_app&utm_medium=referral`}
+                              target="_blank" rel="noopener noreferrer"
+                              sx={{
+                                position: "absolute", bottom: 0, right: 0,
+                                px: 1.2, py: 0.4,
+                                bgcolor: "rgba(0,0,0,0.45)",
+                                fontSize: 10, color: "rgba(255,255,255,0.85)",
+                                textDecoration: "none",
+                                "&:hover": { color: "#fff" },
+                              }}
+                            >
+                              📷 {recipeImage.authorName} · Unsplash
+                            </Box>
+                          </>
                         )}
                       </Box>
                     )}

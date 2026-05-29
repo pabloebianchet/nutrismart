@@ -154,53 +154,41 @@ router.get("/saved", authMiddleware, async (req, res) => {
   }
 });
 
-/* ── Generar imagen del plato con DALL-E ─────────────── */
+/* ── Buscar imagen del plato con Unsplash ────────────── */
 router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (req, res) => {
-  const { name, emoji, modalidad, ingredients } = req.body;
-
+  const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre de receta requerido." });
 
-  const safeIngredients = Array.isArray(ingredients)
-    ? ingredients.slice(0, 5).join(", ")
-    : "";
-
-  const prompt = `Professional food photography of "${name}", ${
-    safeIngredients ? `made with ${safeIngredients}, ` : ""
-  }beautifully plated on a white ceramic dish, natural light, top-down angle, fresh and appetizing, high resolution, restaurant quality. No text, no watermarks.`;
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key) return res.status(503).json({ error: "Servicio de imágenes no configurado." });
 
   try {
-    const openai = getOpenAI();
+    // Buscar foto de comida por nombre del plato
+    const query    = encodeURIComponent(`${name} food plated dish`);
+    const url      = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Client-ID ${key}` },
+    });
 
-    // Intentar con dall-e-3, fallback a dall-e-2 si no está disponible
-    let response;
-    try {
-      response = await openai.images.generate({
-        model:   "dall-e-3",
-        prompt,
-        n:       1,
-        size:    "1024x1024",
-        quality: "standard",
-      });
-    } catch (e3) {
-      console.warn("DALL-E 3 falló, intentando con dall-e-2:", e3.message);
-      response = await openai.images.generate({
-        model: "dall-e-2",
-        prompt: prompt.slice(0, 1000), // dall-e-2 tiene límite de 1000 chars
-        n:     1,
-        size:  "512x512",
-      });
+    if (!response.ok) {
+      console.error("Unsplash error:", response.status, await response.text());
+      return res.status(502).json({ error: "Error al buscar la imagen." });
     }
 
-    const imageUrl = response.data[0]?.url;
-    if (!imageUrl) return res.status(500).json({ error: "No se pudo generar la imagen." });
+    const data     = await response.json();
+    const photo    = data.results?.[0];
+    if (!photo) return res.status(404).json({ error: "No se encontró imagen para este plato." });
 
-    return res.json({ imageUrl });
-  } catch (err) {
-    console.error("DALL-E error completo:", err.status, err.message, err.error);
-    return res.status(500).json({
-      error: "Error al generar la imagen.",
-      debug: { status: err.status, message: err.message, detail: err.error?.message },
+    return res.json({
+      imageUrl:    photo.urls.regular,
+      thumbUrl:    photo.urls.small,
+      authorName:  photo.user.name,
+      authorLink:  photo.user.links.html,
+      unsplashLink: photo.links.html,
     });
+  } catch (err) {
+    console.error("Unsplash fetch error:", err.message);
+    return res.status(500).json({ error: "Error al obtener la imagen." });
   }
 });
 
