@@ -596,5 +596,5 @@ router.post("/toggle-renew", authMiddleware, async (req, res) => {
   }
 });
 
-export { PLANS };
+export { PLANS_DEFAULT as PLANS };
 export default router;
