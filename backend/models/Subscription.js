@@ -25,6 +25,7 @@ const subscriptionSchema = new mongoose.Schema(
     amount:                 { type: Number, default: 0 },
     currency:               { type: String, default: "ARS" },
     trialExpiryEmailSent:   { type: Boolean, default: false },
+    source:                 { type: String, enum: ["payment", "admin"], default: "payment" },
     paymentHistory:         [paymentHistorySchema],
   },
   { timestamps: true }

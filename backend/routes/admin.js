@@ -41,20 +41,23 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
     const [subStats] = await Subscription.aggregate([
       {
         $facet: {
-          // Activos por plan
-          activeFree:   [{ $match: { status: "active", plan: "free"   } }, { $count: "n" }],
-          activeSilver: [{ $match: { status: "active", plan: "silver" } }, { $count: "n" }],
-          activeGold:   [{ $match: { status: "active", plan: "gold"   } }, { $count: "n" }],
+          // Activos por plan — solo pagos reales (source != "admin")
+          activeFree:   [{ $match: { status: "active", plan: "free",   source: { $ne: "admin" } } }, { $count: "n" }],
+          activeSilver: [{ $match: { status: "active", plan: "silver", source: { $ne: "admin" } } }, { $count: "n" }],
+          activeGold:   [{ $match: { status: "active", plan: "gold",   source: { $ne: "admin" } } }, { $count: "n" }],
 
-          // Nuevas Silver por período
-          silverToday: [{ $match: { plan: "silver", startDate: { $gte: todayStart } } }, { $count: "n" }],
-          silverWeek:  [{ $match: { plan: "silver", startDate: { $gte: weekStart  } } }, { $count: "n" }],
-          silverYear:  [{ $match: { plan: "silver", startDate: { $gte: yearStart  } } }, { $count: "n" }],
+          // Accesos manuales asignados por admin (activos)
+          activeAdmin: [{ $match: { status: "active", source: "admin" } }, { $count: "n" }],
 
-          // Nuevas Gold por período
-          goldToday: [{ $match: { plan: "gold", startDate: { $gte: todayStart } } }, { $count: "n" }],
-          goldWeek:  [{ $match: { plan: "gold", startDate: { $gte: weekStart  } } }, { $count: "n" }],
-          goldYear:  [{ $match: { plan: "gold", startDate: { $gte: yearStart  } } }, { $count: "n" }],
+          // Nuevas Silver por período — solo pagos reales
+          silverToday: [{ $match: { plan: "silver", source: { $ne: "admin" }, startDate: { $gte: todayStart } } }, { $count: "n" }],
+          silverWeek:  [{ $match: { plan: "silver", source: { $ne: "admin" }, startDate: { $gte: weekStart  } } }, { $count: "n" }],
+          silverYear:  [{ $match: { plan: "silver", source: { $ne: "admin" }, startDate: { $gte: yearStart  } } }, { $count: "n" }],
+
+          // Nuevas Gold por período — solo pagos reales
+          goldToday: [{ $match: { plan: "gold", source: { $ne: "admin" }, startDate: { $gte: todayStart } } }, { $count: "n" }],
+          goldWeek:  [{ $match: { plan: "gold", source: { $ne: "admin" }, startDate: { $gte: weekStart  } } }, { $count: "n" }],
+          goldYear:  [{ $match: { plan: "gold", source: { $ne: "admin" }, startDate: { $gte: yearStart  } } }, { $count: "n" }],
 
           // Total canceladas
           cancelled: [{ $match: { status: "cancelled" } }, { $count: "n" }],
@@ -108,6 +111,7 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
         activeFree:   n(subStats?.activeFree),
         activeSilver: n(subStats?.activeSilver),
         activeGold:   n(subStats?.activeGold),
+        activeAdmin:  n(subStats?.activeAdmin),
         silverToday:  n(subStats?.silverToday),
         silverWeek:   n(subStats?.silverWeek),
         silverYear:   n(subStats?.silverYear),
@@ -220,6 +224,88 @@ router.delete("/users/:id", authMiddleware, isAdmin, async (req, res) => {
       `Error al eliminar usuario: ${err.message}`,
       { userId: req.user._id, meta: { error: err.message } });
     return res.status(500).json({ error: "Error deleting user" });
+  }
+});
+
+/* =====================================================
+   🎁 ASIGNAR PLAN MANUALMENTE (admin)
+   ===================================================== */
+router.post("/users/:id/subscription", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { plan, days } = req.body;
+
+    if (!["free", "silver", "gold"].includes(plan))
+      return res.status(400).json({ error: "Plan inválido. Usá free, silver o gold." });
+
+    const daysNum = parseInt(days);
+    if (!daysNum || daysNum < 1 || daysNum > 365)
+      return res.status(400).json({ error: "Duración inválida (1–365 días)." });
+
+    const targetUser = await User.findById(id).lean();
+    if (!targetUser)
+      return res.status(404).json({ error: "Usuario no encontrado." });
+
+    const now = new Date();
+    const end = new Date(now);
+    end.setDate(end.getDate() + daysNum);
+
+    const PLAN_NAMES = { free: "Free", silver: "Silver", gold: "Gold" };
+
+    const sub = await Subscription.findOneAndUpdate(
+      { user: id },
+      {
+        $set: {
+          user:      id,
+          plan,
+          status:    "active",
+          startDate: now,
+          endDate:   end,
+          amount:    0,
+          currency:  "ARS",
+          autoRenew: false,
+          source:    "admin",
+        },
+        $push: {
+          paymentHistory: {
+            $each: [{
+              mpPaymentId: `admin_${Date.now()}`,
+              amount:      0,
+              currency:    "ARS",
+              status:      "approved",
+              plan,
+              description: `Plan ${PLAN_NAMES[plan]} — asignado por admin (${daysNum} días)`,
+            }],
+            $position: 0,
+          },
+        },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+
+    logInfo("admin", "subscription.assigned",
+      `Plan ${PLAN_NAMES[plan]} (${daysNum}d) asignado a ${targetUser.email} por admin`,
+      {
+        userId:    req.user._id,
+        userName:  req.user.name,
+        userEmail: req.user.email,
+        meta: {
+          targetUserId:    targetUser._id,
+          targetUserEmail: targetUser.email,
+          plan,
+          days:            daysNum,
+          endDate:         end,
+        },
+      }
+    );
+
+    return res.json({ subscription: sub });
+  } catch (err) {
+    console.error("Admin assign subscription error:", err);
+    logError("admin", "subscription.assign.error",
+      `Error al asignar plan: ${err.message}`,
+      { userId: req.user._id, meta: { error: err.message } });
+    return res.status(500).json({ error: "Error al asignar el plan." });
   }
 });
 

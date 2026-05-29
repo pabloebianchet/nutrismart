@@ -4,7 +4,7 @@ import {
   Box, Typography, Stack, Paper,
   TextField, InputAdornment, IconButton,
   Chip, Avatar, Button, LinearProgress,
-  Drawer, Divider, Tooltip,
+  Drawer, Divider, Tooltip, CircularProgress, Alert,
 } from "@mui/material";
 import { DataGrid }    from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +31,8 @@ import CancelOutlinedIcon             from "@mui/icons-material/CancelOutlined";
 import AccessTimeOutlinedIcon         from "@mui/icons-material/AccessTimeOutlined";
 import HistoryRoundedIcon             from "@mui/icons-material/HistoryRounded";
 import ReceiptLongOutlinedIcon        from "@mui/icons-material/ReceiptLongOutlined";
+import CardGiftcardRoundedIcon        from "@mui/icons-material/CardGiftcardRounded";
+import CheckRoundedIcon               from "@mui/icons-material/CheckRounded";
 
 /* ─── Tokens ──────────────────────────────────────────────── */
 const C = {
@@ -192,14 +194,57 @@ const ACTIV_LABELS = {
 };
 const SEXO_LABELS = { M: "Masculino", F: "Femenino", masculino: "Masculino", femenino: "Femenino" };
 
+const DURATION_PRESETS = [
+  { label: "7d",  days: 7  },
+  { label: "15d", days: 15 },
+  { label: "30d", days: 30 },
+  { label: "60d", days: 60 },
+  { label: "90d", days: 90 },
+];
+
 /* ─── UserDetailDrawer ───────────────────────────────────── */
-const UserDetailDrawer = ({ user, onClose, onDelete, deleting }) => {
+const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token }) => {
+  const [assignPlan,    setAssignPlan]    = useState("silver");
+  const [assignDays,    setAssignDays]    = useState(30);
+  const [customDays,    setCustomDays]    = useState("");
+  const [assigning,     setAssigning]     = useState(false);
+  const [assignResult,  setAssignResult]  = useState(null); // { ok, msg }
+
   if (!user) return null;
   const sub  = user.subscription;
   const plan = sub ? (PLAN_META[sub.plan] ?? PLAN_META.silver) : null;
   const stat = sub ? (STATUS_META[sub.status] ?? STATUS_META.pending) : null;
 
   const history = sub?.paymentHistory ?? [];
+
+  const effectiveDays = customDays ? parseInt(customDays) || 0 : assignDays;
+
+  const handleAssign = async () => {
+    if (!effectiveDays || effectiveDays < 1) {
+      setAssignResult({ ok: false, msg: "Ingresá una duración válida." });
+      return;
+    }
+    setAssigning(true);
+    setAssignResult(null);
+    try {
+      const res  = await fetch(`${API_URL}/api/admin/users/${user._id}/subscription`, {
+        method:  "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body:    JSON.stringify({ plan: assignPlan, days: effectiveDays }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAssignResult({ ok: false, msg: data.error || "Error al asignar." });
+      } else {
+        setAssignResult({ ok: true, msg: `Plan ${assignPlan} activo por ${effectiveDays} días ✓` });
+        onAssigned(user._id, data.subscription);
+      }
+    } catch {
+      setAssignResult({ ok: false, msg: "Error de conexión." });
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   return (
     <Drawer anchor="right" open={!!user} onClose={onClose}
@@ -350,17 +395,24 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting }) => {
                   </Stack>
                   <Stack alignItems="flex-end" sx={{ flexShrink: 0 }}>
                     <Typography sx={{ fontSize: 14, fontWeight: 800, color: pmeta.color }}>
-                      {fmtARS(p.amount)}
+                      {p.mpPaymentId?.startsWith("admin_") ? "Sin cargo" : fmtARS(p.amount)}
                     </Typography>
-                    <Chip
-                      label={p.status === "approved" ? "Aprobado" : p.status === "rejected" ? "Rechazado" : "Pendiente"}
-                      size="small"
-                      sx={{
-                        height: 17, fontSize: 10, fontWeight: 700,
-                        bgcolor: p.status === "approved" ? "rgba(46,204,113,0.12)" : p.status === "rejected" ? C.dangerSurf : C.goldSurf,
-                        color:   p.status === "approved" ? "#2ECC71" : p.status === "rejected" ? C.danger : C.gold,
-                      }}
-                    />
+                    <Stack direction="row" spacing={0.5}>
+                      {p.mpPaymentId?.startsWith("admin_") && (
+                        <Chip label="Promo" size="small"
+                          sx={{ height: 17, fontSize: 10, fontWeight: 700,
+                            bgcolor: "#F5F3FF", color: "#7C3AED" }} />
+                      )}
+                      <Chip
+                        label={p.status === "approved" ? "Aprobado" : p.status === "rejected" ? "Rechazado" : "Pendiente"}
+                        size="small"
+                        sx={{
+                          height: 17, fontSize: 10, fontWeight: 700,
+                          bgcolor: p.status === "approved" ? "rgba(46,204,113,0.12)" : p.status === "rejected" ? C.dangerSurf : C.goldSurf,
+                          color:   p.status === "approved" ? "#2ECC71" : p.status === "rejected" ? C.danger : C.gold,
+                        }}
+                      />
+                    </Stack>
                   </Stack>
                 </Paper>
               );
@@ -368,8 +420,100 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting }) => {
           </Stack>
         )}
 
-        {/* ── Eliminar usuario ── */}
+        {/* ── Asignar plan (admin) ── */}
         <Divider sx={{ my: 3, borderColor: C.border }} />
+
+        <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
+          <CardGiftcardRoundedIcon sx={{ fontSize: 15, color: C.brand }} />
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            Asignar acceso (admin)
+          </Typography>
+        </Stack>
+
+        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: `1.5px solid ${C.brandMuted}`, bgcolor: C.brandSurface, mb: 2 }}>
+
+          {/* Selector de plan */}
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 1 }}>
+            Plan
+          </Typography>
+          <Stack direction="row" spacing={1} mb={2} flexWrap="wrap">
+            {["free", "silver", "gold"].map((p) => {
+              const m = PLAN_META[p];
+              const active = assignPlan === p;
+              return (
+                <Box key={p} onClick={() => setAssignPlan(p)} sx={{
+                  display: "flex", alignItems: "center", gap: 0.6,
+                  px: 1.5, py: 0.7, borderRadius: 2, cursor: "pointer",
+                  bgcolor: active ? m.bg : C.surface,
+                  border: `1.5px solid ${active ? m.color : C.border}`,
+                  transition: "all 0.15s",
+                }}>
+                  <m.Icon sx={{ fontSize: 14, color: m.color }} />
+                  <Typography sx={{ fontSize: 12.5, fontWeight: active ? 800 : 600, color: m.color }}>
+                    {m.label}
+                  </Typography>
+                  {active && <CheckRoundedIcon sx={{ fontSize: 13, color: m.color, ml: 0.3 }} />}
+                </Box>
+              );
+            })}
+          </Stack>
+
+          {/* Selector de duración */}
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 1 }}>
+            Duración
+          </Typography>
+          <Stack direction="row" spacing={0.8} mb={1.5} flexWrap="wrap" useFlexGap>
+            {DURATION_PRESETS.map(({ label, days }) => {
+              const active = !customDays && assignDays === days;
+              return (
+                <Box key={days} onClick={() => { setAssignDays(days); setCustomDays(""); }} sx={{
+                  px: 1.5, py: 0.6, borderRadius: 2, cursor: "pointer",
+                  bgcolor: active ? C.brand : C.surface,
+                  border: `1.5px solid ${active ? C.brand : C.border}`,
+                  transition: "all 0.15s",
+                }}>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: active ? "#fff" : C.textSec }}>
+                    {label}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Stack>
+
+          <TextField
+            placeholder="O ingresá días personalizados (ej: 45)"
+            value={customDays}
+            onChange={(e) => setCustomDays(e.target.value.replace(/\D/g, ""))}
+            size="small" fullWidth
+            sx={{ mb: 2,
+              "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: C.surface, fontSize: 13,
+                "& fieldset": { borderColor: C.border },
+                "&:hover fieldset": { borderColor: C.brandMuted },
+                "&.Mui-focused fieldset": { borderColor: C.brand, borderWidth: 1.5 } } }}
+          />
+
+          {assignResult && (
+            <Alert severity={assignResult.ok ? "success" : "error"}
+              sx={{ borderRadius: 2, fontSize: 12.5, mb: 1.5, py: 0.5 }}>
+              {assignResult.msg}
+            </Alert>
+          )}
+
+          <Button
+            onClick={handleAssign}
+            disabled={assigning || !effectiveDays}
+            fullWidth variant="contained"
+            startIcon={assigning ? <CircularProgress size={14} sx={{ color: "#fff" }} /> : <CardGiftcardRoundedIcon />}
+            sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13,
+              py: 1.1, bgcolor: C.brand, "&:hover": { bgcolor: C.brandLight },
+              "&:disabled": { opacity: 0.6 } }}
+          >
+            {assigning ? "Asignando…" : `Asignar Plan ${PLAN_META[assignPlan]?.label} · ${effectiveDays || "—"} días`}
+          </Button>
+        </Paper>
+
+        {/* ── Eliminar usuario ── */}
+        <Divider sx={{ my: 2, borderColor: C.border }} />
         <Button
           onClick={() => onDelete(user._id)}
           disabled={deleting === user._id}
@@ -643,7 +787,7 @@ const AdminDashboard = () => {
         <KpiCard label="Análisis totales"  value={stats?.analysesTotal} icon={AnalyticsOutlinedIcon}      color={C.brand} />
         <KpiCard label="MRR estimado"      value={fmtARS(s.mrr ?? 0)}  icon={AttachMoneyRoundedIcon}
           color={C.gold} bgColor={C.goldSurf} borderColor="rgba(201,149,42,0.25)"
-          sub={`${(s.activeSilver ?? 0) + (s.activeGold ?? 0)} subs pagadas`} />
+          sub={`${(s.activeSilver ?? 0) + (s.activeGold ?? 0)} pagas · ${s.activeAdmin ?? 0} promo`} />
       </Box>
 
       {/* ── SECCIÓN: SUSCRIPCIONES ───────────────────── */}
@@ -673,6 +817,14 @@ const AdminDashboard = () => {
             { label: "Nuevas hoy",         value: s.goldToday ?? 0 },
             { label: "Nuevas esta semana", value: s.goldWeek  ?? 0 },
             { label: "Nuevas este año",    value: s.goldYear  ?? 0 },
+          ]}
+        />
+        <PlanCard
+          icon={CardGiftcardRoundedIcon} name="Promo / Admin" color="#7C3AED"
+          bgColor="#F5F3FF" active={s.activeAdmin ?? 0}
+          rows={[
+            { label: "No contabilizado en MRR", value: "—" },
+            { label: "Asignados manualmente",   value: s.activeAdmin ?? 0 },
           ]}
         />
       </Box>
@@ -868,6 +1020,14 @@ const AdminDashboard = () => {
       onClose={() => setSelectedUser(null)}
       onDelete={handleDelete}
       deleting={deletingId}
+      token={token}
+      onAssigned={(userId, newSub) => {
+        // Actualizar lista de usuarios y el usuario seleccionado con la nueva sub
+        setUsers((prev) => prev.map((u) =>
+          u._id === userId ? { ...u, subscription: newSub } : u
+        ));
+        setSelectedUser((prev) => prev ? { ...prev, subscription: newSub } : prev);
+      }}
     />
     </Box>
   );
