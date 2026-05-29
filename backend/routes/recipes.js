@@ -154,6 +154,40 @@ router.get("/saved", authMiddleware, async (req, res) => {
   }
 });
 
+/* ── Generar imagen del plato con DALL-E ─────────────── */
+router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (req, res) => {
+  const { name, emoji, modalidad, ingredients } = req.body;
+
+  if (!name) return res.status(400).json({ error: "Nombre de receta requerido." });
+
+  const safeIngredients = Array.isArray(ingredients)
+    ? ingredients.slice(0, 5).join(", ")
+    : "";
+
+  const prompt = `Professional food photography of "${name}", ${
+    safeIngredients ? `made with ${safeIngredients}, ` : ""
+  }beautifully plated on a white ceramic dish, natural light, top-down angle, fresh and appetizing, high resolution, restaurant quality. No text, no watermarks.`;
+
+  try {
+    const openai = getOpenAI();
+    const response = await openai.images.generate({
+      model:   "dall-e-3",
+      prompt,
+      n:       1,
+      size:    "1024x1024",
+      quality: "standard",
+    });
+
+    const imageUrl = response.data[0]?.url;
+    if (!imageUrl) return res.status(500).json({ error: "No se pudo generar la imagen." });
+
+    return res.json({ imageUrl });
+  } catch (err) {
+    console.error("DALL-E error:", err.message);
+    return res.status(500).json({ error: "Error al generar la imagen." });
+  }
+});
+
 /* ── Eliminar receta guardada ─────────────────────── */
 router.delete("/saved/:id", authMiddleware, async (req, res) => {
   try {

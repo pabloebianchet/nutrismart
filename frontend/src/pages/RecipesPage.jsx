@@ -299,6 +299,10 @@ const RecipesPage = () => {
   const [error,        setError]        = useState("");
 
   // save & share
+  // recipe image (DALL-E, async)
+  const [recipeImage,  setRecipeImage]  = useState(null);  // url | null
+  const [loadingImage, setLoadingImage] = useState(false);
+
   const [saving,       setSaving]       = useState(false);
   const [savedNames,   setSavedNames]   = useState(new Set());
   const [savedRecipes, setSavedRecipes] = useState([]);
@@ -358,10 +362,26 @@ const RecipesPage = () => {
   };
 
   // ── fetch full recipe detail ──
+  const generateImage = async (name, emoji, ingredients) => {
+    setRecipeImage(null);
+    setLoadingImage(true);
+    try {
+      const res  = await fetch(`${API_URL}/api/recipes/image`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name, emoji, modalidad, ingredients }),
+      });
+      const data = await res.json();
+      if (res.ok && data.imageUrl) setRecipeImage(data.imageUrl);
+    } catch {}
+    finally { setLoadingImage(false); }
+  };
+
   const handleSelectRecipe = async (recipe) => {
     setSelected(recipe);
     setShowSteps(false);
     setDetail(null);
+    setRecipeImage(null);
     setError("");
     setStep("loading-detail");
     try {
@@ -374,6 +394,8 @@ const RecipesPage = () => {
       if (!res.ok) throw new Error(data.error || "Error al cargar la receta");
       setDetail(data);
       setStep("detail");
+      // Generar imagen de forma asíncrona (no bloquea la UI)
+      generateImage(data.name, data.emoji, data.ingredients);
     } catch (err) {
       setError(err.message);
       setStep("suggestions");
@@ -460,6 +482,7 @@ const RecipesPage = () => {
     setStep("select"); setModalidad(preselected); setMomento(null);
     setSuggestions([]); setSelected(null); setDetail(null);
     setShowSteps(false); setError("");
+    setRecipeImage(null); setLoadingImage(false);
   };
 
   return (
@@ -759,6 +782,39 @@ const RecipesPage = () => {
                         ))}
                       </Stack>
                     </Box>
+
+                    {/* Imagen del plato (DALL-E, carga async) */}
+                    {(loadingImage || recipeImage) && (
+                      <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", bgcolor: "#F0F7F5" }}>
+                        {loadingImage && !recipeImage && (
+                          <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
+                            <Typography sx={{
+                              fontSize: 36,
+                              "@keyframes pulse": { "0%,100%": { opacity: 0.5, transform: "scale(0.95)" }, "50%": { opacity: 1, transform: "scale(1.05)" } },
+                              animation: "pulse 1.5s ease-in-out infinite",
+                            }}>
+                              🍳
+                            </Typography>
+                            <Typography sx={{ fontSize: 12, color: "#8AADAA", fontWeight: 600 }}>
+                              Generando imagen del plato…
+                            </Typography>
+                          </Box>
+                        )}
+                        {recipeImage && (
+                          <Box
+                            component="img"
+                            src={recipeImage}
+                            alt={detail.name}
+                            sx={{
+                              width: "100%", height: "100%", objectFit: "cover",
+                              display: "block",
+                              "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
+                              animation: "fadeIn 0.6s ease",
+                            }}
+                          />
+                        )}
+                      </Box>
+                    )}
 
                     {/* Ingredients */}
                     <Box sx={{ px: 3, py: 2.5 }}>
