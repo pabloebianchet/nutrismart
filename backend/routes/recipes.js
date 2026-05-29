@@ -197,7 +197,10 @@ router.post("/image", authMiddleware, requireActiveSub, recipesLimiter, async (r
     return res.json({ imageUrl });
   } catch (err) {
     console.error("DALL-E error completo:", err.status, err.message, err.error);
-    return res.status(500).json({ error: "Error al generar la imagen." });
+    return res.status(500).json({
+      error: "Error al generar la imagen.",
+      debug: { status: err.status, message: err.message, detail: err.error?.message },
+    });
   }
 });
 
