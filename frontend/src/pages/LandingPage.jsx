@@ -1292,10 +1292,11 @@ const PostModalLanding = ({ post, open, onClose }) => {
 };
 
 const LandingPostsSection = () => {
-  const [featured,  setFeatured]  = useState(null);
-  const [archive,   setArchive]   = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [selected,  setSelected]  = useState(null);
+  const [featured,     setFeatured]     = useState(null);
+  const [archive,      setArchive]      = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [selected,     setSelected]     = useState(null);
+  const [fetchingPost, setFetchingPost] = useState(false);
 
   useEffect(() => {
     fetch(`${API_URL}/api/posts/landing`)
@@ -1304,6 +1305,19 @@ const LandingPostsSection = () => {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const openPost = async (post) => {
+    // Si ya tiene body e imageUrl (post destacado), abrirlo directo
+    if (post.body) { setSelected(post); return; }
+    // Si es del archivo (sin body), fetchear el completo
+    setFetchingPost(true);
+    try {
+      const res  = await fetch(`${API_URL}/api/posts/${post.date}`);
+      const data = await res.json();
+      if (data.post) setSelected(data.post);
+    } catch {}
+    finally { setFetchingPost(false); }
+  };
 
   return (
     <Box sx={{ bgcolor: "#F7F9F8", py: { xs: 7, md: 10 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
@@ -1332,7 +1346,7 @@ const LandingPostsSection = () => {
             </Box>
           </Box>
         ) : featured && (
-          <Box onClick={() => setSelected(featured)} sx={{
+          <Box onClick={() => openPost(featured)} sx={{
             borderRadius: 4, overflow: "hidden", bgcolor: "#fff", mb: 5,
             border: "1px solid rgba(11,94,85,0.10)",
             boxShadow: "0 4px 24px rgba(11,94,85,0.10)",
@@ -1406,7 +1420,7 @@ const LandingPostsSection = () => {
             </Typography>
             <Stack spacing={0}>
               {archive.map((p, i) => (
-                <Box key={p._id} onClick={() => setSelected(p)} sx={{
+                <Box key={p._id} onClick={() => openPost(p)} sx={{
                   display: "flex", alignItems: "baseline", gap: 2,
                   py: 1.4, px: 1.5, cursor: "pointer", borderRadius: 2,
                   borderBottom: i < archive.length - 1 ? "1px solid rgba(11,94,85,0.08)" : "none",
@@ -1433,6 +1447,19 @@ const LandingPostsSection = () => {
       </Box>
 
       <PostModalLanding post={selected} open={!!selected} onClose={() => setSelected(null)} />
+
+      {/* Overlay cargando post completo */}
+      {fetchingPost && (
+        <Box sx={{ position: "fixed", inset: 0, zIndex: 1400,
+          bgcolor: "rgba(0,0,0,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Box sx={{ bgcolor: "#fff", borderRadius: 4, px: 4, py: 3, textAlign: "center" }}>
+            <Typography sx={{ fontSize: 28, mb: 1,
+              "@keyframes spin": { to: { transform: "rotate(360deg)" } },
+              display: "inline-block", animation: "spin 1s linear infinite" }}>🌿</Typography>
+            <Typography sx={{ fontSize: 13, color: "#4A6B67", fontWeight: 600 }}>Cargando artículo…</Typography>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
