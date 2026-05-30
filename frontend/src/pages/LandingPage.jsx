@@ -1200,7 +1200,7 @@ const FinalCTA = ({ onCTA }) => (
   </Box>
 );
 
-/* ─── POSTS DE SALUD (3 cards, SEO) ──────────────────────────────────────── */
+/* ─── EDITORIAL: post destacado + archivo ─────────────────────────────────── */
 
 const fmtDateLanding = (d) =>
   new Date(d).toLocaleDateString("es-AR", { day: "numeric", month: "long" });
@@ -1208,47 +1208,56 @@ const fmtDateLanding = (d) =>
 const buildShareText = (post) =>
   `${post.title}\n\n${post.body?.replace(/\n\n/g, "\n")}\n\n— Nui App 💚`;
 
-const LandingPostModal = ({ post, open, onClose }) => {
+/* Modal reutilizable */
+const PostModalLanding = ({ post, open, onClose }) => {
   const [copied, setCopied] = useState(false);
   if (!post) return null;
   const paragraphs = post.body?.split("\n\n").filter(Boolean) || [];
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildShareText(post)).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopied(true); setTimeout(() => setCopied(false), 2000);
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: { xs: 3, sm: 4 }, mx: { xs: 1.5, sm: 2 },
-        mt: { xs: "72px", sm: 4 }, mb: { xs: 2, sm: 4 },
-        overflow: "hidden", maxHeight: { xs: "calc(100dvh - 90px)", sm: "88dvh" },
-        display: "flex", flexDirection: "column" } }}>
+      PaperProps={{ sx: {
+        borderRadius: { xs: 3, sm: 4 }, mx: { xs: 1.5, sm: 2 },
+        mt: { xs: "75px", sm: "5vh" }, mb: { xs: 2, sm: "5vh" },
+        maxHeight: { xs: "calc(100dvh - 90px)", sm: "90vh" },
+        overflow: "hidden", display: "flex", flexDirection: "column",
+      }}}>
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        {/* Header fijo con botón cerrar */}
+        {/* Header fijo */}
         <Stack direction="row" alignItems="center" justifyContent="space-between"
           sx={{ px: 2.5, py: 1.5, borderBottom: "1px solid rgba(11,94,85,0.10)", flexShrink: 0, bgcolor: "#fff" }}>
-          <Chip label="Nui Editorial" size="small"
-            sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 10.5 }} />
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip label="Nui Editorial" size="small"
+              sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 10.5 }} />
+            <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{post.readingMinutes} min</Typography>
+          </Stack>
           <IconButton onClick={onClose} size="small"
             sx={{ color: "#8AADAA", "&:hover": { bgcolor: "#E6F5F3", color: "#0B5E55" } }}>
             <CloseRoundedIcon fontSize="small" />
           </IconButton>
         </Stack>
+        {/* Imagen */}
         {post.imageUrl && (
-          <Box sx={{ position: "relative", width: "100%", height: { xs: 150, sm: 185 }, flexShrink: 0, overflow: "hidden" }}>
+          <Box sx={{ width: "100%", height: { xs: 150, sm: 200 }, flexShrink: 0, overflow: "hidden" }}>
             <Box component="img" src={post.imageUrl} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </Box>
         )}
+        {/* Contenido */}
         <Box sx={{ flex: 1, overflowY: "auto", px: 3, pt: 2.5, pb: 3 }}>
-          <Typography sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", lineHeight: 1.25, mb: 1 }}>
+          <Typography sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 900, color: "#0F2420",
+            letterSpacing: "-0.5px", lineHeight: 1.25, mb: 1 }}>
             {post.title}
           </Typography>
           <Typography sx={{ fontSize: 12, color: "#8AADAA", mb: 2.5 }}>
             Publicado por <strong style={{ color: "#0B5E55" }}>Nui</strong> · {fmtDateLanding(post.publishedAt)}
           </Typography>
           <Divider sx={{ mb: 2.5 }} />
-          <Typography sx={{ fontSize: 15, fontStyle: "italic", color: "#4A6B67", borderLeft: "3px solid #0B5E55", pl: 2, mb: 2.5, lineHeight: 1.6 }}>
+          <Typography sx={{ fontSize: 15, fontStyle: "italic", color: "#4A6B67",
+            borderLeft: "3px solid #0B5E55", pl: 2, mb: 2.5, lineHeight: 1.6 }}>
             {post.excerpt}
           </Typography>
           <Stack spacing={2} mb={3}>
@@ -1264,7 +1273,7 @@ const LandingPostModal = ({ post, open, onClose }) => {
               ))}
             </Stack>
           )}
-          <Divider sx={{ mb: 2.5 }} />
+          <Divider sx={{ mb: 2 }} />
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Typography sx={{ fontSize: 12, color: "#8AADAA", fontWeight: 600 }}>Compartir:</Typography>
             <IconButton size="small" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildShareText(post))}`, "_blank", "noopener")}
@@ -1282,114 +1291,148 @@ const LandingPostModal = ({ post, open, onClose }) => {
   );
 };
 
-const LandingPostCard = ({ post, onOpen }) => (
-  <Box onClick={onOpen} sx={{
-    borderRadius: 4, overflow: "hidden", bgcolor: "#fff",
-    border: "1px solid rgba(11,94,85,0.10)",
-    boxShadow: "0 4px 20px rgba(11,94,85,0.07)",
-    cursor: "pointer", display: "flex", flexDirection: "column",
-    transition: "all 0.2s",
-    "&:hover": { transform: "translateY(-3px)", boxShadow: "0 10px 32px rgba(11,94,85,0.14)" },
-  }}>
-    {/* Imagen */}
-    <Box sx={{ position: "relative", width: "100%", aspectRatio: "16/9", bgcolor: "#E6F5F3", overflow: "hidden", flexShrink: 0 }}>
-      {post.imageUrl
-        ? <Box component="img" src={post.imageUrl} alt={post.title}
-            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        : <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Typography sx={{ fontSize: 32 }}>🌿</Typography>
-          </Box>
-      }
-      <Box sx={{ position: "absolute", top: 10, left: 10,
-        bgcolor: "#0B5E55", color: "#fff", px: 1.2, py: 0.3,
-        borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>
-        SALUD
-      </Box>
-    </Box>
-    {/* Contenido */}
-    <Box sx={{ p: 2.5, flex: 1, display: "flex", flexDirection: "column" }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-        <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
-          <strong style={{ color: "#0B5E55" }}>Nui</strong> · {fmtDateLanding(post.publishedAt)}
-        </Typography>
-        <Stack direction="row" spacing={0.4} alignItems="center">
-          <AccessTimeOutlinedIcon sx={{ fontSize: 11, color: "#8AADAA" }} />
-          <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{post.readingMinutes} min</Typography>
-        </Stack>
-      </Stack>
-      <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", lineHeight: 1.3, mb: 1, letterSpacing: "-0.2px" }}>
-        {post.title}
-      </Typography>
-      <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.55, flex: 1 }}>
-        {post.excerpt}
-      </Typography>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mt={2}>
-        <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap>
-          {post.tags?.slice(0, 2).map((t) => (
-            <Chip key={t} label={`#${t}`} size="small"
-              sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600, fontSize: 10, height: 18 }} />
-          ))}
-        </Stack>
-        <Typography sx={{ fontSize: 12, color: "#0B5E55", fontWeight: 700 }}>Leer →</Typography>
-      </Stack>
-    </Box>
-  </Box>
-);
-
 const LandingPostsSection = () => {
-  const [posts,    setPosts]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [selected, setSelected] = useState(null);
+  const [featured,  setFeatured]  = useState(null);
+  const [archive,   setArchive]   = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [selected,  setSelected]  = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/posts/recent`)
+    fetch(`${API_URL}/api/posts/landing`)
       .then((r) => r.json())
-      .then((d) => setPosts(d.posts || []))
+      .then((d) => { setFeatured(d.featured || null); setArchive(d.archive || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <Box sx={{ bgcolor: "#F7F9F8", py: { xs: 7, md: 10 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
-      <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+      <Box sx={{ maxWidth: 900, mx: "auto" }}>
 
         {/* Header */}
-        <Box textAlign="center" mb={6}>
+        <Box mb={5}>
           <Chip label="Nui Editorial" size="small"
-            sx={{ mb: 2, bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 12,
-              border: "1px solid #B2DDD9" }} />
-          <Typography sx={{ fontSize: { xs: 26, sm: 34 }, fontWeight: 900, color: "#0F2420",
-            letterSpacing: "-0.8px", lineHeight: 1.2, mb: 2 }}>
-            Noticias de salud que importan
-          </Typography>
-          <Typography sx={{ fontSize: { xs: 14, sm: 16 }, color: "#4A6B67", maxWidth: 500, mx: "auto", lineHeight: 1.7 }}>
-            Contenido nuevo cada día sobre nutrición, bienestar y ciencia del ejercicio.
+            sx={{ mb: 2, bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 700, fontSize: 12, border: "1px solid #B2DDD9" }} />
+          <Typography sx={{ fontSize: { xs: 24, sm: 32 }, fontWeight: 900, color: "#0F2420",
+            letterSpacing: "-0.8px", lineHeight: 1.2 }}>
+            Salud, nutrición y bienestar — hoy
           </Typography>
         </Box>
 
-        {/* Cards */}
+        {/* Card principal — igual que en la app */}
         {loading ? (
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3,1fr)" }, gap: 3 }}>
-            {[0,1,2].map((i) => (
-              <Box key={i} sx={{ borderRadius: 4, overflow: "hidden", bgcolor: "#fff" }}>
-                <Skeleton variant="rectangular" height={180} />
-                <Box sx={{ p: 2.5 }}>
-                  <Skeleton height={22} width="80%" sx={{ mb: 1 }} />
-                  <Skeleton height={16} width="60%" />
-                </Box>
+          <Box sx={{ borderRadius: 4, overflow: "hidden", bgcolor: "#fff", mb: 5,
+            display: "flex", flexDirection: { xs: "column", sm: "row" }, border: "1px solid rgba(11,94,85,0.10)" }}>
+            <Skeleton variant="rectangular" sx={{ width: { xs: "100%", sm: 300 }, height: { xs: 180, sm: "auto" } }} />
+            <Box sx={{ p: 3, flex: 1 }}>
+              <Skeleton height={16} width="40%" sx={{ mb: 1.5 }} />
+              <Skeleton height={28} width="90%" sx={{ mb: 0.5 }} />
+              <Skeleton height={28} width="70%" sx={{ mb: 2 }} />
+              <Skeleton height={16} width="80%" />
+            </Box>
+          </Box>
+        ) : featured && (
+          <Box onClick={() => setSelected(featured)} sx={{
+            borderRadius: 4, overflow: "hidden", bgcolor: "#fff", mb: 5,
+            border: "1px solid rgba(11,94,85,0.10)",
+            boxShadow: "0 4px 24px rgba(11,94,85,0.10)",
+            cursor: "pointer", display: "flex", flexDirection: { xs: "column", sm: "row" },
+            transition: "all 0.2s",
+            "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 32px rgba(11,94,85,0.16)" },
+          }}>
+            {/* Imagen */}
+            <Box sx={{ position: "relative", flexShrink: 0, bgcolor: "#E6F5F3", overflow: "hidden",
+              width: { xs: "100%", sm: 300 }, height: { xs: 180, sm: "auto" }, minHeight: { sm: 200 } }}>
+              {featured.imageUrl
+                ? <Box component="img" src={featured.imageUrl} alt={featured.title}
+                    sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
+                      "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
+                      animation: "fadeIn 0.6s ease" }} />
+                : <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center",
+                    justifyContent: "center", flexDirection: "column", gap: 1 }}>
+                    <Typography sx={{ fontSize: 28,
+                      "@keyframes pulse": { "0%,100%": { opacity: 0.4 }, "50%": { opacity: 1 } },
+                      animation: "pulse 1.4s ease-in-out infinite" }}>🌿</Typography>
+                    <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>Preparando…</Typography>
+                  </Box>
+              }
+              <Box sx={{ position: "absolute", top: 10, left: 10,
+                bgcolor: "#0B5E55", color: "#fff", px: 1.3, py: 0.3,
+                borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>
+                HOY
               </Box>
-            ))}
+            </Box>
+            {/* Contenido */}
+            <Box sx={{ px: 3, py: 2.5, flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <Box>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
+                    <strong style={{ color: "#0B5E55" }}>Nui</strong> · {fmtDateLanding(featured.publishedAt)}
+                  </Typography>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: "#8AADAA" }} />
+                    <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{featured.readingMinutes} min</Typography>
+                  </Stack>
+                </Stack>
+                <Typography sx={{ fontSize: { xs: 18, sm: 21 }, fontWeight: 900, color: "#0F2420",
+                  letterSpacing: "-0.4px", lineHeight: 1.3, mb: 1.2 }}>
+                  {featured.title}
+                </Typography>
+                <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6 }}>
+                  {featured.excerpt}
+                </Typography>
+              </Box>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mt={2.5}>
+                <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap>
+                  {featured.tags?.slice(0, 3).map((t) => (
+                    <Chip key={t} label={`#${t}`} size="small"
+                      sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600, fontSize: 10.5, height: 20 }} />
+                  ))}
+                </Stack>
+                <Typography sx={{ fontSize: 13, color: "#0B5E55", fontWeight: 700 }}>
+                  Leer artículo →
+                </Typography>
+              </Stack>
+            </Box>
           </Box>
-        ) : (
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3,1fr)" }, gap: 3 }}>
-            {posts.map((p) => (
-              <LandingPostCard key={p._id} post={p} onOpen={() => setSelected(p)} />
-            ))}
-          </Box>
+        )}
+
+        {/* Archivo — posts anteriores tipo diario */}
+        {archive.length > 0 && (
+          <>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#8AADAA",
+              textTransform: "uppercase", letterSpacing: "0.08em", mb: 2 }}>
+              Artículos anteriores
+            </Typography>
+            <Stack spacing={0}>
+              {archive.map((p, i) => (
+                <Box key={p._id} onClick={() => setSelected(p)} sx={{
+                  display: "flex", alignItems: "baseline", gap: 2,
+                  py: 1.4, px: 1.5, cursor: "pointer", borderRadius: 2,
+                  borderBottom: i < archive.length - 1 ? "1px solid rgba(11,94,85,0.08)" : "none",
+                  transition: "background 0.15s",
+                  "&:hover": { bgcolor: "#E6F5F3" },
+                }}>
+                  <Typography sx={{ fontSize: 11, color: "#8AADAA", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "monospace" }}>
+                    {fmtDateLanding(p.publishedAt)}
+                  </Typography>
+                  <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#0F2420", lineHeight: 1.4, flex: 1 }}
+                    noWrap>
+                    {p.title}
+                  </Typography>
+                  {p.tags?.[0] && (
+                    <Chip label={`#${p.tags[0]}`} size="small"
+                      sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600, fontSize: 10, height: 18, flexShrink: 0,
+                        display: { xs: "none", sm: "flex" } }} />
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          </>
         )}
       </Box>
 
-      <LandingPostModal post={selected} open={!!selected} onClose={() => setSelected(null)} />
+      <PostModalLanding post={selected} open={!!selected} onClose={() => setSelected(null)} />
     </Box>
   );
 };

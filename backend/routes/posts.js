@@ -149,29 +149,27 @@ router.delete("/admin/reset", authMiddleware, isAdmin, async (req, res) => {
   }
 });
 
-/* ─── GET /recent — últimos 3 posts (público, para landing) ─── */
-router.get("/recent", async (req, res) => {
+/* ─── GET /landing — post de hoy + archivo (público) ─────────── */
+router.get("/landing", async (req, res) => {
   try {
     const openai = getOpenAI();
+    const today  = todayDate();
 
-    // Generar los 3 días más recientes si no existen
-    const dates = [0, 1, 2].map((offset) => {
-      const d = new Date();
-      d.setDate(d.getDate() - offset);
-      return d.toLocaleDateString("en-CA");
-    });
+    // Asegurar que el post de hoy existe
+    let featured = await DailyPost.findOne({ date: today });
+    if (!featured) featured = await generateDailyPost(openai, today);
 
-    const posts = [];
-    for (const date of dates) {
-      let post = await DailyPost.findOne({ date });
-      if (!post) post = await generateDailyPost(openai, date);
-      posts.push(post);
-    }
+    // Archivo: últimos 20 posts guardados (sin el de hoy)
+    const archive = await DailyPost.find({ date: { $ne: today } })
+      .sort({ date: -1 })
+      .limit(20)
+      .select("date title excerpt tags publishedAt readingMinutes")
+      .lean();
 
-    return res.json({ posts });
+    return res.json({ featured, archive });
   } catch (err) {
-    console.error("Recent posts error:", err.message);
-    return res.status(500).json({ error: "Error al obtener posts recientes." });
+    console.error("Landing posts error:", err.message);
+    return res.status(500).json({ error: "Error al obtener posts." });
   }
 });
 
