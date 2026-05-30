@@ -134,17 +134,6 @@ router.get("/:date/image", authMiddleware, async (req, res) => {
   }
 });
 
-/* ─── GET /:date — post completo por fecha (público) ─────────── */
-router.get("/:date", async (req, res) => {
-  try {
-    const post = await DailyPost.findOne({ date: req.params.date });
-    if (!post) return res.status(404).json({ error: "Post no encontrado." });
-    return res.json({ post });
-  } catch (err) {
-    return res.status(500).json({ error: "Error al obtener el post." });
-  }
-});
-
 /* ─── DELETE /admin/reset — borrar posts recientes (admin) ──── */
 router.delete("/admin/reset", authMiddleware, isAdmin, async (req, res) => {
   try {
@@ -166,11 +155,9 @@ router.get("/landing", async (req, res) => {
     const openai = getOpenAI();
     const today  = todayDate();
 
-    // Asegurar que el post de hoy existe
     let featured = await DailyPost.findOne({ date: today });
     if (!featured) featured = await generateDailyPost(openai, today);
 
-    // Archivo: últimos 20 posts guardados (sin el de hoy)
     const archive = await DailyPost.find({ date: { $ne: today } })
       .sort({ date: -1 })
       .limit(20)
@@ -181,6 +168,17 @@ router.get("/landing", async (req, res) => {
   } catch (err) {
     console.error("Landing posts error:", err.message);
     return res.status(500).json({ error: "Error al obtener posts." });
+  }
+});
+
+/* ─── GET /:date — catch-all, SIEMPRE al final ───────────────── */
+router.get("/:date", async (req, res) => {
+  try {
+    const post = await DailyPost.findOne({ date: req.params.date });
+    if (!post) return res.status(404).json({ error: "Post no encontrado." });
+    return res.json({ post });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener el post." });
   }
 });
 
