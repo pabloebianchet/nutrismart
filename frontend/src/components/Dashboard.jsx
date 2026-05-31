@@ -39,7 +39,6 @@ import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { API_URL } from "../config/api";
 import ShoppingListDrawer       from "./ShoppingListDrawer";
 import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel } from "../utils/shoppingList";
-import useVisibilityRefresh from "../hooks/useVisibilityRefresh";
 
 /* ────────────────────────────────────────────
    Paleta y tokens de diseño
@@ -1622,9 +1621,6 @@ const Dashboard = () => {
     location.key,
     historyRefreshToken,
   ]);
-
-  // Refrescar historial al volver al frente (PWA en segundo plano)
-  useVisibilityRefresh(fetchHistory);
 
   const [now, setNow] = useState(new Date());
   useEffect(() => {

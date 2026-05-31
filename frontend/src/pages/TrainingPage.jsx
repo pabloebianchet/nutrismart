@@ -14,7 +14,6 @@ import FullscreenRoundedIcon     from "@mui/icons-material/FullscreenRounded";
 import CloseRoundedIcon          from "@mui/icons-material/CloseRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
-import useVisibilityRefresh    from "../hooks/useVisibilityRefresh";
 import { API_URL }             from "../config/api";
 import PeanutMascot            from "../components/PeanutMascot.jsx";
 
@@ -252,28 +251,6 @@ const TrainingPage = () => {
     };
     fetchPlans();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Refrescar planes al volver al frente (PWA en segundo plano)
-  useVisibilityRefresh(() => {
-    if (!token) return;
-    fetch(`${API_URL}/api/training/plans`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (!data) return;
-        setPlanCache({ main: data.main, quick: data.quick });
-        const active = data[activePlanType];
-        if (active) {
-          setPlan(active.plan || null);
-          setConfig(active.config || null);
-          setSessions(active.sessions || []);
-          setStartDate(active.startDate || null);
-          setTotalDays(active.totalDays || 0);
-        }
-      })
-      .catch(() => {});
-  });
 
   // ── computed
   const elapsed     = startDate ? Math.floor((Date.now() - new Date(startDate)) / 86400000) : 0;
