@@ -88,17 +88,12 @@ export default defineConfig({
             },
           },
 
-          // API calls — NetworkFirst: siempre busca online, fallback a caché
-          // (los análisis de IA y recetas SIEMPRE necesitan red)
+          // API calls — NetworkOnly: nunca cachear respuestas de la API.
+          // Los datos (rutinas, recetas, lista, análisis) deben ser siempre
+          // frescos desde el servidor. Sin caché = sin datos desactualizados.
           {
             urlPattern: /\/api\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "nui-api-cache",
-              networkTimeoutSeconds: 10,
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
+            handler: "NetworkOnly",
           },
 
           // Avatares e imágenes locales — CacheFirst, 30 días
