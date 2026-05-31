@@ -182,7 +182,7 @@ const TrainingPage = () => {
   const [confirmRegister, setConfirmRegister] = useState(false);
   const [pendingSession,  setPendingSession]  = useState(null);
   const [exerciseImages,  setExerciseImages]  = useState({});
-  const [fullscreenImg,   setFullscreenImg]   = useState(null); // URL de imagen a pantalla completa
+  const [fullscreenEx,    setFullscreenEx]    = useState(null); // { imageUrl, name, sets, reps, rest, notes, isRunning }
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1393,7 +1393,10 @@ const TrainingPage = () => {
                                     </Typography>
                                     {/* Botón expandir */}
                                     <IconButton size="small"
-                                      onClick={(e) => { e.stopPropagation(); setFullscreenImg(imgData.imageUrl); }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setFullscreenEx({ imageUrl: imgData.imageUrl, name: ex.name, sets: ex.sets, reps: ex.reps, rest: ex.rest, notes: ex.notes, isRunning: exIsRunning });
+                                      }}
                                       sx={{ color: "rgba(255,255,255,0.85)", bgcolor: "rgba(0,0,0,0.35)",
                                         "&:hover": { bgcolor: "rgba(0,0,0,0.6)", color: "#fff" },
                                         width: 30, height: 30, ml: 1, flexShrink: 0 }}>
@@ -1953,19 +1956,77 @@ const TrainingPage = () => {
         )}
       </AnimatePresence>
 
-      {/* ── Fullscreen imagen ejercicio ── */}
-      <Dialog open={!!fullscreenImg} onClose={() => setFullscreenImg(null)} maxWidth="md" fullWidth
-        PaperProps={{ sx: { bgcolor: "#000", borderRadius: { xs: 0, sm: 3 }, overflow: "hidden" } }}>
-        <DialogContent sx={{ p: 0, position: "relative" }}>
-          <IconButton onClick={() => setFullscreenImg(null)} size="small"
-            sx={{ position: "absolute", top: 10, right: 10, zIndex: 1,
-              bgcolor: "rgba(0,0,0,0.55)", color: "#fff",
-              "&:hover": { bgcolor: "rgba(0,0,0,0.8)" } }}>
-            <CloseRoundedIcon fontSize="small" />
-          </IconButton>
-          {fullscreenImg && (
-            <Box component="img" src={fullscreenImg}
-              sx={{ width: "100%", height: "auto", display: "block", maxHeight: "90dvh", objectFit: "contain" }} />
+      {/* ── Fullscreen ejercicio con descripción ── */}
+      <Dialog open={!!fullscreenEx} onClose={() => setFullscreenEx(null)} maxWidth="sm" fullWidth
+        sx={{ "& .MuiDialog-container": { alignItems: "flex-end" } }}
+        PaperProps={{ sx: {
+          bgcolor: "#0D1F1D", borderRadius: { xs: "20px 20px 0 0", sm: 3 },
+          overflow: "hidden", m: { xs: 0, sm: 2 }, width: "100%",
+        }}}>
+        <DialogContent sx={{ p: 0 }}>
+
+          {/* Imagen */}
+          {fullscreenEx?.imageUrl && (
+            <Box sx={{ position: "relative", width: "100%", height: { xs: 240, sm: 300 }, overflow: "hidden" }}>
+              <Box component="img" src={fullscreenEx.imageUrl} alt={fullscreenEx?.name}
+                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              {/* Gradiente para leer el nombre sobre la imagen */}
+              <Box sx={{ position: "absolute", inset: 0,
+                background: "linear-gradient(to top, #0D1F1D 0%, rgba(0,0,0,0.15) 60%, transparent 100%)" }} />
+              {/* Botón cerrar */}
+              <IconButton onClick={() => setFullscreenEx(null)} size="small"
+                sx={{ position: "absolute", top: 12, right: 12,
+                  bgcolor: "rgba(0,0,0,0.50)", color: "#fff",
+                  "&:hover": { bgcolor: "rgba(0,0,0,0.75)" } }}>
+                <CloseRoundedIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
+
+          {/* Información del ejercicio */}
+          {fullscreenEx && (
+            <Box sx={{ px: 3, pt: fullscreenEx.imageUrl ? 0 : 3, pb: 3.5 }}>
+
+              {/* Nombre */}
+              <Typography sx={{ fontSize: { xs: 20, sm: 22 }, fontWeight: 900, color: "#fff",
+                letterSpacing: "-0.5px", lineHeight: 1.2, mb: 2,
+                mt: fullscreenEx.imageUrl ? "-28px" : 0, position: "relative" }}>
+                {fullscreenEx.name}
+              </Typography>
+
+              {/* Chips de series / reps / descanso */}
+              <Stack direction="row" spacing={1} mb={2.5} flexWrap="wrap" useFlexGap>
+                {[
+                  { label: fullscreenEx.isRunning ? `${fullscreenEx.sets} km` : `${fullscreenEx.sets} series`, icon: "🔁" },
+                  { label: fullscreenEx.isRunning ? `Ritmo: ${fullscreenEx.reps}` : fullscreenEx.reps, icon: "💪" },
+                  { label: fullscreenEx.rest, icon: "⏱" },
+                ].map(({ label, icon }) => (
+                  <Box key={icon} sx={{
+                    display: "flex", alignItems: "center", gap: 0.6,
+                    px: 1.5, py: 0.7, borderRadius: 2,
+                    bgcolor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
+                  }}>
+                    <Typography sx={{ fontSize: 13 }}>{icon}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#E0F2EF" }}>{label}</Typography>
+                  </Box>
+                ))}
+              </Stack>
+
+              {/* Descripción / tip técnico */}
+              {fullscreenEx.notes && (
+                <Box sx={{
+                  px: 2, py: 1.8, borderRadius: 3,
+                  bgcolor: "rgba(11,94,85,0.25)", border: "1px solid rgba(11,94,85,0.40)",
+                }}>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Typography sx={{ fontSize: 18, flexShrink: 0, mt: "1px" }}>💡</Typography>
+                    <Typography sx={{ fontSize: 13.5, color: "#A8D5CE", lineHeight: 1.65 }}>
+                      {fullscreenEx.notes}
+                    </Typography>
+                  </Stack>
+                </Box>
+              )}
+            </Box>
           )}
         </DialogContent>
       </Dialog>
