@@ -1219,11 +1219,21 @@ const PostModalLanding = ({ post, open, onClose }) => {
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
+      sx={{
+        "& .MuiDialog-container": {
+          alignItems: "flex-start",
+          pt: { xs: "72px", sm: "8vh" },
+          pb: { xs: 2, sm: "8vh" },
+        },
+      }}
       PaperProps={{ sx: {
-        borderRadius: { xs: 3, sm: 4 }, mx: { xs: 1.5, sm: 2 },
-        mt: { xs: "75px", sm: "5vh" }, mb: { xs: 2, sm: "5vh" },
-        maxHeight: { xs: "calc(100dvh - 90px)", sm: "90vh" },
-        overflow: "hidden", display: "flex", flexDirection: "column",
+        borderRadius: { xs: 3, sm: 4 },
+        mx: { xs: 1.5, sm: 2 },
+        maxHeight: { xs: "calc(100dvh - 90px)", sm: "84vh" },
+        width: "100%",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
       }}}>
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Header fijo */}

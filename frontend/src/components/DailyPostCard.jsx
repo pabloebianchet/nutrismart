@@ -50,8 +50,22 @@ const PostModal = ({ post, open, onClose }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: { xs: 3, sm: 5 }, mx: { xs: 1.5, sm: 2 },
-        overflow: "hidden", maxHeight: "92dvh", display: "flex", flexDirection: "column" } }}>
+      sx={{
+        "& .MuiDialog-container": {
+          alignItems: "flex-start",
+          pt: { xs: "72px", sm: "8vh" },
+          pb: { xs: 2, sm: "8vh" },
+        },
+      }}
+      PaperProps={{ sx: {
+        borderRadius: { xs: 3, sm: 5 },
+        mx: { xs: 1.5, sm: 2 },
+        width: "100%",
+        maxHeight: { xs: "calc(100dvh - 90px)", sm: "84vh" },
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}}>
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header fijo — siempre visible, botón cerrar siempre accesible */}
