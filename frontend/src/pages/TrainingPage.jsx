@@ -182,7 +182,8 @@ const TrainingPage = () => {
   const [confirmRegister, setConfirmRegister] = useState(false);
   const [pendingSession,  setPendingSession]  = useState(null);
   const [exerciseImages,  setExerciseImages]  = useState({});
-  const [fullscreenEx,    setFullscreenEx]    = useState(null); // { imageUrl, name, sets, reps, rest, notes, isRunning }
+  const [fullscreenEx,    setFullscreenEx]    = useState(null);
+  const [exDescriptions,  setExDescriptions]  = useState({}); // caché: { [name]: { muscles, execution, mistakes } | null }
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -382,6 +383,19 @@ const TrainingPage = () => {
     delete updated[id];
     setDrafts(updated);
     saveDraftsLS(updated);
+  };
+
+  const fetchExerciseDescription = (name) => {
+    if (!name || exDescriptions[name] !== undefined) return;
+    setExDescriptions((p) => ({ ...p, [name]: null })); // loading
+    fetch(`${API_URL}/api/training/exercise-description`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => setExDescriptions((p) => ({ ...p, [name]: data || false })))
+      .catch(() => setExDescriptions((p) => ({ ...p, [name]: false })));
   };
 
   const fetchExerciseImages = async (exercises) => {
@@ -1396,6 +1410,7 @@ const TrainingPage = () => {
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setFullscreenEx({ imageUrl: imgData.imageUrl, name: ex.name, sets: ex.sets, reps: ex.reps, rest: ex.rest, notes: ex.notes, isRunning: exIsRunning });
+                                        fetchExerciseDescription(ex.name);
                                       }}
                                       sx={{ color: "rgba(255,255,255,0.85)", bgcolor: "rgba(0,0,0,0.35)",
                                         "&:hover": { bgcolor: "rgba(0,0,0,0.6)", color: "#fff" },
@@ -2012,20 +2027,60 @@ const TrainingPage = () => {
                 ))}
               </Stack>
 
-              {/* Descripción / tip técnico */}
-              {fullscreenEx.notes && (
-                <Box sx={{
-                  px: 2, py: 1.8, borderRadius: 3,
-                  bgcolor: "rgba(11,94,85,0.25)", border: "1px solid rgba(11,94,85,0.40)",
-                }}>
-                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                    <Typography sx={{ fontSize: 18, flexShrink: 0, mt: "1px" }}>💡</Typography>
-                    <Typography sx={{ fontSize: 13.5, color: "#A8D5CE", lineHeight: 1.65 }}>
-                      {fullscreenEx.notes}
+              {/* Descripción generada por GPT (cacheada en DB) */}
+              {(() => {
+                const desc = exDescriptions[fullscreenEx.name];
+                if (desc === undefined || desc === null) return (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 1 }}>
+                    <Box sx={{ width: 16, height: 16, borderRadius: "50%",
+                      border: "2px solid rgba(11,94,85,0.6)", borderTopColor: "#0B5E55",
+                      animation: "spin 0.8s linear infinite",
+                      "@keyframes spin": { to: { transform: "rotate(360deg)" } } }} />
+                    <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.4)" }}>
+                      Generando descripción…
                     </Typography>
+                  </Box>
+                );
+                if (!desc) return null;
+                return (
+                  <Stack spacing={1.8}>
+                    <Box>
+                      <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "rgba(255,255,255,0.35)",
+                        textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.5 }}>
+                        Músculos
+                      </Typography>
+                      <Typography sx={{ fontSize: 13.5, color: "#C8E6E3", lineHeight: 1.5 }}>
+                        {desc.muscles}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ px: 2, py: 1.5, borderRadius: 2.5,
+                      bgcolor: "rgba(11,94,85,0.20)", border: "1px solid rgba(11,94,85,0.35)" }}>
+                      <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "rgba(255,255,255,0.35)",
+                        textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.6 }}>
+                        Cómo hacerlo
+                      </Typography>
+                      <Typography sx={{ fontSize: 13.5, color: "#A8D5CE", lineHeight: 1.65 }}>
+                        {desc.execution}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 1.2, alignItems: "flex-start" }}>
+                      <Typography sx={{ fontSize: 16, flexShrink: 0 }}>⚠️</Typography>
+                      <Typography sx={{ fontSize: 13, color: "rgba(255,200,100,0.85)", lineHeight: 1.55 }}>
+                        {desc.mistakes}
+                      </Typography>
+                    </Box>
+                    {fullscreenEx.notes && (
+                      <Box sx={{ display: "flex", gap: 1.2, alignItems: "flex-start", pt: 0.5,
+                        borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                        <Typography sx={{ fontSize: 16, flexShrink: 0 }}>💡</Typography>
+                        <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.50)", lineHeight: 1.55, fontStyle: "italic" }}>
+                          {fullscreenEx.notes}
+                        </Typography>
+                      </Box>
+                    )}
                   </Stack>
-                </Box>
-              )}
+                );
+              })()}
             </Box>
           )}
         </DialogContent>

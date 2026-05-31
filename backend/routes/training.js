@@ -7,8 +7,9 @@ import User from "../models/User.js";
 import TrainingPlan from "../models/TrainingPlan.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
-import { generateImage } from "../utils/generateImage.js";
-import ExerciseImage from "../models/ExerciseImage.js";
+import { generateImage }        from "../utils/generateImage.js";
+import ExerciseImage       from "../models/ExerciseImage.js";
+import ExerciseDescription from "../models/ExerciseDescription.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -306,6 +307,56 @@ router.delete("/plan/:planType", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("DELETE /training/plan error:", err.message);
     return res.status(500).json({ error: "Error al eliminar el plan." });
+  }
+});
+
+/* ── Descripción del ejercicio con GPT (caché DB) ──────────────── */
+router.post("/exercise-description", authMiddleware, async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Nombre requerido." });
+
+  const cacheKey = name.toLowerCase().trim();
+
+  // 1. Buscar en DB
+  const cached = await ExerciseDescription.findOne({ name: cacheKey });
+  if (cached) return res.json({ muscles: cached.muscles, execution: cached.execution, mistakes: cached.mistakes });
+
+  // 2. Generar con GPT
+  try {
+    const openai = getOpenAI();
+    const gpt = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{
+        role: "system",
+        content: "Sos un entrenador personal argentino. Respondés SOLO con JSON válido, sin markdown.",
+      }, {
+        role: "user",
+        content: `Describí el ejercicio "${name}" en español argentino. Sé conciso y directo.
+JSON:
+{
+  "muscles": "músculos principales que trabaja (1 línea, máx 60 chars)",
+  "execution": "cómo ejecutarlo correctamente (2-3 oraciones clave)",
+  "mistakes": "error más común a evitar (1 oración)"
+}`,
+      }],
+      max_tokens: 200,
+      temperature: 0.4,
+    });
+
+    const raw  = gpt.choices[0].message.content.replace(/```json\n?/gi, "").replace(/```\n?/g, "").trim();
+    const data = JSON.parse(raw);
+
+    // Guardar en DB
+    await ExerciseDescription.findOneAndUpdate(
+      { name: cacheKey },
+      { $set: { name: cacheKey, ...data } },
+      { upsert: true }
+    );
+
+    return res.json(data);
+  } catch (err) {
+    console.error("Exercise description error:", err.message);
+    return res.status(500).json({ error: "Error al generar descripción." });
   }
 });
 
