@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, IconButton, Tooltip, Snackbar, Alert,
@@ -342,15 +342,18 @@ const RecipesPage = () => {
   useEffect(() => { fetchSaved(); }, []); // eslint-disable-line
   useRealtimeSync(fetchSaved);
 
-  // Cargar lista de compras desde el servidor al montar (sync entre dispositivos)
-  useEffect(() => {
-    fetchListFromServer(token).then((serverItems) => {
-      if (serverItems && serverItems.length > 0) {
-        setShoppingList(serverItems);
-        saveList(serverItems); // actualizar caché local
-      }
-    });
-  }, []); // eslint-disable-line
+  // Cargar + sincronizar lista de compras en tiempo real
+  const syncShoppingList = useCallback(async () => {
+    if (!token) return;
+    const serverItems = await fetchListFromServer(token);
+    if (serverItems && serverItems.length > 0) {
+      setShoppingList(serverItems);
+      saveList(serverItems);
+    }
+  }, [token]); // eslint-disable-line
+
+  useEffect(() => { syncShoppingList(); }, []); // eslint-disable-line
+  useRealtimeSync(syncShoppingList); // polling 15s + refresh al volver al frente
 
   // ── fetch suggestions ──
   const handleGenerate = async () => {
