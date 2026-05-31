@@ -145,11 +145,10 @@ export const fetchListFromServer = async (token) => {
   }
 };
 
-export const syncListToServer = (token, items) => {
-  // Sin debounce — sincronizar inmediatamente para evitar race conditions
+export const syncListToServer = (token, items, socketId = null) => {
   fetch(`${API_URL}/api/shopping-list`, {
     method:  "PUT",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body:    JSON.stringify({ items }),
+    body:    JSON.stringify({ items, socketId }),
   }).catch(() => {});
 };

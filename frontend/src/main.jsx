@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import { getSocket } from "./config/socket.js";
 import { NutritionProvider } from "./context/NutritionContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./index.css";
@@ -24,6 +25,9 @@ window.fetch = async (...args) => {
 };
 
 console.log("GOOGLE CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
+// Iniciar socket si hay sesión activa
+if (localStorage.getItem("nutrismartToken")) getSocket();
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(

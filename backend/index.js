@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -24,6 +25,7 @@ import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
 import shoppingRouter from "./routes/shopping.js";
 import postsRouter    from "./routes/posts.js";
+import { initSocket } from "./socket.js";
 import { activateFreeTrial } from "./utils/activateFreeTrial.js";
 import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
 import { logInfo, logWarn, logError } from "./utils/logger.js";
@@ -664,7 +666,9 @@ app.post("/api/contact", contactLimiter, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+const httpServer = createServer(app);
+initSocket(httpServer);
+httpServer.listen(PORT, () => {
   console.log(`Backend corriendo en puerto ${PORT}`);
 });
 

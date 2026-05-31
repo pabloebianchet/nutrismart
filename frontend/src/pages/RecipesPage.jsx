@@ -20,7 +20,8 @@ import { useLocation }            from "react-router-dom";
 import { API_URL }                from "../config/api";
 import ShoppingListDrawer, { ShoppingFab } from "../components/ShoppingListDrawer";
 import { parseIngredient, mergeIngredients, loadList, saveList, fetchListFromServer, syncListToServer } from "../utils/shoppingList";
-import useRealtimeSync from "../hooks/useRealtimeSync";
+import useRealtimeSync           from "../hooks/useRealtimeSync";
+import { getSocket, getSocketId } from "../config/socket";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -342,15 +343,28 @@ const RecipesPage = () => {
   useEffect(() => { fetchSaved(); }, []); // eslint-disable-line
   useRealtimeSync(fetchSaved);
 
-  // Cargar lista de compras al montar — servidor como fuente de verdad
+  // Cargar lista al montar + conectar socket para tiempo real
   useEffect(() => {
     if (!token) return;
+
+    // Carga inicial desde servidor
     fetchListFromServer(token).then((serverItems) => {
-      if (serverItems !== null) { // null = error de red, no pisar local
+      if (serverItems !== null) {
         setShoppingList(serverItems);
         saveList(serverItems);
       }
     });
+
+    // Socket: escuchar actualizaciones de otros dispositivos
+    const socket = getSocket();
+    if (socket) {
+      const handleUpdate = (items) => {
+        setShoppingList(items);
+        saveList(items);
+      };
+      socket.on("shopping-list:updated", handleUpdate);
+      return () => socket.off("shopping-list:updated", handleUpdate);
+    }
   }, []); // eslint-disable-line
 
   // ── fetch suggestions ──
@@ -461,7 +475,7 @@ const RecipesPage = () => {
   const updateList = (next) => {
     setShoppingList(next);
     saveList(next);
-    syncListToServer(token, next);
+    syncListToServer(token, next, getSocketId()); // incluye socketId para no rebotarse a sí mismo
   };
 
   const handleAddToList = () => {
