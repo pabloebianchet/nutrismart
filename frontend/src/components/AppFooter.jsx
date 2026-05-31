@@ -1,7 +1,8 @@
 import { Box, Typography, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const year = new Date().getFullYear();
+const year       = new Date().getFullYear();
+const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "2.1.3";
 
 const Link = ({ to, children }) => {
   const navigate = useNavigate();
@@ -86,7 +87,7 @@ export default function AppFooter() {
         </Stack>
 
         <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
-          © {year} Nui
+          © {year} Nui &nbsp;<Typography component="span" sx={{ fontSize: 10, color: "rgba(255,255,255,0.22)", fontFamily: "monospace" }}>v{APP_VERSION}</Typography>
         </Typography>
       </Stack>
 
@@ -119,7 +120,7 @@ export default function AppFooter() {
         </Stack>
 
         <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
-          © {year} Nui
+          © {year} Nui &nbsp;<Typography component="span" sx={{ fontSize: 10, color: "rgba(255,255,255,0.22)", fontFamily: "monospace" }}>v{APP_VERSION}</Typography>
         </Typography>
       </Stack>
 

@@ -1,8 +1,9 @@
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { useEffect } from "react";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import SystemUpdateAltRoundedIcon from "@mui/icons-material/SystemUpdateAltRounded";
 
-const APP_VERSION = import.meta.env.VITE_APP_VERSION || __APP_VERSION__;
+const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "2.1.3";
 
 /**
  * Banner que aparece en la parte superior cuando hay una nueva versión
@@ -15,10 +16,24 @@ const PWAUpdatePrompt = () => {
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
-      // Verificar actualizaciones cada hora (por si el SW no detecta el cambio)
-      setInterval(() => r?.update(), 60 * 60 * 1000);
+      if (!r) return;
+      // Verificar actualizaciones al volver al frente (pageshow, focus, visibilitychange)
+      // y también cada 5 minutos — para que el SW viejo se actualice lo antes posible
+      const checkUpdate = () => r.update().catch(() => {});
+      setInterval(checkUpdate, 5 * 60 * 1000); // cada 5 min
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") checkUpdate();
+      });
+      window.addEventListener("pageshow", (e) => {
+        if (e.persisted) checkUpdate(); // volvió del bfcache (iOS)
+      });
+      window.addEventListener("focus", checkUpdate, { once: false });
     },
   });
+
+  // Exportar versión al window para debug
+  useEffect(() => { window.__NUI_VERSION__ = APP_VERSION; }, []);
 
   if (!needRefresh) return null;
 
