@@ -1,0 +1,7 @@
+node_modules/
+report/
+test-results/
+.env.test
+*.png
+*.mp4
+*.zip
