@@ -25,6 +25,7 @@ import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
 import AppFooter         from "./components/AppFooter.jsx";
 import TrialGate         from "./components/TrialGate.jsx";
 import PWAInstallPrompt  from "./components/PWAInstallPrompt.jsx";
+import PWAUpdatePrompt   from "./components/PWAUpdatePrompt.jsx";
 import { useNutrition }  from "./context/NutritionContext.jsx";
 
 /* ── Gate: perfil no completado ─────────────────────────────── */
@@ -123,6 +124,7 @@ const AppChrome = () => {
       <TrialGate />
       <FloatingAnalyzeButton />
       <PWAInstallPrompt />
+      <PWAUpdatePrompt />
     </>
   );
 };

@@ -1,12 +1,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { readFileSync } from "fs";
+
+const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
 
       // Archivos extra a pre-cachear además del build
       includeAssets: [
@@ -60,8 +66,8 @@ export default defineConfig({
 
       // ── Workbox — estrategias de caché ────────────────────────
       workbox: {
-        // El bundle principal puede superar los 2 MB por dependencias pesadas
-        // (MUI, framer-motion, tesseract.js) → subimos el límite a 5 MB
+        skipWaiting:  true,  // activa el nuevo SW inmediatamente al descargar
+        clientsClaim: true,  // el nuevo SW toma control de todos los tabs
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 
         // Pre-cachear todos los assets del build
