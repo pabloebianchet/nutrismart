@@ -39,7 +39,8 @@ import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { API_URL } from "../config/api";
 import ShoppingListDrawer       from "./ShoppingListDrawer";
 import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel } from "../utils/shoppingList";
-import useRealtimeSync from "../hooks/useRealtimeSync";
+import useRealtimeSync           from "../hooks/useRealtimeSync";
+import { getSocket, getSocketId } from "../config/socket";
 
 /* ────────────────────────────────────────────
    Paleta y tokens de diseño
@@ -1270,7 +1271,8 @@ const NotifPrefsPanel = () => {
 ──────────────────────────────────────────── */
 const ShoppingListWidget = () => {
   const navigate = useNavigate();
-  const [items,       setItems]       = useState(() => loadList());
+  const token = localStorage.getItem("nutrismartToken");
+  const [items,       setItems]       = useState([]); // siempre desde servidor, no localStorage
   const [drawerOpen,  setDrawerOpen]  = useState(false);
   const [newItem,     setNewItem]     = useState("");
 
@@ -1278,20 +1280,50 @@ const ShoppingListWidget = () => {
   const completed = items.filter((i) => i.checked).length;
   const preview   = items.slice(0, 4);
 
-  const handleToggle = (id, checked) => {
-    const next = items.map((i) => (i._id === id ? { ...i, checked } : i));
+  const syncFromServer = useCallback(() => {
+    if (!token) return;
+    fetch(`${API_URL}/api/shopping-list`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data !== null) { setItems(data.items ?? []); saveList(data.items ?? []); }
+      }).catch(() => {});
+  }, [token]); // eslint-disable-line
+
+  const updateItems = (next) => {
     setItems(next);
     saveList(next);
+    if (token) {
+      fetch(`${API_URL}/api/shopping-list`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ items: next, socketId: getSocketId() }),
+      }).catch(() => {});
+    }
+  };
+
+  // Carga inicial + socket para tiempo real
+  useEffect(() => {
+    syncFromServer();
+    const socket = getSocket();
+    if (socket) {
+      const onUpdate = (serverItems) => { setItems(serverItems); saveList(serverItems); };
+      socket.on("shopping-list:updated", onUpdate);
+      return () => socket.off("shopping-list:updated", onUpdate);
+    }
+  }, []); // eslint-disable-line
+
+  // Refetch al volver al frente (pageshow / focus / visibilitychange)
+  useRealtimeSync(syncFromServer, 0);
+
+  const handleToggle = (id, checked) => {
+    updateItems(items.map((i) => (i._id === id ? { ...i, checked } : i)));
   };
 
   const handleAddManual = (e) => {
     e.preventDefault();
     const txt = newItem.trim();
     if (!txt) return;
-    const parsed = parseIngredient(txt, "Manual");
-    const merged = mergeIngredients(items, [parsed]);
-    setItems(merged);
-    saveList(merged);
+    updateItems(mergeIngredients(items, [parseIngredient(txt, "Manual")]));
     setNewItem("");
   };
 
@@ -1515,7 +1547,8 @@ const ShoppingListWidget = () => {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         items={items}
-        setItems={setItems}
+        setItems={updateItems}
+        token={token}
       />
     </>
   );
