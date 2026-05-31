@@ -139,7 +139,10 @@ export const fetchListFromServer = async (token) => {
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return Array.isArray(data.items) ? data.items : null;
+    const items = Array.isArray(data.items) ? data.items : null;
+    // Sincronizar localStorage con el servidor para evitar datos viejos
+    if (items !== null) saveList(items);
+    return items;
   } catch {
     return null;
   }

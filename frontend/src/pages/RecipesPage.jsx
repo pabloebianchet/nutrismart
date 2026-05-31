@@ -312,8 +312,9 @@ const RecipesPage = () => {
   const [deletingId,   setDeletingId]   = useState(null);
   const [snackMsg,     setSnackMsg]     = useState("");
 
-  // shopping list
-  const [shoppingList,    setShoppingList]    = useState(() => loadList());
+  // shopping list — empieza vacío, se llena desde el servidor (no localStorage)
+  const [shoppingList,    setShoppingList]    = useState([]);
+  const [listReady,       setListReady]       = useState(false); // true cuando llegó del servidor
   const [drawerOpen,      setDrawerOpen]      = useState(false);
   const [addedToList,     setAddedToList]     = useState(false);
 
@@ -347,12 +348,13 @@ const RecipesPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    // Carga inicial desde servidor
+    // Carga inicial desde servidor — servidor es la única fuente de verdad
     fetchListFromServer(token).then((serverItems) => {
       if (serverItems !== null) {
         setShoppingList(serverItems);
         saveList(serverItems);
       }
+      setListReady(true);
     });
 
     // Socket: escuchar actualizaciones de otros dispositivos
@@ -1102,7 +1104,7 @@ const RecipesPage = () => {
 
       {/* ── Shopping List FAB ── */}
       <AnimatePresence>
-        {shoppingList.length > 0 && (
+        {listReady && shoppingList.length > 0 && (
           <ShoppingFab
             count={shoppingList.filter((i) => !i.checked).length}
             onClick={() => setDrawerOpen(true)}
