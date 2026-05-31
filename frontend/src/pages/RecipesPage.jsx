@@ -20,6 +20,7 @@ import { useLocation }            from "react-router-dom";
 import { API_URL }                from "../config/api";
 import ShoppingListDrawer, { ShoppingFab } from "../components/ShoppingListDrawer";
 import { parseIngredient, mergeIngredients, loadList, saveList, fetchListFromServer, syncListToServer } from "../utils/shoppingList";
+import useRealtimeSync from "../hooks/useRealtimeSync";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -339,6 +340,7 @@ const RecipesPage = () => {
   };
 
   useEffect(() => { fetchSaved(); }, []); // eslint-disable-line
+  useRealtimeSync(fetchSaved);
 
   // Cargar lista de compras desde el servidor al montar (sync entre dispositivos)
   useEffect(() => {

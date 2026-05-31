@@ -39,6 +39,7 @@ import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { API_URL } from "../config/api";
 import ShoppingListDrawer       from "./ShoppingListDrawer";
 import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel } from "../utils/shoppingList";
+import useRealtimeSync from "../hooks/useRealtimeSync";
 
 /* ────────────────────────────────────────────
    Paleta y tokens de diseño
@@ -1621,6 +1622,9 @@ const Dashboard = () => {
     location.key,
     historyRefreshToken,
   ]);
+
+  // Sincronización en tiempo real — polling 15s + refresh al volver al frente
+  useRealtimeSync(fetchHistory);
 
   const [now, setNow] = useState(new Date());
   useEffect(() => {

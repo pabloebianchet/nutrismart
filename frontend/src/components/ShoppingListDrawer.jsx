@@ -9,7 +9,7 @@
  *  - Input para agregar items manualmente
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Drawer, Box, Typography, Stack, IconButton,
   Checkbox, Button, Tooltip, Badge, TextField,
@@ -22,6 +22,7 @@ import DeleteSweepRoundedIcon   from "@mui/icons-material/DeleteSweepRounded";
 import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatItemLabel, parseIngredient, mergeIngredients, fetchListFromServer, saveList } from "../utils/shoppingList";
+import useRealtimeSync from "../hooks/useRealtimeSync";
 
 /* ─── FAB flotante ──────────────────────────────────────────────────────────── */
 export const ShoppingFab = ({ count, onClick }) => (
@@ -152,16 +153,22 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
   const [newItem,      setNewItem]      = useState("");
   const inputRef = useRef(null);
 
-  // Cada vez que se abre el drawer, traer la lista fresca del servidor
-  useEffect(() => {
-    if (!open || !token) return;
+  // Sync desde servidor
+  const syncFromServer = useCallback(() => {
+    if (!token) return;
     fetchListFromServer(token).then((serverItems) => {
       if (serverItems && serverItems.length > 0) {
         setItems(serverItems);
         saveList(serverItems);
       }
     });
-  }, [open]); // eslint-disable-line
+  }, [token]); // eslint-disable-line
+
+  // Al abrir el drawer: fetch inmediato
+  useEffect(() => { if (open) syncFromServer(); }, [open]); // eslint-disable-line
+
+  // Polling 15s cuando el drawer está abierto
+  useRealtimeSync(open ? syncFromServer : null);
 
   const pending   = items.filter((i) => !i.checked).length;
   const completed = items.filter((i) => i.checked).length;
