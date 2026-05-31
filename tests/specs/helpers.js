@@ -1,25 +1,35 @@
-import "dotenv/config";
+import { expect } from "@playwright/test";
+import dotenv from "dotenv";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+dotenv.config({ path: resolve(__dirname, "../.env.test") });
 
 export const CREDENTIALS = {
   email:    process.env.TEST_EMAIL    || "",
   password: process.env.TEST_PASSWORD || "",
 };
 
-/** Login con email y password, espera a que cargue el dashboard */
+/** Login con email y password */
 export async function login(page) {
-  await page.goto("/login");
-  await page.waitForLoadState("networkidle");
+  page.on("pageerror", (err) => console.log("PAGE ERROR:", err.message));
 
-  await page.getByPlaceholder(/email/i).fill(CREDENTIALS.email);
-  await page.getByPlaceholder(/contraseña|password/i).fill(CREDENTIALS.password);
-  await page.getByRole("button", { name: /ingresar|login|entrar/i }).click();
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
 
-  // Esperar que llegue al dashboard (URL cambia o aparece el avatar)
-  await page.waitForURL(/\/$/, { timeout: 20_000 });
+  const emailInput    = page.getByPlaceholder(/email/i);
+  const passwordInput = page.getByPlaceholder(/contraseña|password/i);
+  const submitButton  = page.getByRole("button", { name: /iniciar sesión/i });
+
+  await emailInput.waitFor({ state: "visible", timeout: 15_000 });
+  await emailInput.fill(CREDENTIALS.email);
+  await passwordInput.fill(CREDENTIALS.password);
+  await submitButton.click();
+
+  await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
   await page.waitForLoadState("networkidle");
 }
 
-/** Espera que un elemento sea visible */
 export async function waitForVisible(page, selector, timeout = 10_000) {
   await page.waitForSelector(selector, { state: "visible", timeout });
 }

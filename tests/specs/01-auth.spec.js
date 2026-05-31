@@ -11,12 +11,23 @@ test.describe("🔐 Autenticación", () => {
 
   test("Login con credenciales incorrectas — muestra error", async ({ page }) => {
     await page.goto("/login");
+    await page.waitForLoadState("domcontentloaded");
+
+    try {
+      const emailTab = page.locator('[role="tab"]').filter({ hasText: /email/i });
+      if (await emailTab.isVisible({ timeout: 3_000 })) await emailTab.click();
+    } catch {}
+
+    await page.getByPlaceholder(/email/i).waitFor({ state: "visible", timeout: 10_000 });
     await page.getByPlaceholder(/email/i).fill("wrong@test.com");
     await page.getByPlaceholder(/contraseña|password/i).fill("wrongpass");
-    await page.getByRole("button", { name: /ingresar|login|entrar/i }).click();
-    // Debe aparecer algún mensaje de error
-    await expect(page.locator("[role=alert], .MuiAlert-root, text=/error|incorrecto|inválido/i").first())
-      .toBeVisible({ timeout: 8_000 });
+    await page.getByRole("button", { name: /iniciar sesión/i }).click();
+
+    // Debe quedar en /login y mostrar algún error
+    await expect(page).toHaveURL(/\/login/, { timeout: 5_000 });
+    await expect(
+      page.locator("[role=alert], .MuiAlert-root, text=/credenciales|incorrecto|inválid|error/i").first()
+    ).toBeVisible({ timeout: 8_000 });
   });
 
   test("Cerrar sesión — redirige al login", async ({ page }) => {
