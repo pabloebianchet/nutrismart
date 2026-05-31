@@ -125,6 +125,7 @@ const UserDataPage = () => {
   if (showSplash) {
     return (
       <Box
+        data-testid="app-splash"
         sx={{
           position: "fixed",
           inset: 0,
@@ -313,7 +314,7 @@ const UserDataPage = () => {
               }}
             >
               <Tab label="Google" />
-              <Tab label="Email y contraseña" />
+              <Tab label="Email y contraseña" data-testid="login-email-tab" />
             </Tabs>
 
             {/* Error */}
@@ -363,6 +364,7 @@ const UserDataPage = () => {
                     fullWidth
                     size="small"
                     sx={fieldSx}
+                    inputProps={{ "data-testid": "login-email-input" }}
                   />
 
                   <TextField
@@ -375,6 +377,7 @@ const UserDataPage = () => {
                     fullWidth
                     size="small"
                     sx={fieldSx}
+                    inputProps={{ "data-testid": "login-password-input" }}
                     slotProps={{
                       input: {
                         endAdornment: (
@@ -421,6 +424,7 @@ const UserDataPage = () => {
                     variant="contained"
                     fullWidth
                     disabled={loading}
+                    data-testid="login-submit-button"
                     sx={{
                       bgcolor: C.brand,
                       borderRadius: 2.5,
