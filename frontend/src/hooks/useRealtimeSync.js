@@ -37,22 +37,44 @@ const useRealtimeSync = (fetchFn, interval = 15_000) => {
   }, []);
 
   useEffect(() => {
-    // Arrancar polling solo si hay intervalo definido
     if (interval > 0 && document.visibilityState === "visible") startPolling();
 
+    // visibilitychange: Chrome, Android, desktop
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        fetchRef.current?.();           // siempre refresh inmediato al volver
-        if (interval > 0) startPolling(); // polling solo si aplica
+        fetchRef.current?.();
+        if (interval > 0) startPolling();
       } else {
         stopPolling();
       }
     };
 
+    // pageshow: iOS Safari y PWAs — se dispara al volver al frente desde bfcache
+    const handlePageShow = (e) => {
+      if (e.persisted || document.visibilityState === "visible") {
+        fetchRef.current?.();
+        if (interval > 0) startPolling();
+      }
+    };
+
+    // focus: fallback para cuando ninguno de los anteriores funciona
+    let lastFocusRefresh = 0;
+    const handleFocus = () => {
+      const now = Date.now();
+      if (now - lastFocusRefresh > 5000) { // evitar doble disparo
+        lastFocusRefresh = now;
+        fetchRef.current?.();
+      }
+    };
+
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pageshow",           handlePageShow);
+    window.addEventListener("focus",              handleFocus);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pageshow",           handlePageShow);
+      window.removeEventListener("focus",              handleFocus);
       stopPolling();
     };
   }, [interval, startPolling, stopPolling]);
