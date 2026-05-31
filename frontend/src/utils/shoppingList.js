@@ -145,16 +145,11 @@ export const fetchListFromServer = async (token) => {
   }
 };
 
-let _syncTimer = null;
 export const syncListToServer = (token, items) => {
-  clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(async () => {
-    try {
-      await fetch(`${API_URL}/api/shopping-list`, {
-        method:  "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body:    JSON.stringify({ items }),
-      });
-    } catch {}
-  }, 800); // debounce 800ms
+  // Sin debounce — sincronizar inmediatamente para evitar race conditions
+  fetch(`${API_URL}/api/shopping-list`, {
+    method:  "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body:    JSON.stringify({ items }),
+  }).catch(() => {});
 };

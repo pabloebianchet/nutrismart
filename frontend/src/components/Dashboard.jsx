@@ -1623,8 +1623,8 @@ const Dashboard = () => {
     historyRefreshToken,
   ]);
 
-  // Sincronización en tiempo real — polling 15s + refresh al volver al frente
-  useRealtimeSync(fetchHistory);
+  // Refresh del historial al volver al frente (sin polling — evita race conditions)
+  useRealtimeSync(fetchHistory, 0);
 
   const [now, setNow] = useState(new Date());
   useEffect(() => {

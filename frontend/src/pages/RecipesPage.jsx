@@ -342,18 +342,16 @@ const RecipesPage = () => {
   useEffect(() => { fetchSaved(); }, []); // eslint-disable-line
   useRealtimeSync(fetchSaved);
 
-  // Cargar + sincronizar lista de compras en tiempo real
-  const syncShoppingList = useCallback(async () => {
+  // Cargar lista de compras al montar — servidor como fuente de verdad
+  useEffect(() => {
     if (!token) return;
-    const serverItems = await fetchListFromServer(token);
-    if (serverItems && serverItems.length > 0) {
-      setShoppingList(serverItems);
-      saveList(serverItems);
-    }
-  }, [token]); // eslint-disable-line
-
-  useEffect(() => { syncShoppingList(); }, []); // eslint-disable-line
-  useRealtimeSync(syncShoppingList); // polling 15s + refresh al volver al frente
+    fetchListFromServer(token).then((serverItems) => {
+      if (serverItems !== null) { // null = error de red, no pisar local
+        setShoppingList(serverItems);
+        saveList(serverItems);
+      }
+    });
+  }, []); // eslint-disable-line
 
   // ── fetch suggestions ──
   const handleGenerate = async () => {

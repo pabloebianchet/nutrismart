@@ -37,16 +37,14 @@ const useRealtimeSync = (fetchFn, interval = 15_000) => {
   }, []);
 
   useEffect(() => {
-    // Arrancar polling si la pestaña ya está visible
-    if (document.visibilityState === "visible") startPolling();
+    // Arrancar polling solo si hay intervalo definido
+    if (interval > 0 && document.visibilityState === "visible") startPolling();
 
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        // Volvimos al frente: fetch inmediato + arrancar polling
-        fetchRef.current?.();
-        startPolling();
+        fetchRef.current?.();           // siempre refresh inmediato al volver
+        if (interval > 0) startPolling(); // polling solo si aplica
       } else {
-        // Fuimos al fondo: pausar polling
         stopPolling();
       }
     };
@@ -57,7 +55,7 @@ const useRealtimeSync = (fetchFn, interval = 15_000) => {
       document.removeEventListener("visibilitychange", handleVisibility);
       stopPolling();
     };
-  }, [startPolling, stopPolling]);
+  }, [interval, startPolling, stopPolling]);
 };
 
 export default useRealtimeSync;
