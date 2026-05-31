@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 import dotenv from "dotenv";
 import { resolve } from "path";
 import { fileURLToPath } from "url";
@@ -6,37 +5,30 @@ import { fileURLToPath } from "url";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 dotenv.config({ path: resolve(__dirname, "../.env.test") });
 
-export const CREDENTIALS = {
-  email:    process.env.TEST_EMAIL    || "",
-  password: process.env.TEST_PASSWORD || "",
-};
+const BASE_URL   = process.env.TEST_BASE_URL  || "https://nuiapp.com";
+const API_URL    = process.env.TEST_API_URL   || "https://nutrismart-backend.onrender.com";
+const TEST_EMAIL = process.env.TEST_EMAIL     || "";
+const TEST_PASS  = process.env.TEST_PASSWORD  || "";
 
-export async function login(page) {
-  await page.goto("/login");
+/**
+ * Login vía API — inyecta el token en localStorage.
+ * No depende del formulario UI, estable ante cambios de diseño.
+ */
+export async function loginViaAPI(page) {
+  const res = await page.request.post(`${API_URL}/api/auth/login`, {
+    data: { email: TEST_EMAIL, password: TEST_PASS },
+  });
 
-  // Esperar que el splash desaparezca (dura ~2s al cargar la página)
-  await page.getByTestId("app-splash").waitFor({ state: "hidden", timeout: 8_000 })
-    .catch(() => {}); // si no hay splash, continuar
+  if (!res.ok()) throw new Error(`Login API falló: ${res.status()}`);
 
-  // En Desktop el tab "Google" está activo — clickear "Email y contraseña"
-  const emailInput = page.getByTestId("login-email-input");
-  const emailVisible = await emailInput.isVisible().catch(() => false);
-  if (!emailVisible) {
-    await page.getByTestId("login-email-tab").click();
-    // Esperar que el splash no aparezca de nuevo después del tab click
-    await page.getByTestId("app-splash").waitFor({ state: "hidden", timeout: 5_000 })
-      .catch(() => {});
-  }
+  const { token, user } = await res.json();
 
-  await emailInput.waitFor({ state: "visible", timeout: 10_000 });
-  await emailInput.fill(CREDENTIALS.email);
-  await page.getByTestId("login-password-input").fill(CREDENTIALS.password);
-  await page.getByTestId("login-submit-button").click();
+  await page.goto(BASE_URL);
+  await page.evaluate(({ token, user }) => {
+    localStorage.setItem("nutrismartToken", token);
+    localStorage.setItem("nutrismartUser", JSON.stringify(user));
+  }, { token, user });
 
-  await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
+  await page.goto("/");
   await page.waitForLoadState("networkidle");
-}
-
-export async function waitForVisible(page, selector, timeout = 10_000) {
-  await page.waitForSelector(selector, { state: "visible", timeout });
 }

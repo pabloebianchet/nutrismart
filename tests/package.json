@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test":         "playwright test",
+    "smoke":        "playwright test smoke --project='Desktop Chrome'",
     "test:auth":    "playwright test 01-auth",
     "test:notif":   "playwright test 02-notifications",
     "test:training":"playwright test 03-training",
