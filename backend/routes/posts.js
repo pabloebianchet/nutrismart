@@ -149,22 +149,36 @@ router.delete("/admin/reset", authMiddleware, isAdmin, async (req, res) => {
   }
 });
 
-/* ─── GET /landing — post de hoy + archivo (público) ─────────── */
+/* ─── GET /landing — post de hoy + archivo paginado (público) ── */
 router.get("/landing", async (req, res) => {
   try {
-    const openai = getOpenAI();
-    const today  = todayDate();
+    const page  = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 5;
+    const skip  = (page - 1) * limit;
+    const today = todayDate();
 
-    let featured = await DailyPost.findOne({ date: today });
-    if (!featured) featured = await generateDailyPost(openai, today);
+    // Featured solo en la primera página
+    let featured = null;
+    if (page === 1) {
+      featured = await DailyPost.findOne({ date: today });
+      if (!featured) featured = await generateDailyPost(getOpenAI(), today);
+    }
 
-    const archive = await DailyPost.find({ date: { $ne: today } })
+    const totalArchive = await DailyPost.countDocuments({ date: { $ne: today } });
+    const archive      = await DailyPost.find({ date: { $ne: today } })
       .sort({ date: -1 })
-      .limit(20)
-      .select("date title excerpt tags publishedAt readingMinutes")
+      .skip(skip)
+      .limit(limit)
+      .select("date title excerpt tags publishedAt readingMinutes imageUrl")
       .lean();
 
-    return res.json({ featured, archive });
+    return res.json({
+      featured,
+      archive,
+      page,
+      totalPages: Math.ceil(totalArchive / limit),
+      totalArchive,
+    });
   } catch (err) {
     console.error("Landing posts error:", err.message);
     return res.status(500).json({ error: "Error al obtener posts." });

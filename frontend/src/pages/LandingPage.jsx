@@ -1295,16 +1295,26 @@ const LandingPostsSection = () => {
   const [featured,     setFeatured]     = useState(null);
   const [archive,      setArchive]      = useState([]);
   const [loading,      setLoading]      = useState(true);
+  const [archiveLoading, setArchiveLoading] = useState(false);
   const [selected,     setSelected]     = useState(null);
   const [fetchingPost, setFetchingPost] = useState(false);
+  const [page,         setPage]         = useState(1);
+  const [totalPages,   setTotalPages]   = useState(1);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/posts/landing`)
-      .then((r) => r.json())
-      .then((d) => { setFeatured(d.featured || null); setArchive(d.archive || []); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchPage = async (p, isFirst = false) => {
+    if (isFirst) setLoading(true); else setArchiveLoading(true);
+    try {
+      const res  = await fetch(`${API_URL}/api/posts/landing?page=${p}`);
+      const data = await res.json();
+      if (p === 1 && data.featured) setFeatured(data.featured);
+      setArchive(data.archive || []);
+      setPage(data.page || p);
+      setTotalPages(data.totalPages || 1);
+    } catch {}
+    finally { if (isFirst) setLoading(false); else setArchiveLoading(false); }
+  };
+
+  useEffect(() => { fetchPage(1, true); }, []); // eslint-disable-line
 
   const openPost = async (post) => {
     // Si ya tiene body e imageUrl (post destacado), abrirlo directo
@@ -1411,37 +1421,95 @@ const LandingPostsSection = () => {
           </Box>
         )}
 
-        {/* Archivo — posts anteriores tipo diario */}
-        {archive.length > 0 && (
+        {/* Archivo — posts anteriores */}
+        {(archive.length > 0 || archiveLoading) && (
           <>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#8AADAA",
-              textTransform: "uppercase", letterSpacing: "0.08em", mb: 2 }}>
-              Artículos anteriores
-            </Typography>
-            <Stack spacing={0}>
-              {archive.map((p, i) => (
-                <Box key={p._id} onClick={() => openPost(p)} sx={{
-                  display: "flex", alignItems: "baseline", gap: 2,
-                  py: 1.4, px: 1.5, cursor: "pointer", borderRadius: 2,
-                  borderBottom: i < archive.length - 1 ? "1px solid rgba(11,94,85,0.08)" : "none",
-                  transition: "background 0.15s",
-                  "&:hover": { bgcolor: "#E6F5F3" },
-                }}>
-                  <Typography sx={{ fontSize: 11, color: "#8AADAA", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "monospace" }}>
-                    {fmtDateLanding(p.publishedAt)}
-                  </Typography>
-                  <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#0F2420", lineHeight: 1.4, flex: 1 }}
-                    noWrap>
-                    {p.title}
-                  </Typography>
-                  {p.tags?.[0] && (
-                    <Chip label={`#${p.tags[0]}`} size="small"
-                      sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600, fontSize: 10, height: 18, flexShrink: 0,
-                        display: { xs: "none", sm: "flex" } }} />
-                  )}
-                </Box>
-              ))}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#8AADAA",
+                textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Artículos anteriores
+              </Typography>
+              {totalPages > 1 && (
+                <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
+                  Página {page} de {totalPages}
+                </Typography>
+              )}
             </Stack>
+
+            {archiveLoading ? (
+              <Stack spacing={0}>
+                {[0,1,2,3,4].map((i) => (
+                  <Box key={i} sx={{ display: "flex", gap: 2, py: 1.4, px: 1.5, alignItems: "center" }}>
+                    <Skeleton variant="rectangular" width={52} height={52} sx={{ borderRadius: 1.5, flexShrink: 0 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Skeleton height={16} width="80%" />
+                      <Skeleton height={13} width="40%" sx={{ mt: 0.5 }} />
+                    </Box>
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <Stack spacing={0}>
+                {archive.map((p, i) => (
+                  <Box key={p._id} onClick={() => openPost(p)} sx={{
+                    display: "flex", alignItems: "center", gap: 2,
+                    py: 1.2, px: 1.5, cursor: "pointer", borderRadius: 2,
+                    borderBottom: i < archive.length - 1 ? "1px solid rgba(11,94,85,0.08)" : "none",
+                    transition: "background 0.15s",
+                    "&:hover": { bgcolor: "#E6F5F3" },
+                  }}>
+                    {/* Miniatura */}
+                    <Box sx={{ width: 52, height: 52, borderRadius: 1.5, overflow: "hidden",
+                      flexShrink: 0, bgcolor: "#E6F5F3" }}>
+                      {p.imageUrl
+                        ? <Box component="img" src={p.imageUrl} alt={p.title}
+                            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        : <Box sx={{ width: "100%", height: "100%", display: "flex",
+                            alignItems: "center", justifyContent: "center",
+                            fontSize: 20 }}>🌿</Box>
+                      }
+                    </Box>
+                    {/* Texto */}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#0F2420",
+                        lineHeight: 1.3, mb: 0.3 }} noWrap>
+                        {p.title}
+                      </Typography>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
+                          {fmtDateLanding(p.publishedAt)}
+                        </Typography>
+                        {p.tags?.[0] && (
+                          <Chip label={`#${p.tags[0]}`} size="small"
+                            sx={{ bgcolor: "#E6F5F3", color: "#0B5E55", fontWeight: 600,
+                              fontSize: 10, height: 17, display: { xs: "none", sm: "flex" } }} />
+                        )}
+                      </Stack>
+                    </Box>
+                  </Box>
+                ))}
+              </Stack>
+            )}
+
+            {/* Paginador */}
+            {totalPages > 1 && (
+              <Stack direction="row" justifyContent="center" spacing={1} mt={3}>
+                <Button size="small" disabled={page === 1 || archiveLoading}
+                  onClick={() => fetchPage(page - 1)}
+                  sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55",
+                    borderRadius: 999, border: "1px solid rgba(11,94,85,0.20)", px: 2,
+                    "&:hover": { bgcolor: "#E6F5F3" }, "&:disabled": { opacity: 0.4 } }}>
+                  ← Anterior
+                </Button>
+                <Button size="small" disabled={page === totalPages || archiveLoading}
+                  onClick={() => fetchPage(page + 1)}
+                  sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55",
+                    borderRadius: 999, border: "1px solid rgba(11,94,85,0.20)", px: 2,
+                    "&:hover": { bgcolor: "#E6F5F3" }, "&:disabled": { opacity: 0.4 } }}>
+                  Siguiente →
+                </Button>
+              </Stack>
+            )}
           </>
         )}
       </Box>
