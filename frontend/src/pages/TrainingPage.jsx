@@ -1400,23 +1400,31 @@ const TrainingPage = () => {
                                   <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "65%",
                                     background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)" }} />
                                   <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2, pb: 1.5,
-                                    display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                                    display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 1 }}>
                                     <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px",
                                       textShadow: "0 1px 4px rgba(0,0,0,0.4)", lineHeight: 1.2, flex: 1 }}>
                                       {ex.name}
                                     </Typography>
-                                    {/* Botón expandir */}
-                                    <IconButton size="small"
+                                    {/* Botón guía — indica imagen + descripción */}
+                                    <Box
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setFullscreenEx({ imageUrl: imgData.imageUrl, name: ex.name, sets: ex.sets, reps: ex.reps, rest: ex.rest, notes: ex.notes, isRunning: exIsRunning });
                                         fetchExerciseDescription(ex.name);
                                       }}
-                                      sx={{ color: "rgba(255,255,255,0.85)", bgcolor: "rgba(0,0,0,0.35)",
-                                        "&:hover": { bgcolor: "rgba(0,0,0,0.6)", color: "#fff" },
-                                        width: 30, height: 30, ml: 1, flexShrink: 0 }}>
-                                      <FullscreenRoundedIcon sx={{ fontSize: 17 }} />
-                                    </IconButton>
+                                      sx={{
+                                        display: "flex", alignItems: "center", gap: 0.6,
+                                        px: 1.3, py: 0.6, borderRadius: 999, flexShrink: 0,
+                                        bgcolor: "rgba(11,94,85,0.75)", border: "1px solid rgba(255,255,255,0.25)",
+                                        cursor: "pointer", backdropFilter: "blur(4px)",
+                                        transition: "all 0.18s",
+                                        "&:hover": { bgcolor: "rgba(11,94,85,0.95)", borderColor: "rgba(255,255,255,0.5)" },
+                                      }}>
+                                      <Typography sx={{ fontSize: 13 }}>📋</Typography>
+                                      <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>
+                                        Ver guía
+                                      </Typography>
+                                    </Box>
                                   </Box>
                                 </>
                               )}
