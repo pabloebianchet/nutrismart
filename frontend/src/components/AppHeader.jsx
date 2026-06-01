@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Avatar, Box, Drawer, IconButton, Typography } from "@mui/material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
@@ -46,6 +46,45 @@ const C = {
 
 const isActive = (to, pathname) =>
   to === "/" ? pathname === "/" : pathname.startsWith(to);
+
+/* ─── Avatar con fallback a iniciales ─────────────────────── */
+const UserAvatar = ({ user, size = 32, sx = {} }) => {
+  const [imgSrc, setImgSrc] = useState(user?.picture || null);
+  const prevPicture = useRef(user?.picture);
+
+  // Reintentar si cambia la URL de la foto
+  useEffect(() => {
+    if (user?.picture && user.picture !== prevPicture.current) {
+      prevPicture.current = user.picture;
+      setImgSrc(user.picture);
+    }
+  }, [user?.picture]);
+
+  const initials = (user?.name || user?.email || "?")
+    .split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+
+  return (
+    <Avatar
+      src={imgSrc || undefined}
+      alt={user?.name || ""}
+      imgProps={{
+        onError: () => setImgSrc(null), // si falla → iniciales
+        loading: "eager",
+        crossOrigin: "anonymous",
+      }}
+      sx={{
+        width: size, height: size,
+        bgcolor: imgSrc ? "transparent" : "#0B5E55",
+        fontSize: size * 0.38,
+        fontWeight: 700,
+        border: `2px solid #B2DDD9`,
+        ...sx,
+      }}
+    >
+      {!imgSrc && initials}
+    </Avatar>
+  );
+};
 
 /* ─────────────────────────────────────────────────────────
    NAV DE ESCRITORIO  (solo visible en md+)
@@ -157,11 +196,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
                 },
               }}
             >
-              <Avatar
-                src={user.picture}
-                alt={user.name}
-                sx={{ width: 32, height: 32, border: `2px solid ${C.brandMuted}` }}
-              />
+              <UserAvatar user={user} size={32} />
               <Typography
                 sx={{
                   fontSize: 13,
@@ -302,11 +337,7 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {user && (
-            <Avatar
-              src={user.picture}
-              alt={user.name}
-              sx={{ width: 28, height: 28, border: `1.5px solid ${C.brandMuted}` }}
-            />
+            <UserAvatar user={user} size={28} />
           )}
           <IconButton
             onClick={() => setDrawerOpen(true)}
@@ -364,7 +395,7 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
               gap: 1.5,
             }}
           >
-            <Avatar src={user.picture} alt={user.name} sx={{ width: 44, height: 44, border: `2px solid ${C.brandMuted}` }} />
+            <UserAvatar user={user} size={44} />
             <Box sx={{ minWidth: 0 }}>
               <Typography sx={{ fontWeight: 700, fontSize: 14, color: C.textPrimary }} noWrap>
                 {user.name}
