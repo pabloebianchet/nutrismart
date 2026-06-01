@@ -1687,14 +1687,8 @@ const LandingFooter = () => (
             <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>
               Pago seguro procesado por
             </Typography>
-            {/* Logo Mercado Pago */}
-            <Box sx={{ bgcolor: "#009EE3", borderRadius: 1.5, px: 1.2, py: 0.4,
-              display: "flex", alignItems: "center" }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 900, color: "#fff",
-                letterSpacing: "-0.3px", fontFamily: "Arial, sans-serif" }}>
-                mercado pago
-              </Typography>
-            </Box>
+            <Box component="img" src="/img/Logo Mp.svg" alt="Mercado Pago"
+              sx={{ height: 24, opacity: 0.85, filter: "brightness(0) invert(1)" }} />
           </Stack>
           <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.20)" }}>·</Typography>
           <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}>
