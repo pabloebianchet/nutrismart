@@ -1562,20 +1562,20 @@ const TrainingPage = () => {
                             anchorEl={exMenuOpen?.anchor}
                             open={!!(exMenuOpen?.dayKey === activeDay && exMenuOpen?.index === i)}
                             onClose={() => setExMenuOpen(null)}
-                            PaperProps={{ sx: { borderRadius: 3, boxShadow: "0 8px 24px rgba(11,94,85,0.15)", minWidth: 200 } }}>
-                            <MenuItem onClick={() => generateAlternative(activeDay, i)}>
+                            PaperProps={{ sx: { borderRadius: 3, boxShadow: "0 8px 24px rgba(11,94,85,0.15)", minWidth: 220, maxHeight: 320, overflowY: "auto" } }}>
+                            <MenuItem dense onClick={() => generateAlternative(activeDay, i)}>
                               <ListItemIcon><AutoFixHighRoundedIcon fontSize="small" sx={{ color: "#0B5E55" }} /></ListItemIcon>
-                              <ListItemText primary="Generar alternativa" secondary="Similar con IA" />
+                              <ListItemText primary="Generar alternativa (IA)" />
                             </MenuItem>
-                            <MenuItem onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: i }); setManualForm({ name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
-                              <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
-                              <ListItemText primary="Reemplazar manualmente" secondary="Reemplaza este ejercicio" />
-                            </MenuItem>
-                            <MenuItem onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}>
+                            <MenuItem dense onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#2E7D32" }} /></ListItemIcon>
-                              <ListItemText primary="Agregar ejercicio nuevo" secondary="Se suma a la lista" />
+                              <ListItemText primary="Agregar ejercicio nuevo" />
                             </MenuItem>
-                            <MenuItem
+                            <MenuItem dense onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: i }); setManualForm({ name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
+                              <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
+                              <ListItemText primary="Reemplazar este ejercicio" />
+                            </MenuItem>
+                            <MenuItem dense
                               onClick={() => { setExMenuOpen(null); setConfirmDelete({ dayKey: activeDay, index: i, name: ex.name }); }}
                               sx={{ color: "#E24B4A" }}>
                               <ListItemIcon><DeleteOutlineRoundedIcon fontSize="small" sx={{ color: "#E24B4A" }} /></ListItemIcon>
