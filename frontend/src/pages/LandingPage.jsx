@@ -2510,29 +2510,13 @@ const PricingSection = ({ onCTA }) => {
             flexWrap="wrap"
             useFlexGap
           >
-            <Typography sx={{ fontSize: 18, color: C.muted, fontWeight: 500 }}>
+            <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
               Pago seguro a través de
             </Typography>
-            {/* Logo Mp SVG inline */}
-            <Box
-              component="svg"
-              viewBox="0 0 120 28"
-              sx={{ height: 26, opacity: 0.65 }}
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <text
-                x="0"
-                y="20"
-                fontFamily="Arial,sans-serif"
-                fontSize="18"
-                fontWeight="700"
-                fill="#009EE3"
-              >
-                mercadopago
-              </text>
-            </Box>
-            <Typography sx={{ fontSize: 20, color: C.muted }}>-</Typography>
-            <Typography sx={{ fontSize: 18, color: C.muted, fontWeight: 500 }}>
+            <Box component="img" src="/img/Logo Mp.svg" alt="Mercado Pago"
+              sx={{ height: 28, opacity: 0.85 }} />
+            <Typography sx={{ fontSize: 13, color: C.muted }}>·</Typography>
+            <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
               Cancelá cuando quieras
             </Typography>
           </Stack>
