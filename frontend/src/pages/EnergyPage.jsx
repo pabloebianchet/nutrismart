@@ -725,14 +725,15 @@ const EnergyPage = () => {
               {new Date().toLocaleDateString("es-AR", { month: "long", year: "numeric" })} · {monthly.daily.length} días registrados
             </Typography>
 
-            {/* Tabla */}
+            {/* Tabla — scroll horizontal en mobile */}
             <Paper elevation={0} sx={{ borderRadius: 3, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+              <Box sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
               {/* Header */}
-              <Box sx={{ display: "grid", gridTemplateColumns: "90px 1fr 1fr 1fr 1fr 60px",
-                px: 2, py: 1.2, bgcolor: C.surfaceAlt, borderBottom: `1px solid ${C.border}` }}>
+              <Box sx={{ display: "grid", gridTemplateColumns: "80px 70px 72px 72px 62px 56px",
+                minWidth: 420, px: 2, py: 1.2, bgcolor: C.surfaceAlt, borderBottom: `1px solid ${C.border}` }}>
                 {["Día", "Kcal", "Proteína", "Carbos", "Agua", "Act."].map((h) => (
-                  <Typography key={h} sx={{ fontSize: 10.5, fontWeight: 700, color: C.textMuted,
-                    textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</Typography>
+                  <Typography key={h} sx={{ fontSize: 10, fontWeight: 700, color: C.textMuted,
+                    textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</Typography>
                 ))}
               </Box>
               {/* Filas */}
@@ -740,8 +741,8 @@ const EnergyPage = () => {
                 const [y, m, day] = d.date.split("-");
                 return (
                   <Box key={d.date} sx={{
-                    display: "grid", gridTemplateColumns: "90px 1fr 1fr 1fr 1fr 60px",
-                    px: 2, py: 1.4, alignItems: "center",
+                    display: "grid", gridTemplateColumns: "80px 70px 72px 72px 62px 56px",
+                    minWidth: 420, px: 2, py: 1.4, alignItems: "center",
                     borderBottom: i < monthly.daily.length - 1 ? `1px solid ${C.border}` : "none",
                     bgcolor: d.date === log?.date ? `${C.brand}08` : "transparent",
                     "&:hover": { bgcolor: C.brandSurface },
@@ -768,6 +769,7 @@ const EnergyPage = () => {
                   </Box>
                 );
               })}
+              </Box>{/* cierre overflowX */}
             </Paper>
           </Box>
         )}
