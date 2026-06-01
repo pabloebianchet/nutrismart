@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Box, Typography, Stack, Paper, LinearProgress, Button, Chip } from "@mui/material";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import ArrowForwardRoundedIcon        from "@mui/icons-material/ArrowForwardRounded";
@@ -30,13 +30,17 @@ const calcBMR = (ud) => {
   return Math.round(ud.sexo === "M" || ud.sexo === "masculino" ? base + 5 : base - 161);
 };
 
+const WIDGET_IMG_KEY = "nui_energy_widget_img";
+
 const EnergyWidget = () => {
   const { userData } = useNutrition();
   const navigate     = useNavigate();
   const token        = localStorage.getItem("nutrismartToken");
 
-  const [log,     setLog]     = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [log,        setLog]       = useState(null);
+  const [loading,    setLoading]   = useState(true);
+  const [bgImage,    setBgImage]   = useState(() => localStorage.getItem(WIDGET_IMG_KEY) || null);
+  const fetchedImg   = useRef(false);
 
   const bmr          = calcBMR(userData);
   const tdee         = bmr ? Math.round(bmr * (ACTIVITY_FACTOR[userData?.actividad] || 1.375)) : null;
@@ -48,6 +52,27 @@ const EnergyWidget = () => {
       .then((d) => setLog(d))
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    // Cargar imagen de Unsplash una sola vez (cachear en localStorage)
+    if (!fetchedImg.current && !bgImage && process.env.NODE_ENV !== "development") {
+      fetchedImg.current = true;
+      fetch(`${API_URL}/api/recipes/image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "fitness nutrition balance gym weights healthy food",
+          ingredients: [],
+        }),
+      })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (d?.imageUrl) {
+            setBgImage(d.imageUrl);
+            localStorage.setItem(WIDGET_IMG_KEY, d.imageUrl);
+          }
+        })
+        .catch(() => {});
+    }
   }, []); // eslint-disable-line
 
   if (loading || !bmr) return null;
@@ -72,23 +97,56 @@ const EnergyWidget = () => {
         boxShadow: "0 4px 20px rgba(11,94,85,0.08)", cursor: "pointer",
         transition: "all 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 28px rgba(11,94,85,0.14)" } }}>
 
-      {/* Header */}
-      <Box sx={{ px: 3, py: 2, bgcolor: C.brandSurface, borderBottom: `1px solid ${C.border}`,
-        display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <LocalFireDepartmentRoundedIcon sx={{ fontSize: 18, color: C.brand }} />
-          <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.brand }}>Balance energético</Typography>
-        </Stack>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Button size="small" startIcon={<MicRoundedIcon sx={{ fontSize: 14 }} />}
-            onClick={(e) => { e.stopPropagation(); navigate("/energy"); }}
-            sx={{ textTransform: "none", fontSize: 11.5, fontWeight: 700, color: C.brand,
-              bgcolor: C.surface, borderRadius: 999, px: 1.5, py: 0.4, border: `1px solid ${C.brandMuted}`,
-              "&:hover": { bgcolor: C.brandMuted } }}>
-            Registrar
-          </Button>
-          <ArrowForwardRoundedIcon sx={{ fontSize: 16, color: C.textMuted }} />
-        </Stack>
+      {/* Banner con imagen o gradiente */}
+      <Box sx={{ position: "relative", height: { xs: 130, sm: 150 }, overflow: "hidden",
+        bgcolor: "#0a2e2a" }}>
+        {bgImage ? (
+          <Box component="img" src={bgImage} alt="Balance energético"
+            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
+              "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
+              animation: "fadeIn 0.8s ease" }} />
+        ) : (
+          /* Gradiente fallback mientras carga o si no hay imagen */
+          <Box sx={{ width: "100%", height: "100%",
+            background: "linear-gradient(135deg, #071e1b 0%, #0B5E55 50%, #0d7a6e 100%)" }}>
+            <Typography sx={{ position: "absolute", fontSize: 64, bottom: -8, right: 16, opacity: 0.18, userSelect: "none" }}>
+              🔥
+            </Typography>
+          </Box>
+        )}
+
+        {/* Overlay gradiente para legibilidad */}
+        <Box sx={{ position: "absolute", inset: 0,
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(7,30,27,0.75) 100%)" }} />
+
+        {/* Contenido sobre la imagen */}
+        <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 3, pb: 2 }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-end">
+            <Box>
+              <Stack direction="row" spacing={0.8} alignItems="center" mb={0.3}>
+                <LocalFireDepartmentRoundedIcon sx={{ fontSize: 15, color: "rgba(255,255,255,0.80)" }} />
+                <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "rgba(255,255,255,0.75)",
+                  textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                  Balance energético
+                </Typography>
+              </Stack>
+              <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", letterSpacing: "-0.4px", lineHeight: 1.1 }}>
+                {dailyGoal ? `Objetivo: ${dailyGoal.toLocaleString("es-AR")} kcal` : "Configurá tu objetivo"}
+              </Typography>
+            </Box>
+            <Button size="small" startIcon={<MicRoundedIcon sx={{ fontSize: 13 }} />}
+              onClick={(e) => { e.stopPropagation(); navigate("/energy"); }}
+              sx={{ textTransform: "none", fontSize: 11.5, fontWeight: 700,
+                color: "#fff", bgcolor: "rgba(255,255,255,0.18)",
+                borderRadius: 999, px: 1.5, py: 0.5,
+                border: "1px solid rgba(255,255,255,0.30)",
+                backdropFilter: "blur(4px)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.28)" },
+                flexShrink: 0 }}>
+              Registrar
+            </Button>
+          </Stack>
+        </Box>
       </Box>
 
       <Box sx={{ px: 3, py: 2.5 }}>
