@@ -1239,9 +1239,23 @@ const PricingSection = ({ onCTA }) => {
           ))}
         </Box>
 
-        <Typography sx={{ textAlign: "center", fontSize: 13, color: C.muted, mt: 4, fontWeight: 500 }}>
-          Pago seguro a través de Mercado Pago · Cancelá cuando quieras
-        </Typography>
+        {/* Pago seguro — logo MP */}
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <Stack direction="row" justifyContent="center" alignItems="center" spacing={1.5} flexWrap="wrap" useFlexGap>
+            <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
+              Pago seguro a través de
+            </Typography>
+            {/* Logo MP SVG inline */}
+            <Box component="svg" viewBox="0 0 120 28" sx={{ height: 22, opacity: 0.65 }}
+              xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="20" fontFamily="Arial,sans-serif" fontSize="18" fontWeight="700" fill="#009EE3">
+                mercadopago
+              </text>
+            </Box>
+            <Typography sx={{ fontSize: 13, color: C.muted }}>·</Typography>
+            <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>Cancelá cuando quieras</Typography>
+          </Stack>
+        </Box>
       </Box>
     </Box>
   );
@@ -1650,7 +1664,7 @@ const LandingFooter = () => (
 
       {/* Fila principal */}
       <Box sx={{ display: "flex", alignItems: "center",
-        justifyContent: "space-between", flexDirection: { xs: "column", sm: "row" }, gap: 3 }}>
+        justifyContent: "space-between", flexDirection: { xs: "column", sm: "row" }, gap: 3, mb: 4 }}>
         <Box component="img" src="/img/logo_landing.png" alt="Nui" sx={{ height: 28, opacity: 0.55 }} />
         <Stack direction="row" spacing={4} flexWrap="wrap" justifyContent="center">
           {[["Privacidad", "/privacidad"], ["Términos", "/terminos"], ["Contacto", "/contact"], ["Precios", "/pricing"]].map(([label, path]) => (
@@ -1666,29 +1680,75 @@ const LandingFooter = () => (
         </Typography>
       </Box>
 
-      {/* Cumplimiento normativo */}
-      <Box sx={{ mt: 3, pt: 2.5, borderTop: "1px solid rgba(255,255,255,0.06)",
-        display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: { xs: 1.5, sm: 3 } }}>
+      {/* Pago seguro — logo Mercado Pago */}
+      <Box sx={{ py: 3, borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)", mb: 3 }}>
+        <Stack direction={{ xs: "column", sm: "row" }} alignItems="center"
+          justifyContent="center" spacing={{ xs: 2, sm: 4 }} flexWrap="wrap" useFlexGap>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>
+              Pago seguro procesado por
+            </Typography>
+            {/* Logo Mercado Pago */}
+            <Box sx={{ bgcolor: "#009EE3", borderRadius: 1.5, px: 1.2, py: 0.4,
+              display: "flex", alignItems: "center" }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 900, color: "#fff",
+                letterSpacing: "-0.3px", fontFamily: "Arial, sans-serif" }}>
+                mercado pago
+              </Typography>
+            </Box>
+          </Stack>
+          <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.20)" }}>·</Typography>
+          <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}>
+            🔒 Transacción cifrada SSL · PCI DSS compliant
+          </Typography>
+        </Stack>
+      </Box>
+
+      {/* Cumplimiento normativo ARCA + Defensa del Consumidor */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center",
+        justifyContent: "center", gap: { xs: 1.5, sm: 2.5 }, mb: 2 }}>
+        {/* ARCA */}
+        <Stack direction="row" spacing={0.8} alignItems="center">
+          <Box sx={{ width: 20, height: 20, borderRadius: 1, bgcolor: "rgba(255,255,255,0.10)",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>🏛️</Box>
+          <Box component="a"
+            href="https://www.argentina.gob.ar/arca"
+            target="_blank" rel="noopener noreferrer"
+            sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textDecoration: "none",
+              "&:hover": { color: "rgba(255,255,255,0.70)" }, transition: "color 0.2s" }}>
+            ARCA — Agencia de Recaudación
+          </Box>
+        </Stack>
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.12)", userSelect: "none" }}>·</Typography>
+        {/* Defensa del Consumidor */}
         <Box component="a" href="https://www.argentina.gob.ar/produccion/defensadelconsumidor"
           target="_blank" rel="noopener noreferrer"
-          sx={{ fontSize: 11, color: "rgba(255,255,255,0.28)", textDecoration: "none",
-            "&:hover": { color: "rgba(255,255,255,0.60)" }, transition: "color 0.2s" }}>
+          sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textDecoration: "none",
+            "&:hover": { color: "rgba(255,255,255,0.70)" }, transition: "color 0.2s" }}>
           🛡️ Defensa del Consumidor
         </Box>
-        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.15)", userSelect: "none" }}>·</Typography>
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.12)", userSelect: "none" }}>·</Typography>
         <Box component="a" href="tel:08006661518"
-          sx={{ fontSize: 11, color: "rgba(255,255,255,0.28)", textDecoration: "none",
-            "&:hover": { color: "rgba(255,255,255,0.60)" }, transition: "color 0.2s" }}>
-          0800-666-1518
+          sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textDecoration: "none",
+            "&:hover": { color: "rgba(255,255,255,0.70)" }, transition: "color 0.2s" }}>
+          📞 0800-666-1518
         </Box>
-        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.15)", userSelect: "none" }}>·</Typography>
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.12)", userSelect: "none" }}>·</Typography>
         <Box component="a" href="https://www.argentina.gob.ar/produccion/defensadelconsumidor/formulario"
           target="_blank" rel="noopener noreferrer"
-          sx={{ fontSize: 11, color: "rgba(255,255,255,0.28)", textDecoration: "none",
-            "&:hover": { color: "rgba(255,255,255,0.60)" }, transition: "color 0.2s" }}>
-          Botón de arrepentimiento
+          sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textDecoration: "none",
+            "&:hover": { color: "rgba(255,255,255,0.70)" }, transition: "color 0.2s" }}>
+          ↩️ Botón de arrepentimiento
         </Box>
       </Box>
+
+      {/* Datos legales */}
+      <Typography sx={{ textAlign: "center", fontSize: 10.5,
+        color: "rgba(255,255,255,0.18)", lineHeight: 1.7 }}>
+        Nui es una aplicación de salud y nutrición. No reemplaza el consejo médico profesional.<br />
+        Los análisis nutricionales son orientativos. Consultá con un profesional de la salud ante dudas.
+      </Typography>
 
     </Box>
   </Box>
