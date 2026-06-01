@@ -2510,14 +2510,14 @@ const PricingSection = ({ onCTA }) => {
             flexWrap="wrap"
             useFlexGap
           >
-            <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
+            <Typography sx={{ fontSize: 18, color: C.muted, fontWeight: 500 }}>
               Pago seguro a través de
             </Typography>
             {/* Logo Mp SVG inline */}
             <Box
               component="svg"
               viewBox="0 0 120 28"
-              sx={{ height: 22, opacity: 0.65 }}
+              sx={{ height: 26, opacity: 0.65 }}
               xmlns="http://www.w3.org/2000/svg"
             >
               <text
@@ -2531,8 +2531,8 @@ const PricingSection = ({ onCTA }) => {
                 mercadopago
               </text>
             </Box>
-            <Typography sx={{ fontSize: 13, color: C.muted }}>·</Typography>
-            <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
+            <Typography sx={{ fontSize: 20, color: C.muted }}>-</Typography>
+            <Typography sx={{ fontSize: 18, color: C.muted, fontWeight: 500 }}>
               Cancelá cuando quieras
             </Typography>
           </Stack>
@@ -3518,9 +3518,8 @@ const LandingFooter = () => (
               src="/img/Logo Mp.svg"
               alt="Mercado Pago"
               sx={{
-                height: 24,
-                opacity: 0.85,
-                filter: "brightness(0) invert(1)",
+                height: 32,
+                opacity: 0.90,
               }}
             />
           </Stack>
