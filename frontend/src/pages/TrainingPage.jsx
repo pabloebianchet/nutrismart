@@ -189,10 +189,11 @@ const TrainingPage = () => {
   const [fullscreenEx,    setFullscreenEx]    = useState(null);
   const [exDescriptions,  setExDescriptions]  = useState({});
   // Personalización de ejercicios
-  const [exMenuOpen,      setExMenuOpen]      = useState(null);  // { dayKey, index } del menú abierto
-  const [generatingAlt,   setGeneratingAlt]   = useState(null);  // { dayKey, index }
-  const [addManualOpen,   setAddManualOpen]   = useState(null);  // { dayKey, index|null(agregar) }
+  const [exMenuOpen,      setExMenuOpen]      = useState(null);
+  const [generatingAlt,   setGeneratingAlt]   = useState(null);
+  const [addManualOpen,   setAddManualOpen]   = useState(null);
   const [manualForm,      setManualForm]      = useState({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
+  const [confirmDelete,   setConfirmDelete]   = useState(null);  // { dayKey, index, name }
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1570,7 +1571,8 @@ const TrainingPage = () => {
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
                               <ListItemText primary="Reemplazar manualmente" />
                             </MenuItem>
-                            <MenuItem onClick={() => deleteExercise(activeDay, i)}
+                            <MenuItem
+                              onClick={() => { setExMenuOpen(null); setConfirmDelete({ dayKey: activeDay, index: i, name: ex.name }); }}
                               sx={{ color: "#E24B4A" }}>
                               <ListItemIcon><DeleteOutlineRoundedIcon fontSize="small" sx={{ color: "#E24B4A" }} /></ListItemIcon>
                               <ListItemText primary="Eliminar ejercicio" />
@@ -2130,6 +2132,41 @@ const TrainingPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Dialog: confirmar eliminación de ejercicio ── */}
+      <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: 4, mx: 2 } }}>
+        <DialogContent sx={{ p: 3 }}>
+          <Box sx={{ textAlign: "center", mb: 2 }}>
+            <Typography sx={{ fontSize: 28, mb: 1 }}>🗑️</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1 }}>
+              ¿Eliminar este ejercicio?
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6, mb: 1.5 }}>
+              Vas a quitar <strong>"{confirmDelete?.name}"</strong> de tu plan.
+            </Typography>
+            <Box sx={{ px: 2, py: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1px solid #B2DDD9" }}>
+              <Typography sx={{ fontSize: 12.5, color: "#0B5E55", lineHeight: 1.6 }}>
+                💡 Podés volver a agregarlo cuando quieras con el botón <strong>"Agregar ejercicio"</strong>. Se generará una nueva imagen y guía automáticamente.
+              </Typography>
+            </Box>
+          </Box>
+          <Stack direction="row" spacing={1.5}>
+            <Button onClick={() => setConfirmDelete(null)} fullWidth
+              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67",
+                border: "1px solid rgba(11,94,85,0.20)" }}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => { deleteExercise(confirmDelete.dayKey, confirmDelete.index); setConfirmDelete(null); }}
+              variant="contained" fullWidth
+              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700,
+                bgcolor: "#E24B4A", "&:hover": { bgcolor: "#C0392B" } }}>
+              Sí, eliminar
+            </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Dialog: agregar/reemplazar ejercicio manual ── */}
       <Dialog open={!!addManualOpen} onClose={() => setAddManualOpen(null)} maxWidth="xs" fullWidth
