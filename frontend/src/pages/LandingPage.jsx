@@ -419,9 +419,7 @@ const MODULES = [
     desc:  "Registrá lo que comés y tu actividad del día por voz. La IA calcula tu objetivo calórico según tu metabolismo, nivel de actividad y meta — bajar peso, mantener o ganar músculo.",
     color: "#0B5E55", bg: "#E6F5F3",
     tags:  ["Por voz", "TDEE", "Déficit / Superávit", "Macros", "Historial mensual"],
-    photo: null,
-    gradient: "linear-gradient(135deg, #071e1b 0%, #0B5E55 55%, #0f7a6e 100%)",
-    gradientEmoji: ["🔥", "🥗", "⚡", "💪"],
+    photo: "/img/balance.jpg",
   },
 ];
 
