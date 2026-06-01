@@ -420,6 +420,8 @@ const MODULES = [
     color: "#0B5E55", bg: "#E6F5F3",
     tags:  ["Por voz", "TDEE", "Déficit / Superávit", "Macros", "Historial mensual"],
     photo: null,
+    gradient: "linear-gradient(135deg, #071e1b 0%, #0B5E55 55%, #0f7a6e 100%)",
+    gradientEmoji: ["🔥", "🥗", "⚡", "💪"],
   },
 ];
 
@@ -456,13 +458,35 @@ const ModulesSection = () => (
             transition: "transform 0.25s, box-shadow 0.25s",
             "&:hover": { transform: "translateY(-8px)", boxShadow: `0 28px 60px ${m.color}18` },
           }}>
-            {m.photo && (
+            {(m.photo || m.gradient) && (
               <Box sx={{ position: "relative", height: 200, overflow: "hidden" }}>
-                <Box component="img" src={m.photo} alt={m.title} sx={{
-                  width: "100%", height: "100%", objectFit: "cover",
-                  transition: "transform 0.5s ease",
-                  ".MuiBox-root:hover &": { transform: "scale(1.06)" },
-                }} />
+                {m.photo ? (
+                  <Box component="img" src={m.photo} alt={m.title} sx={{
+                    width: "100%", height: "100%", objectFit: "cover",
+                    transition: "transform 0.5s ease",
+                    ".MuiBox-root:hover &": { transform: "scale(1.06)" },
+                  }} />
+                ) : (
+                  /* Gradiente decorativo para módulos sin foto */
+                  <Box sx={{ width: "100%", height: "100%", background: m.gradient, position: "relative", overflow: "hidden" }}>
+                    {/* Emojis decorativos flotantes */}
+                    {(m.gradientEmoji || []).map((emoji, idx) => (
+                      <Typography key={idx} sx={{
+                        position: "absolute",
+                        fontSize: idx === 0 ? 56 : idx === 1 ? 40 : idx === 2 ? 44 : 36,
+                        opacity: 0.18,
+                        top:  idx === 0 ? "10%" : idx === 1 ? "40%" : idx === 2 ? "15%" : "55%",
+                        left: idx === 0 ? "5%"  : idx === 1 ? "60%" : idx === 2 ? "50%" : "20%",
+                        userSelect: "none",
+                        transform: `rotate(${[-8, 12, -5, 8][idx]}deg)`,
+                      }}>{emoji}</Typography>
+                    ))}
+                    <Box sx={{
+                      position: "absolute", inset: 0,
+                      background: "radial-gradient(circle at 30% 50%, rgba(255,255,255,0.06) 0%, transparent 60%)",
+                    }} />
+                  </Box>
+                )}
                 <Box sx={{ position: "absolute", inset: 0,
                   background: "linear-gradient(to bottom, transparent 35%, rgba(0,0,0,0.42) 100%)" }} />
                 <Box sx={{
@@ -874,7 +898,7 @@ const CostComparisonSection = ({ onCTA }) => (
               Plan Gold
             </Typography>
             <Typography sx={{ fontSize: 54, fontWeight: 900, color: "#fff", lineHeight: 1, mb: 0.3 }}>
-              $5.990
+              $8.980
             </Typography>
             <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.40)" }}>
               por mes · cancelá cuando quieras
@@ -884,9 +908,9 @@ const CostComparisonSection = ({ onCTA }) => (
             {[
               "Análisis nutricional ilimitado",
               "Recetas saludables con IA (Fit, Hipertrofia, Rápidas)",
+              "Balance energético diario por voz + historial mensual",
+              "2 planes de entrenamiento personalizados",
               "Lista de compras automática desde tus recetas",
-              "Planes de entrenamiento personalizados",
-              "Seguimiento diario en la app",
             ].map((f) => (
               <Stack key={f} direction="row" spacing={1.5} alignItems="center" mb={1.3}>
                 <Box sx={{ width: 22, height: 22, borderRadius: "50%",
