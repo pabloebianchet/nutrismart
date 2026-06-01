@@ -2858,6 +2858,33 @@ const PostModalLanding = ({ post, open, onClose }) => {
   );
 };
 
+/* ─── Schema.org Article para posts (Rich Results en Google) ──── */
+const injectArticleSchema = (post) => {
+  const id = "nui-article-schema";
+  let el = document.getElementById(id);
+  if (!el) { el = document.createElement("script"); el.id = id; el.type = "application/ld+json"; document.head.appendChild(el); }
+  el.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "description": post.excerpt,
+    "keywords": (post.tags || []).join(", "),
+    "datePublished": post.publishedAt,
+    "dateModified": post.publishedAt,
+    "author": { "@type": "Organization", "name": "Nui", "url": "https://nuiapp.com" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Nui App",
+      "logo": { "@type": "ImageObject", "url": "https://nuiapp.com/img/logo.png" },
+    },
+    "image": post.imageUrl || "https://nuiapp.com/img/og-image.png",
+    "url": "https://nuiapp.com/",
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://nuiapp.com/" },
+    "inLanguage": "es-AR",
+    "about": { "@type": "Thing", "name": "Salud y Nutrición" },
+  });
+};
+
 const LandingPostsSection = () => {
   const [featured, setFeatured] = useState(null);
   const [archive, setArchive] = useState([]);
@@ -2874,7 +2901,10 @@ const LandingPostsSection = () => {
     try {
       const res = await fetch(`${API_URL}/api/posts/landing?page=${p}`);
       const data = await res.json();
-      if (p === 1 && data.featured) setFeatured(data.featured);
+      if (p === 1 && data.featured) {
+        setFeatured(data.featured);
+        injectArticleSchema(data.featured); // Schema.org para Google
+      }
       setArchive(data.archive || []);
       setPage(data.page || p);
       setTotalPages(data.totalPages || 1);
