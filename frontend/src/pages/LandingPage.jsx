@@ -1121,12 +1121,31 @@ const PricingSection = ({ onCTA }) => {
   // Posición relativa al activo: 0=frente, 1=derecha, 2=izquierda
   const getPos = (i) => ((i - active) % 3 + 3) % 3;
 
-  const get3DStyle = (i) => {
+  // Enfoque coverflow: translateX + scale + leve rotateY (más compatible)
+  const getCardStyle = (i) => {
     const pos = getPos(i);
-    const t = "all 0.75s cubic-bezier(0.4, 0, 0.2, 1)";
-    if (pos === 0) return { transform: "rotateY(0deg) translateZ(280px) scale(1.06)", opacity: 1, zIndex: 3, transition: t, pointerEvents: "auto" };
-    if (pos === 1) return { transform: "rotateY(52deg) translateZ(80px) scale(0.80)",  opacity: 0.68, zIndex: 2, transition: t, pointerEvents: "auto", filter: "brightness(0.85)" };
-    return              { transform: "rotateY(-52deg) translateZ(80px) scale(0.80)",  opacity: 0.68, zIndex: 2, transition: t, pointerEvents: "auto", filter: "brightness(0.85)" };
+    const t = "all 0.65s cubic-bezier(0.4, 0, 0.2, 1)";
+    if (pos === 0) return {
+      transform: "translateX(0) scale(1.08) rotateY(0deg)",
+      opacity: 1, zIndex: 3, transition: t,
+      cursor: "default",
+      filter: "none",
+      boxShadow: "0 32px 80px rgba(0,0,0,0.22)",
+    };
+    if (pos === 1) return {
+      transform: "translateX(72%) scale(0.82) rotateY(-10deg)",
+      opacity: 0.72, zIndex: 2, transition: t,
+      cursor: "pointer",
+      filter: "brightness(0.80)",
+      boxShadow: "none",
+    };
+    return {
+      transform: "translateX(-72%) scale(0.82) rotateY(10deg)",
+      opacity: 0.72, zIndex: 2, transition: t,
+      cursor: "pointer",
+      filter: "brightness(0.80)",
+      boxShadow: "none",
+    };
   };
 
   const handleClick = (i) => { if (getPos(i) !== 0) { setActive(i); resetTimer(); } };
@@ -1151,26 +1170,26 @@ const PricingSection = ({ onCTA }) => {
           </Typography>
         </Box>
 
-        {/* ── Carrusel 3D — desktop ── */}
+        {/* ── Carrusel coverflow — desktop ── */}
         <Box sx={{ display: { xs: "none", md: "block" }, mb: 5 }}>
           <Box sx={{
-            perspective: "1400px",
-            perspectiveOrigin: "50% 45%",
-            height: 620,
+            perspective: "1200px",
             position: "relative",
+            height: "640px",
+            overflow: "visible",
           }}>
             {PRICING_PLANS.map((p, i) => (
               <Box key={p.id}
                 onClick={() => handleClick(i)}
                 sx={{
                   position: "absolute",
-                  width: 340,
+                  width: "340px",
                   left: "50%",
-                  top: getPos(i) === 0 ? 20 : 40,
-                  marginLeft: -170,
-                  cursor: getPos(i) !== 0 ? "pointer" : "default",
+                  top: "20px",
+                  ml: "-170px",
                   transformOrigin: "center center",
-                  ...get3DStyle(i),
+                  willChange: "transform",
+                  ...getCardStyle(i),
                 }}>
                 <PricingCard p={p} onCTA={onCTA} isActive={getPos(i) === 0} />
               </Box>
