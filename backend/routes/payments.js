@@ -43,8 +43,8 @@ const router = express.Router();
 
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
-  silver: { name: "Plan Silver", amount: 2990, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
-  gold:   { name: "Plan Gold",   amount: 5990, currency: "ARS", description: "Análisis ilimitados · renovación mensual",  dailyLimit: null },
+  silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
+  gold:   { name: "Plan Gold",   amount: 8980, currency: "ARS", description: "Análisis ilimitados · renovación mensual",  dailyLimit: null },
 };
 
 // Lee precios desde DB, con fallback a los valores por defecto

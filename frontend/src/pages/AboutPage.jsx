@@ -48,8 +48,18 @@ const MODULES = [
     color: "#BF360C",
     bg:    "#FBE9E7",
     border:"rgba(191,54,12,0.20)",
-    body:  "Nui genera un plan de entrenamiento personalizado según tu perfil físico, el tipo de actividad y el lugar donde entrenás. Registrás cada sesión, seguís tu progresión de cargas y cada sesión completada suma puntos saludables.",
+    body:  "Nui genera un plan de entrenamiento personalizado según tu perfil físico, el tipo de actividad y el lugar donde entrenás. Registrás cada sesión, seguís tu progresión de cargas y cada sesión completada suma puntos saludables y calorías quemadas al balance del día.",
     tags:  ["Calistenia", "Hipertrofia", "Running", "Seguimiento", "Progresión"],
+  },
+  {
+    emoji: "⚡",
+    title: "Balance energético",
+    subtitle: "Nutrición de precisión",
+    color: "#0B5E55",
+    bg:    "#E6F5F3",
+    border:"rgba(11,94,85,0.20)",
+    body:  "Registrá lo que comés y tu actividad del día usando el micrófono — en lenguaje natural. La IA interpreta porciones, estima calorías y macros, y calcula tu balance energético en tiempo real considerando tu metabolismo basal, nivel de actividad y objetivo (bajar peso, mantener o ganar músculo).",
+    tags:  ["Voz", "Calorías", "Macros", "TDEE", "Déficit / Superávit"],
   },
 ];
 
@@ -75,8 +85,8 @@ const PRINCIPIOS = [
   },
   {
     Icon: AutoAwesomeRoundedIcon,
-    title: "Integral: comida y movimiento",
-    body:  "Cuidar lo que comés y mantenerse activo son las dos caras de la misma moneda. Nui trabaja los dos hábitos juntos, con puntos saludables que reflejan ambos.",
+    title: "Integral: comida, movimiento y energía",
+    body:  "Cuidar lo que comés, mantenerte activo y conocer tu balance calórico real son las tres claves de una vida saludable. Nui integra los tres hábitos con datos concretos y en tiempo real.",
     grad:  "linear-gradient(135deg, #0a5249 0%, #0B5E55 100%)",
   },
 ];

@@ -932,9 +932,9 @@ const CostComparisonSection = ({ onCTA }) => (
 
 /* ─── CÓMO FUNCIONA ───────────────────────────────────────────────────────── */
 const STEPS = [
-  { n: "01", Icon: PersonAddRoundedIcon,     title: "Registrate en segundos",  desc: "Creá tu cuenta gratis con email o Google. Sin tarjeta de crédito, sin compromisos." },
-  { n: "02", Icon: AccountCircleRoundedIcon, title: "Completá tu perfil",      desc: "Contanos tu edad, peso, altura, objetivo y nivel de actividad. Nui se adapta a vos." },
-  { n: "03", Icon: TrendingUpRoundedIcon,    title: "Empezá a mejorar",        desc: "Analizá alimentos, recibí recetas y entrená con tu plan personalizado desde el día uno." },
+  { n: "01", Icon: PersonAddRoundedIcon,     title: "Registrate en segundos",  desc: "Creá tu cuenta gratis con email o Google. Sin tarjeta de crédito. En 30 segundos ya estás usando Nui al 100% durante 7 días." },
+  { n: "02", Icon: AccountCircleRoundedIcon, title: "Configurá tu perfil y objetivo", desc: "Ingresá tu edad, peso, altura y nivel de actividad. Elegí si querés bajar de peso, mantenerte o ganar músculo — Nui calcula tu objetivo calórico diario automáticamente." },
+  { n: "03", Icon: TrendingUpRoundedIcon,    title: "Controlá tu salud en tiempo real", desc: "Analizá alimentos con la cámara, registrá comidas y actividad por voz, entrená con tu plan personalizado y seguí tu balance energético día a día — todo integrado." },
 ];
 
 const HowItWorksSection = () => (
@@ -1018,23 +1018,23 @@ const PRICING_PLANS = [
     price: null, sub: "Gratis · 7 días",
     color: C.brand, border: C.brandBorder, bg: C.white,
     highlight: false, badge: null,
-    features: ["Todos los módulos sin límite", "Análisis ilimitados", "Recetas con IA ilimitadas", "Plan de entrenamiento", "Dashboard completo"],
+    features: ["Todos los módulos sin límite durante 7 días", "Análisis ilimitados", "Recetas con IA ilimitadas", "Plan de entrenamiento personalizado", "Balance energético diario acumulado (7 días)", "Dashboard completo"],
     cta: "Empezar gratis",
   },
   {
     id: "silver", name: "Silver", Icon: DiamondOutlinedIcon,
-    price: 2990, sub: "por mes",
+    price: 6890, sub: "por mes",
     color: "#71879C", border: "rgba(113,135,156,0.18)", bg: "#F8FAFC",
     highlight: false, badge: null,
-    features: ["1 análisis por día", "Recetas con IA ilimitadas", "1 plan de entrenamiento", "Historial 30 días", "Dashboard + métricas"],
+    features: ["1 análisis de alimentos por día", "Recetas con IA ilimitadas", "1 plan de entrenamiento activo", "Balance energético diario por voz", "Historial de análisis 30 días", "Dashboard + métricas"],
     cta: "Elegir Silver",
   },
   {
     id: "gold", name: "Gold", Icon: WorkspacePremiumOutlinedIcon,
-    price: 5990, sub: "por mes",
+    price: 8980, sub: "por mes",
     color: "#B07D1A", border: "rgba(176,125,26,0.28)", bg: "linear-gradient(145deg,#FDF8EC,#FEFCF5)",
     highlight: true, badge: "Más popular",
-    features: ["Análisis ilimitados por día", "Recetas con IA ilimitadas", "2 planes de entrenamiento", "Historial completo", "Dashboard premium + estadísticas"],
+    features: ["Análisis ilimitados por día", "Recetas con IA ilimitadas", "2 planes de entrenamiento activos", "Balance energético diario por voz", "Historial mensual de balance (tabla diaria)", "Historial completo sin límite", "Dashboard premium + estadísticas detalladas"],
     cta: "Elegir Gold",
   },
 ];

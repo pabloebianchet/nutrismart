@@ -121,7 +121,7 @@ const GoalSelector = ({ onSelect, saving }) => (
 
 /* ─── Componente principal ────────────────────────────────────── */
 const EnergyPage = () => {
-  const { userData } = useNutrition();
+  const { userData, subPlan, subStatus } = useNutrition();
   const navigate     = useNavigate();
   const token        = localStorage.getItem("nutrismartToken");
 
@@ -138,8 +138,14 @@ const EnergyPage = () => {
   const [preview,    setPreview]   = useState(null);
   const [saving,     setSaving]    = useState(false);
   const [deleteId,   setDeleteId]  = useState(null);
+  const [monthly,    setMonthly]   = useState(null); // historial mensual (solo Gold)
 
   const recognitionRef = useRef(null);
+
+  // Plan efectivo: "gold", "silver", "free"
+  const isGold   = subPlan === "gold"   && subStatus === "active";
+  const isSilver = subPlan === "silver" && subStatus === "active";
+  const isFree   = subPlan === "free"   && subStatus === "active"; // trial 7 días
 
   /* ─── Cálculos ── */
   const bmr       = calcBMR(userData);
@@ -176,7 +182,16 @@ const EnergyPage = () => {
     finally { setLoading(false); }
   }, [token]);
 
-  useEffect(() => { fetchLog(); }, [fetchLog]);
+  useEffect(() => {
+    fetchLog();
+    // Solo Gold carga historial mensual
+    if (isGold && token) {
+      fetch(`${API_URL}/api/energy/monthly`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => r.json())
+        .then((d) => setMonthly(d))
+        .catch(() => {});
+    }
+  }, [fetchLog, isGold, token]); // eslint-disable-line
 
   /* ─── Guardar objetivo ── */
   const handleSelectGoal = async (goal) => {
@@ -624,6 +639,85 @@ const EnergyPage = () => {
               Tu TMB es <strong style={{ color: C.text }}>{fmt(bmr)} kcal</strong> · TDEE estimado <strong style={{ color: C.text }}>{fmt(tdee)} kcal</strong><br />
               Usá el micrófono para registrar tu primera comida o actividad del día.
             </Typography>
+          </Box>
+        )}
+
+        {/* ── Badge de plan + restricciones ── */}
+        {!isGold && (
+          <Box sx={{ mt: 3, px: 2.5, py: 2, borderRadius: 3,
+            bgcolor: isGold ? C.goldSurf || "#FDF6E3" : C.surfaceAlt,
+            border: `1px solid ${C.border}`, textAlign: "center" }}>
+            <Typography sx={{ fontSize: 12.5, color: C.textSec, lineHeight: 1.6 }}>
+              {isFree && "🎁 Plan Free — acceso completo durante 7 días de prueba, incluyendo historial acumulado."}
+              {isSilver && "💎 Plan Silver — balance diario activo. El historial mensual está disponible en Plan Gold."}
+              {!isFree && !isSilver && !isGold && "Suscribite para guardar tu historial de balance."}
+            </Typography>
+            {isSilver && (
+              <Button size="small" onClick={() => window.location.href = "/pricing"}
+                sx={{ mt: 1, textTransform: "none", fontWeight: 700, fontSize: 12,
+                  color: C.gold || "#C9952A", border: `1px solid rgba(201,149,42,0.30)`,
+                  borderRadius: 999, px: 2 }}>
+                Ver Plan Gold →
+              </Button>
+            )}
+          </Box>
+        )}
+
+        {/* ── Tabla mensual (solo Gold) ── */}
+        {isGold && monthly?.daily?.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Divider sx={{ mb: 3, borderColor: C.border }} />
+            <Typography sx={{ fontSize: 15, fontWeight: 900, color: C.text, mb: 0.5 }}>
+              Historial del mes
+            </Typography>
+            <Typography sx={{ fontSize: 12, color: C.textMuted, mb: 2.5 }}>
+              {new Date().toLocaleDateString("es-AR", { month: "long", year: "numeric" })} · {monthly.daily.length} días registrados
+            </Typography>
+
+            {/* Tabla */}
+            <Paper elevation={0} sx={{ borderRadius: 3, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+              {/* Header */}
+              <Box sx={{ display: "grid", gridTemplateColumns: "90px 1fr 1fr 1fr 1fr 60px",
+                px: 2, py: 1.2, bgcolor: C.surfaceAlt, borderBottom: `1px solid ${C.border}` }}>
+                {["Día", "Kcal", "Proteína", "Carbos", "Agua", "Act."].map((h) => (
+                  <Typography key={h} sx={{ fontSize: 10.5, fontWeight: 700, color: C.textMuted,
+                    textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</Typography>
+                ))}
+              </Box>
+              {/* Filas */}
+              {monthly.daily.map((d, i) => {
+                const [y, m, day] = d.date.split("-");
+                return (
+                  <Box key={d.date} sx={{
+                    display: "grid", gridTemplateColumns: "90px 1fr 1fr 1fr 1fr 60px",
+                    px: 2, py: 1.4, alignItems: "center",
+                    borderBottom: i < monthly.daily.length - 1 ? `1px solid ${C.border}` : "none",
+                    bgcolor: d.date === log?.date ? `${C.brand}08` : "transparent",
+                    "&:hover": { bgcolor: C.brandSurface },
+                  }}>
+                    <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>
+                      {parseInt(day)} {new Date(d.date).toLocaleDateString("es-AR", { weekday: "short" })}
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: d.kcal > 0 ? 700 : 400,
+                      color: d.kcal > 0 ? C.gold : C.textMuted }}>
+                      {d.kcal > 0 ? `${d.kcal.toLocaleString("es-AR")}` : "—"}
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: d.proteinas > 0 ? C.blue : C.textMuted }}>
+                      {d.proteinas > 0 ? `${d.proteinas}g` : "—"}
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: d.carbos > 0 ? C.text : C.textMuted }}>
+                      {d.carbos > 0 ? `${d.carbos}g` : "—"}
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: d.agua_ml > 0 ? C.blue : C.textMuted }}>
+                      {d.agua_ml > 0 ? `${(d.agua_ml / 1000).toFixed(1)}L` : "—"}
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: d.actividadKcal > 0 ? C.brand : C.textMuted }}>
+                      {d.actividadKcal > 0 ? `${d.actividadKcal}` : "—"}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Paper>
           </Box>
         )}
 

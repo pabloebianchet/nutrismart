@@ -187,6 +187,42 @@ router.delete("/log/:entryId", authMiddleware, async (req, res) => {
   }
 });
 
+/* ─── GET /monthly ─ resumen diario del mes (solo Gold) ────── */
+router.get("/monthly", authMiddleware, async (req, res) => {
+  try {
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const start = `${year}-${month}-01`;
+    const end   = `${year}-${month}-31`;
+
+    const logs = await DailyLog.find({
+      user: req.user._id,
+      date: { $gte: start, $lte: end },
+    }).lean();
+
+    // Construir resumen por día
+    const daily = logs.map((log) => {
+      const comida    = log.entries.filter((e) => e.tipo === "comida");
+      const actividad = log.entries.filter((e) => e.tipo === "actividad");
+      const agua      = log.entries.filter((e) => e.tipo === "agua");
+      return {
+        date:       log.date,
+        kcal:       Math.round(comida.reduce((a, e) => a + (e.kcal || 0), 0)),
+        proteinas:  Math.round(comida.reduce((a, e) => a + (e.proteinas || 0), 0)),
+        carbos:     Math.round(comida.reduce((a, e) => a + (e.carbos || 0), 0)),
+        grasas:     Math.round(comida.reduce((a, e) => a + (e.grasas || 0), 0)),
+        agua_ml:    Math.round(agua.reduce((a, e) => a + (e.agua_ml || 0), 0)),
+        actividadKcal: Math.round(actividad.reduce((a, e) => a + (e.kcal || 0), 0)),
+      };
+    }).sort((a, b) => a.date.localeCompare(b.date));
+
+    return res.json({ month: `${year}-${month}`, daily });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener historial mensual." });
+  }
+});
+
 /* ─── GET /history ─ historial según plan ───────────────────── */
 router.get("/history", authMiddleware, async (req, res) => {
   try {

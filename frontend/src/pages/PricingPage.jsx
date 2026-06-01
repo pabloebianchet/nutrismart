@@ -67,6 +67,7 @@ const PLANS = [
       feat("🔍", "1 análisis de producto por día"),
       feat("🍽️", "Recetas YA ilimitadas"),
       feat("🏋️", "1 plan de entrenamiento activo"),
+      feat("⚡", "Balance energético diario por voz"),
       feat("📊", "Historial de análisis (30 días)"),
       feat("📏", "Dashboard + métricas + IMC"),
       feat("📧", "Soporte por email"),
@@ -88,7 +89,9 @@ const PLANS = [
     features: [
       feat("🔍", "Análisis de alimentos ilimitados"),
       feat("🍽️", "Recetas YA ilimitadas + guardar favoritas"),
-      feat("🏋️", "Hasta 2 planes de entrenamiento activos en simultáneo"),
+      feat("🏋️", "Hasta 2 planes de entrenamiento activos"),
+      feat("⚡", "Balance energético diario por voz"),
+      feat("📅", "Historial mensual de balance (tabla por día)"),
       feat("📊", "Historial completo sin límite"),
       feat("⭐", "Dashboard premium + estadísticas detalladas"),
       feat("🚀", "Acceso anticipado a nuevas funciones"),
