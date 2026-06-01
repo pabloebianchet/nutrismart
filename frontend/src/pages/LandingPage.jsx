@@ -3499,7 +3499,7 @@ const LandingFooter = () => (
             </Typography>
             <Box
               component="img"
-              src="/img/Logo Mp.svg"
+              src="/img/Logo Mp Blanco.png"
               alt="Mercado Pago"
               sx={{
                 height: 32,
