@@ -474,6 +474,8 @@ const TrainingPage = () => {
     savePlanToServer(updated);
     setAddManualOpen(null);
     setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
+    // Disparar fetch de imagen para el ejercicio guardado
+    fetchExerciseImages([ex]);
   };
 
   const fetchExerciseDescription = (name) => {
@@ -1466,7 +1468,10 @@ const TrainingPage = () => {
                                   </Typography>
                                   <Box sx={{ textAlign: "center" }}>
                                     <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>
-                                      Generando imagen de referencia
+                                      Generando imagen
+                                    </Typography>
+                                    <Typography sx={{ fontSize: 10.5, color: "#8AADAA", mt: 0.3 }}>
+                                      Esto puede tardar unos segundos
                                     </Typography>
                                     <Stack direction="row" spacing={0.5} justifyContent="center" mt={0.5}>
                                       {[0, 1, 2].map((i) => (
