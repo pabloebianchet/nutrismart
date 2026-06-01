@@ -3,7 +3,7 @@
  * Diseño dinámico, secciones luz/oscuro alternadas, CTAs rellenas
  */
 
-import { useEffect, useState }  from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link }    from "react-router-dom";
 import { Box, Typography, Button, Stack, Chip, Skeleton, Dialog, DialogContent, IconButton, Divider } from "@mui/material";
 import BoltRoundedIcon           from "@mui/icons-material/BoltRounded";
@@ -1039,113 +1039,162 @@ const PRICING_PLANS = [
   },
 ];
 
-const PricingSection = ({ onCTA }) => (
-  <Box id="precios" sx={{ background: C.cream, py: { xs: 9, md: 14 }, px: { xs: 2.5, sm: 5, md: 8 } }}>
-    <Box sx={{ maxWidth: 1100, mx: "auto" }}>
-      <Box textAlign="center" mb={8}>
-        <Box sx={{
-          display: "inline-block", fontSize: 11, fontWeight: 800, color: C.brand,
-          letterSpacing: "0.12em", textTransform: "uppercase",
-          bgcolor: C.brandSurf, border: `1px solid ${C.brandBorder}`,
-          borderRadius: 999, px: 2, py: 0.6, mb: 2.5,
-        }}>
-          Precios
-        </Box>
-        <Typography sx={{ fontSize: { xs: 30, sm: 46 }, fontWeight: 900, color: C.ink,
-          letterSpacing: { xs: "-1px", sm: "-2px" }, lineHeight: 1.1, mb: 2 }}>
-          Elegí el plan que<br />
-          <Box component="span" sx={{ color: C.brand }}>mejor te quede</Box>
-        </Typography>
-        <Typography sx={{ fontSize: 17, color: C.muted, lineHeight: 1.8 }}>
-          Empezá con 7 días gratis. Cancelá cuando quieras, sin penalidades.
-        </Typography>
+/* ─── Card de pricing reutilizable ───────────────────────────── */
+const PricingCard = ({ p, onCTA, isActive }) => (
+  <Box sx={{
+    border: `1.5px solid ${p.border}`, borderRadius: 5,
+    background: p.bg, p: 3.5, position: "relative", height: "100%",
+    boxShadow: p.highlight
+      ? `0 32px 72px ${p.color}30, 0 8px 24px rgba(0,0,0,0.10)`
+      : "0 4px 20px rgba(0,0,0,0.08)",
+  }}>
+    {p.badge && isActive && (
+      <Box sx={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)",
+        bgcolor: p.color, color: "#fff", fontSize: 11, fontWeight: 800,
+        px: 2.5, py: 0.6, borderRadius: 999, whiteSpace: "nowrap",
+        boxShadow: `0 4px 16px ${p.color}55`, zIndex: 1 }}>
+        {p.badge}
       </Box>
-
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3,1fr)" },
-        gap: 2.5, alignItems: "start" }}>
-        {PRICING_PLANS.map((p) => (
-          <Box key={p.id} sx={{
-            border: `1.5px solid ${p.border}`, borderRadius: 5,
-            background: p.bg, p: 3.5, position: "relative",
-            transform: p.highlight ? { md: "scale(1.04)" } : "none",
-            boxShadow: p.highlight ? `0 24px 64px ${p.color}25` : "0 2px 14px rgba(0,0,0,0.05)",
-            transition: "transform 0.25s, box-shadow 0.25s",
-            "&:hover": {
-              transform: p.highlight ? { md: "scale(1.04) translateY(-4px)" } : "translateY(-4px)",
-              boxShadow: `0 28px 64px ${p.color}28`,
-            },
-          }}>
-            {p.badge && (
-              <Box sx={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)",
-                bgcolor: p.color, color: "#fff", fontSize: 11, fontWeight: 800,
-                px: 2.5, py: 0.6, borderRadius: 999, whiteSpace: "nowrap",
-                boxShadow: `0 4px 16px ${p.color}55` }}>
-                {p.badge}
-              </Box>
-            )}
-
-            <Stack direction="row" alignItems="center" spacing={1.5} mb={2.5}>
-              <Box sx={{ width: 44, height: 44, borderRadius: 3,
-                bgcolor: p.id === "gold" ? "rgba(176,125,26,0.10)" : p.id === "silver" ? "rgba(113,135,156,0.10)" : C.brandSurf,
-                display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <p.Icon sx={{ fontSize: 22, color: p.color }} />
-              </Box>
-              <Box>
-                <Typography sx={{ fontSize: 18, fontWeight: 900, color: p.color, lineHeight: 1.1 }}>Plan {p.name}</Typography>
-                <Typography sx={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{p.sub}</Typography>
-              </Box>
-            </Stack>
-
-            <Box mb={3}>
-              {p.price
-                ? <>
-                    <Typography component="span" sx={{ fontSize: 38, fontWeight: 900, color: C.ink, letterSpacing: "-1.5px" }}>
-                      {formatARS(p.price)}
-                    </Typography>
-                    <Typography component="span" sx={{ fontSize: 14, color: C.muted, ml: 0.5 }}>/mes</Typography>
-                  </>
-                : <Typography sx={{ fontSize: 30, fontWeight: 900, color: C.brand }}>Gratis</Typography>
-              }
-            </Box>
-
-            <Stack spacing={1.2} mb={3.5}>
-              {p.features.map(f => (
-                <Stack key={f} direction="row" spacing={1.2} alignItems="flex-start">
-                  <Box sx={{ width: 18, height: 18, borderRadius: "50%",
-                    bgcolor: `${p.color}14`, flexShrink: 0, mt: 0.1,
-                    display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <CheckRoundedIcon sx={{ fontSize: 11, color: p.color }} />
-                  </Box>
-                  <Typography sx={{ fontSize: 13.5, color: C.textSec, lineHeight: 1.5 }}>{f}</Typography>
-                </Stack>
-              ))}
-            </Stack>
-
-            <Button fullWidth onClick={onCTA} sx={{
-              textTransform: "none", fontWeight: 800, fontSize: 14,
-              borderRadius: 2.5, py: 1.4,
-              bgcolor: p.highlight ? p.color : "transparent",
-              border: `1.5px solid ${p.border}`,
-              color: p.highlight ? "#fff" : p.color,
-              boxShadow: p.highlight ? `0 4px 18px ${p.color}38` : "none",
-              "&:hover": {
-                bgcolor: p.highlight ? `${p.color}E0` : `${p.color}0D`,
-                boxShadow: p.highlight ? `0 8px 28px ${p.color}48` : "none",
-              },
-              transition: "all 0.2s",
-            }}>
-              {p.cta}
-            </Button>
-          </Box>
-        ))}
+    )}
+    <Stack direction="row" alignItems="center" spacing={1.5} mb={2.5}>
+      <Box sx={{ width: 44, height: 44, borderRadius: 3,
+        bgcolor: p.id === "gold" ? "rgba(176,125,26,0.10)" : p.id === "silver" ? "rgba(113,135,156,0.10)" : C.brandSurf,
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p.Icon sx={{ fontSize: 22, color: p.color }} />
       </Box>
-
-      <Typography sx={{ textAlign: "center", fontSize: 13, color: C.muted, mt: 5, fontWeight: 500 }}>
-        Pago seguro a través de Mercado Pago · Cancelá cuando quieras
-      </Typography>
+      <Box>
+        <Typography sx={{ fontSize: 18, fontWeight: 900, color: p.color, lineHeight: 1.1 }}>Plan {p.name}</Typography>
+        <Typography sx={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{p.sub}</Typography>
+      </Box>
+    </Stack>
+    <Box mb={3}>
+      {p.price
+        ? <><Typography component="span" sx={{ fontSize: 36, fontWeight: 900, color: C.ink, letterSpacing: "-1.5px" }}>{formatARS(p.price)}</Typography>
+             <Typography component="span" sx={{ fontSize: 13, color: C.muted, ml: 0.5 }}>/mes</Typography></>
+        : <Typography sx={{ fontSize: 30, fontWeight: 900, color: C.brand }}>Gratis</Typography>
+      }
     </Box>
+    <Stack spacing={1.1} mb={3.5}>
+      {p.features.map(f => (
+        <Stack key={f} direction="row" spacing={1.2} alignItems="flex-start">
+          <Box sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: `${p.color}14`,
+            flexShrink: 0, mt: 0.1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <CheckRoundedIcon sx={{ fontSize: 11, color: p.color }} />
+          </Box>
+          <Typography sx={{ fontSize: 13, color: C.textSec, lineHeight: 1.5 }}>{f}</Typography>
+        </Stack>
+      ))}
+    </Stack>
+    <Button fullWidth onClick={onCTA} sx={{
+      textTransform: "none", fontWeight: 800, fontSize: 14, borderRadius: 2.5, py: 1.4,
+      bgcolor: p.highlight ? p.color : "transparent",
+      border: `1.5px solid ${p.border}`,
+      color: p.highlight ? "#fff" : p.color,
+      boxShadow: p.highlight ? `0 4px 18px ${p.color}38` : "none",
+      "&:hover": { bgcolor: p.highlight ? `${p.color}E0` : `${p.color}0D` },
+      transition: "all 0.2s",
+    }}>
+      {p.cta}
+    </Button>
   </Box>
 );
+
+const PricingSection = ({ onCTA }) => {
+  const [active, setActive] = useState(2); // Gold al frente por defecto
+  const timerRef = useRef(null);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setActive((a) => (a + 1) % 3), 4500);
+  }, []);
+
+  useEffect(() => { resetTimer(); return () => clearInterval(timerRef.current); }, [resetTimer]);
+
+  // Posición relativa al activo: 0=frente, 1=derecha, 2=izquierda
+  const getPos = (i) => ((i - active) % 3 + 3) % 3;
+
+  const get3DStyle = (i) => {
+    const pos = getPos(i);
+    const t = "all 0.75s cubic-bezier(0.4, 0, 0.2, 1)";
+    if (pos === 0) return { transform: "rotateY(0deg) translateZ(280px) scale(1.06)", opacity: 1, zIndex: 3, transition: t, pointerEvents: "auto" };
+    if (pos === 1) return { transform: "rotateY(52deg) translateZ(80px) scale(0.80)",  opacity: 0.68, zIndex: 2, transition: t, pointerEvents: "auto", filter: "brightness(0.85)" };
+    return              { transform: "rotateY(-52deg) translateZ(80px) scale(0.80)",  opacity: 0.68, zIndex: 2, transition: t, pointerEvents: "auto", filter: "brightness(0.85)" };
+  };
+
+  const handleClick = (i) => { if (getPos(i) !== 0) { setActive(i); resetTimer(); } };
+
+  return (
+    <Box id="precios" sx={{ background: C.cream, py: { xs: 9, md: 14 }, px: { xs: 2.5, sm: 5, md: 8 }, overflow: "hidden" }}>
+      <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+        <Box textAlign="center" mb={8}>
+          <Box sx={{ display: "inline-block", fontSize: 11, fontWeight: 800, color: C.brand,
+            letterSpacing: "0.12em", textTransform: "uppercase",
+            bgcolor: C.brandSurf, border: `1px solid ${C.brandBorder}`,
+            borderRadius: 999, px: 2, py: 0.6, mb: 2.5 }}>
+            Precios
+          </Box>
+          <Typography sx={{ fontSize: { xs: 30, sm: 46 }, fontWeight: 900, color: C.ink,
+            letterSpacing: { xs: "-1px", sm: "-2px" }, lineHeight: 1.1, mb: 2 }}>
+            Elegí el plan que<br />
+            <Box component="span" sx={{ color: C.brand }}>mejor te quede</Box>
+          </Typography>
+          <Typography sx={{ fontSize: 17, color: C.muted, lineHeight: 1.8 }}>
+            Empezá con 7 días gratis. Cancelá cuando quieras, sin penalidades.
+          </Typography>
+        </Box>
+
+        {/* ── Carrusel 3D — desktop ── */}
+        <Box sx={{ display: { xs: "none", md: "block" }, mb: 5 }}>
+          <Box sx={{
+            perspective: "1400px",
+            perspectiveOrigin: "50% 45%",
+            height: 620,
+            position: "relative",
+          }}>
+            {PRICING_PLANS.map((p, i) => (
+              <Box key={p.id}
+                onClick={() => handleClick(i)}
+                sx={{
+                  position: "absolute",
+                  width: 340,
+                  left: "50%",
+                  top: getPos(i) === 0 ? 20 : 40,
+                  marginLeft: -170,
+                  cursor: getPos(i) !== 0 ? "pointer" : "default",
+                  transformOrigin: "center center",
+                  ...get3DStyle(i),
+                }}>
+                <PricingCard p={p} onCTA={onCTA} isActive={getPos(i) === 0} />
+              </Box>
+            ))}
+          </Box>
+
+          {/* Dots */}
+          <Stack direction="row" justifyContent="center" spacing={1.5} mt={2}>
+            {PRICING_PLANS.map((p, i) => (
+              <Box key={p.id} onClick={() => { setActive(i); resetTimer(); }} sx={{
+                width: active === i ? 28 : 8, height: 8, borderRadius: 999,
+                bgcolor: active === i ? p.color : "rgba(0,0,0,0.15)",
+                cursor: "pointer", transition: "all 0.4s ease",
+              }} />
+            ))}
+          </Stack>
+        </Box>
+
+        {/* ── Grid simple — mobile ── */}
+        <Box sx={{ display: { xs: "flex", md: "none" }, flexDirection: "column", gap: 3 }}>
+          {PRICING_PLANS.map((p) => (
+            <PricingCard key={p.id} p={p} onCTA={onCTA} isActive />
+          ))}
+        </Box>
+
+        <Typography sx={{ textAlign: "center", fontSize: 13, color: C.muted, mt: 4, fontWeight: 500 }}>
+          Pago seguro a través de Mercado Pago · Cancelá cuando quieras
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
 
 /* ─── CTA FINAL ───────────────────────────────────────────────────────────── */
 const FinalCTA = ({ onCTA }) => (
