@@ -395,7 +395,7 @@ const MODULES = [
     desc:  "Fotografiá la tabla nutricional y los ingredientes del producto. Obtenés al instante su clasificación NOVA, macros, aditivos y recomendaciones personalizadas.",
     color: C.brand, bg: C.brandSurf,
     tags:  ["Clasificación NOVA", "Macros", "Aditivos", "Score nutricional"],
-    photo: "/img/150096600078176441.jpg",
+    photo: "/img/analisisIA.jpg",
   },
   {
     Icon:  RestaurantMenuRoundedIcon,
@@ -403,7 +403,7 @@ const MODULES = [
     desc:  "Generá recetas saludables adaptadas a tu perfil y objetivo. Fit, Hipertrofia o Rápidas — con ingredientes reales, pasos detallados y lista de compras automática.",
     color: "#7C3AED", bg: "#F5F3FF",
     tags:  ["Personalizadas", "Ingredientes reales", "Lista de compras", "Favoritas"],
-    photo: "/img/368521182029510975.jpg",
+    photo: "/img/recetasIA.jpg",
   },
   {
     Icon:  FitnessCenterRoundedIcon,
