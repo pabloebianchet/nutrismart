@@ -1,0 +1,30 @@
+User-agent: *
+
+# Páginas públicas — indexar
+Allow: /
+Allow: /pricing
+Allow: /about
+Allow: /how-it-works
+Allow: /contact
+Allow: /privacidad
+Allow: /terminos
+Allow: /legal
+
+# App privada — no indexar
+Disallow: /login
+Disallow: /profile
+Disallow: /capture
+Disallow: /result
+Disallow: /subscription
+Disallow: /subscription/success
+Disallow: /admin
+Disallow: /energy
+Disallow: /training
+Disallow: /recipes
+Disallow: /pricing-old
+
+# Archivos de sistema
+Disallow: /api/
+Disallow: /*.json$
+
+Sitemap: https://nuiapp.com/sitemap.xml
