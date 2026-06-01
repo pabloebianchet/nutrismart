@@ -38,18 +38,29 @@ router.get("/today", authMiddleware, async (req, res) => {
     // Leer log del día (o vacío)
     const log = await DailyLog.findOne({ user: user._id, date }) || { entries: [] };
 
-    // Leer sesión de hoy del módulo de entrenamiento
+    // Leer sesiones de hoy del módulo de entrenamiento
+    // IMPORTANTE: s.date se guarda en formato es-AR "DD/MM/YYYY", no ISO
+    const toISO = (dateStr) => {
+      if (!dateStr) return null;
+      if (dateStr.includes("/")) {
+        // "DD/MM/YYYY" → "YYYY-MM-DD"
+        const [d, m, y] = dateStr.split("/");
+        return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+      }
+      // Ya es ISO o Date object
+      return new Date(dateStr).toLocaleDateString("en-CA");
+    };
+
     let trainingKcal = 0;
     const plans = await TrainingPlan.find({ user: user._id }).lean();
     for (const plan of plans) {
       const todaySessions = (plan.sessions || []).filter((s) => {
-        const d = new Date(s.date || s.createdAt);
-        return d.toLocaleDateString("en-CA") === date;
+        const sessionDate = toISO(s.date) || new Date(s.createdAt).toLocaleDateString("en-CA");
+        return sessionDate === date;
       });
       if (todaySessions.length > 0 && plan.config?.tipo) {
         const kcalPerMin = KCAL_PER_MIN[plan.config.tipo] || 6;
-        const mins = (plan.config.frecuencia || 1) > 0 ? 45 : 45; // estimado 45 min/sesión
-        trainingKcal += todaySessions.length * kcalPerMin * mins;
+        trainingKcal += todaySessions.length * kcalPerMin * 45; // 45 min/sesión
       }
     }
     trainingKcal = Math.round(trainingKcal);
