@@ -3502,7 +3502,7 @@ const LandingFooter = () => (
               src="/img/Logo Mp Blanco.png"
               alt="Mercado Pago"
               sx={{
-                height: 32,
+                height: 48,
                 opacity: 0.90,
               }}
             />

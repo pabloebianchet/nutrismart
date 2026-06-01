@@ -182,6 +182,16 @@ const EnergyPage = () => {
     finally { setLoading(false); }
   }, [token]);
 
+  // Limpiar micrófono al salir de la página
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
   useEffect(() => {
     fetchLog();
     // Solo Gold carga historial mensual
@@ -236,6 +246,14 @@ const EnergyPage = () => {
 
   /* ─── Parsear con GPT ── */
   const handleParse = async () => {
+    // Detener el micrófono siempre antes de parsear
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+    }
+    setListening(false);
+    setInterim("");
+
     const texto = (inputText + " " + interim).trim();
     if (!texto) return;
     setParsing(true);
