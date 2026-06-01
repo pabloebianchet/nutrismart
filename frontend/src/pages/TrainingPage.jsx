@@ -443,9 +443,10 @@ const TrainingPage = () => {
       setPlan(updated);
       setPlanCache((p) => ({ ...p, [activePlanType]: { ...p[activePlanType], plan: updated } }));
       savePlanToServer(updated);
-      // Limpiar caché de imagen/descripción del ejercicio reemplazado
+      // Limpiar caché del ejercicio viejo y fetchear imagen/descripción del nuevo
       setExerciseImages((p) => { const n = { ...p }; delete n[ex.name]; return n; });
       setExDescriptions((p) => { const n = { ...p }; delete n[ex.name]; return n; });
+      fetchExerciseImages([data]); // dispara fetch de imagen del nuevo ejercicio
     } catch { /* falla silenciosamente */ }
     finally { setGeneratingAlt(null); }
   };
