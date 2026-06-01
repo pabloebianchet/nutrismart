@@ -12,6 +12,11 @@ import DeleteOutlineRoundedIcon  from "@mui/icons-material/DeleteOutlineRounded"
 import WarningAmberRoundedIcon   from "@mui/icons-material/WarningAmberRounded";
 import FullscreenRoundedIcon     from "@mui/icons-material/FullscreenRounded";
 import CloseRoundedIcon          from "@mui/icons-material/CloseRounded";
+import MoreVertRoundedIcon       from "@mui/icons-material/MoreVertRounded";
+import DeleteOutlineRoundedIcon  from "@mui/icons-material/DeleteOutlineRounded";
+import AutoFixHighRoundedIcon    from "@mui/icons-material/AutoFixHighRounded";
+import AddRoundedIcon            from "@mui/icons-material/AddRounded";
+import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
 import { API_URL }             from "../config/api";
@@ -183,7 +188,12 @@ const TrainingPage = () => {
   const [pendingSession,  setPendingSession]  = useState(null);
   const [exerciseImages,  setExerciseImages]  = useState({});
   const [fullscreenEx,    setFullscreenEx]    = useState(null);
-  const [exDescriptions,  setExDescriptions]  = useState({}); // caché: { [name]: { muscles, execution, mistakes } | null }
+  const [exDescriptions,  setExDescriptions]  = useState({});
+  // Personalización de ejercicios
+  const [exMenuOpen,      setExMenuOpen]      = useState(null);  // { dayKey, index } del menú abierto
+  const [generatingAlt,   setGeneratingAlt]   = useState(null);  // { dayKey, index }
+  const [addManualOpen,   setAddManualOpen]   = useState(null);  // { dayKey, index|null(agregar) }
+  const [manualForm,      setManualForm]      = useState({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -383,6 +393,87 @@ const TrainingPage = () => {
     delete updated[id];
     setDrafts(updated);
     saveDraftsLS(updated);
+  };
+
+  // ── Guardar plan modificado en el servidor ──────────────────────
+  const savePlanToServer = (updatedPlan, planType = activePlanType) => {
+    const data = planCache[planType];
+    if (!data) return;
+    const payload = { ...data, plan: updatedPlan };
+    fetch(`${API_URL}/api/training/plan/${planType}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  };
+
+  // ── Eliminar ejercicio de un día ──────────────────────────────
+  const deleteExercise = (dayKey, exerciseIndex) => {
+    const updated = { ...plan };
+    updated.weekStructure = { ...updated.weekStructure };
+    updated.weekStructure[dayKey] = { ...updated.weekStructure[dayKey] };
+    updated.weekStructure[dayKey].exercises = updated.weekStructure[dayKey].exercises
+      .filter((_, i) => i !== exerciseIndex);
+    setPlan(updated);
+    setPlanCache((p) => ({ ...p, [activePlanType]: { ...p[activePlanType], plan: updated } }));
+    savePlanToServer(updated);
+    setExMenuOpen(null);
+  };
+
+  // ── Generar ejercicio alternativo con GPT ─────────────────────
+  const generateAlternative = async (dayKey, exerciseIndex) => {
+    const ex      = plan.weekStructure[dayKey]?.exercises?.[exerciseIndex];
+    const dayFocus= plan.weekStructure[dayKey]?.focus || "";
+    if (!ex) return;
+    setGeneratingAlt({ dayKey, index: exerciseIndex });
+    setExMenuOpen(null);
+    try {
+      const res  = await fetch(`${API_URL}/api/training/exercise-alternative`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ name: ex.name, tipo: config?.tipo, lugar: config?.lugar, focus: dayFocus }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.name) throw new Error("Sin alternativa");
+
+      const updated = { ...plan };
+      updated.weekStructure = { ...updated.weekStructure };
+      updated.weekStructure[dayKey] = { ...updated.weekStructure[dayKey] };
+      updated.weekStructure[dayKey].exercises = [...updated.weekStructure[dayKey].exercises];
+      updated.weekStructure[dayKey].exercises[exerciseIndex] = data;
+      setPlan(updated);
+      setPlanCache((p) => ({ ...p, [activePlanType]: { ...p[activePlanType], plan: updated } }));
+      savePlanToServer(updated);
+      // Limpiar caché de imagen/descripción del ejercicio reemplazado
+      setExerciseImages((p) => { const n = { ...p }; delete n[ex.name]; return n; });
+      setExDescriptions((p) => { const n = { ...p }; delete n[ex.name]; return n; });
+    } catch { /* falla silenciosamente */ }
+    finally { setGeneratingAlt(null); }
+  };
+
+  // ── Agregar o reemplazar ejercicio manual ─────────────────────
+  const saveManualExercise = (dayKey, exerciseIndex) => {
+    const ex = {
+      name:  manualForm.name.trim(),
+      sets:  parseInt(manualForm.sets) || 3,
+      reps:  manualForm.reps.trim() || "10-12",
+      rest:  manualForm.rest.trim() || "60 seg",
+      notes: manualForm.notes.trim(),
+    };
+    if (!ex.name) return;
+
+    const updated = { ...plan };
+    updated.weekStructure = { ...updated.weekStructure };
+    updated.weekStructure[dayKey] = { ...updated.weekStructure[dayKey] };
+    const exs = [...updated.weekStructure[dayKey].exercises];
+    if (exerciseIndex !== null) exs[exerciseIndex] = ex;
+    else exs.push(ex);
+    updated.weekStructure[dayKey].exercises = exs;
+    setPlan(updated);
+    setPlanCache((p) => ({ ...p, [activePlanType]: { ...p[activePlanType], plan: updated } }));
+    savePlanToServer(updated);
+    setAddManualOpen(null);
+    setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
   };
 
   const fetchExerciseDescription = (name) => {
@@ -1434,9 +1525,53 @@ const TrainingPage = () => {
 
                         {/* ── Detalles del ejercicio ── */}
                         <Box sx={{ px: 2.5, pt: exerciseImages[ex.name]?.imageUrl ? 1.5 : 2.5, pb: 2 }}>
-                          {!exerciseImages[ex.name]?.imageUrl && (
-                            <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: "#0F2420", mb: 0.8 }}>{ex.name}</Typography>
-                          )}
+                          {/* Nombre + menú de opciones */}
+                          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={0.8}>
+                            {!exerciseImages[ex.name]?.imageUrl && (
+                              <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: "#0F2420", flex: 1 }}>{ex.name}</Typography>
+                            )}
+                            {exerciseImages[ex.name]?.imageUrl && <Box sx={{ flex: 1 }} />}
+
+                            {/* Botón ⋮ */}
+                            {generatingAlt?.dayKey === activeDay && generatingAlt?.index === i ? (
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, px: 1 }}>
+                                <Box sx={{ width: 14, height: 14, borderRadius: "50%",
+                                  border: `2px solid ${activeTipo?.color || "#0B5E55"}`,
+                                  borderTopColor: "transparent",
+                                  animation: "spin 0.7s linear infinite",
+                                  "@keyframes spin": { to: { transform: "rotate(360deg)" } } }} />
+                                <Typography sx={{ fontSize: 11, color: activeTipo?.color || "#0B5E55" }}>Buscando…</Typography>
+                              </Box>
+                            ) : (
+                              <IconButton size="small"
+                                onClick={(e) => { e.stopPropagation(); setExMenuOpen({ dayKey: activeDay, index: i, anchor: e.currentTarget }); }}
+                                sx={{ color: "#8AADAA", "&:hover": { color: "#0B5E55", bgcolor: "#E6F5F3" } }}>
+                                <MoreVertRoundedIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            )}
+                          </Stack>
+
+                          {/* Menú desplegable */}
+                          <Menu
+                            anchorEl={exMenuOpen?.anchor}
+                            open={!!(exMenuOpen?.dayKey === activeDay && exMenuOpen?.index === i)}
+                            onClose={() => setExMenuOpen(null)}
+                            PaperProps={{ sx: { borderRadius: 3, boxShadow: "0 8px 24px rgba(11,94,85,0.15)", minWidth: 200 } }}>
+                            <MenuItem onClick={() => generateAlternative(activeDay, i)}>
+                              <ListItemIcon><AutoFixHighRoundedIcon fontSize="small" sx={{ color: "#0B5E55" }} /></ListItemIcon>
+                              <ListItemText primary="Generar alternativa" secondary="Similar con IA" />
+                            </MenuItem>
+                            <MenuItem onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: i }); setManualForm({ name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
+                              <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
+                              <ListItemText primary="Reemplazar manualmente" />
+                            </MenuItem>
+                            <MenuItem onClick={() => deleteExercise(activeDay, i)}
+                              sx={{ color: "#E24B4A" }}>
+                              <ListItemIcon><DeleteOutlineRoundedIcon fontSize="small" sx={{ color: "#E24B4A" }} /></ListItemIcon>
+                              <ListItemText primary="Eliminar ejercicio" />
+                            </MenuItem>
+                          </Menu>
+
                           <Stack direction="row" spacing={0.8} mb={1.2} flexWrap="wrap" useFlexGap>
                             <Chip label={exIsRunning ? `${ex.sets} km` : `${ex.sets} series`} size="small"
                               sx={{ height: 22, fontSize: 11.5, fontWeight: 700, bgcolor: activeTipo?.bg || "#E6F5F3", color: activeTipo?.color || "#0B5E55" }} />
@@ -1486,6 +1621,18 @@ const TrainingPage = () => {
                   );
                 })}
               </Stack>
+
+              {/* ── Agregar ejercicio manual ── */}
+              <Button
+                onClick={() => { setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}
+                startIcon={<AddRoundedIcon />}
+                variant="outlined"
+                fullWidth
+                sx={{ mb: 2, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13,
+                  borderColor: activeTipo?.color || "#0B5E55", color: activeTipo?.color || "#0B5E55",
+                  "&:hover": { bgcolor: activeTipo?.bg || "#E6F5F3" } }}>
+                Agregar ejercicio
+              </Button>
 
               {/* ── Botones de sesión ── */}
               <Stack spacing={1.5}>
@@ -1978,6 +2125,48 @@ const TrainingPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Dialog: agregar/reemplazar ejercicio manual ── */}
+      <Dialog open={!!addManualOpen} onClose={() => setAddManualOpen(null)} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: 4, mx: 2 } }}>
+        <DialogContent sx={{ p: 3 }}>
+          <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 2.5 }}>
+            {addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio"}
+          </Typography>
+          <Stack spacing={1.8}>
+            <TextField label="Nombre del ejercicio" value={manualForm.name} fullWidth size="small"
+              onChange={(e) => setManualForm(p => ({ ...p, name: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+            <Stack direction="row" spacing={1.5}>
+              <TextField label="Series" value={manualForm.sets} size="small" type="number"
+                onChange={(e) => setManualForm(p => ({ ...p, sets: e.target.value }))}
+                sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+              <TextField label="Reps" value={manualForm.reps} size="small"
+                onChange={(e) => setManualForm(p => ({ ...p, reps: e.target.value }))}
+                sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+              <TextField label="Descanso" value={manualForm.rest} size="small"
+                onChange={(e) => setManualForm(p => ({ ...p, rest: e.target.value }))}
+                sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+            </Stack>
+            <TextField label="Notas (opcional)" value={manualForm.notes} fullWidth size="small" multiline rows={2}
+              onChange={(e) => setManualForm(p => ({ ...p, notes: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+          </Stack>
+          <Stack direction="row" spacing={1.5} mt={3}>
+            <Button onClick={() => setAddManualOpen(null)} fullWidth
+              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67",
+                border: "1px solid rgba(11,94,85,0.20)" }}>
+              Cancelar
+            </Button>
+            <Button onClick={() => saveManualExercise(addManualOpen.dayKey, addManualOpen.index)}
+              disabled={!manualForm.name.trim()} variant="contained" fullWidth
+              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700,
+                bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
+              Guardar
+            </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Fullscreen ejercicio con descripción ── */}
       <Dialog open={!!fullscreenEx} onClose={() => setFullscreenEx(null)} maxWidth="sm" fullWidth

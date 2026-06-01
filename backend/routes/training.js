@@ -360,6 +360,41 @@ JSON:
   }
 });
 
+/* ── Ejercicio alternativo con GPT ────────────────────────────── */
+router.post("/exercise-alternative", authMiddleware, async (req, res) => {
+  const { name, tipo, lugar, focus } = req.body;
+  if (!name) return res.status(400).json({ error: "Nombre requerido." });
+
+  try {
+    const openai = getOpenAI();
+    const equip  = EQUIP[lugar] || "equipamiento básico";
+    const gpt = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{
+        role: "system",
+        content: "Sos un entrenador personal argentino. Respondés SOLO con JSON válido.",
+      }, {
+        role: "user",
+        content: `Sugirí UN ejercicio alternativo a "${name}" para un plan de ${tipo || "entrenamiento"} en ${lugar || "gym"} (${equip}).
+El ejercicio debe trabajar los mismos músculos principales y tener dificultad similar.
+Foco del día: ${focus || "general"}.
+
+Solo JSON:
+{"name":"Nombre del ejercicio","sets":4,"reps":"8-12","rest":"90 seg","notes":"Tip técnico breve"}`,
+      }],
+      max_tokens: 120,
+      temperature: 0.7,
+    });
+
+    const raw  = gpt.choices[0].message.content.replace(/```json\n?/gi, "").replace(/```\n?/g, "").trim();
+    const data = JSON.parse(raw);
+    return res.json(data);
+  } catch (err) {
+    console.error("Exercise alternative error:", err.message);
+    return res.status(500).json({ error: "Error al generar alternativa." });
+  }
+});
+
 /* ── Diagnóstico: modelos disponibles para esta API key ────────── */
 router.get("/models-available", authMiddleware, async (req, res) => {
   try {
