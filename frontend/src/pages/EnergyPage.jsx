@@ -126,6 +126,7 @@ const EnergyPage = () => {
   const token        = localStorage.getItem("nutrismartToken");
 
   const [log,        setLog]       = useState(null);
+  const [dayEval,    setDayEval]   = useState(null); // evaluación del día anterior
   const [loading,    setLoading]   = useState(true);
   const [energyGoal, setEnergyGoal]= useState(null); // "bajar_peso" | "mantener" | "ganar_musculo"
   const [savingGoal, setSavingGoal]= useState(false);
@@ -178,6 +179,7 @@ const EnergyPage = () => {
       const data = await res.json();
       setLog(data);
       if (data.energyGoal) setEnergyGoal(data.energyGoal);
+      if (data.dayEvaluation) setDayEval(data.dayEvaluation);
     } catch {}
     finally { setLoading(false); }
   }, [token]);
@@ -319,6 +321,37 @@ const EnergyPage = () => {
     <Box sx={{ minHeight: "100dvh", bgcolor: C.surfaceAlt, px: { xs: 2, sm: 3 },
       pt: { xs: 10, sm: 12 }, pb: 10 }}>
       <Box sx={{ maxWidth: 680, mx: "auto" }}>
+
+        {/* ── Notificación evaluación día anterior ── */}
+        {dayEval && (
+          <Box sx={{
+            mb: 3, px: 2.5, py: 2, borderRadius: 3,
+            bgcolor: dayEval.goalMet ? "rgba(46,125,50,0.10)" : "rgba(226,75,74,0.08)",
+            border: `1.5px solid ${dayEval.goalMet ? "rgba(46,125,50,0.30)" : "rgba(226,75,74,0.25)"}`,
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2,
+          }}>
+            <Box>
+              <Typography sx={{ fontSize: 14, fontWeight: 800,
+                color: dayEval.goalMet ? C.green : C.danger, mb: 0.3 }}>
+                {dayEval.goalMet ? "✅ Objetivo cumplido" : "📊 Objetivo no alcanzado"}
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: C.textSec, lineHeight: 1.5 }}>
+                {dayEval.message}
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: "center", flexShrink: 0,
+              px: 2, py: 1, borderRadius: 2,
+              bgcolor: dayEval.goalMet ? "rgba(46,125,50,0.15)" : "rgba(226,75,74,0.12)" }}>
+              <Typography sx={{ fontSize: 22, fontWeight: 900, lineHeight: 1,
+                color: dayEval.goalMet ? C.green : C.danger }}>
+                {dayEval.points > 0 ? `+${dayEval.points}` : dayEval.points}
+              </Typography>
+              <Typography sx={{ fontSize: 10, color: C.textMuted, fontWeight: 600 }}>
+                pts
+              </Typography>
+            </Box>
+          </Box>
+        )}
 
         {/* Header */}
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={4}>

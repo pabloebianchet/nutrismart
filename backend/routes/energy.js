@@ -10,6 +10,71 @@ const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const todayDate = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
 
+/* ─── Calcular BMR + TDEE + objetivo (igual que frontend) ────── */
+const ACTIVITY_FACTOR = {
+  sedentario: 1.2, Nula: 1.2,
+  ligero: 1.375,
+  moderado: 1.55, Moderada: 1.55,
+  activo: 1.725, Intensa: 1.725,
+  muy_activo: 1.9, "muy activo": 1.9, Profesional: 1.9,
+};
+const GOAL_ADJ = { bajar_peso: -500, mantener: 0, ganar_musculo: 300 };
+
+const calcDailyGoalForUser = (u) => {
+  if (!u?.peso || !u?.altura || !u?.edad) return null;
+  const base = (10 * u.peso) + (6.25 * u.altura) - (5 * u.edad);
+  const isMale = u.sexo === "M" || u.sexo === "masculino";
+  const bmr    = Math.round(isMale ? base + 5 : base - 161);
+  const factor = ACTIVITY_FACTOR[u.actividad] || 1.375;
+  const tdee   = Math.round(bmr * factor);
+  const adj    = GOAL_ADJ[u.energyGoal] || 0;
+  return tdee + adj;
+};
+
+/* ─── Evaluar día anterior y otorgar puntos saludables ──────── */
+const evaluateYesterday = async (userId, user) => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yDate = yesterday.toLocaleDateString("en-CA");
+
+  const log = await DailyLog.findOne({ user: userId, date: yDate });
+  if (!log || log.evaluated) return null; // ya evaluado o sin datos
+
+  const foodEntries = log.entries.filter((e) => e.tipo === "comida");
+  if (foodEntries.length === 0) {
+    // No registró nada → no evaluar (no penalizar si ni usó el módulo)
+    await DailyLog.findByIdAndUpdate(log._id, { $set: { evaluated: true, pointsAwarded: 0 } });
+    return null;
+  }
+
+  const consumed   = Math.round(foodEntries.reduce((a, e) => a + (e.kcal || 0), 0));
+  const dailyGoal  = calcDailyGoalForUser(user);
+
+  if (!dailyGoal) return null;
+
+  // Tolerancia: ±25% del objetivo
+  const low  = dailyGoal * 0.75;
+  const high = dailyGoal * 1.25;
+  const goalMet = consumed >= low && consumed <= high;
+
+  const points = goalMet ? 5 : -2;
+
+  // Actualizar puntos del usuario
+  await User.findByIdAndUpdate(userId, { $inc: { healthyPoints: points } });
+  await DailyLog.findByIdAndUpdate(log._id, { $set: { evaluated: true, pointsAwarded: points } });
+
+  return {
+    date:     yDate,
+    consumed,
+    dailyGoal,
+    goalMet,
+    points,
+    message:  goalMet
+      ? `✅ Objetivo calórico del ${yesterday.toLocaleDateString("es-AR", { day: "numeric", month: "long" })} cumplido — +${points} puntos saludables`
+      : `📊 Objetivo del ${yesterday.toLocaleDateString("es-AR", { day: "numeric", month: "long" })} no alcanzado — ${points} puntos`,
+  };
+};
+
 /* ─── Calorías estimadas por tipo de entrenamiento (kcal/min) ── */
 const KCAL_PER_MIN = {
   "Hipertrofia":      7,
@@ -77,6 +142,9 @@ router.get("/today", authMiddleware, async (req, res) => {
     const totalCarbos    = comida.reduce((a, e) => a + (e.carbos || 0), 0);
     const totalGrasas    = comida.reduce((a, e) => a + (e.grasas || 0), 0);
 
+    // Evaluar día anterior y otorgar/restar puntos (async, no bloquea)
+    const dayResult = await evaluateYesterday(user._id, user).catch(() => null);
+
     return res.json({
       date,
       entries:         log.entries,
@@ -88,6 +156,7 @@ router.get("/today", authMiddleware, async (req, res) => {
       totalCarbos:     Math.round(totalCarbos),
       totalGrasas:     Math.round(totalGrasas),
       energyGoal:      user.energyGoal || null,
+      dayEvaluation:   dayResult,   // null si no hay nada que evaluar
     });
   } catch (err) {
     console.error("Energy today error:", err.message);

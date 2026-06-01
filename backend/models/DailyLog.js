@@ -18,7 +18,9 @@ const dailyLogSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     date: { type: String, required: true }, // YYYY-MM-DD
-    entries: [entrySchema],
+    entries:       [entrySchema],
+    evaluated:     { type: Boolean, default: false },
+    pointsAwarded: { type: Number,  default: 0 },
   },
   { timestamps: true }
 );
