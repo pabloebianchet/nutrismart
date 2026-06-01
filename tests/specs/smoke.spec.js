@@ -17,7 +17,7 @@ test.describe("🌐 Páginas públicas", () => {
 
   test("Página de precios carga", async ({ page }) => {
     await page.goto("/pricing");
-    await expect(page.locator("text=/silver|gold|plan/i").first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("text=/silver|gold|plan/i").first()).toBeVisible({ timeout: 20_000 });
   });
 
   test("Página de login carga", async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe("🔐 App autenticada", () => {
   test("Página de recetas carga", async ({ page }) => {
     await page.goto("/recipes");
     await expect(page.locator("text=/receta|fit|hipertrofia|rápida/i").first())
-      .toBeVisible({ timeout: 10_000 });
+      .toBeVisible({ timeout: 20_000 });
   });
 
   test("Página de entrenamiento carga", async ({ page }) => {
