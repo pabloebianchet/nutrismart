@@ -22,6 +22,7 @@ import api from "../config/axiosInstance";
 import TestCard from "./TestCard";
 import SubscriptionWidget from "./SubscriptionWidget";
 import DailyPostCard      from "./DailyPostCard";
+import EnergyWidget       from "./EnergyWidget";
 import LeaderboardWidget from "./LeaderboardWidget";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
@@ -2101,6 +2102,11 @@ const Dashboard = () => {
 
       {/* ── NUDGE CRUZADO ───────────────────────── */}
       <CrossModuleNudge historyCount={history.length} loading={loading} />
+
+      {/* ── BALANCE ENERGÉTICO ──────────────────── */}
+      <Box mb={4}>
+        <EnergyWidget />
+      </Box>
 
       {/* ── POST DEL DÍA ────────────────────────── */}
       <Box mb={4}>
