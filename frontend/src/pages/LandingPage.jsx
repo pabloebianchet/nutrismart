@@ -413,6 +413,14 @@ const MODULES = [
     tags:  ["Hipertrofia", "Running", "Calistenia", "Fit", "En Casa"],
     photo: "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
   },
+  {
+    Icon:  TrendingUpRoundedIcon,
+    title: "Balance energético",
+    desc:  "Registrá lo que comés y tu actividad del día por voz. La IA calcula tu objetivo calórico según tu metabolismo, nivel de actividad y meta — bajar peso, mantener o ganar músculo.",
+    color: "#0B5E55", bg: "#E6F5F3",
+    tags:  ["Por voz", "TDEE", "Déficit / Superávit", "Macros", "Historial mensual"],
+    photo: null,
+  },
 ];
 
 const ModulesSection = () => (
@@ -426,19 +434,19 @@ const ModulesSection = () => (
           bgcolor: C.brandSurf, border: `1px solid ${C.brandBorder}`,
           borderRadius: 999, px: 2, py: 0.6, mb: 2.5,
         }}>
-          <BoltRoundedIcon sx={{ fontSize: 13 }} /> 3 módulos integrados
+          <BoltRoundedIcon sx={{ fontSize: 13 }} /> 4 módulos integrados
         </Box>
         <Typography sx={{ fontSize: { xs: 30, sm: 46 }, fontWeight: 900, color: C.ink,
           letterSpacing: { xs: "-1px", sm: "-2px" }, lineHeight: 1.1, mb: 2 }}>
           Todo lo que necesitás<br />
           <Box component="span" sx={{ color: C.brand }}>en un solo lugar</Box>
         </Typography>
-        <Typography sx={{ fontSize: 17, color: C.muted, maxWidth: 480, mx: "auto", lineHeight: 1.8 }}>
-          Tres herramientas potentes que trabajan juntas para mejorar tu alimentación y rendimiento físico.
+        <Typography sx={{ fontSize: 17, color: C.muted, maxWidth: 520, mx: "auto", lineHeight: 1.8 }}>
+          Cuatro herramientas integradas que trabajan juntas: analizás lo que comés, cocinás mejor, entrenás con un plan personalizado y controlás tu balance calórico en tiempo real.
         </Typography>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3,1fr)" }, gap: 3 }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(4,1fr)" }, gap: 3 }}>
         {MODULES.map((m) => (
           <Box key={m.title} sx={{
             bgcolor: C.white,
