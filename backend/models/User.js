@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema(
 
     profileCompleted: { type: Boolean, default: false },
     healthyPoints:    { type: Number, default: 0 },
+    energyGoal:       { type: String, enum: ["bajar_peso", "mantener", "ganar_musculo"], default: null },
 
     notifPrefs: {
       paused:   { type: Boolean, default: false },

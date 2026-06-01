@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Stack, Paper, LinearProgress, Button } from "@mui/material";
+import { Box, Typography, Stack, Paper, LinearProgress, Button, Chip } from "@mui/material";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import ArrowForwardRoundedIcon        from "@mui/icons-material/ArrowForwardRounded";
 import MicRoundedIcon                 from "@mui/icons-material/MicRounded";
@@ -11,8 +11,18 @@ const C = {
   brand: "#0B5E55", brandLight: "#0f7a6e", brandSurface: "#E6F5F3",
   brandMuted: "#B2DDD9", surface: "#FFFFFF", border: "rgba(11,94,85,0.10)",
   text: "#0F2420", textSec: "#4A6B67", textMuted: "#8AADAA",
-  gold: "#C9952A", green: "#2E7D32", danger: "#E24B4A",
+  gold: "#C9952A", green: "#2E7D32", danger: "#E24B4A", blue: "#1565C0",
 };
+
+const ACTIVITY_FACTOR = {
+  "sedentario": 1.2, "Nula": 1.2,
+  "ligero": 1.375,
+  "moderado": 1.55, "Moderada": 1.55,
+  "activo": 1.725, "Intensa": 1.725,
+  "muy_activo": 1.9, "muy activo": 1.9, "Profesional": 1.9,
+};
+
+const GOAL_ADJ = { bajar_peso: -500, mantener: 0, ganar_musculo: 300 };
 
 const calcBMR = (ud) => {
   if (!ud?.peso || !ud?.altura || !ud?.edad) return null;
@@ -28,10 +38,11 @@ const EnergyWidget = () => {
   const [log,     setLog]     = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const bmr = calcBMR(userData);
+  const bmr          = calcBMR(userData);
+  const tdee         = bmr ? Math.round(bmr * (ACTIVITY_FACTOR[userData?.actividad] || 1.375)) : null;
 
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
+    if (!token || !bmr) { setLoading(false); return; }
     fetch(`${API_URL}/api/energy/today`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => setLog(d))
@@ -41,11 +52,17 @@ const EnergyWidget = () => {
 
   if (loading || !bmr) return null;
 
-  const quemadas  = Math.round((bmr || 0) + (log?.trainingKcal || 0) + (log?.totalNEAT || 0));
-  const consumidas = log?.totalConsumido || 0;
-  const balance   = quemadas - consumidas;
-  const esDeficit  = balance > 0;
-  const pct        = Math.min(100, Math.round((consumidas / quemadas) * 100));
+  const energyGoal  = log?.energyGoal;
+  const dailyGoal   = tdee ? tdee + (GOAL_ADJ[energyGoal] || 0) : null;
+  const consumed    = log?.totalConsumido  || 0;
+  const burnedExtra = Math.round((log?.totalNEAT || 0) + (log?.trainingKcal || 0));
+  const restantes   = dailyGoal ? Math.round(dailyGoal + burnedExtra - consumed) : null;
+  const pct         = dailyGoal ? Math.min(100, Math.round((consumed / (dailyGoal + burnedExtra)) * 100)) : 0;
+
+  const restColor = restantes === null ? C.textMuted
+    : restantes < -150 ? C.danger
+    : restantes > 150  ? C.blue
+    : C.green;
 
   const proteinaObj = userData?.peso ? Math.round(userData.peso * 1.8) : 120;
 
@@ -74,56 +91,81 @@ const EnergyWidget = () => {
         </Stack>
       </Box>
 
-      {/* Balance */}
       <Box sx={{ px: 3, py: 2.5 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-          <Box>
-            <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted,
-              textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.3 }}>
-              Balance de hoy
+        {!energyGoal ? (
+          /* Sin objetivo configurado */
+          <Box sx={{ textAlign: "center", py: 1 }}>
+            <Typography sx={{ fontSize: 13.5, color: C.text, fontWeight: 700, mb: 0.5 }}>
+              Configurá tu objetivo calórico
             </Typography>
-            <Typography sx={{ fontSize: 28, fontWeight: 900, color: esDeficit ? C.green : C.gold, lineHeight: 1 }}>
-              {esDeficit ? "-" : "+"}{Math.abs(balance).toLocaleString("es-AR")}
-              <Typography component="span" sx={{ fontSize: 13, color: C.textMuted, fontWeight: 400 }}> kcal</Typography>
+            <Typography sx={{ fontSize: 12, color: C.textMuted }}>
+              Tocá para elegir si querés bajar, mantener o subir de peso
             </Typography>
           </Box>
-          <Stack direction="row" spacing={3}>
-            {[
-              { label: "Consumidas", val: consumidas, color: C.gold },
-              { label: "Quemadas",   val: quemadas,   color: C.brand },
-            ].map(({ label, val, color }) => (
-              <Box key={label} sx={{ textAlign: "center" }}>
-                <Typography sx={{ fontSize: 16, fontWeight: 900, color }}>{val.toLocaleString("es-AR")}</Typography>
-                <Typography sx={{ fontSize: 10, color: C.textMuted }}>{label}</Typography>
+        ) : (
+          <>
+            {/* Objetivo y restantes */}
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1.5}>
+              <Box>
+                <Typography sx={{ fontSize: 10.5, color: C.textMuted, fontWeight: 600,
+                  textTransform: "uppercase", letterSpacing: "0.05em", mb: 0.3 }}>
+                  Objetivo diario
+                </Typography>
+                <Typography sx={{ fontSize: 22, fontWeight: 900, color: C.brand, lineHeight: 1 }}>
+                  {dailyGoal?.toLocaleString("es-AR") || "—"}
+                  <Typography component="span" sx={{ fontSize: 11, color: C.textMuted }}> kcal</Typography>
+                </Typography>
               </Box>
-            ))}
-          </Stack>
-        </Stack>
+              <Box sx={{ textAlign: "right" }}>
+                <Typography sx={{ fontSize: 10.5, color: C.textMuted, fontWeight: 600,
+                  textTransform: "uppercase", letterSpacing: "0.05em", mb: 0.3 }}>
+                  Restantes
+                </Typography>
+                <Typography sx={{ fontSize: 22, fontWeight: 900, color: restColor, lineHeight: 1 }}>
+                  {restantes !== null ? Math.abs(restantes).toLocaleString("es-AR") : "—"}
+                  <Typography component="span" sx={{ fontSize: 11, color: C.textMuted }}> kcal</Typography>
+                </Typography>
+              </Box>
+            </Stack>
 
-        {/* Barra de progreso consumidas/quemadas */}
-        <LinearProgress variant="determinate" value={pct}
-          sx={{ height: 7, borderRadius: 999, mb: 1.5,
-            bgcolor: "rgba(201,149,42,0.12)",
-            "& .MuiLinearProgress-bar": { bgcolor: pct > 100 ? C.danger : C.gold, borderRadius: 999 } }} />
+            {/* Barra */}
+            <LinearProgress variant="determinate" value={pct}
+              sx={{ height: 6, borderRadius: 999, mb: 1.5,
+                bgcolor: "rgba(0,0,0,0.06)",
+                "& .MuiLinearProgress-bar": {
+                  bgcolor: consumed > (dailyGoal || 0) + burnedExtra ? C.danger : C.gold,
+                  borderRadius: 999 } }} />
 
-        {/* Proteína */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography sx={{ fontSize: 12, color: C.textSec }}>
-            💪 Proteína: <strong>{Math.round(log?.totalProteinas || 0)}g</strong> / {proteinaObj}g
-          </Typography>
-          <Typography sx={{ fontSize: 12, color: C.textSec }}>
-            💧 Agua: <strong>{((log?.totalAgua || 0) / 1000).toFixed(1)}L</strong>
-          </Typography>
-        </Stack>
+            {/* Fila de datos */}
+            <Stack direction="row" justifyContent="space-between">
+              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                🍽️ Consumidas: <strong>{consumed.toLocaleString("es-AR")}</strong> kcal
+              </Typography>
+              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                🔥 Extra: <strong>{burnedExtra.toLocaleString("es-AR")}</strong> kcal
+              </Typography>
+            </Stack>
 
-        {/* Mensaje si no registró nada */}
-        {!consumidas && !log?.totalNEAT && (
-          <Box sx={{ mt: 1.5, px: 2, py: 1, borderRadius: 2, bgcolor: C.brandSurface,
-            border: `1px dashed ${C.brandMuted}` }}>
-            <Typography sx={{ fontSize: 12, color: C.brand, textAlign: "center" }}>
-              ¿Qué comiste hoy? Tocá <strong>Registrar</strong> para empezar 🎯
-            </Typography>
-          </Box>
+            {/* Proteína */}
+            <Stack direction="row" justifyContent="space-between" mt={0.5}>
+              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                💪 Proteína: <strong>{Math.round(log?.totalProteinas || 0)}g</strong> / {proteinaObj}g
+              </Typography>
+              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                💧 <strong>{((log?.totalAgua || 0) / 1000).toFixed(1)}L</strong>
+              </Typography>
+            </Stack>
+
+            {/* Sin registros */}
+            {!consumed && !burnedExtra && (
+              <Box sx={{ mt: 1.5, px: 2, py: 1, borderRadius: 2, bgcolor: C.brandSurface,
+                border: `1px dashed ${C.brandMuted}` }}>
+                <Typography sx={{ fontSize: 12, color: C.brand, textAlign: "center" }}>
+                  ¿Qué comiste hoy? Tocá <strong>Registrar</strong> 🎯
+                </Typography>
+              </Box>
+            )}
+          </>
         )}
       </Box>
     </Paper>

@@ -3,6 +3,7 @@ import OpenAI          from "openai";
 import { authMiddleware } from "../middleware/auth.js";
 import DailyLog        from "../models/DailyLog.js";
 import TrainingPlan    from "../models/TrainingPlan.js";
+import User            from "../models/User.js";
 
 const router   = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -18,10 +19,20 @@ const KCAL_PER_MIN = {
   "Ejercicio en Casa":5,
 };
 
+/* ─── PUT /goal ─ guardar objetivo nutricional ──────────────── */
+router.put("/goal", authMiddleware, async (req, res) => {
+  const { energyGoal } = req.body;
+  const valid = ["bajar_peso", "mantener", "ganar_musculo"];
+  if (!valid.includes(energyGoal))
+    return res.status(400).json({ error: "Objetivo inválido." });
+  await User.findByIdAndUpdate(req.user._id, { $set: { energyGoal } });
+  return res.json({ ok: true, energyGoal });
+});
+
 /* ─── GET /today ─ balance completo del día ─────────────────── */
 router.get("/today", authMiddleware, async (req, res) => {
   try {
-    const user    = req.user;
+    const user    = await User.findById(req.user._id).lean();
     const date    = todayDate();
 
     // Leer log del día (o vacío)
@@ -65,6 +76,7 @@ router.get("/today", authMiddleware, async (req, res) => {
       totalProteinas:  Math.round(totalProteinas),
       totalCarbos:     Math.round(totalCarbos),
       totalGrasas:     Math.round(totalGrasas),
+      energyGoal:      user.energyGoal || null,
     });
   } catch (err) {
     console.error("Energy today error:", err.message);
