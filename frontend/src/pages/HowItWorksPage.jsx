@@ -1,4 +1,5 @@
 import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
+import usePageMeta from "../hooks/usePageMeta";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
@@ -124,7 +125,13 @@ const MODULES = [
 ];
 
 /* ── Componente principal ─────────────────────────────────────────────────── */
-const HowItWorksPage = () => (
+const HowItWorksPage = () => {
+  usePageMeta({
+    title:       "Cómo funciona Nui — Análisis nutricional, recetas y entrenamiento con IA",
+    description: "Registrate gratis, completá tu perfil y empezá a analizar alimentos con IA, generar recetas saludables y seguir tu plan de entrenamiento personalizado en segundos.",
+    canonical:   "/how-it-works",
+  });
+  return (
   <Box
     sx={{
       minHeight: "100vh",
@@ -921,6 +928,7 @@ const HowItWorksPage = () => (
       </Box>
     </Box>
   </Box>
-);
+  );
+};
 
 export default HowItWorksPage;

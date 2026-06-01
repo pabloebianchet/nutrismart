@@ -1,4 +1,5 @@
 import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
+import usePageMeta from "../hooks/usePageMeta";
 import SpaRoundedIcon             from "@mui/icons-material/SpaRounded";
 import InsightsRoundedIcon        from "@mui/icons-material/InsightsRounded";
 import VerifiedRoundedIcon        from "@mui/icons-material/VerifiedRounded";
@@ -92,7 +93,13 @@ const PRINCIPIOS = [
 ];
 
 /* ── Componente ──────────────────────────────────────────────────────────── */
-const AboutPage = () => (
+const AboutPage = () => {
+  usePageMeta({
+    title:       "Quiénes somos — Nui App",
+    description: "Nui es un asistente de salud con IA para Argentina. Conocé los módulos: análisis de alimentos, recetas personalizadas, entrenamiento y balance energético diario.",
+    canonical:   "/about",
+  });
+  return (
   <Box sx={{
     minHeight: "100vh",
     background: "linear-gradient(160deg, #edf8f5 0%, #ffffff 55%, #f4f9f7 100%)",
@@ -297,6 +304,7 @@ const AboutPage = () => (
 
     </Box>
   </Box>
-);
+  );
+};
 
 export default AboutPage;
