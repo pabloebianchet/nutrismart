@@ -1569,7 +1569,11 @@ const TrainingPage = () => {
                             </MenuItem>
                             <MenuItem onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: i }); setManualForm({ name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
-                              <ListItemText primary="Reemplazar manualmente" />
+                              <ListItemText primary="Reemplazar manualmente" secondary="Reemplaza este ejercicio" />
+                            </MenuItem>
+                            <MenuItem onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}>
+                              <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#2E7D32" }} /></ListItemIcon>
+                              <ListItemText primary="Agregar ejercicio nuevo" secondary="Se suma a la lista" />
                             </MenuItem>
                             <MenuItem
                               onClick={() => { setExMenuOpen(null); setConfirmDelete({ dayKey: activeDay, index: i, name: ex.name }); }}
