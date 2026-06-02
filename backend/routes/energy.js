@@ -8,7 +8,7 @@ import User            from "../models/User.js";
 const router   = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const todayDate = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
+const todayDate = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" }); // YYYY-MM-DD en zona AR
 
 /* ─── Calcular BMR + TDEE + objetivo (igual que frontend) ────── */
 const ACTIVITY_FACTOR = {
@@ -35,7 +35,7 @@ const calcDailyGoalForUser = (u) => {
 const evaluateYesterday = async (userId, user) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yDate = yesterday.toLocaleDateString("en-CA");
+  const yDate = yesterday.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
 
   const log = await DailyLog.findOne({ user: userId, date: yDate });
   if (!log || log.evaluated) return null; // ya evaluado o sin datos
@@ -259,9 +259,8 @@ router.delete("/log/:entryId", authMiddleware, async (req, res) => {
 /* ─── GET /monthly ─ resumen diario del mes (solo Gold) ────── */
 router.get("/monthly", authMiddleware, async (req, res) => {
   try {
-    const now   = new Date();
-    const year  = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const nowAR = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
+    const [year, month] = nowAR.split("-");
     const start = `${year}-${month}-01`;
     const end   = `${year}-${month}-31`;
 
