@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+// Emitter inyectado desde socket.js para evitar dependencia circular
+let _emitFn = null;
+export const setLogEmitter = (fn) => { _emitFn = fn; };
+
 const logSchema = new mongoose.Schema(
   {
     level:     { type: String, enum: ["info", "warn", "error"], default: "info", index: true },
@@ -18,7 +22,10 @@ const logSchema = new mongoose.Schema(
 logSchema.index({ createdAt: -1 });
 logSchema.index({ level: 1, createdAt: -1 });
 logSchema.index({ category: 1, createdAt: -1 });
-// Auto-delete logs older than 90 days
 logSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
+
+logSchema.post("save", function (doc) {
+  if (_emitFn) _emitFn(doc);
+});
 
 export default mongoose.model("Log", logSchema);

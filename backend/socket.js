@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import jwt       from "jsonwebtoken";
 import User      from "./models/User.js";
+import { setLogEmitter } from "./models/Log.js";
 
 let io = null;
 
@@ -22,7 +23,8 @@ export const initSocket = (httpServer) => {
       const user    = await User.findById(decoded.userId).lean();
       if (!user)    return next(new Error("Unauthorized"));
 
-      socket.userId = String(user._id);
+      socket.userId    = String(user._id);
+      socket.userEmail = user.email;
       next();
     } catch {
       next(new Error("Unauthorized"));
@@ -30,14 +32,19 @@ export const initSocket = (httpServer) => {
   });
 
   io.on("connection", (socket) => {
-    // Cada usuario entra a su propia room al conectarse
-    const room = `list:${socket.userId}`;
-    socket.join(room);
-    console.log(`Socket connected: user ${socket.userId}`);
+    socket.join(`list:${socket.userId}`);
 
-    socket.on("disconnect", () => {
-      console.log(`Socket disconnected: user ${socket.userId}`);
-    });
+    // Si es admin, entra a la room de logs en tiempo real
+    if (socket.userEmail === process.env.ADMIN_EMAIL) {
+      socket.join("admin:logs");
+    }
+
+    socket.on("disconnect", () => {});
+  });
+
+  // Registrar emitter para que Log.js emita al admin en cada save
+  setLogEmitter((doc) => {
+    io.to("admin:logs").emit("log:new", doc);
   });
 
   return io;

@@ -13,6 +13,7 @@ import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import InfoOutlinedIcon        from "@mui/icons-material/InfoOutlined";
 import { API_URL }             from "../config/api";
+import { getSocket }           from "../config/socket";
 
 const C = {
   brand: "#0B5E55", brandSurface: "#E6F5F3", brandMuted: "#B2DDD9",
@@ -230,6 +231,24 @@ const AdminLogs = () => {
   useEffect(() => { fetchLogs(1, limit); setPage(1); }, [level, category, from, to, limit]); // eslint-disable-line
   useEffect(() => { fetchLogs(page, limit); }, [page]); // eslint-disable-line
 
+  // Tiempo real: escuchar logs nuevos via socket
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleNewLog = (newLog) => {
+      // Solo prepend si estamos en página 1 sin filtros de fecha
+      setLogs((prev) => {
+        const updated = [newLog, ...prev];
+        return updated.slice(0, limit); // mantener el tamaño de página
+      });
+      setTotal((prev) => prev + 1);
+    };
+
+    socket.on("log:new", handleNewLog);
+    return () => socket.off("log:new", handleNewLog);
+  }, [limit]);
+
   const handleSearch = (e) => { e.preventDefault(); setPage(1); fetchLogs(1, limit); };
 
   const handleClearOld = async () => {
@@ -257,6 +276,7 @@ const AdminLogs = () => {
             <Box>
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.text }}>Logs del sistema</Typography>
+                <Chip label="● EN VIVO" size="small" sx={{ bgcolor: "#DCFCE7", color: "#166534", fontWeight: 700, fontSize: 10, height: 18, animation: "pulse 2s ease-in-out infinite", "@keyframes pulse": { "0%,100%": { opacity: 1 }, "50%": { opacity: 0.5 } } }} />
                 {errorCount > 0 && (
                   <Chip label={`${errorCount} error${errorCount !== 1 ? "es" : ""}`} size="small"
                     sx={{ bgcolor: "#FEF2F2", color: "#B91C1C", fontWeight: 700, fontSize: 11, height: 20 }} />
