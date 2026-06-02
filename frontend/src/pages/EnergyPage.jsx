@@ -283,9 +283,19 @@ const EnergyPage = () => {
     }
   }, [token]);
 
-  // Limpiar micrófono al salir de la página
+  // Limpiar micrófono al salir de la página o al perder el foco
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && recognitionRef.current) {
+        recognitionRef.current.abort();
+        recognitionRef.current = null;
+        setListening(false);
+        setInterim("");
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (recognitionRef.current) {
         recognitionRef.current.abort();
         recognitionRef.current = null;
@@ -670,25 +680,11 @@ const EnergyPage = () => {
                 </Typography>
               </Box>
               <Box sx={{ textAlign: "right" }}>
-                <Typography
-                  sx={{ fontSize: 10.5, color: C.textMuted, mb: 0.3 }}
-                >
-                  TMB: {fmt(bmr)} kcal
+                <Typography sx={{ fontSize: 11, color: C.textMuted }}>
+                  metabolismo base
                 </Typography>
-                <Typography
-                  sx={{ fontSize: 10.5, color: C.textMuted, mb: 0.3 }}
-                >
-                  TDEE: {fmt(tdee)} kcal
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: 10.5,
-                    color: goalData?.color || C.textMuted,
-                    fontWeight: 700,
-                  }}
-                >
-                  Ajuste: {goalData?.adj >= 0 ? "+" : ""}
-                  {goalData?.adj || 0} kcal
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textSec }}>
+                  {fmt(bmr)} kcal
                 </Typography>
               </Box>
             </Stack>
@@ -755,7 +751,7 @@ const EnergyPage = () => {
                   mb: 0.5,
                 }}
               >
-                🔥 Quemadas
+                🏃 Ejercicio
               </Typography>
               <Typography
                 sx={{
@@ -768,7 +764,7 @@ const EnergyPage = () => {
                 {fmt(burnedExtra)}
               </Typography>
               <Typography sx={{ fontSize: 10.5, color: C.textMuted }}>
-                entrenamiento + actividad
+                kcal quemadas hoy
               </Typography>
             </Paper>
           </Box>
@@ -804,7 +800,9 @@ const EnergyPage = () => {
                     letterSpacing: "0.07em",
                   }}
                 >
-                  Restantes
+                  {restantes !== null && restantes < -150
+                    ? "Te pasaste"
+                    : "Podés comer"}
                 </Typography>
                 <Typography
                   sx={{
@@ -829,8 +827,7 @@ const EnergyPage = () => {
                   </Typography>
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: C.textSec, mt: 0.5 }}>
-                  = Objetivo ({fmt(dailyGoal)}) + Extra ({fmt(burnedExtra)}) −
-                  Consumidas ({fmt(consumed)})
+                  Objetivo {fmt(dailyGoal)} kcal · comiste {fmt(consumed)} kcal
                 </Typography>
               </Box>
             </Stack>
@@ -1063,7 +1060,7 @@ const EnergyPage = () => {
                 minWidth: 130,
               }}
             >
-              {listening ? "Detener" : "Micrófono"}
+              {listening ? "Detener" : "Grabar"}
             </Button>
             <Button
               onClick={handleParse}
