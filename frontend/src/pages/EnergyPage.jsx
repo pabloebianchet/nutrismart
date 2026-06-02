@@ -441,14 +441,32 @@ const EnergyPage = () => {
     const s = sign; // +1 para agregar, -1 para eliminar
     const updated = { ...prev, entries: prev.entries ? [...prev.entries] : [] };
     if (entry.tipo === "comida") {
-      updated.totalConsumido = Math.max(0, (prev.totalConsumido || 0) + s * (entry.kcal || 0));
-      updated.totalProteinas = Math.max(0, (prev.totalProteinas || 0) + s * (entry.proteinas || 0));
-      updated.totalCarbos    = Math.max(0, (prev.totalCarbos    || 0) + s * (entry.carbos    || 0));
-      updated.totalGrasas    = Math.max(0, (prev.totalGrasas    || 0) + s * (entry.grasas    || 0));
+      updated.totalConsumido = Math.max(
+        0,
+        (prev.totalConsumido || 0) + s * (entry.kcal || 0),
+      );
+      updated.totalProteinas = Math.max(
+        0,
+        (prev.totalProteinas || 0) + s * (entry.proteinas || 0),
+      );
+      updated.totalCarbos = Math.max(
+        0,
+        (prev.totalCarbos || 0) + s * (entry.carbos || 0),
+      );
+      updated.totalGrasas = Math.max(
+        0,
+        (prev.totalGrasas || 0) + s * (entry.grasas || 0),
+      );
     } else if (entry.tipo === "actividad") {
-      updated.totalNEAT = Math.max(0, (prev.totalNEAT || 0) + s * (entry.kcal || 0));
+      updated.totalNEAT = Math.max(
+        0,
+        (prev.totalNEAT || 0) + s * (entry.kcal || 0),
+      );
     } else if (entry.tipo === "agua") {
-      updated.totalAgua = Math.max(0, (prev.totalAgua || 0) + s * (entry.agua_ml || 0));
+      updated.totalAgua = Math.max(
+        0,
+        (prev.totalAgua || 0) + s * (entry.agua_ml || 0),
+      );
     }
     return updated;
   };
@@ -458,16 +476,42 @@ const EnergyPage = () => {
     const today = new Date().toISOString().split("T")[0];
     const idx = prev.daily.findIndex((d) => d.date === today);
     const newDaily = [...prev.daily];
-    const base = idx >= 0 ? { ...newDaily[idx] } : { date: today, kcal: 0, proteinas: 0, carbos: 0, grasas: 0, agua_ml: 0, actividadKcal: 0 };
+    const base =
+      idx >= 0
+        ? { ...newDaily[idx] }
+        : {
+            date: today,
+            kcal: 0,
+            proteinas: 0,
+            carbos: 0,
+            grasas: 0,
+            agua_ml: 0,
+            actividadKcal: 0,
+          };
     if (entry.tipo === "comida") {
-      base.kcal       = Math.max(0, (base.kcal       || 0) + sign * (entry.kcal       || 0));
-      base.proteinas  = Math.max(0, (base.proteinas  || 0) + sign * (entry.proteinas  || 0));
-      base.carbos     = Math.max(0, (base.carbos     || 0) + sign * (entry.carbos     || 0));
-      base.grasas     = Math.max(0, (base.grasas     || 0) + sign * (entry.grasas     || 0));
+      base.kcal = Math.max(0, (base.kcal || 0) + sign * (entry.kcal || 0));
+      base.proteinas = Math.max(
+        0,
+        (base.proteinas || 0) + sign * (entry.proteinas || 0),
+      );
+      base.carbos = Math.max(
+        0,
+        (base.carbos || 0) + sign * (entry.carbos || 0),
+      );
+      base.grasas = Math.max(
+        0,
+        (base.grasas || 0) + sign * (entry.grasas || 0),
+      );
     } else if (entry.tipo === "actividad") {
-      base.actividadKcal = Math.max(0, (base.actividadKcal || 0) + sign * (entry.kcal || 0));
+      base.actividadKcal = Math.max(
+        0,
+        (base.actividadKcal || 0) + sign * (entry.kcal || 0),
+      );
     } else if (entry.tipo === "agua") {
-      base.agua_ml = Math.max(0, (base.agua_ml || 0) + sign * (entry.agua_ml || 0));
+      base.agua_ml = Math.max(
+        0,
+        (base.agua_ml || 0) + sign * (entry.agua_ml || 0),
+      );
     }
     if (idx >= 0) newDaily[idx] = base;
     else newDaily.push(base);
@@ -505,16 +549,24 @@ const EnergyPage = () => {
     try {
       const res = await fetch(`${API_URL}/api/energy/log`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ parsed: previewSnapshot }),
       });
       if (!res.ok) throw new Error();
-      setTimeout(() => { fetchLog(); fetchMonthly(); }, 800);
+      setTimeout(() => {
+        fetchLog();
+        fetchMonthly();
+      }, 800);
     } catch {
       // Revertir si falla
       setLog((prev) => {
         const reverted = applyEntryToLog(prev, tempEntry, -1);
-        reverted.entries = (prev?.entries || []).filter((e) => e._id !== tempEntry._id);
+        reverted.entries = (prev?.entries || []).filter(
+          (e) => e._id !== tempEntry._id,
+        );
         return reverted;
       });
       setMonthly((prev) => applyEntryToMonthly(prev, tempEntry, -1));
@@ -540,7 +592,10 @@ const EnergyPage = () => {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTimeout(() => { fetchLog(); fetchMonthly(); }, 800);
+      setTimeout(() => {
+        fetchLog();
+        fetchMonthly();
+      }, 800);
     } catch {
       // Revertir si falla
       setLog((prev) => {
@@ -779,7 +834,9 @@ const EnergyPage = () => {
                 <Typography sx={{ fontSize: 11, color: C.textMuted }}>
                   metabolismo base
                 </Typography>
-                <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textSec }}>
+                <Typography
+                  sx={{ fontSize: 13, fontWeight: 700, color: C.textSec }}
+                >
                   {fmt(bmr)} kcal
                 </Typography>
               </Box>
@@ -847,7 +904,7 @@ const EnergyPage = () => {
                   mb: 0.5,
                 }}
               >
-                🏃 Ejercicio
+                🏃 Actividad (Pesas, Dormir, Trabajr en PC, etc.)
               </Typography>
               <Typography
                 sx={{
@@ -1207,7 +1264,10 @@ const EnergyPage = () => {
               </Typography>
               <IconButton
                 size="small"
-                onClick={() => { setPreview(null); setInputText(""); }}
+                onClick={() => {
+                  setPreview(null);
+                  setInputText("");
+                }}
                 sx={{ color: C.textMuted }}
               >
                 <CloseRoundedIcon fontSize="small" />
