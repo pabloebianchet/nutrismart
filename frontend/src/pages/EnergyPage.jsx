@@ -446,6 +446,7 @@ const EnergyPage = () => {
   const handleConfirm = async () => {
     if (!preview) return;
     setSaving(true);
+    const previewSnapshot = preview;
 
     const tempEntry = {
       _id: `temp_${Date.now()}`,
@@ -472,10 +473,11 @@ const EnergyPage = () => {
       const res = await fetch(`${API_URL}/api/energy/log`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ parsed: preview }),
+        body: JSON.stringify({ parsed: previewSnapshot }),
       });
       if (!res.ok) throw new Error();
-      fetchLog(); // sincroniza IDs reales en background
+      // Sync con pequeño delay para evitar race condition con el servidor
+      setTimeout(fetchLog, 800);
     } catch {
       // Revertir si falla
       setLog((prev) => {
@@ -1170,7 +1172,7 @@ const EnergyPage = () => {
               </Typography>
               <IconButton
                 size="small"
-                onClick={() => setPreview(null)}
+                onClick={() => { setPreview(null); setInputText(""); }}
                 sx={{ color: C.textMuted }}
               >
                 <CloseRoundedIcon fontSize="small" />
