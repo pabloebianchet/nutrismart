@@ -375,7 +375,12 @@ const EnergyPage = () => {
   };
 
   const stopListening = () => {
-    recognitionRef.current?.stop();
+    const pending = interim.trim();
+    if (pending) {
+      setInputText((p) => p + (p ? " " : "") + pending);
+    }
+    recognitionRef.current?.abort();
+    recognitionRef.current = null;
     setListening(false);
     setInterim("");
   };
@@ -419,40 +424,94 @@ const EnergyPage = () => {
     }
   };
 
+  /* ─── Helpers para actualizar totales localmente ── */
+  const applyEntryToLog = (prev, entry, sign) => {
+    if (!prev) return prev;
+    const s = sign; // +1 para agregar, -1 para eliminar
+    const updated = { ...prev, entries: prev.entries ? [...prev.entries] : [] };
+    if (entry.tipo === "comida") {
+      updated.totalConsumido = Math.max(0, (prev.totalConsumido || 0) + s * (entry.kcal || 0));
+      updated.totalProteinas = Math.max(0, (prev.totalProteinas || 0) + s * (entry.proteinas || 0));
+      updated.totalCarbos    = Math.max(0, (prev.totalCarbos    || 0) + s * (entry.carbos    || 0));
+      updated.totalGrasas    = Math.max(0, (prev.totalGrasas    || 0) + s * (entry.grasas    || 0));
+    } else if (entry.tipo === "actividad") {
+      updated.totalNEAT = Math.max(0, (prev.totalNEAT || 0) + s * (entry.kcal || 0));
+    } else if (entry.tipo === "agua") {
+      updated.totalAgua = Math.max(0, (prev.totalAgua || 0) + s * (entry.agua_ml || 0));
+    }
+    return updated;
+  };
+
   /* ─── Confirmar entrada ── */
   const handleConfirm = async () => {
     if (!preview) return;
     setSaving(true);
+
+    const tempEntry = {
+      _id: `temp_${Date.now()}`,
+      tipo: preview.tipo,
+      resumen: preview.resumen,
+      kcal: preview.totales?.kcal || 0,
+      proteinas: preview.totales?.proteinas || 0,
+      carbos: preview.totales?.carbos || 0,
+      grasas: preview.totales?.grasas || 0,
+      agua_ml: preview.agua_ml || 0,
+    };
+
+    // Actualización optimista inmediata
+    setLog((prev) => {
+      const updated = applyEntryToLog(prev, tempEntry, +1);
+      updated.entries = [...(prev?.entries || []), tempEntry];
+      return updated;
+    });
+    setPreview(null);
+    setInputText("");
+    setSaving(false);
+
     try {
       const res = await fetch(`${API_URL}/api/energy/log`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ parsed: preview }),
       });
       if (!res.ok) throw new Error();
-      setPreview(null);
-      setInputText("");
-      fetchLog();
+      fetchLog(); // sincroniza IDs reales en background
     } catch {
-      alert("Error al guardar.");
-    } finally {
-      setSaving(false);
+      // Revertir si falla
+      setLog((prev) => {
+        const reverted = applyEntryToLog(prev, tempEntry, -1);
+        reverted.entries = (prev?.entries || []).filter((e) => e._id !== tempEntry._id);
+        return reverted;
+      });
+      alert("Error al guardar. Intentá de nuevo.");
     }
   };
 
   /* ─── Eliminar entrada ── */
   const handleDelete = async (id) => {
-    setDeleteId(id);
+    const entryToDelete = log?.entries?.find((e) => e._id === id);
+    if (!entryToDelete) return;
+
+    // Actualización optimista inmediata
+    setLog((prev) => {
+      const updated = applyEntryToLog(prev, entryToDelete, -1);
+      updated.entries = (prev?.entries || []).filter((e) => e._id !== id);
+      return updated;
+    });
+
     try {
       await fetch(`${API_URL}/api/energy/log/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchLog();
+      fetchLog(); // sincroniza en background
     } catch {
+      // Revertir si falla
+      setLog((prev) => {
+        const reverted = applyEntryToLog(prev, entryToDelete, +1);
+        reverted.entries = [...(prev?.entries || []), entryToDelete];
+        return reverted;
+      });
     } finally {
       setDeleteId(null);
     }

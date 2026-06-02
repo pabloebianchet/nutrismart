@@ -28,6 +28,7 @@ clave-nutrismart.json
 
 # Env files
 .env
+.env.jira
 backend/.env
 
 # Environment variables
