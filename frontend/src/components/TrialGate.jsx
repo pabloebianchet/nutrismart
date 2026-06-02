@@ -157,7 +157,7 @@ const TrialExpiredOverlay = () => {
       </Stack>
 
       <Typography sx={{ fontSize: 12, color: "#8AADAA", lineHeight: 1.6 }}>
-        Pago seguro a través de Mercado Pago · Cancelá cuando quieras
+        a través de Mercado Pago · Cancelá cuando quieras
       </Typography>
     </Overlay>
   );
