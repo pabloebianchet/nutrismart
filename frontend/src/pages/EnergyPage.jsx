@@ -424,6 +424,17 @@ const EnergyPage = () => {
     }
   };
 
+  /* ─── Sync historial mensual ── */
+  const fetchMonthly = () => {
+    if (!isGold || !token) return;
+    fetch(`${API_URL}/api/energy/monthly`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((d) => setMonthly(d))
+      .catch(() => {});
+  };
+
   /* ─── Helpers para actualizar totales localmente ── */
   const applyEntryToLog = (prev, entry, sign) => {
     if (!prev) return prev;
@@ -440,6 +451,27 @@ const EnergyPage = () => {
       updated.totalAgua = Math.max(0, (prev.totalAgua || 0) + s * (entry.agua_ml || 0));
     }
     return updated;
+  };
+
+  const applyEntryToMonthly = (prev, entry, sign) => {
+    if (!prev?.daily) return prev;
+    const today = new Date().toISOString().split("T")[0];
+    const idx = prev.daily.findIndex((d) => d.date === today);
+    const newDaily = [...prev.daily];
+    const base = idx >= 0 ? { ...newDaily[idx] } : { date: today, kcal: 0, proteinas: 0, carbos: 0, grasas: 0, agua_ml: 0, actividadKcal: 0 };
+    if (entry.tipo === "comida") {
+      base.kcal       = Math.max(0, (base.kcal       || 0) + sign * (entry.kcal       || 0));
+      base.proteinas  = Math.max(0, (base.proteinas  || 0) + sign * (entry.proteinas  || 0));
+      base.carbos     = Math.max(0, (base.carbos     || 0) + sign * (entry.carbos     || 0));
+      base.grasas     = Math.max(0, (base.grasas     || 0) + sign * (entry.grasas     || 0));
+    } else if (entry.tipo === "actividad") {
+      base.actividadKcal = Math.max(0, (base.actividadKcal || 0) + sign * (entry.kcal || 0));
+    } else if (entry.tipo === "agua") {
+      base.agua_ml = Math.max(0, (base.agua_ml || 0) + sign * (entry.agua_ml || 0));
+    }
+    if (idx >= 0) newDaily[idx] = base;
+    else newDaily.push(base);
+    return { ...prev, daily: newDaily };
   };
 
   /* ─── Confirmar entrada ── */
@@ -465,6 +497,7 @@ const EnergyPage = () => {
       updated.entries = [...(prev?.entries || []), tempEntry];
       return updated;
     });
+    setMonthly((prev) => applyEntryToMonthly(prev, tempEntry, +1));
     setPreview(null);
     setInputText("");
     setSaving(false);
@@ -476,8 +509,7 @@ const EnergyPage = () => {
         body: JSON.stringify({ parsed: previewSnapshot }),
       });
       if (!res.ok) throw new Error();
-      // Sync con pequeño delay para evitar race condition con el servidor
-      setTimeout(fetchLog, 800);
+      setTimeout(() => { fetchLog(); fetchMonthly(); }, 800);
     } catch {
       // Revertir si falla
       setLog((prev) => {
@@ -485,6 +517,7 @@ const EnergyPage = () => {
         reverted.entries = (prev?.entries || []).filter((e) => e._id !== tempEntry._id);
         return reverted;
       });
+      setMonthly((prev) => applyEntryToMonthly(prev, tempEntry, -1));
       alert("Error al guardar. Intentá de nuevo.");
     }
   };
@@ -500,13 +533,14 @@ const EnergyPage = () => {
       updated.entries = (prev?.entries || []).filter((e) => e._id !== id);
       return updated;
     });
+    setMonthly((prev) => applyEntryToMonthly(prev, entryToDelete, -1));
 
     try {
       await fetch(`${API_URL}/api/energy/log/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchLog(); // sincroniza en background
+      setTimeout(() => { fetchLog(); fetchMonthly(); }, 800);
     } catch {
       // Revertir si falla
       setLog((prev) => {
@@ -514,6 +548,7 @@ const EnergyPage = () => {
         reverted.entries = [...(prev?.entries || []), entryToDelete];
         return reverted;
       });
+      setMonthly((prev) => applyEntryToMonthly(prev, entryToDelete, +1));
     } finally {
       setDeleteId(null);
     }
