@@ -4,6 +4,7 @@ import { authMiddleware } from "../middleware/auth.js";
 import DailyLog        from "../models/DailyLog.js";
 import TrainingPlan    from "../models/TrainingPlan.js";
 import User            from "../models/User.js";
+import Log             from "../models/Log.js";
 
 const router   = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -236,7 +237,35 @@ router.post("/log", authMiddleware, async (req, res) => {
       { upsert: true, new: true }
     );
 
-    return res.json({ ok: true, entry: log.entries[log.entries.length - 1] });
+    const savedEntry = log.entries[log.entries.length - 1];
+
+    // Registrar en logs del admin
+    const msgMap = {
+      comida:    `🍽️ ${entry.resumen} — ${entry.kcal} kcal`,
+      actividad: `🏃 ${entry.resumen} — ${entry.kcal} kcal quemadas`,
+      agua:      `💧 ${entry.resumen} — ${(entry.agua_ml / 1000).toFixed(2)} L`,
+    };
+    Log.create({
+      level:     "info",
+      category:  "energy",
+      action:    `energy.${entry.tipo}`,
+      message:   msgMap[entry.tipo] || entry.resumen,
+      userId:    req.user._id,
+      userName:  req.user.name || null,
+      userEmail: req.user.email || null,
+      meta: {
+        tipo:      entry.tipo,
+        resumen:   entry.resumen,
+        kcal:      entry.kcal,
+        proteinas: entry.proteinas,
+        carbos:    entry.carbos,
+        grasas:    entry.grasas,
+        agua_ml:   entry.agua_ml,
+        date,
+      },
+    }).catch(() => {});
+
+    return res.json({ ok: true, entry: savedEntry });
   } catch (err) {
     return res.status(500).json({ error: "Error al guardar entrada." });
   }

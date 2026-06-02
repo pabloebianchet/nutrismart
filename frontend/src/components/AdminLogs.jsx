@@ -35,6 +35,7 @@ const CAT_META = {
   contact:  { label: "Contacto", color: "#0369A1", bg: "#E0F2FE" },
   admin:    { label: "Admin",    color: "#374151", bg: "#F3F4F6" },
   system:   { label: "Sistema",  color: "#374151", bg: "#F3F4F6" },
+  energy:   { label: "Balance",  color: "#0B5E55", bg: "#E6F5F3" },
 };
 
 /* ── Helpers ── */
@@ -176,6 +177,7 @@ const CATEGORIES = [
   { value: "contact",  label: "Contacto" },
   { value: "admin",    label: "Admin" },
   { value: "system",   label: "Sistema" },
+  { value: "energy",   label: "Balance calórico" },
 ];
 const PAGE_SIZES = [10, 25, 50];
 

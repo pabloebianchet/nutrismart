@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const logSchema = new mongoose.Schema(
   {
     level:     { type: String, enum: ["info", "warn", "error"], default: "info", index: true },
-    category:  { type: String, enum: ["auth","payment","analysis","training","recipe","contact","admin","system"], default: "system", index: true },
+    category:  { type: String, enum: ["auth","payment","analysis","training","recipe","contact","admin","system","energy"], default: "system", index: true },
     action:    { type: String, required: true },
     message:   { type: String, required: true },
     userId:    { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
