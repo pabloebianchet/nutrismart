@@ -11,6 +11,7 @@ import { generateImage }        from "../utils/generateImage.js";
 import ExerciseImage       from "../models/ExerciseImage.js";
 import ExerciseDescription from "../models/ExerciseDescription.js";
 import { uploadImage }     from "../utils/cloudinary.js";
+import Exercise            from "../models/Exercise.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -458,6 +459,55 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Exercise image error:", err.message);
     return res.status(500).json({ error: "Error al generar imagen.", detail: err.message });
+  }
+});
+
+/* ── GET /exercises/search — autocomplete por nombre ────────────── */
+router.get("/exercises/search", authMiddleware, async (req, res) => {
+  try {
+    const { q = "", tipo, lugar } = req.query;
+    const norm = q.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
+
+    const filter = { seeded: true };
+    if (norm) filter.nameNorm = { $regex: norm, $options: "i" };
+    if (tipo)  filter.tipos   = tipo;
+    if (lugar) filter.lugares = lugar;
+
+    const results = await Exercise.find(filter)
+      .select("name muscleGroup imageUrl tipos lugares equipment")
+      .limit(20)
+      .lean();
+
+    return res.json(results);
+  } catch (err) {
+    return res.status(500).json({ error: "Error en búsqueda." });
+  }
+});
+
+/* ── GET /exercises/similar — 3 ejercicios similares ────────────── */
+router.get("/exercises/similar", authMiddleware, async (req, res) => {
+  try {
+    const { muscleGroup, exclude, tipo, lugar } = req.query;
+    if (!muscleGroup) return res.status(400).json({ error: "muscleGroup requerido." });
+
+    const filter = { seeded: true, muscleGroup };
+    if (exclude) filter.name = { $ne: exclude };
+    if (tipo)    filter.tipos   = tipo;
+    if (lugar)   filter.lugares = lugar;
+
+    // Intentar con todos los filtros, si no hay suficientes relajar tipo/lugar
+    let results = await Exercise.find(filter).select("name muscleGroup imageUrl equipment description").lean();
+
+    if (results.length < 3) {
+      const fallback = { seeded: true, muscleGroup, ...(exclude && { name: { $ne: exclude } }) };
+      results = await Exercise.find(fallback).select("name muscleGroup imageUrl equipment description").lean();
+    }
+
+    // Shuffle y devolver 3
+    const shuffled = results.sort(() => Math.random() - 0.5).slice(0, 3);
+    return res.json(shuffled);
+  } catch (err) {
+    return res.status(500).json({ error: "Error al buscar similares." });
   }
 });
 

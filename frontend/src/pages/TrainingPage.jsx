@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, TextField, Snackbar, Alert,
@@ -15,6 +15,8 @@ import CloseRoundedIcon          from "@mui/icons-material/CloseRounded";
 import MoreVertRoundedIcon       from "@mui/icons-material/MoreVertRounded";
 import AutoFixHighRoundedIcon    from "@mui/icons-material/AutoFixHighRounded";
 import AddRoundedIcon            from "@mui/icons-material/AddRounded";
+import SearchRoundedIcon         from "@mui/icons-material/SearchRounded";
+import FitnessCenterRoundedIcon  from "@mui/icons-material/FitnessCenterRounded";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
@@ -194,6 +196,16 @@ const TrainingPage = () => {
   const [addManualOpen,   setAddManualOpen]   = useState(null);
   const [manualForm,      setManualForm]      = useState({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
   const [confirmDelete,   setConfirmDelete]   = useState(null);  // { dayKey, index, name }
+  // Búsqueda de ejercicios
+  const [exSearchQuery,   setExSearchQuery]   = useState("");
+  const [exSearchResults, setExSearchResults] = useState([]);
+  const [exSearchLoading, setExSearchLoading] = useState(false);
+  const [selectedExercise,setSelectedExercise]= useState(null); // ejercicio elegido de la lista
+  // Similares (reemplazar)
+  const [similarOpen,     setSimilarOpen]     = useState(null); // { dayKey, index, exerciseName }
+  const [similarOptions,  setSimilarOptions]  = useState([]);
+  const [similarLoading,  setSimilarLoading]  = useState(false);
+  const searchTimerRef = useRef(null);
 
   // ── Cargar borradores de localStorage al montar ──────────────────────────
   useEffect(() => { setDrafts(loadDraftsLS()); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -421,6 +433,96 @@ const TrainingPage = () => {
   };
 
   // ── Generar ejercicio alternativo con GPT ─────────────────────
+  // ── Búsqueda de ejercicios con debounce ──────────────────────────
+  const searchExercises = (q) => {
+    setExSearchQuery(q);
+    setSelectedExercise(null);
+    clearTimeout(searchTimerRef.current);
+    if (!q.trim()) { setExSearchResults([]); return; }
+    searchTimerRef.current = setTimeout(async () => {
+      setExSearchLoading(true);
+      try {
+        const params = new URLSearchParams({ q });
+        if (config?.tipo)  params.set("tipo",  config.tipo);
+        if (config?.lugar) params.set("lugar", config.lugar);
+        const res  = await fetch(`${API_URL}/api/training/exercises/search?${params}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setExSearchResults(Array.isArray(data) ? data : []);
+      } catch { setExSearchResults([]); }
+      finally  { setExSearchLoading(false); }
+    }, 350);
+  };
+
+  const MUSCLE_LABEL = {
+    pecho: "Pecho", espalda: "Espalda", piernas: "Piernas", hombros: "Hombros",
+    biceps: "Bíceps", triceps: "Tríceps", core: "Core", cardio: "Cardio",
+    gluteos: "Glúteos", cuerpo_completo: "Cuerpo completo",
+  };
+
+  const getFocusMuscleGroup = (focus = "") => {
+    const f = focus.toLowerCase();
+    if (f.includes("pecho"))  return "pecho";
+    if (f.includes("espalda")) return "espalda";
+    if (f.includes("pierna") || f.includes("cuadri") || f.includes("isquio")) return "piernas";
+    if (f.includes("hombro")) return "hombros";
+    if (f.includes("bícep") || f.includes("bicep"))  return "biceps";
+    if (f.includes("trícep") || f.includes("tricep")) return "triceps";
+    if (f.includes("glút") || f.includes("glut")) return "gluteos";
+    if (f.includes("core") || f.includes("abdom"))  return "core";
+    return null;
+  };
+
+  // ── Abrir opciones similares desde DB (reemplaza generateAlternative) ───
+  const openSimilarOptions = async (dayKey, exerciseIndex) => {
+    const ex       = plan.weekStructure[dayKey]?.exercises?.[exerciseIndex];
+    const dayFocus = plan.weekStructure[dayKey]?.focus || "";
+    if (!ex) return;
+    setExMenuOpen(null);
+    setSimilarOpen({ dayKey, index: exerciseIndex, exerciseName: ex.name });
+    setSimilarLoading(true);
+    setSimilarOptions([]);
+    try {
+      const muscleGroup = getFocusMuscleGroup(dayFocus);
+      const params = new URLSearchParams({ exclude: ex.name });
+      if (muscleGroup)   params.set("muscleGroup", muscleGroup);
+      if (config?.tipo)  params.set("tipo",  config.tipo);
+      if (config?.lugar) params.set("lugar", config.lugar);
+      const res  = await fetch(`${API_URL}/api/training/exercises/similar?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setSimilarOptions(Array.isArray(data) ? data : []);
+    } catch { setSimilarOptions([]); }
+    finally  { setSimilarLoading(false); }
+  };
+
+  const applySimilarExercise = (dayKey, exerciseIndex, selectedEx) => {
+    const ex = plan.weekStructure[dayKey]?.exercises?.[exerciseIndex];
+    const newEx = { name: selectedEx.name, sets: 3, reps: "10-12", rest: "60 seg", notes: "" };
+    const updated = { ...plan };
+    updated.weekStructure = { ...updated.weekStructure };
+    updated.weekStructure[dayKey] = { ...updated.weekStructure[dayKey] };
+    updated.weekStructure[dayKey].exercises = [...updated.weekStructure[dayKey].exercises];
+    updated.weekStructure[dayKey].exercises[exerciseIndex] = newEx;
+    setPlan(updated);
+    setPlanCache((p) => ({ ...p, [activePlanType]: { ...p[activePlanType], plan: updated } }));
+    savePlanToServer(updated);
+    if (ex) {
+      setExerciseImages((p) => { const n = { ...p }; delete n[ex.name]; return n; });
+      setExDescriptions((p) => { const n = { ...p }; delete n[ex.name]; return n; });
+    }
+    // Si tiene imagen de Cloudinary ya la tenemos, si no fetchear
+    if (selectedEx.imageUrl) {
+      setExerciseImages((p) => ({ ...p, [newEx.name]: selectedEx.imageUrl }));
+    } else {
+      fetchExerciseImages([newEx]);
+    }
+    setSimilarOpen(null);
+    setSimilarOptions([]);
+  };
+
   const generateAlternative = async (dayKey, exerciseIndex) => {
     const ex      = plan.weekStructure[dayKey]?.exercises?.[exerciseIndex];
     const dayFocus= plan.weekStructure[dayKey]?.focus || "";
@@ -1563,9 +1665,9 @@ const TrainingPage = () => {
                             open={!!(exMenuOpen?.dayKey === activeDay && exMenuOpen?.index === i)}
                             onClose={() => setExMenuOpen(null)}
                             PaperProps={{ sx: { borderRadius: 3, boxShadow: "0 8px 24px rgba(11,94,85,0.15)", minWidth: 220, maxHeight: 320, overflowY: "auto" } }}>
-                            <MenuItem dense onClick={() => generateAlternative(activeDay, i)}>
+                            <MenuItem dense onClick={() => openSimilarOptions(activeDay, i)}>
                               <ListItemIcon><AutoFixHighRoundedIcon fontSize="small" sx={{ color: "#0B5E55" }} /></ListItemIcon>
-                              <ListItemText primary="Generar alternativa (IA)" />
+                              <ListItemText primary="Reemplazar ejercicio" />
                             </MenuItem>
                             <MenuItem dense onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#2E7D32" }} /></ListItemIcon>
@@ -2173,16 +2275,65 @@ const TrainingPage = () => {
       </Dialog>
 
       {/* ── Dialog: agregar/reemplazar ejercicio manual ── */}
-      <Dialog open={!!addManualOpen} onClose={() => setAddManualOpen(null)} maxWidth="xs" fullWidth
+      {/* ── Dialog: Agregar ejercicio desde DB ── */}
+      <Dialog open={!!addManualOpen} onClose={() => { setAddManualOpen(null); setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null); }} maxWidth="xs" fullWidth
         PaperProps={{ sx: { borderRadius: 4, mx: 2 } }}>
         <DialogContent sx={{ p: 3 }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 2.5 }}>
+          <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 2 }}>
             {addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio"}
           </Typography>
-          <Stack spacing={1.8}>
-            <TextField label="Nombre del ejercicio" value={manualForm.name} fullWidth size="small"
-              onChange={(e) => setManualForm(p => ({ ...p, name: e.target.value }))}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+
+          {/* Buscador */}
+          <TextField fullWidth size="small" placeholder="Buscar ejercicio..."
+            value={exSearchQuery}
+            onChange={(e) => searchExercises(e.target.value)}
+            InputProps={{
+              startAdornment: exSearchLoading
+                ? <CircularProgress size={16} sx={{ color: "#0B5E55", mr: 1 }} />
+                : <SearchRoundedIcon sx={{ fontSize: 18, color: "#8AADAA", mr: 0.5 }} />,
+            }}
+            sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }} />
+
+          {/* Ejercicio seleccionado */}
+          {selectedExercise && (
+            <Box sx={{ mb: 1.5, p: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1.5px solid #0B5E55", display: "flex", alignItems: "center", gap: 1.5 }}>
+              {selectedExercise.imageUrl && (
+                <Box component="img" src={selectedExercise.imageUrl} sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
+              )}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#0B5E55" }} noWrap>{selectedExercise.name}</Typography>
+                <Typography sx={{ fontSize: 11, color: "#4A6B67" }}>{MUSCLE_LABEL[selectedExercise.muscleGroup] || selectedExercise.muscleGroup}</Typography>
+              </Box>
+              <IconButton size="small" onClick={() => { setSelectedExercise(null); setExSearchQuery(""); setExSearchResults([]); }}>
+                <CloseRoundedIcon fontSize="small" sx={{ color: "#8AADAA" }} />
+              </IconButton>
+            </Box>
+          )}
+
+          {/* Lista de resultados */}
+          {!selectedExercise && exSearchResults.length > 0 && (
+            <Box sx={{ maxHeight: 200, overflowY: "auto", mb: 1.5, borderRadius: 2, border: "1px solid rgba(11,94,85,0.12)" }}>
+              {exSearchResults.map((ex, idx) => (
+                <Box key={ex._id || idx} onClick={() => { setSelectedExercise(ex); setManualForm(p => ({ ...p, name: ex.name })); setExSearchResults([]); }}
+                  sx={{ px: 2, py: 1.2, display: "flex", alignItems: "center", gap: 1.5, cursor: "pointer", borderBottom: idx < exSearchResults.length - 1 ? "1px solid rgba(11,94,85,0.08)" : "none",
+                    "&:hover": { bgcolor: "#E6F5F3" } }}>
+                  {ex.imageUrl
+                    ? <Box component="img" src={ex.imageUrl} sx={{ width: 36, height: 36, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
+                    : <Box sx={{ width: 36, height: 36, borderRadius: 1.5, bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <FitnessCenterRoundedIcon sx={{ fontSize: 18, color: "#0B5E55" }} />
+                      </Box>
+                  }
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#0F2420" }} noWrap>{ex.name}</Typography>
+                    <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{MUSCLE_LABEL[ex.muscleGroup] || ex.muscleGroup}</Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+
+          {/* Campos de sets/reps/descanso */}
+          <Stack spacing={1.5}>
             <Stack direction="row" spacing={1.5}>
               <TextField label="Series" value={manualForm.sets} size="small" type="number"
                 onChange={(e) => setManualForm(p => ({ ...p, sets: e.target.value }))}
@@ -2198,18 +2349,69 @@ const TrainingPage = () => {
               onChange={(e) => setManualForm(p => ({ ...p, notes: e.target.value }))}
               sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
           </Stack>
-          <Stack direction="row" spacing={1.5} mt={3}>
-            <Button onClick={() => setAddManualOpen(null)} fullWidth
-              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67",
-                border: "1px solid rgba(11,94,85,0.20)" }}>
+
+          <Stack direction="row" spacing={1.5} mt={2.5}>
+            <Button onClick={() => { setAddManualOpen(null); setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null); }} fullWidth
+              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
               Cancelar
             </Button>
-            <Button onClick={() => saveManualExercise(addManualOpen.dayKey, addManualOpen.index)}
+            <Button onClick={() => { saveManualExercise(addManualOpen.dayKey, addManualOpen.index); setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null); }}
               disabled={!manualForm.name.trim()} variant="contained" fullWidth
-              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700,
-                bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
+              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
               Guardar
             </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog: 3 opciones similares para reemplazar ── */}
+      <Dialog open={!!similarOpen} onClose={() => { setSimilarOpen(null); setSimilarOptions([]); }} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: 4, mx: 2 } }}>
+        <DialogContent sx={{ p: 3 }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box>
+              <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#0F2420" }}>Elegí un reemplazo</Typography>
+              <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>para "{similarOpen?.exerciseName}"</Typography>
+            </Box>
+            <IconButton size="small" onClick={() => { setSimilarOpen(null); setSimilarOptions([]); }}>
+              <CloseRoundedIcon fontSize="small" sx={{ color: "#8AADAA" }} />
+            </IconButton>
+          </Stack>
+
+          {similarLoading && (
+            <Box sx={{ py: 4, textAlign: "center" }}>
+              <CircularProgress size={28} sx={{ color: "#0B5E55" }} />
+              <Typography sx={{ fontSize: 12, color: "#8AADAA", mt: 1 }}>Buscando ejercicios similares...</Typography>
+            </Box>
+          )}
+
+          {!similarLoading && similarOptions.length === 0 && (
+            <Typography sx={{ fontSize: 13, color: "#8AADAA", textAlign: "center", py: 3 }}>
+              No se encontraron ejercicios similares en la base de datos.
+            </Typography>
+          )}
+
+          <Stack spacing={1.5}>
+            {similarOptions.map((ex) => (
+              <Paper key={ex._id} elevation={0} onClick={() => applySimilarExercise(similarOpen.dayKey, similarOpen.index, ex)}
+                sx={{ p: 1.5, borderRadius: 3, border: "1.5px solid rgba(11,94,85,0.15)", cursor: "pointer", display: "flex", alignItems: "center", gap: 1.5,
+                  "&:hover": { border: "1.5px solid #0B5E55", bgcolor: "#E6F5F3" }, transition: "all 0.15s" }}>
+                {ex.imageUrl
+                  ? <Box component="img" src={ex.imageUrl} sx={{ width: 56, height: 56, borderRadius: 2, objectFit: "cover", flexShrink: 0 }} />
+                  : <Box sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <FitnessCenterRoundedIcon sx={{ fontSize: 24, color: "#0B5E55" }} />
+                    </Box>
+                }
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#0F2420" }} noWrap>{ex.name}</Typography>
+                  <Typography sx={{ fontSize: 11, color: "#4A6B67" }}>{MUSCLE_LABEL[ex.muscleGroup] || ex.muscleGroup}</Typography>
+                  {ex.equipment?.length > 0 && (
+                    <Typography sx={{ fontSize: 10, color: "#8AADAA" }} noWrap>{ex.equipment.join(", ")}</Typography>
+                  )}
+                </Box>
+                <CheckRoundedIcon sx={{ fontSize: 18, color: "#0B5E55", opacity: 0.5 }} />
+              </Paper>
+            ))}
           </Stack>
         </DialogContent>
       </Dialog>
