@@ -10,6 +10,7 @@ import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { generateImage }        from "../utils/generateImage.js";
 import ExerciseImage       from "../models/ExerciseImage.js";
 import ExerciseDescription from "../models/ExerciseDescription.js";
+import { uploadImage }     from "../utils/cloudinary.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -438,9 +439,13 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   const prompt = `Professional fitness photography of a person performing "${name}" exercise with perfect form. Clear gym background, natural lighting, full body shot showing correct technique, athletic person, high quality fitness photography. No text, no watermarks.`;
 
   try {
-    const { imageUrl } = await generateImage(getOpenAI(), { prompt, size: "1024x1024" });
+    const { imageUrl: dalleUrl } = await generateImage(getOpenAI(), { prompt, size: "1024x1024" });
 
-    // Guardar en DB (fire-and-forget para no demorar la respuesta)
+    // Subir a Cloudinary (URL permanente, liviana en DB)
+    const publicId = `exercises/${cacheKey.replace(/\s+/g, "_").replace(/[^a-z0-9_]/gi, "")}`;
+    const imageUrl = await uploadImage(dalleUrl, "exercises", publicId);
+
+    // Guardar URL de Cloudinary en DB (fire-and-forget)
     ExerciseImage.findOneAndUpdate(
       { name: cacheKey },
       { $set: { name: cacheKey, imageUrl } },
