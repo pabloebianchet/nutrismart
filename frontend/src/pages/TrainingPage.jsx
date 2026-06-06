@@ -2428,14 +2428,15 @@ const TrainingPage = () => {
         PaperProps={{ sx: {
           bgcolor: "#0D1F1D", borderRadius: { xs: "20px 20px 0 0", sm: 3 },
           overflow: "hidden", m: { xs: 0, sm: 2 }, width: "100%",
+          maxHeight: "92dvh",
         }}}>
-        <DialogContent sx={{ p: 0 }}>
+        <DialogContent sx={{ p: 0, overflowY: "auto", "&::-webkit-scrollbar": { width: 4 }, "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,0.15)", borderRadius: 2 } }}>
 
           {/* Imagen */}
           {fullscreenEx?.imageUrl && (
-            <Box sx={{ position: "relative", width: "100%", height: { xs: 260, sm: 320 }, bgcolor: "#0D1F1D", overflow: "hidden" }}>
+            <Box sx={{ position: "relative", width: "100%", bgcolor: "#0D1F1D" }}>
               <Box component="img" src={fullscreenEx.imageUrl} alt={fullscreenEx?.name}
-                sx={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
+                sx={{ width: "100%", height: "auto", maxHeight: { xs: "55vh", sm: "60vh" }, objectFit: "contain", objectPosition: "center", display: "block" }} />
               {/* Gradiente para leer el nombre sobre la imagen */}
               <Box sx={{ position: "absolute", inset: 0,
                 background: "linear-gradient(to top, #0D1F1D 0%, rgba(0,0,0,0.15) 60%, transparent 100%)" }} />
