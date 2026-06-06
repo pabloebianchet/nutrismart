@@ -89,32 +89,81 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
     : "";
   const isRunning = tipo === "Running";
 
-  // Reglas específicas por tipo para evitar que GPT mezcle estilos
-  const TIPO_RULES = {
-    "Calistenia": `CALISTENIA — REGLAS ESTRICTAS:
-- SOLO ejercicios de peso corporal: flexiones (variantes), dominadas, fondos, sentadillas, zancadas, plancha, muscle-up, etc.
-- PROHIBIDO: mancuernas, barras olímpicas con carga, máquinas, pesas libres.
-- Si el lugar tiene barras (Gym / Aire libre), podés usar barra de dominadas y paralelas SIN carga adicional.
-- Progresión a través de variantes más difíciles del mismo movimiento (ej: flexiones → arqueras → un brazo).
-- Distribución: empuje (pecho/hombros/tríceps), tirón (espalda/bíceps), piernas/core.`,
-    "Hipertrofia": `HIPERTROFIA — REGLAS:
-- Ejercicios compuestos con carga: press de banca, sentadilla con barra, peso muerto, remo, press militar.
-- Complementá con aislamiento: curl, extensiones, elevaciones laterales, etc.
-- Series de 3-5 × 6-12 reps. Descanso 60-120 seg entre series.
-- Distribución: Push / Pull / Legs o músculos específicos por día.`,
-    "Fit": `FIT / FUNCIONAL — REGLAS:
-- Combiná cardio, fuerza funcional y movilidad en cada sesión.
-- Incluí circuitos, HIIT o AMRAP. Poco descanso entre ejercicios (20-45 seg).
-- Mezclá peso corporal con elementos funcionales: kettlebell, TRX, saltos, burpees, step-ups.
-- Cada sesión debe incluir calentamiento dinámico y enfriamiento.`,
-    "Ejercicio en Casa": `CASA — REGLAS ESTRICTAS:
-- SOLO ejercicios sin equipamiento o con elementos básicos del hogar (silla, escalón, pared, banda elástica opcional).
-- PROHIBIDO cualquier máquina, barra o peso de gym.
-- Creatividad con el entorno: fondos en silla, sentadillas en pared, plancha en el suelo.
-- Máximo 6 ejercicios por sesión, explicar cómo hacerlos sin equipamiento.`,
+  // Reglas específicas por combinación tipo + lugar
+  const getTipoRules = (tipo, lugar) => {
+    if (tipo === "Calistenia") {
+      if (lugar === "Gym")
+        return `CALISTENIA EN GYM:
+- SOLO peso corporal. Usá barra de dominadas, anillas y paralelas del gym.
+- Ejercicios: dominadas (variantes), muscle-up, fondos en paralelas, flexiones (arqueras, diamante, declinadas), L-sit, front lever progresiones, pistol squat.
+- PROHIBIDO: mancuernas, barras con carga, máquinas, pesas libres.
+- Distribución: Día de tirón (dominadas/espalda/bíceps), día de empuje (flexiones/fondos/tríceps), día de piernas y core.`;
+      if (lugar === "Aire libre")
+        return `CALISTENIA AL AIRE LIBRE:
+- Usá barras de plaza, suelo del parque y estructuras disponibles al aire libre.
+- Ejercicios: dominadas en barra de plaza, fondos entre bancos, flexiones, sentadillas con salto, muscle-up, barras paralelas, plancha, human flag progresiones.
+- PROHIBIDO: cualquier elemento de gym o equipamiento pagado.
+- Street workout style: combiná habilidades y fuerza funcional.`;
+      if (lugar === "Casa")
+        return `CALISTENIA EN CASA:
+- SOLO peso corporal en el suelo. Sin barras ni equipamiento.
+- Ejercicios: flexiones (todas las variantes), sentadillas, zancadas, plancha, fondos en silla, elevación de piernas, glute bridge, mountain climbers, pike push-up, hollow body.
+- Progresión mediante variantes más difíciles del movimiento, no con carga.`;
+    }
+
+    if (tipo === "Hipertrofia") {
+      if (lugar === "Gym")
+        return `HIPERTROFIA EN GYM:
+- Equipamiento completo disponible: barras olímpicas, mancuernas de todo peso, máquinas de cables y poleas, banco ajustable.
+- Priorizá ejercicios compuestos: press de banca, sentadilla con barra, peso muerto, remo con barra, press militar.
+- Complementá con aislamiento: curl de bíceps, extensiones de tríceps, elevaciones laterales, jalón al pecho, hip thrust.
+- Series 3-5 × 6-12 reps. Descanso 60-120 seg. Distribución Push/Pull/Legs o por grupo muscular.`;
+      if (lugar === "Aire libre")
+        return `HIPERTROFIA AL AIRE LIBRE:
+- Equipamiento limitado: barras de plaza, bandas elásticas, peso corporal.
+- Usá lastre progresivo con mochila, dominadas lastradas, fondos lastrados, pistol squat.
+- Complementá con: flexiones a una mano, remo australiano, hip thrust con mochila, zancadas con peso.
+- Enfocate en variantes unilaterales y de alta dificultad técnica para generar tensión muscular sin máquinas.`;
+      if (lugar === "Casa")
+        return `HIPERTROFIA EN CASA:
+- Mancuernas si las tiene (opcionales). Si no, peso corporal progresivo.
+- Con mancuernas: curl de bíceps, press de pecho en suelo, remo inclinado, press de hombros, sentadilla goblet, hip thrust con mancuerna.
+- Sin mancuernas: flexiones declinadas e inclinadas, sentadilla a una pierna, fondos en silla, remo con mochila cargada, plancha con variantes.
+- Adaptá cada ejercicio al espacio del hogar.`;
+    }
+
+    if (tipo === "Fit") {
+      if (lugar === "Gym")
+        return `FIT EN GYM:
+- Circuitos funcionales alternando cardio y fuerza. Poco descanso (20-45 seg entre ejercicios).
+- Usá: remo ergómetro, bicicleta, battle ropes, kettlebell swing, box jump, TRX, burpees con mancuerna, thruster.
+- Formato: AMRAP, EMOM o circuitos de 4-6 ejercicios × 3-4 rondas.
+- Incluí calentamiento dinámico y vuelta a la calma con movilidad.`;
+      if (lugar === "Aire libre")
+        return `FIT AL AIRE LIBRE:
+- Cardio funcional combinado con fuerza en entorno natural.
+- Ejercicios: sprints, saltos, burpees, flexiones, sentadillas con salto, dominadas en plaza, bear crawl, skipping, carrera con cambios de ritmo.
+- Formato: circuitos en el parque, intervalos de carrera + ejercicios de fuerza, trabajo en parejas si es posible.
+- Aprovechá el terreno: cuestas, escalones, bancos de plaza.`;
+      if (lugar === "Casa")
+        return `FIT EN CASA:
+- HIIT bodyweight sin equipamiento. Intensidad alta, descansos cortos.
+- Ejercicios: burpees, jumping jacks, mountain climbers, sentadilla con salto, flexiones rápidas, plancha dinámica, kick boxing sin impacto, skipping en el lugar.
+- Formato: Tabata (20 seg trabajo / 10 seg descanso) o circuitos de 5-6 ejercicios × 3 rondas.
+- Sin ruido: incluí opciones de bajo impacto para cada ejercicio.`;
+    }
+
+    if (tipo === "Ejercicio en Casa")
+      return `EJERCICIO EN CASA — REGLAS ESTRICTAS:
+- SOLO ejercicios sin equipamiento o con lo que hay en cualquier hogar: silla, escalón, pared, banda elástica opcional.
+- PROHIBIDO cualquier máquina, barra de gym o peso libre.
+- Ejercicios: flexiones, sentadillas, zancadas, fondos en silla, glute bridge, plancha, superman, mountain climbers, elevación de piernas, crunch.
+- Sessiones completas de cuerpo entero o divididas por zona. Máximo 6 ejercicios. Explicar cómo adaptarlo al hogar.`;
+
+    return "";
   };
 
-  const tipoRules = TIPO_RULES[tipo] || "";
+  const tipoRules = getTipoRules(tipo, lugarEfectivo);
   // Seed de variación para evitar respuestas idénticas en cada generación
   const variationSeed = `[Variación #${Math.floor(Math.random() * 9000) + 1000}] Generá ejercicios y distribución DIFERENTES a los más comunes para este tipo de entrenamiento.`;
 
