@@ -1,0 +1,5306 @@
+[
+  {
+    "code": "PRESS_BANCA_CON_BARRA",
+    "name": "Press banca con barra",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BARRA",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press banca con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRESS_BANCA_CON_MANCUERNAS",
+    "name": "Press banca con mancuernas",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MANCUERNAS",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press banca con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRESS_INCLINADO_CON_MANCUERNAS",
+    "name": "Press inclinado con mancuernas",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MANCUERNAS",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press inclinado con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "APERTURAS_CON_MANCUERNAS",
+    "name": "Aperturas con mancuernas",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MANCUERNAS",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Aperturas con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CRUCE_DE_POLEAS",
+    "name": "Cruce de poleas",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Cruce de poleas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FONDOS_ASISTIDOS_EN_MAQUINA",
+    "name": "Fondos asistidos en máquina",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Fondos asistidos en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRESS_MILITAR_CON_BARRA",
+    "name": "Press militar con barra",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press militar con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRESS_HOMBROS_CON_MANCUERNAS",
+    "name": "Press hombros con mancuernas",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press hombros con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACIONES_LATERALES_CON_MANCUERNAS",
+    "name": "Elevaciones laterales con mancuernas",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ABDUCCION",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevaciones laterales con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACIONES_POSTERIORES_EN_PECK_DECK",
+    "name": "Elevaciones posteriores en peck deck",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevaciones posteriores en peck deck, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FACE_PULL_EN_POLEA",
+    "name": "Face pull en polea",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Face pull en polea, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "JALON_AL_PECHO",
+    "name": "Jalón al pecho",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Jalón al pecho, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "DOMINADA_ASISTIDA_EN_MAQUINA",
+    "name": "Dominada asistida en máquina",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Dominada asistida en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_SENTADO_EN_POLEA",
+    "name": "Remo sentado en polea",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo sentado en polea, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_CON_BARRA",
+    "name": "Remo con barra",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_CON_MANCUERNA_A_UNA_MANO",
+    "name": "Remo con mancuerna a una mano",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MANCUERNAS",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo con mancuerna a una mano, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PULLOVER_EN_POLEA",
+    "name": "Pullover en polea",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Pullover en polea, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PESO_MUERTO_CONVENCIONAL",
+    "name": "Peso muerto convencional",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HINGE",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Peso muerto convencional, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_TRASERA",
+    "name": "Sentadilla trasera",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla trasera, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_FRONTAL",
+    "name": "Sentadilla frontal",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla frontal, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRENSA_DE_PIERNAS",
+    "name": "Prensa de piernas",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Prensa de piernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HACK_SQUAT",
+    "name": "Hack squat",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Hack squat, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "EXTENSION_DE_CUADRICEPS",
+    "name": "Extensión de cuádriceps",
+    "description": "Ejercicio de fuerza orientado a cuadriceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "CUADRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "KNEE_EXTENSION",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Extensión de cuádriceps, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CURL_FEMORAL_ACOSTADO",
+    "name": "Curl femoral acostado",
+    "description": "Ejercicio de fuerza orientado a isquiosurales y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ISQUIOSURALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "KNEE_FLEXION",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Curl femoral acostado, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PESO_MUERTO_RUMANO_CON_BARRA",
+    "name": "Peso muerto rumano con barra",
+    "description": "Ejercicio de fuerza orientado a isquiosurales y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ISQUIOSURALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HINGE",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Peso muerto rumano con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HIP_THRUST_CON_BARRA",
+    "name": "Hip thrust con barra",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HIP_EXTENSION",
+    "equipment": [
+      "BARRA",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Hip thrust con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ABDUCCION_DE_CADERA_EN_MAQUINA",
+    "name": "Abducción de cadera en máquina",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ABDUCCION",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Abducción de cadera en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ADUCCION_DE_CADERA_EN_MAQUINA",
+    "name": "Aducción de cadera en máquina",
+    "description": "Ejercicio de fuerza orientado a aductores y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ADUCTORES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ADUCCION",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Aducción de cadera en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "GEMELOS_DE_PIE_EN_MAQUINA",
+    "name": "Gemelos de pie en máquina",
+    "description": "Ejercicio de fuerza orientado a gemelos y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GEMELOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CALF_RAISE",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Gemelos de pie en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "GEMELOS_SENTADO_EN_MAQUINA",
+    "name": "Gemelos sentado en máquina",
+    "description": "Ejercicio de fuerza orientado a gemelos y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GEMELOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CALF_RAISE",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Gemelos sentado en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CURL_BICEPS_CON_BARRA",
+    "name": "Curl bíceps con barra",
+    "description": "Ejercicio de fuerza orientado a biceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "BICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Curl bíceps con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CURL_BICEPS_CON_MANCUERNAS",
+    "name": "Curl bíceps con mancuernas",
+    "description": "Ejercicio de fuerza orientado a biceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "BICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Curl bíceps con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CURL_MARTILLO",
+    "name": "Curl martillo",
+    "description": "Ejercicio de fuerza orientado a biceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "BICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Curl martillo, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CURL_PREDICADOR_EN_MAQUINA",
+    "name": "Curl predicador en máquina",
+    "description": "Ejercicio de fuerza orientado a biceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "BICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Curl predicador en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "TRICEPS_EN_POLEA_CON_CUERDA",
+    "name": "Tríceps en polea con cuerda",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Tríceps en polea con cuerda, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "EXTENSION_DE_TRICEPS_POR_ENCIMA_DE_LA_CABEZA",
+    "name": "Extensión de tríceps por encima de la cabeza",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Extensión de tríceps por encima de la cabeza, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRESS_CERRADO_CON_BARRA",
+    "name": "Press cerrado con barra",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BARRA",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press cerrado con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PLANCHA_FRONTAL",
+    "name": "Plancha frontal",
+    "description": "Ejercicio de core orientado a core y compatible con gym.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_EXTENSION",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "CALISTENIA",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Plancha frontal, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CRUNCH_EN_MAQUINA",
+    "name": "Crunch en máquina",
+    "description": "Ejercicio de core orientado a abdominales y compatible con gym.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "FLEXION_TRONCO",
+    "equipment": [
+      "MAQUINA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Crunch en máquina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACION_DE_PIERNAS_COLGADO",
+    "name": "Elevación de piernas colgado",
+    "description": "Ejercicio de core orientado a abdominales y compatible con gym.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "FLEXION_CADERA",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevación de piernas colgado, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PALLOF_PRESS_EN_POLEA",
+    "name": "Pallof press en polea",
+    "description": "Ejercicio de core orientado a core y compatible con gym.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_ROTACION",
+    "equipment": [
+      "POLEA"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Pallof press en polea, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FARMER_WALK_CON_MANCUERNAS",
+    "name": "Farmer walk con mancuernas",
+    "description": "Ejercicio de fuerza orientado a core y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CARRY",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Farmer walk con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CINTA_CAMINATA_INCLINADA",
+    "name": "Cinta caminata inclinada",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "CINTA"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Cinta caminata inclinada, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CINTA_TROTE_SUAVE",
+    "name": "Cinta trote suave",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "CINTA"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Cinta trote suave, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CINTA_INTERVALOS_RAPIDOS",
+    "name": "Cinta intervalos rápidos",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "CINTA"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Cinta intervalos rápidos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BICICLETA_FIJA_SUAVE",
+    "name": "Bicicleta fija suave",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PEDALEO",
+    "equipment": [
+      "BICICLETA"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Bicicleta fija suave, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BICICLETA_INTERVALOS",
+    "name": "Bicicleta intervalos",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "BICICLETA"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Bicicleta intervalos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_ERGOMETRO",
+    "name": "Remo ergómetro",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "REMO",
+    "equipment": [
+      "REMO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo ergómetro, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELIPTICO_SUAVE",
+    "name": "Elíptico suave",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "ELIPTICO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elíptico suave, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "KETTLEBELL_SWING",
+    "name": "Kettlebell swing",
+    "description": "Ejercicio de potencia orientado a gluteos y compatible con gym.",
+    "category": "POTENCIA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HINGE",
+    "equipment": [
+      "KETTLEBELL"
+    ],
+    "compatible_goals": [
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Kettlebell swing, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BATTLE_ROPES",
+    "name": "Battle ropes",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con gym.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "CUERDAS"
+    ],
+    "compatible_goals": [
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Battle ropes, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SLED_PUSH",
+    "name": "Sled push",
+    "description": "Ejercicio de potencia orientado a piernas y compatible con gym.",
+    "category": "POTENCIA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "TRINEO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sled push, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "STEP_UP_CON_MANCUERNAS",
+    "name": "Step up con mancuernas",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "MANCUERNAS",
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Step up con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ZANCADA_CAMINANDO_CON_MANCUERNAS",
+    "name": "Zancada caminando con mancuernas",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "MANCUERNAS"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Zancada caminando con mancuernas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BUENOS_DIAS_CON_BARRA",
+    "name": "Buenos días con barra",
+    "description": "Ejercicio de fuerza orientado a isquiosurales y compatible con gym.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ISQUIOSURALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HINGE",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "GYM"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Buenos días con barra, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_DE_BRAZOS",
+    "name": "Flexiones de brazos",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Flexiones de brazos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_INCLINADAS_EN_MESA",
+    "name": "Flexiones inclinadas en mesa",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "PESO_CORPORAL",
+      "MESA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Flexiones inclinadas en mesa, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_DECLINADAS",
+    "name": "Flexiones declinadas",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "PESO_CORPORAL",
+      "SILLA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Flexiones declinadas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PIKE_PUSH_UP",
+    "name": "Pike push up",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Pike push up, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FONDOS_EN_SILLA",
+    "name": "Fondos en silla",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "SILLA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Fondos en silla, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_CON_BANDA_ELASTICA",
+    "name": "Remo con banda elástica",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BANDA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "HIPERTROFIA",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo con banda elástica, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_BAJO_MESA",
+    "name": "Remo bajo mesa",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "MESA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo bajo mesa, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BAND_PULL_APART",
+    "name": "Band pull apart",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BANDA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Band pull apart, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CURL_BICEPS_CON_BANDA",
+    "name": "Curl bíceps con banda",
+    "description": "Ejercicio de fuerza orientado a biceps y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "BICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BANDA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Curl bíceps con banda, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "TRICEPS_CON_BANDA",
+    "name": "Tríceps con banda",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BANDA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Tríceps con banda, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_CON_PESO_CORPORAL",
+    "name": "Sentadilla con peso corporal",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla con peso corporal, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_GOBLET_CON_MOCHILA",
+    "name": "Sentadilla goblet con mochila",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "MOCHILA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla goblet con mochila, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_BULGARA_EN_SILLA",
+    "name": "Sentadilla búlgara en silla",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "SILLA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla búlgara en silla, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ZANCADAS_ALTERNAS",
+    "name": "Zancadas alternas",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Zancadas alternas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ZANCADA_ATRAS",
+    "name": "Zancada atrás",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Zancada atrás, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PESO_MUERTO_CON_MOCHILA",
+    "name": "Peso muerto con mochila",
+    "description": "Ejercicio de fuerza orientado a isquiosurales y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ISQUIOSURALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HINGE",
+    "equipment": [
+      "MOCHILA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Peso muerto con mochila, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BUENOS_DIAS_CON_MOCHILA",
+    "name": "Buenos días con mochila",
+    "description": "Ejercicio de fuerza orientado a isquiosurales y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ISQUIOSURALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HINGE",
+    "equipment": [
+      "MOCHILA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Buenos días con mochila, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PUENTE_DE_GLUTEOS",
+    "name": "Puente de glúteos",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HIP_EXTENSION",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Puente de glúteos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HIP_THRUST_EN_SOFA",
+    "name": "Hip thrust en sofá",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HIP_EXTENSION",
+    "equipment": [
+      "SOFA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Hip thrust en sofá, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ABDUCCION_LATERAL_ACOSTADO",
+    "name": "Abducción lateral acostado",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ABDUCCION",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Abducción lateral acostado, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACION_DE_GEMELOS_EN_ESCALON",
+    "name": "Elevación de gemelos en escalón",
+    "description": "Ejercicio de fuerza orientado a gemelos y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GEMELOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CALF_RAISE",
+    "equipment": [
+      "ESCALON"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevación de gemelos en escalón, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PLANCHA_FRONTAL_2",
+    "name": "Plancha frontal",
+    "description": "Ejercicio de core orientado a core y compatible con casa.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_EXTENSION",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Plancha frontal, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PLANCHA_LATERAL",
+    "name": "Plancha lateral",
+    "description": "Ejercicio de core orientado a core y compatible con casa.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_LATERAL_FLEXION",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Plancha lateral, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "DEAD_BUG",
+    "name": "Dead bug",
+    "description": "Ejercicio de core orientado a core y compatible con casa.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_EXTENSION",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Dead bug, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BIRD_DOG",
+    "name": "Bird dog",
+    "description": "Ejercicio de core orientado a core y compatible con casa.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ESTABILIDAD",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Bird dog, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HOLLOW_HOLD",
+    "name": "Hollow hold",
+    "description": "Ejercicio de core orientado a abdominales y compatible con casa.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_EXTENSION",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Hollow hold, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CRUNCH_CONTROLADO",
+    "name": "Crunch controlado",
+    "description": "Ejercicio de core orientado a abdominales y compatible con casa.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "FLEXION_TRONCO",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Crunch controlado, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MOUNTAIN_CLIMBERS",
+    "name": "Mountain climbers",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con casa.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Mountain climbers, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "JUMPING_JACKS",
+    "name": "Jumping jacks",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con casa.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Jumping jacks, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MARCHA_RAPIDA_EN_EL_LUGAR",
+    "name": "Marcha rápida en el lugar",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con casa.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Marcha rápida en el lugar, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SKIPPING_BAJO_IMPACTO",
+    "name": "Skipping bajo impacto",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con casa.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "TECNICA_CARRERA",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Skipping bajo impacto, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BURPEE_ADAPTADO",
+    "name": "Burpee adaptado",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con casa.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Burpee adaptado, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "STEP_UP_EN_SILLA_BAJA",
+    "name": "Step up en silla baja",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "SILLA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Step up en silla baja, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "WALL_SIT",
+    "name": "Wall sit",
+    "description": "Ejercicio de fuerza orientado a cuadriceps y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "CUADRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "PARED"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Wall sit, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SUPERMAN",
+    "name": "Superman",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "EXTENSION_TRONCO",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Superman, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "Y_T_W_EN_EL_SUELO",
+    "name": "Y-T-W en el suelo",
+    "description": "Ejercicio de movilidad orientado a hombros y compatible con casa.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CONTROL_ESCAPULAR",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Y-T-W en el suelo, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MOVILIDAD_DE_CADERA_90_90",
+    "name": "Movilidad de cadera 90/90",
+    "description": "Ejercicio de movilidad orientado a cadera y compatible con casa.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "CADERA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "MOBILITY",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Movilidad de cadera 90/90, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MOVILIDAD_DE_TOBILLO_CONTRA_PARED",
+    "name": "Movilidad de tobillo contra pared",
+    "description": "Ejercicio de movilidad orientado a tobillo y compatible con casa.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "TOBILLO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "MOBILITY",
+    "equipment": [
+      "PARED"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Movilidad de tobillo contra pared, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ESTIRAMIENTO_DE_FLEXORES_DE_CADERA",
+    "name": "Estiramiento de flexores de cadera",
+    "description": "Ejercicio de movilidad orientado a cadera y compatible con casa.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "CADERA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "MOBILITY",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Estiramiento de flexores de cadera, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "RESPIRACION_DIAFRAGMATICA_SUPINA",
+    "name": "Respiración diafragmática supina",
+    "description": "Ejercicio de recuperacion orientado a respiracion y compatible con casa.",
+    "category": "RECUPERACION",
+    "primary_muscle_group": "RESPIRACION",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "BREATHING",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Respiración diafragmática supina, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SHADOW_BOXING_SUAVE",
+    "name": "Shadow boxing suave",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con casa.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Shadow boxing suave, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_CON_SALTO",
+    "name": "Sentadilla con salto",
+    "description": "Ejercicio de potencia orientado a piernas y compatible con casa.",
+    "category": "POTENCIA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "JUMP",
+    "equipment": [
+      "PESO_CORPORAL"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla con salto, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PUENTE_ISOMETRICO_DE_GLUTEOS",
+    "name": "Puente isométrico de glúteos",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "COLCHONETA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Puente isométrico de glúteos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACION_LATERAL_CON_BOTELLA",
+    "name": "Elevación lateral con botella",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ABDUCCION",
+    "equipment": [
+      "BOTELLAS"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevación lateral con botella, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PRESS_DE_HOMBROS_CON_MOCHILA",
+    "name": "Press de hombros con mochila",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con casa.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "MOCHILA"
+    ],
+    "compatible_goals": [
+      "CASA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Press de hombros con mochila, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CAMINATA_RAPIDA",
+    "name": "Caminata rápida",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT",
+      "CASA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Caminata rápida, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "TROTE_SUAVE",
+    "name": "Trote suave",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Trote suave, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "RODAJE_AEROBICO_CONTINUO",
+    "name": "Rodaje aeróbico continuo",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Rodaje aeróbico continuo, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "INTERVALOS_CORTOS_30_30",
+    "name": "Intervalos cortos 30-30",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Intervalos cortos 30-30, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FARTLEK_LIBRE",
+    "name": "Fartlek libre",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Fartlek libre, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CUESTAS_CORTAS",
+    "name": "Cuestas cortas",
+    "description": "Ejercicio de potencia orientado a piernas y compatible con aire_libre.",
+    "category": "POTENCIA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SPRINT",
+    "equipment": [
+      "CUESTA"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Cuestas cortas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SPRINTS_TECNICOS",
+    "name": "Sprints técnicos",
+    "description": "Ejercicio de potencia orientado a piernas y compatible con aire_libre.",
+    "category": "POTENCIA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SPRINT",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sprints técnicos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "TECNICA_SKIPPING_ALTO",
+    "name": "Técnica skipping alto",
+    "description": "Ejercicio de tecnica orientado a cardio y compatible con aire_libre.",
+    "category": "TECNICA",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "TECNICA_CARRERA",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Técnica skipping alto, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "TALONES_A_GLUTEOS",
+    "name": "Talones a glúteos",
+    "description": "Ejercicio de tecnica orientado a cardio y compatible con aire_libre.",
+    "category": "TECNICA",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "TECNICA_CARRERA",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Talones a glúteos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PROGRESIVOS_DE_CARRERA",
+    "name": "Progresivos de carrera",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PROGRESIVO",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Progresivos de carrera, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "DOMINADAS_PRONAS",
+    "name": "Dominadas pronas",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Dominadas pronas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "DOMINADAS_SUPINAS",
+    "name": "Dominadas supinas",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Dominadas supinas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "DOMINADAS_NEGATIVAS",
+    "name": "Dominadas negativas",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Dominadas negativas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "REMO_AUSTRALIANO_EN_BARRA_BAJA",
+    "name": "Remo australiano en barra baja",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL",
+    "equipment": [
+      "BARRA_BAJA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Remo australiano en barra baja, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FONDOS_EN_PARALELAS",
+    "name": "Fondos en paralelas",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "PARALELAS"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Fondos en paralelas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SOPORTE_ISOMETRICO_EN_PARALELAS",
+    "name": "Soporte isométrico en paralelas",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "PARALELAS"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Soporte isométrico en paralelas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_EN_BANCO",
+    "name": "Flexiones en banco",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Flexiones en banco, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_DECLINADAS_EN_BANCO",
+    "name": "Flexiones declinadas en banco",
+    "description": "Ejercicio de fuerza orientado a pecho y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Flexiones declinadas en banco, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FONDOS_EN_BANCO",
+    "name": "Fondos en banco",
+    "description": "Ejercicio de fuerza orientado a triceps y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Fondos en banco, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_LIBRE",
+    "name": "Sentadilla libre",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla libre, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ZANCADAS_CAMINANDO",
+    "name": "Zancadas caminando",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "CALISTENIA",
+      "RUNNING",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Zancadas caminando, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "STEP_UP_EN_BANCO_DE_PLAZA",
+    "name": "Step up en banco de plaza",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LUNGE",
+    "equipment": [
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Step up en banco de plaza, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SALTOS_AL_BANCO_BAJOS",
+    "name": "Saltos al banco bajos",
+    "description": "Ejercicio de potencia orientado a piernas y compatible con aire_libre.",
+    "category": "POTENCIA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "JUMP",
+    "equipment": [
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Saltos al banco bajos, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SENTADILLA_PISTOL_ASISTIDA",
+    "name": "Sentadilla pistol asistida",
+    "description": "Ejercicio de fuerza orientado a piernas y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PIERNAS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "SQUAT",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Sentadilla pistol asistida, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PUENTE_DE_GLUTEOS_EN_BANCO",
+    "name": "Puente de glúteos en banco",
+    "description": "Ejercicio de fuerza orientado a gluteos y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GLUTEOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "HIP_EXTENSION",
+    "equipment": [
+      "BANCO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Puente de glúteos en banco, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACION_DE_GEMELOS_EN_ESCALON_2",
+    "name": "Elevación de gemelos en escalón",
+    "description": "Ejercicio de fuerza orientado a gemelos y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "GEMELOS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CALF_RAISE",
+    "equipment": [
+      "ESCALON"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "RUNNING",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevación de gemelos en escalón, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PLANCHA_EN_SUELO",
+    "name": "Plancha en suelo",
+    "description": "Ejercicio de core orientado a core y compatible con aire_libre.",
+    "category": "CORE",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_EXTENSION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "RUNNING"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Plancha en suelo, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HOLLOW_HOLD_EN_SUELO",
+    "name": "Hollow hold en suelo",
+    "description": "Ejercicio de core orientado a abdominales y compatible con aire_libre.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ANTI_EXTENSION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Hollow hold en suelo, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "L_SIT_TUCK_EN_PARALELAS",
+    "name": "L-sit tuck en paralelas",
+    "description": "Ejercicio de core orientado a abdominales y compatible con aire_libre.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "PARALELAS"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando L-sit tuck en paralelas, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ELEVACION_DE_RODILLAS_COLGADO",
+    "name": "Elevación de rodillas colgado",
+    "description": "Ejercicio de core orientado a abdominales y compatible con aire_libre.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "FLEXION_CADERA",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Elevación de rodillas colgado, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "TOES_TO_BAR_PROGRESION",
+    "name": "Toes to bar progresión",
+    "description": "Ejercicio de core orientado a abdominales y compatible con aire_libre.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "FLEXION_CADERA",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Toes to bar progresión, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HANDSTAND_ASISTIDO_EN_PARED",
+    "name": "Handstand asistido en pared",
+    "description": "Ejercicio de skill orientado a hombros y compatible con aire_libre.",
+    "category": "SKILL",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "BALANCE",
+    "equipment": [
+      "PARED"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Handstand asistido en pared, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "WALL_WALK",
+    "name": "Wall walk",
+    "description": "Ejercicio de skill orientado a hombros y compatible con aire_libre.",
+    "category": "SKILL",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "BALANCE",
+    "equipment": [
+      "PARED"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Wall walk, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MUSCLE_UP_PROGRESION_CON_SALTO",
+    "name": "Muscle up progresión con salto",
+    "description": "Ejercicio de skill orientado a espalda y compatible con aire_libre.",
+    "category": "SKILL",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "PULL_PUSH",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Muscle up progresión con salto, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SCAPULAR_PULL_UPS",
+    "name": "Scapular pull ups",
+    "description": "Ejercicio de fuerza orientado a espalda y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CONTROL_ESCAPULAR",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Scapular pull ups, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SCAPULAR_PUSH_UPS",
+    "name": "Scapular push ups",
+    "description": "Ejercicio de fuerza orientado a hombros y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CONTROL_ESCAPULAR",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "CALISTENIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Scapular push ups, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BEAR_CRAWL",
+    "name": "Bear crawl",
+    "description": "Ejercicio de cardio orientado a core y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Bear crawl, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FARMER_WALK_CON_MOCHILA",
+    "name": "Farmer walk con mochila",
+    "description": "Ejercicio de fuerza orientado a core y compatible con aire_libre.",
+    "category": "FUERZA",
+    "primary_muscle_group": "CORE",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CARRY",
+    "equipment": [
+      "MOCHILA"
+    ],
+    "compatible_goals": [
+      "FIT",
+      "HIPERTROFIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Farmer walk con mochila, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CARRERA_EN_ESCALERAS",
+    "name": "Carrera en escaleras",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "INTERVALOS",
+    "equipment": [
+      "ESCALERAS"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Carrera en escaleras, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "SUBIDA_DE_ESCALERAS_CONTROLADA",
+    "name": "Subida de escaleras controlada",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "ESCALERAS"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Subida de escaleras controlada, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MOVILIDAD_DINAMICA_DE_CADERA",
+    "name": "Movilidad dinámica de cadera",
+    "description": "Ejercicio de movilidad orientado a cadera y compatible con aire_libre.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "CADERA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "MOBILITY",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Movilidad dinámica de cadera, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "MOVILIDAD_DE_TOBILLO_AL_AIRE_LIBRE",
+    "name": "Movilidad de tobillo al aire libre",
+    "description": "Ejercicio de movilidad orientado a tobillo y compatible con aire_libre.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "TOBILLO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "MOBILITY",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Movilidad de tobillo al aire libre, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "ESTOCADA_CON_ROTACION_TORACICA",
+    "name": "Estocada con rotación torácica",
+    "description": "Ejercicio de movilidad orientado a cadera y compatible con aire_libre.",
+    "category": "MOVILIDAD",
+    "primary_muscle_group": "CADERA",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "MOBILITY",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT",
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Estocada con rotación torácica, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CAMINATA_DE_RECUPERACION",
+    "name": "Caminata de recuperación",
+    "description": "Ejercicio de recuperacion orientado a cardio y compatible con aire_libre.",
+    "category": "RECUPERACION",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "LOCOMOCION",
+    "equipment": [
+      "NINGUNO"
+    ],
+    "compatible_goals": [
+      "RUNNING",
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "PRINCIPIANTE",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Caminata de recuperación, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "CIRCUITO_FUNCIONAL_DE_PLAZA",
+    "name": "Circuito funcional de plaza",
+    "description": "Ejercicio de cardio orientado a cardio y compatible con aire_libre.",
+    "category": "CARDIO",
+    "primary_muscle_group": "CARDIO",
+    "secondary_muscle_groups": [],
+    "movement_pattern": "CIRCUIT",
+    "equipment": [
+      "BANCO",
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "FIT"
+    ],
+    "compatible_places": [
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Ejecutar con técnica controlada, rango de movimiento cómodo, respiración estable y sin dolor articular agudo.",
+    "technical_cues": [
+      "mantener control",
+      "evitar compensaciones",
+      "progresar gradualmente"
+    ],
+    "common_mistakes": [
+      "usar impulso excesivo",
+      "perder postura",
+      "hacer demasiado volumen sin recuperación"
+    ],
+    "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
+    "image_prompt": "Ilustración fitness realista de una persona realizando Circuito funcional de plaza, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  }
+]

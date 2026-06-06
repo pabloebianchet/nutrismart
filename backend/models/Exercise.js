@@ -2,26 +2,32 @@ import mongoose from "mongoose";
 
 const exerciseSchema = new mongoose.Schema(
   {
-    name:        { type: String, required: true, unique: true, trim: true },
-    nameNorm:    { type: String, index: true }, // nombre normalizado para búsqueda (sin tildes, lowercase)
-    tipos:       [{ type: String, enum: ["Hipertrofia","Calistenia","Fit","Ejercicio en Casa","Running"] }],
-    lugares:     [{ type: String, enum: ["Gym","Aire libre","Casa"] }],
-    muscleGroup: { type: String, required: true,
-                   enum: ["pecho","espalda","piernas","hombros","biceps","triceps","core","cardio","cuerpo_completo","gluteos"] },
-    equipment:   [{ type: String }],
-    imageUrl:    { type: String, default: null },
-    description: {
-      muscles:   { type: String, default: null }, // músculos trabajados
-      execution: { type: String, default: null }, // cómo ejecutarlo
-      mistakes:  { type: String, default: null }, // errores comunes
-    },
-    tags:        [{ type: String }],
-    seeded:      { type: Boolean, default: false }, // imagen y guía ya generadas
+    code:         { type: String, required: true, unique: true, trim: true, uppercase: true },
+    name:         { type: String, required: true, trim: true },
+    nameNorm:     { type: String, index: true },
+    description:  { type: String, default: null },
+    category:     { type: String, default: null },        // FUERZA, CARDIO, CORE, POTENCIA, MOVILIDAD, SKILL, TECNICA, RECUPERACION
+    muscleGroup:  { type: String, required: true },       // primary_muscle_group en minúsculas
+    secondaryMuscles: [{ type: String }],
+    movementPattern:  { type: String, default: null },
+    equipment:    [{ type: String }],
+    tipos:        [{ type: String }],                     // compatible_goals mapeados a formato app
+    lugares:      [{ type: String }],                     // compatible_places mapeados a formato app
+    difficulty:   { type: String, enum: ["PRINCIPIANTE","INTERMEDIO","AVANZADO"], default: "PRINCIPIANTE" },
+    instructions: { type: String, default: null },
+    technicalCues:[{ type: String }],
+    commonMistakes:[{ type: String }],
+    contraindications: { type: String, default: null },
+    imagePrompt:  { type: String, default: null },        // prompt para generar la imagen
+    imageUrl:     { type: String, default: null },        // URL de Cloudinary
+    videoUrl:     { type: String, default: null },
+    active:       { type: Boolean, default: true },
+    seeded:       { type: Boolean, default: false },      // imagen ya generada
   },
   { timestamps: true }
 );
 
-exerciseSchema.index({ nameNorm: "text", tags: "text" });
+exerciseSchema.index({ nameNorm: "text" });
 exerciseSchema.index({ tipos: 1, muscleGroup: 1 });
 exerciseSchema.index({ lugares: 1, muscleGroup: 1 });
 

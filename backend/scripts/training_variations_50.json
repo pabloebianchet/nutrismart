@@ -1,0 +1,62 @@
+{
+  "HIPERTROFIA": [
+    "Full Body Hipertrofia",
+    "Torso / Pierna",
+    "Push / Pull / Legs",
+    "Upper / Lower + Brazos",
+    "Fuerza + Hipertrofia",
+    "Hipertrofia metabólica",
+    "Especialización tren superior",
+    "Especialización piernas/glúteos",
+    "Hipertrofia minimalista",
+    "Hipertrofia avanzada periodizada"
+  ],
+  "RUNNING": [
+    "Running base aeróbica",
+    "Run-walk progresivo",
+    "5K inicial",
+    "10K progresivo",
+    "Intervalos cortos",
+    "Tempo run",
+    "Fondo largo",
+    "Running + fuerza",
+    "Running para pérdida de grasa",
+    "Running avanzado periodizado"
+  ],
+  "CALISTENIA": [
+    "Calistenia básica",
+    "Full body calisténico",
+    "Push / Pull / Legs calisténico",
+    "Dominadas y fondos",
+    "Core y control corporal",
+    "Skills básicos",
+    "Calistenia hipertrofia",
+    "Calistenia metabólica",
+    "Calistenia movilidad",
+    "Calistenia avanzada"
+  ],
+  "CASA": [
+    "Casa sin equipamiento",
+    "Casa con mancuernas",
+    "Casa con bandas",
+    "Casa HIIT bajo impacto",
+    "Casa fuerza full body",
+    "Casa glúteos y piernas",
+    "Casa abdomen y core",
+    "Casa movilidad",
+    "Casa express 20 minutos",
+    "Casa avanzado"
+  ],
+  "FIT": [
+    "Fitness general",
+    "Fuerza + cardio",
+    "Funcional",
+    "HIIT controlado",
+    "Fit bajo impacto",
+    "Fit estética general",
+    "Fit movilidad + fuerza",
+    "Fit atlético",
+    "Fit express",
+    "Fit avanzado"
+  ]
+}
