@@ -505,16 +505,27 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
     return res.json({ ...exerciseImageCache.get(cacheKey), fromCache: "memory" });
   }
 
-  // 2. Base de ejercicios seeded con Cloudinary
+  // 2. Base de ejercicios seeded con Cloudinary — solo match exacto o muy cercano
   try {
     const normKey = cacheKey.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
-    // Intentar con nombre completo primero, luego con primera palabra significativa
-    const firstWord = normKey.split(" ").find((w) => w.length > 3) || normKey;
-    const seeded = await Exercise.findOne({
-      nameNorm: { $regex: firstWord, $options: "i" },
-      seeded: true,
-      imageUrl: { $ne: null },
-    }).select("imageUrl").lean();
+
+    // Primero: match exacto por nameNorm
+    let seeded = await Exercise.findOne({ nameNorm: normKey, seeded: true, imageUrl: { $ne: null } })
+      .select("imageUrl").lean();
+
+    // Segundo: todas las palabras significativas deben estar presentes
+    if (!seeded) {
+      const words = normKey.split(" ").filter((w) => w.length > 3);
+      if (words.length >= 2) {
+        const regex = words.map((w) => `(?=.*${w})`).join("");
+        seeded = await Exercise.findOne({
+          nameNorm: { $regex: regex, $options: "i" },
+          seeded: true,
+          imageUrl: { $ne: null },
+        }).select("imageUrl").lean();
+      }
+    }
+
     if (seeded?.imageUrl) {
       const result = { imageUrl: seeded.imageUrl };
       exerciseImageCache.set(cacheKey, result);
