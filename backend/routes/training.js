@@ -505,10 +505,13 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
     return res.json({ ...exerciseImageCache.get(cacheKey), fromCache: "memory" });
   }
 
-  // 2. Base de ejercicios seeded con Cloudinary (más rápido y liviano)
+  // 2. Base de ejercicios seeded con Cloudinary
   try {
+    const normKey = cacheKey.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
+    // Intentar con nombre completo primero, luego con primera palabra significativa
+    const firstWord = normKey.split(" ").find((w) => w.length > 3) || normKey;
     const seeded = await Exercise.findOne({
-      nameNorm: { $regex: cacheKey.normalize("NFD").replace(/[̀-ͯ]/g, ""), $options: "i" },
+      nameNorm: { $regex: firstWord, $options: "i" },
       seeded: true,
       imageUrl: { $ne: null },
     }).select("imageUrl").lean();
@@ -517,7 +520,10 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
       exerciseImageCache.set(cacheKey, result);
       return res.json({ ...result, fromCache: "exercise-db" });
     }
-  } catch {}
+    console.log(`[exercise-image] No encontrado en Exercise DB: "${cacheKey}"`);
+  } catch (e) {
+    console.warn("[exercise-image] Error buscando en Exercise DB:", e.message);
+  }
 
   // 3. Caché legacy ExerciseImage (base64 o Cloudinary URL)
   try {
@@ -535,9 +541,9 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   const prompt = `Professional fitness photography of a person performing "${name}" exercise with perfect form. Clear gym background, natural lighting, full body shot showing correct technique, athletic person, high quality fitness photography. No text, no watermarks.`;
 
   try {
+    console.log(`[exercise-image] Generando con IA: "${name}"`);
     const { imageUrl: dalleUrl } = await generateImage(getOpenAI(), { prompt, size: "1024x1024" });
 
-    // Subir a Cloudinary (URL permanente, liviana en DB)
     const publicId = `exercises/${cacheKey.replace(/\s+/g, "_").replace(/[^a-z0-9_]/gi, "")}`;
     const imageUrl = await uploadImage(dalleUrl, "exercises", publicId);
 
@@ -552,7 +558,7 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
     exerciseImageCache.set(cacheKey, result);
     return res.json({ ...result, fromCache: "none" });
   } catch (err) {
-    console.error("Exercise image error:", err.message);
+    console.error(`[exercise-image] Error generando IA para "${name}":`, err.message);
     return res.status(500).json({ error: "Error al generar imagen.", detail: err.message });
   }
 });
