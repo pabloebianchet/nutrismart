@@ -579,7 +579,7 @@ const TIPO_META = {
 };
 
 /* ── Sub-card de un plan individual ── */
-const PlanCard = ({ data, navigate }) => {
+const PlanCard = ({ data, planType = "main", navigate }) => {
   const cfg       = data.config || {};
   const plan      = data.plan   || {};
   const elapsed   = Math.floor((Date.now() - new Date(data.startDate)) / 86400000);
@@ -664,7 +664,7 @@ const PlanCard = ({ data, navigate }) => {
       {/* CTA */}
       <Button
         variant="contained"
-        onClick={() => navigate("/training")}
+        onClick={() => navigate("/training", { state: { plan: planType } })}
         size="small"
         sx={{
           mt: "auto",
@@ -801,8 +801,8 @@ const EntrenamientoWidget = () => {
 
         {/* Cards side by side */}
         <Box sx={{ p: { xs: 2, sm: 2.5 }, display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-          <PlanCard data={mainData}  navigate={navigate} />
-          <PlanCard data={quickData} navigate={navigate} />
+          <PlanCard data={mainData}  planType="main"  navigate={navigate} />
+          <PlanCard data={quickData} planType="quick" navigate={navigate} />
         </Box>
       </Paper>
     );

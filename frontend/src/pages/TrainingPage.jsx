@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Box, Typography, Stack, Chip, Button, Paper,
   CircularProgress, TextField, Snackbar, Alert,
@@ -135,6 +136,7 @@ const WeightChart = ({ weights }) => {
 
 const TrainingPage = () => {
   const { user, userData, updateUserData, subPlan, isSubscriptionExpired } = useNutrition();
+  const location = useLocation();
 
   // Free activo y Gold pueden tener 2 planes simultáneos; Silver solo 1
   const canHaveMultiplePlans = subPlan === "free" || subPlan === "gold";
@@ -255,7 +257,11 @@ const TrainingPage = () => {
         // ────────────────────────────────────────────────────────────────
 
         setPlanCache({ main: mainData, quick: quickData });
-        const initType = mainData?.plan ? "main" : (quickData?.plan ? "quick" : "main");
+        // Si el usuario llegó desde el home clickeando un plan específico, usarlo directamente
+        const requestedPlan = location.state?.plan;
+        const initType = requestedPlan && (requestedPlan === "quick" ? quickData?.plan : mainData?.plan)
+          ? requestedPlan
+          : (mainData?.plan ? "main" : (quickData?.plan ? "quick" : "main"));
         const initData = initType === "main" ? mainData : quickData;
 
         setActivePlanType(initType);
