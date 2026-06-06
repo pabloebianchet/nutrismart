@@ -89,9 +89,41 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
     : "";
   const isRunning = tipo === "Running";
 
+  // Reglas específicas por tipo para evitar que GPT mezcle estilos
+  const TIPO_RULES = {
+    "Calistenia": `CALISTENIA — REGLAS ESTRICTAS:
+- SOLO ejercicios de peso corporal: flexiones (variantes), dominadas, fondos, sentadillas, zancadas, plancha, muscle-up, etc.
+- PROHIBIDO: mancuernas, barras olímpicas con carga, máquinas, pesas libres.
+- Si el lugar tiene barras (Gym / Aire libre), podés usar barra de dominadas y paralelas SIN carga adicional.
+- Progresión a través de variantes más difíciles del mismo movimiento (ej: flexiones → arqueras → un brazo).
+- Distribución: empuje (pecho/hombros/tríceps), tirón (espalda/bíceps), piernas/core.`,
+    "Hipertrofia": `HIPERTROFIA — REGLAS:
+- Ejercicios compuestos con carga: press de banca, sentadilla con barra, peso muerto, remo, press militar.
+- Complementá con aislamiento: curl, extensiones, elevaciones laterales, etc.
+- Series de 3-5 × 6-12 reps. Descanso 60-120 seg entre series.
+- Distribución: Push / Pull / Legs o músculos específicos por día.`,
+    "Fit": `FIT / FUNCIONAL — REGLAS:
+- Combiná cardio, fuerza funcional y movilidad en cada sesión.
+- Incluí circuitos, HIIT o AMRAP. Poco descanso entre ejercicios (20-45 seg).
+- Mezclá peso corporal con elementos funcionales: kettlebell, TRX, saltos, burpees, step-ups.
+- Cada sesión debe incluir calentamiento dinámico y enfriamiento.`,
+    "Ejercicio en Casa": `CASA — REGLAS ESTRICTAS:
+- SOLO ejercicios sin equipamiento o con elementos básicos del hogar (silla, escalón, pared, banda elástica opcional).
+- PROHIBIDO cualquier máquina, barra o peso de gym.
+- Creatividad con el entorno: fondos en silla, sentadillas en pared, plancha en el suelo.
+- Máximo 6 ejercicios por sesión, explicar cómo hacerlos sin equipamiento.`,
+  };
+
+  const tipoRules = TIPO_RULES[tipo] || "";
+  // Seed de variación para evitar respuestas idénticas en cada generación
+  const variationSeed = `[Variación #${Math.floor(Math.random() * 9000) + 1000}] Generá ejercicios y distribución DIFERENTES a los más comunes para este tipo de entrenamiento.`;
+
   const prompt = `Sos un entrenador personal profesional argentino. Generá un plan de entrenamiento personalizado.
 ${safeUserCtx}
-Tipo: ${tipo}. Lugar: ${lugarEfectivo} (${equipamiento}). Duración: ${duracion}. Frecuencia: ${frecNum} días/semana.${prevCtx ? "\n" + prevCtx : ""}
+Tipo: ${tipo}. Lugar: ${lugarEfectivo}. Duración: ${duracion}. Frecuencia: ${frecNum} días/semana.${prevCtx ? "\n" + prevCtx : ""}
+${variationSeed}
+
+${tipoRules}
 
 ${isRunning
   ? `PLAN DE RUNNING — REGLAS ESTRICTAS:
@@ -142,7 +174,7 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
         { role: "system", content: "Respondés SOLO con JSON válido. Sin markdown ni texto adicional." },
         { role: "user",   content: prompt },
       ],
-      temperature: 0.7,
+      temperature: 0.9,
       max_tokens: 2000,
     });
     const data = parseJSON(completion.choices[0].message.content);
