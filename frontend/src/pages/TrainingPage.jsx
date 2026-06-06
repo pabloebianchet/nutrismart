@@ -2436,7 +2436,7 @@ const TrainingPage = () => {
           {fullscreenEx?.imageUrl && (
             <Box sx={{ position: "relative", width: "100%", bgcolor: "#0D1F1D" }}>
               <Box component="img" src={fullscreenEx.imageUrl} alt={fullscreenEx?.name}
-                sx={{ width: "100%", height: "auto", maxHeight: { xs: "55vh", sm: "60vh" }, objectFit: "contain", objectPosition: "center", display: "block" }} />
+                sx={{ width: "100%", height: "auto", display: "block" }} />
               {/* Gradiente para leer el nombre sobre la imagen */}
               <Box sx={{ position: "absolute", inset: 0,
                 background: "linear-gradient(to top, #0D1F1D 0%, rgba(0,0,0,0.15) 60%, transparent 100%)" }} />
