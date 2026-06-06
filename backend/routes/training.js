@@ -190,18 +190,17 @@ ${tipoRules}
 
 ${isRunning
   ? `PLAN DE RUNNING — REGLAS ESTRICTAS:
-1. weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""} (día1, día2… día${frecNum}), una por día de entrenamiento semanal. NI MÁS NI MENOS.
-2. Cada entrada representa UN día de entrenamiento completo (no una semana, no una fase).
-3. Dentro de cada día, el array "exercises" tiene 3 entradas fijas: calentamiento, sesión principal y vuelta a la calma.
-4. PROHIBIDO incluir flexiones, abdominales, sentadillas ni ningún ejercicio que no sea correr o trotar.
-5. Usá estos campos así:
-   - "name": descripción de la parte (ej: "Calentamiento", "Rodaje principal", "Vuelta a la calma")
+1. weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""} (día1, día2… día${frecNum}).
+2. Dentro de cada día, el array "exercises" tiene 3 entradas: calentamiento, sesión principal y vuelta a la calma.
+3. El campo "name" de cada ejercicio DEBE ser uno de los nombres exactos de la lista EJERCICIOS DISPONIBLES.
+4. Usá estos campos así:
+   - "name": nombre exacto del catálogo (ej: "Trote suave", "Caminata rápida", "Intervalos cortos 30-30")
    - "sets": kilómetros como número entero (ej: 2 para 2km)
-   - "reps": ritmo o intensidad (ej: "Suave", "Moderado", "Fuerte", "Intervalos")
+   - "reps": ritmo o intensidad (ej: "Suave", "Moderado", "Fuerte")
    - "rest": tiempo estimado total (ej: "15 min", "35 min")
-   - "notes": tip de técnica de carrera o respiración
-6. Ejemplo de nombre de día: "Día 1 — Rodaje suave", "Día 2 — Tirada larga".
-7. Progresión de volumen: +10% máximo por semana.`
+   - "notes": tip de técnica o respiración
+5. Ejemplo de nombre de día: "Día 1 — Rodaje suave", "Día 2 — Intervalos".
+6. Progresión de volumen: +10% máximo por semana.`
   : `Distribución inteligente de grupos musculares para ${frecNum} días (push/pull/legs, full body, etc.). weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""}. Máximo 6 ejercicios por sesión con series, reps y descanso.`}
 
 Respondé ÚNICAMENTE con este JSON sin texto extra:
