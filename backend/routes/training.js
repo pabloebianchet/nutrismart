@@ -419,17 +419,31 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
 
   const cacheKey = name.toLowerCase().trim();
 
-  // 1. Caché en memoria (más rápido, evita hasta el query a DB)
+  // 1. Caché en memoria
   if (exerciseImageCache.has(cacheKey)) {
     return res.json({ ...exerciseImageCache.get(cacheKey), fromCache: "memory" });
   }
 
-  // 2. Caché en DB (persiste entre reinicios del servidor)
+  // 2. Base de ejercicios seeded con Cloudinary (más rápido y liviano)
+  try {
+    const seeded = await Exercise.findOne({
+      nameNorm: { $regex: cacheKey.normalize("NFD").replace(/[̀-ͯ]/g, ""), $options: "i" },
+      seeded: true,
+      imageUrl: { $ne: null },
+    }).select("imageUrl").lean();
+    if (seeded?.imageUrl) {
+      const result = { imageUrl: seeded.imageUrl };
+      exerciseImageCache.set(cacheKey, result);
+      return res.json({ ...result, fromCache: "exercise-db" });
+    }
+  } catch {}
+
+  // 3. Caché legacy ExerciseImage (base64 o Cloudinary URL)
   try {
     const saved = await ExerciseImage.findOne({ name: cacheKey });
     if (saved) {
       const result = { imageUrl: saved.imageUrl };
-      exerciseImageCache.set(cacheKey, result); // popular caché en memoria también
+      exerciseImageCache.set(cacheKey, result);
       return res.json({ ...result, fromCache: "db" });
     }
   } catch (dbErr) {
