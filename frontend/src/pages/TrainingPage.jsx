@@ -2432,14 +2432,11 @@ const TrainingPage = () => {
         }}}>
         <DialogContent sx={{ p: 0, overflowY: "auto", "&::-webkit-scrollbar": { width: 4 }, "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,0.15)", borderRadius: 2 } }}>
 
-          {/* Imagen */}
+          {/* Imagen sin gradiente — título queda abajo */}
           {fullscreenEx?.imageUrl && (
             <Box sx={{ position: "relative", width: "100%", bgcolor: "#0D1F1D" }}>
               <Box component="img" src={fullscreenEx.imageUrl} alt={fullscreenEx?.name}
                 sx={{ width: "100%", height: "auto", display: "block" }} />
-              {/* Gradiente para leer el nombre sobre la imagen */}
-              <Box sx={{ position: "absolute", inset: 0,
-                background: "linear-gradient(to top, #0D1F1D 0%, rgba(0,0,0,0.15) 60%, transparent 100%)" }} />
               {/* Botón cerrar */}
               <IconButton onClick={() => setFullscreenEx(null)} size="small"
                 sx={{ position: "absolute", top: 12, right: 12,
@@ -2452,12 +2449,11 @@ const TrainingPage = () => {
 
           {/* Información del ejercicio */}
           {fullscreenEx && (
-            <Box sx={{ px: 3, pt: fullscreenEx.imageUrl ? 0 : 3, pb: 3.5 }}>
+            <Box sx={{ px: 3, pt: 2.5, pb: 3.5 }}>
 
               {/* Nombre */}
               <Typography sx={{ fontSize: { xs: 20, sm: 22 }, fontWeight: 900, color: "#fff",
-                letterSpacing: "-0.5px", lineHeight: 1.2, mb: 2,
-                mt: fullscreenEx.imageUrl ? "-28px" : 0, position: "relative" }}>
+                letterSpacing: "-0.5px", lineHeight: 1.2, mb: 2 }}>
                 {fullscreenEx.name}
               </Typography>
 
