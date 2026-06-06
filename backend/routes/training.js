@@ -164,14 +164,28 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
   };
 
   const tipoRules = getTipoRules(tipo, lugarEfectivo);
-  // Seed de variación para evitar respuestas idénticas en cada generación
-  const variationSeed = `[Variación #${Math.floor(Math.random() * 9000) + 1000}] Generá ejercicios y distribución DIFERENTES a los más comunes para este tipo de entrenamiento.`;
+  const variationSeed = `[Variación #${Math.floor(Math.random() * 9000) + 1000}]`;
+
+  // Obtener ejercicios del catálogo que coincidan con tipo+lugar → GPT solo usa estos
+  const catalogGoal  = tipo === "Ejercicio en Casa" ? "Ejercicio en Casa" : tipo;
+  const catalogPlace = lugarEfectivo;
+  const catalogExercises = await Exercise.find({
+    tipos:   catalogGoal,
+    lugares: catalogPlace,
+    seeded:  true,
+    imageUrl: { $ne: null },
+    active:  true,
+  }).select("name muscleGroup").lean();
+
+  const exerciseList = catalogExercises.length > 0
+    ? `\nEJERCICIOS DISPONIBLES (usá ÚNICAMENTE estos nombres exactos, sin inventar otros):\n${catalogExercises.map(e => `- ${e.name}`).join("\n")}\n`
+    : "";
 
   const prompt = `Sos un entrenador personal profesional argentino. Generá un plan de entrenamiento personalizado.
 ${safeUserCtx}
 Tipo: ${tipo}. Lugar: ${lugarEfectivo}. Duración: ${duracion}. Frecuencia: ${frecNum} días/semana.${prevCtx ? "\n" + prevCtx : ""}
 ${variationSeed}
-
+${exerciseList}
 ${tipoRules}
 
 ${isRunning
