@@ -2366,7 +2366,14 @@ const TrainingPage = () => {
               sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
               Cancelar
             </Button>
-            <Button onClick={() => { saveManualExercise(addManualOpen.dayKey, addManualOpen.index); setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null); }}
+            <Button
+              onClick={() => {
+                const dayExs = plan?.weekStructure?.[addManualOpen?.dayKey]?.exercises || [];
+                const yaEsta = dayExs.some(e => e.name.toLowerCase() === manualForm.name.toLowerCase());
+                if (yaEsta && !window.confirm(`"${manualForm.name}" ya está en este día. ¿Agregarlo igualmente?`)) return;
+                saveManualExercise(addManualOpen.dayKey, addManualOpen.index);
+                setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null);
+              }}
               disabled={!manualForm.name.trim()} variant="contained" fullWidth
               sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
               Guardar
