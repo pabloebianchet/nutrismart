@@ -1288,7 +1288,9 @@ const TrainingPage = () => {
                                     <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: activeTipo?.color || "#0B5E55", flexShrink: 0 }} />
                                     <Typography sx={{ fontSize: 12.5, color: "#4A6B67", flex: 1 }}>{ex.name}</Typography>
                                     <Typography sx={{ fontSize: 11.5, color: "#8AADAA", flexShrink: 0 }}>
-                                  {isRunning ? `${ex.sets} km · ${ex.reps}` : `${ex.sets}×${ex.reps}`}
+                                  {isRunning && ["suave","moderado","fuerte","intervalos","progresivo","sprint","fartlek","ritmo"].some(r => String(ex.reps).toLowerCase().includes(r))
+                                    ? `${ex.sets} km · ${ex.reps}`
+                                    : `${ex.sets}×${ex.reps}`}
                                 </Typography>
                                   </Stack>
                                 ))}
@@ -2459,11 +2461,16 @@ const TrainingPage = () => {
 
               {/* Chips de series / reps / descanso */}
               <Stack direction="row" spacing={1} mb={2.5} flexWrap="wrap" useFlexGap>
-                {[
-                  { label: fullscreenEx.isRunning ? `${fullscreenEx.sets} km` : `${fullscreenEx.sets} series`, icon: "🔁" },
-                  { label: fullscreenEx.isRunning ? `Ritmo: ${fullscreenEx.reps}` : fullscreenEx.reps, icon: "💪" },
-                  { label: fullscreenEx.rest, icon: "⏱" },
-                ].map(({ label, icon }) => (
+                {(() => {
+                  const RITMOS = ["suave","moderado","fuerte","intervalos","progresivo","sprint","fartlek","ritmo"];
+                  const esSegmentoCarrera = fullscreenEx.isRunning &&
+                    RITMOS.some(r => String(fullscreenEx.reps).toLowerCase().includes(r));
+                  return [
+                    { label: esSegmentoCarrera ? `${fullscreenEx.sets} km` : `${fullscreenEx.sets} series`, icon: "🔁" },
+                    { label: esSegmentoCarrera ? `Ritmo: ${fullscreenEx.reps}` : fullscreenEx.reps, icon: "💪" },
+                    { label: fullscreenEx.rest, icon: "⏱" },
+                  ];
+                })().map(({ label, icon }) => (
                   <Box key={icon} sx={{
                     display: "flex", alignItems: "center", gap: 0.6,
                     px: 1.5, py: 0.7, borderRadius: 2,
