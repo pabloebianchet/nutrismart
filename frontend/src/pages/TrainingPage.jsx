@@ -198,11 +198,14 @@ const TrainingPage = () => {
   const [addManualOpen,   setAddManualOpen]   = useState(null);
   const [manualForm,      setManualForm]      = useState({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
   const [confirmDelete,   setConfirmDelete]   = useState(null);  // { dayKey, index, name }
-  // Búsqueda de ejercicios
-  const [exSearchQuery,   setExSearchQuery]   = useState("");
-  const [exSearchResults, setExSearchResults] = useState([]);
-  const [exSearchLoading, setExSearchLoading] = useState(false);
-  const [selectedExercise,setSelectedExercise]= useState(null); // ejercicio elegido de la lista
+  // Búsqueda / catálogo de ejercicios
+  const [exSearchQuery,      setExSearchQuery]      = useState("");
+  const [exSearchResults,    setExSearchResults]    = useState([]);
+  const [exSearchLoading,    setExSearchLoading]    = useState(false);
+  const [selectedExercise,   setSelectedExercise]   = useState(null);
+  const [addCatalogExercises,setAddCatalogExercises]= useState([]);
+  const [addCatalogLoading,  setAddCatalogLoading]  = useState(false);
+  const [addStep,            setAddStep]            = useState("browse"); // "browse" | "configure"
   // Similares (reemplazar)
   const [similarOpen,     setSimilarOpen]     = useState(null); // { dayKey, index, exerciseName }
   const [similarOptions,  setSimilarOptions]  = useState([]);
@@ -439,6 +442,34 @@ const TrainingPage = () => {
   };
 
   // ── Generar ejercicio alternativo con GPT ─────────────────────
+  // ── Abrir dialog agregar: carga catálogo del plan ────────────────
+  const openAddDialog = async (dayKey, exerciseIndex = null, prefillForm = null) => {
+    setAddManualOpen({ dayKey, index: exerciseIndex });
+    setManualForm(prefillForm || { name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" });
+    setSelectedExercise(null);
+    setExSearchQuery("");
+    setAddStep("browse");
+    setAddCatalogExercises([]);
+    setAddCatalogLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (config?.tipo)  params.set("tipo",  config.tipo);
+      if (config?.lugar) params.set("lugar", config.lugar);
+      const res  = await fetch(`${API_URL}/api/training/exercises/search?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      // Excluir ejercicios ya en el día
+      const dayNames = (plan?.weekStructure?.[dayKey]?.exercises || [])
+        .filter((_, i) => i !== exerciseIndex)
+        .map(e => e.name.toLowerCase());
+      const filtered = (Array.isArray(data) ? data : [])
+        .filter(e => !dayNames.includes(e.name.toLowerCase()));
+      setAddCatalogExercises(filtered);
+    } catch { setAddCatalogExercises([]); }
+    finally  { setAddCatalogLoading(false); }
+  };
+
   // ── Búsqueda de ejercicios con debounce ──────────────────────────
   const searchExercises = (q) => {
     setExSearchQuery(q);
@@ -1680,11 +1711,11 @@ const TrainingPage = () => {
                               <ListItemIcon><AutoFixHighRoundedIcon fontSize="small" sx={{ color: "#0B5E55" }} /></ListItemIcon>
                               <ListItemText primary="Reemplazar ejercicio" />
                             </MenuItem>
-                            <MenuItem dense onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}>
+                            <MenuItem dense onClick={() => { setExMenuOpen(null); openAddDialog(activeDay, null); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#2E7D32" }} /></ListItemIcon>
                               <ListItemText primary="Agregar ejercicio nuevo" />
                             </MenuItem>
-                            <MenuItem dense onClick={() => { setExMenuOpen(null); setAddManualOpen({ dayKey: activeDay, index: i }); setManualForm({ name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
+                            <MenuItem dense onClick={() => { setExMenuOpen(null); openAddDialog(activeDay, i, { name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
                               <ListItemText primary="Reemplazar este ejercicio" />
                             </MenuItem>
@@ -1748,7 +1779,7 @@ const TrainingPage = () => {
 
               {/* ── Agregar ejercicio manual ── */}
               <Button
-                onClick={() => { setAddManualOpen({ dayKey: activeDay, index: null }); setManualForm({ name: "", sets: "3", reps: "10-12", rest: "60 seg", notes: "" }); }}
+                onClick={() => openAddDialog(activeDay, null)}
                 startIcon={<AddRoundedIcon />}
                 variant="outlined"
                 fullWidth
@@ -2285,100 +2316,120 @@ const TrainingPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ── Dialog: agregar/reemplazar ejercicio manual ── */}
-      {/* ── Dialog: Agregar ejercicio desde DB ── */}
-      <Dialog open={!!addManualOpen} onClose={() => { setAddManualOpen(null); setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null); }} maxWidth="xs" fullWidth
-        PaperProps={{ sx: { borderRadius: 4, mx: 2 } }}>
-        <DialogContent sx={{ p: 3 }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 2 }}>
-            {addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio"}
-          </Typography>
+      {/* ── Dialog: Agregar / Reemplazar ejercicio ── */}
+      <Dialog open={!!addManualOpen} onClose={() => { setAddManualOpen(null); setSelectedExercise(null); setExSearchQuery(""); setAddStep("browse"); }} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: 4, mx: 2, maxHeight: "88dvh" } }}>
+        <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
 
-          {/* Buscador */}
-          <TextField fullWidth size="small" placeholder="Buscar ejercicio..."
-            value={exSearchQuery}
-            onChange={(e) => searchExercises(e.target.value)}
-            InputProps={{
-              startAdornment: exSearchLoading
-                ? <CircularProgress size={16} sx={{ color: "#0B5E55", mr: 1 }} />
-                : <SearchRoundedIcon sx={{ fontSize: 18, color: "#8AADAA", mr: 0.5 }} />,
-            }}
-            sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }} />
+          {/* ── PASO 1: BROWSE ── */}
+          {addStep === "browse" && (
+            <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1.5 }}>
+                {addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio"}
+              </Typography>
 
-          {/* Ejercicio seleccionado */}
-          {selectedExercise && (
-            <Box sx={{ mb: 1.5, p: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1.5px solid #0B5E55", display: "flex", alignItems: "center", gap: 1.5 }}>
-              {selectedExercise.imageUrl && (
-                <Box component="img" src={selectedExercise.imageUrl} sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
-              )}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#0B5E55" }} noWrap>{selectedExercise.name}</Typography>
-                <Typography sx={{ fontSize: 11, color: "#4A6B67" }}>{MUSCLE_LABEL[selectedExercise.muscleGroup] || selectedExercise.muscleGroup}</Typography>
-              </Box>
-              <IconButton size="small" onClick={() => { setSelectedExercise(null); setExSearchQuery(""); setExSearchResults([]); }}>
-                <CloseRoundedIcon fontSize="small" sx={{ color: "#8AADAA" }} />
-              </IconButton>
-            </Box>
-          )}
+              {/* Buscador (filtra cliente) */}
+              <TextField fullWidth size="small" placeholder="Buscar en el catálogo..."
+                value={exSearchQuery}
+                onChange={(e) => setExSearchQuery(e.target.value)}
+                InputProps={{ startAdornment: <SearchRoundedIcon sx={{ fontSize: 18, color: "#8AADAA", mr: 0.5 }} /> }}
+                sx={{ mb: 1.5, flexShrink: 0, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }} />
 
-          {/* Lista de resultados */}
-          {!selectedExercise && exSearchResults.length > 0 && (
-            <Box sx={{ maxHeight: 200, overflowY: "auto", mb: 1.5, borderRadius: 2, border: "1px solid rgba(11,94,85,0.12)" }}>
-              {exSearchResults.map((ex, idx) => (
-                <Box key={ex._id || idx} onClick={() => { setSelectedExercise(ex); setManualForm(p => ({ ...p, name: ex.name })); setExSearchResults([]); }}
-                  sx={{ px: 2, py: 1.2, display: "flex", alignItems: "center", gap: 1.5, cursor: "pointer", borderBottom: idx < exSearchResults.length - 1 ? "1px solid rgba(11,94,85,0.08)" : "none",
-                    "&:hover": { bgcolor: "#E6F5F3" } }}>
-                  {ex.imageUrl
-                    ? <Box component="img" src={ex.imageUrl} sx={{ width: 36, height: 36, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
-                    : <Box sx={{ width: 36, height: 36, borderRadius: 1.5, bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <FitnessCenterRoundedIcon sx={{ fontSize: 18, color: "#0B5E55" }} />
-                      </Box>
-                  }
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#0F2420" }} noWrap>{ex.name}</Typography>
-                    <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{MUSCLE_LABEL[ex.muscleGroup] || ex.muscleGroup}</Typography>
+              {/* Lista del catálogo */}
+              <Box sx={{ flex: 1, overflowY: "auto", borderRadius: 2, border: "1px solid rgba(11,94,85,0.12)" }}>
+                {addCatalogLoading && (
+                  <Box sx={{ py: 4, textAlign: "center" }}>
+                    <CircularProgress size={24} sx={{ color: "#0B5E55" }} />
                   </Box>
-                </Box>
-              ))}
+                )}
+                {!addCatalogLoading && (() => {
+                  const q = exSearchQuery.toLowerCase();
+                  const list = q
+                    ? addCatalogExercises.filter(e => e.name.toLowerCase().includes(q) || (e.muscleGroup || "").includes(q))
+                    : addCatalogExercises;
+                  if (!list.length) return (
+                    <Typography sx={{ fontSize: 13, color: "#8AADAA", textAlign: "center", py: 4 }}>
+                      {q ? "Sin resultados" : "No hay ejercicios disponibles"}
+                    </Typography>
+                  );
+                  return list.map((ex, idx) => (
+                    <Box key={ex._id || idx}
+                      onClick={() => { setSelectedExercise(ex); setManualForm(p => ({ ...p, name: ex.name })); setAddStep("configure"); }}
+                      sx={{ px: 2, py: 1.3, display: "flex", alignItems: "center", gap: 1.5, cursor: "pointer",
+                        borderBottom: idx < list.length - 1 ? "1px solid rgba(11,94,85,0.07)" : "none",
+                        "&:hover": { bgcolor: "#E6F5F3" } }}>
+                      {ex.imageUrl
+                        ? <Box component="img" src={ex.imageUrl} sx={{ width: 40, height: 40, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
+                        : <Box sx={{ width: 40, height: 40, borderRadius: 1.5, bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <FitnessCenterRoundedIcon sx={{ fontSize: 20, color: "#0B5E55" }} />
+                          </Box>}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#0F2420" }} noWrap>{ex.name}</Typography>
+                        <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{MUSCLE_LABEL[ex.muscleGroup] || ex.muscleGroup}</Typography>
+                      </Box>
+                    </Box>
+                  ));
+                })()}
+              </Box>
+
+              <Button onClick={() => { setAddManualOpen(null); setExSearchQuery(""); setAddStep("browse"); }} fullWidth
+                sx={{ mt: 1.5, borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
+                Cancelar
+              </Button>
             </Box>
           )}
 
-          {/* Campos de sets/reps/descanso */}
-          <Stack spacing={1.5}>
-            <Stack direction="row" spacing={1.5}>
-              <TextField label="Series" value={manualForm.sets} size="small" type="number"
-                onChange={(e) => setManualForm(p => ({ ...p, sets: e.target.value }))}
-                sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
-              <TextField label="Reps" value={manualForm.reps} size="small"
-                onChange={(e) => setManualForm(p => ({ ...p, reps: e.target.value }))}
-                sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
-              <TextField label="Descanso" value={manualForm.rest} size="small"
-                onChange={(e) => setManualForm(p => ({ ...p, rest: e.target.value }))}
-                sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
-            </Stack>
-            <TextField label="Notas (opcional)" value={manualForm.notes} fullWidth size="small" multiline rows={2}
-              onChange={(e) => setManualForm(p => ({ ...p, notes: e.target.value }))}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
-          </Stack>
+          {/* ── PASO 2: CONFIGURE ── */}
+          {addStep === "configure" && (
+            <Box sx={{ p: 2.5 }}>
+              {/* Ejercicio elegido */}
+              <Box sx={{ mb: 2, p: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1.5px solid #0B5E55", display: "flex", alignItems: "center", gap: 1.5 }}>
+                {selectedExercise?.imageUrl && (
+                  <Box component="img" src={selectedExercise.imageUrl} sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
+                )}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#0B5E55" }} noWrap>{selectedExercise?.name}</Typography>
+                  <Typography sx={{ fontSize: 11, color: "#4A6B67" }}>{MUSCLE_LABEL[selectedExercise?.muscleGroup] || selectedExercise?.muscleGroup}</Typography>
+                </Box>
+                <IconButton size="small" onClick={() => setAddStep("browse")}>
+                  <CloseRoundedIcon fontSize="small" sx={{ color: "#8AADAA" }} />
+                </IconButton>
+              </Box>
 
-          <Stack direction="row" spacing={1.5} mt={2.5}>
-            <Button onClick={() => { setAddManualOpen(null); setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null); }} fullWidth
-              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
-              Cancelar
-            </Button>
-            <Button
-              onClick={() => {
-                const dayExs = plan?.weekStructure?.[addManualOpen?.dayKey]?.exercises || [];
-                const yaEsta = dayExs.some(e => e.name.toLowerCase() === manualForm.name.toLowerCase());
-                if (yaEsta && !window.confirm(`"${manualForm.name}" ya está en este día. ¿Agregarlo igualmente?`)) return;
-                saveManualExercise(addManualOpen.dayKey, addManualOpen.index);
-                setExSearchQuery(""); setExSearchResults([]); setSelectedExercise(null);
-              }}
-              disabled={!manualForm.name.trim()} variant="contained" fullWidth
-              sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
-              Guardar
-            </Button>
-          </Stack>
+              <Stack spacing={1.5}>
+                <Stack direction="row" spacing={1.5}>
+                  <TextField label="Series" value={manualForm.sets} size="small" type="number"
+                    onChange={(e) => setManualForm(p => ({ ...p, sets: e.target.value }))}
+                    sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+                  <TextField label="Reps" value={manualForm.reps} size="small"
+                    onChange={(e) => setManualForm(p => ({ ...p, reps: e.target.value }))}
+                    sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+                  <TextField label="Descanso" value={manualForm.rest} size="small"
+                    onChange={(e) => setManualForm(p => ({ ...p, rest: e.target.value }))}
+                    sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+                </Stack>
+                <TextField label="Notas (opcional)" value={manualForm.notes} fullWidth size="small" multiline rows={2}
+                  onChange={(e) => setManualForm(p => ({ ...p, notes: e.target.value }))}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
+              </Stack>
+
+              <Stack direction="row" spacing={1.5} mt={2.5}>
+                <Button onClick={() => setAddStep("browse")} fullWidth
+                  sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
+                  ← Volver
+                </Button>
+                <Button
+                  onClick={() => {
+                    saveManualExercise(addManualOpen.dayKey, addManualOpen.index);
+                    setSelectedExercise(null); setExSearchQuery(""); setAddStep("browse");
+                  }}
+                  disabled={!manualForm.name.trim()} variant="contained" fullWidth
+                  sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
+                  Guardar
+                </Button>
+              </Stack>
+            </Box>
+          )}
         </DialogContent>
       </Dialog>
 
