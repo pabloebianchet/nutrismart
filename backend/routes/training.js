@@ -31,8 +31,8 @@ const parseJSON = (text) => {
 };
 
 /* ── Whitelists ───────────────────────────────────────────────────────────── */
-const TIPOS_OK      = new Set(["Calistenia", "Hipertrofia", "Fit", "Ejercicio en Casa", "Running"]);
-const LUGARES_OK    = new Set(["Gym", "Aire libre", "Casa"]);
+const TIPOS_OK      = new Set(["Calistenia", "Hipertrofia", "Fit"]);
+const LUGARES_OK    = new Set(["Gym", "Casa"]);
 const DURACIONES_OK = new Set(["1 día", "15 días", "1 mes", "3 meses", "6 meses"]);
 const FRECUENCIAS_OK = new Set([1, 2, 3, 4, 5, 6]);
 const SEXOS_OK      = new Set(["Femenino", "Masculino", "Otro"]);
@@ -68,7 +68,7 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
   const frecNum = Number(frecuencia);
   if (!FRECUENCIAS_OK.has(frecNum))
     return res.status(400).json({ error: "Frecuencia no válida." });
-  const lugarEfectivo = tipo === "Ejercicio en Casa" ? "Casa" : (lugar || "Casa");
+  const lugarEfectivo = lugar || "Gym";
   if (!LUGARES_OK.has(lugarEfectivo))
     return res.status(400).json({ error: "Lugar no válido." });
 
@@ -87,91 +87,36 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
   const prevCtx = prevPlan?.planTitle
     ? `Plan anterior completado: "${sanitize(prevPlan.planTitle, 80)}". Diseñá el nuevo plan con progresividad y mayor carga/volumen que el anterior.`
     : "";
-  const isRunning = tipo === "Running";
-
   // Reglas específicas por combinación tipo + lugar
   const getTipoRules = (tipo, lugar) => {
     if (tipo === "Calistenia") {
       if (lugar === "Gym")
-        return `CALISTENIA EN GYM:
-- SOLO peso corporal. Usá barra de dominadas, anillas y paralelas del gym.
-- Ejercicios: dominadas (variantes), muscle-up, fondos en paralelas, flexiones (arqueras, diamante, declinadas), L-sit, front lever progresiones, pistol squat.
-- PROHIBIDO: mancuernas, barras con carga, máquinas, pesas libres.
-- Distribución: Día de tirón (dominadas/espalda/bíceps), día de empuje (flexiones/fondos/tríceps), día de piernas y core.`;
-      if (lugar === "Aire libre")
-        return `CALISTENIA AL AIRE LIBRE:
-- Usá barras de plaza, suelo del parque y estructuras disponibles al aire libre.
-- Ejercicios: dominadas en barra de plaza, fondos entre bancos, flexiones, sentadillas con salto, muscle-up, barras paralelas, plancha, human flag progresiones.
-- PROHIBIDO: cualquier elemento de gym o equipamiento pagado.
-- Street workout style: combiná habilidades y fuerza funcional.`;
+        return `CALISTENIA EN GYM: SOLO peso corporal. Usá barra de dominadas, anillas y paralelas. PROHIBIDO mancuernas, barras con carga, máquinas. Distribución: tirón (dominadas/espalda), empuje (flexiones/fondos), piernas y core.`;
       if (lugar === "Casa")
-        return `CALISTENIA EN CASA:
-- SOLO peso corporal en el suelo. Sin barras ni equipamiento.
-- Ejercicios: flexiones (todas las variantes), sentadillas, zancadas, plancha, fondos en silla, elevación de piernas, glute bridge, mountain climbers, pike push-up, hollow body.
-- Progresión mediante variantes más difíciles del movimiento, no con carga.`;
+        return `CALISTENIA EN CASA: SOLO peso corporal. Ejercicios: flexiones (variantes), sentadillas, zancadas, plancha, fondos en silla, elevación de piernas, glute bridge, pike push-up, hollow body.`;
     }
-
     if (tipo === "Hipertrofia") {
       if (lugar === "Gym")
-        return `HIPERTROFIA EN GYM:
-- Equipamiento completo disponible: barras olímpicas, mancuernas de todo peso, máquinas de cables y poleas, banco ajustable.
-- Priorizá ejercicios compuestos: press de banca, sentadilla con barra, peso muerto, remo con barra, press militar.
-- Complementá con aislamiento: curl de bíceps, extensiones de tríceps, elevaciones laterales, jalón al pecho, hip thrust.
-- Series 3-5 × 6-12 reps. Descanso 60-120 seg. Distribución Push/Pull/Legs o por grupo muscular.`;
-      if (lugar === "Aire libre")
-        return `HIPERTROFIA AL AIRE LIBRE:
-- Equipamiento limitado: barras de plaza, bandas elásticas, peso corporal.
-- Usá lastre progresivo con mochila, dominadas lastradas, fondos lastrados, pistol squat.
-- Complementá con: flexiones a una mano, remo australiano, hip thrust con mochila, zancadas con peso.
-- Enfocate en variantes unilaterales y de alta dificultad técnica para generar tensión muscular sin máquinas.`;
+        return `HIPERTROFIA EN GYM: Barras olímpicas, mancuernas, máquinas. Compuestos: press de banca, sentadilla, peso muerto, remo, press militar. Aislamiento: curl, tríceps, laterales, jalón. Series 3-5 × 6-12. Distribución Push/Pull/Legs.`;
       if (lugar === "Casa")
-        return `HIPERTROFIA EN CASA:
-- Mancuernas si las tiene (opcionales). Si no, peso corporal progresivo.
-- Con mancuernas: curl de bíceps, press de pecho en suelo, remo inclinado, press de hombros, sentadilla goblet, hip thrust con mancuerna.
-- Sin mancuernas: flexiones declinadas e inclinadas, sentadilla a una pierna, fondos en silla, remo con mochila cargada, plancha con variantes.
-- Adaptá cada ejercicio al espacio del hogar.`;
+        return `HIPERTROFIA EN CASA: Mancuernas opcionales. Con ellas: curl, press en suelo, remo inclinado, press hombros, goblet, hip thrust. Sin ellas: flexiones variantes, sentadilla una pierna, fondos en silla, remo con mochila.`;
     }
-
     if (tipo === "Fit") {
       if (lugar === "Gym")
-        return `FIT EN GYM:
-- Circuitos funcionales alternando cardio y fuerza. Poco descanso (20-45 seg entre ejercicios).
-- Usá: remo ergómetro, bicicleta, battle ropes, kettlebell swing, box jump, TRX, burpees con mancuerna, thruster.
-- Formato: AMRAP, EMOM o circuitos de 4-6 ejercicios × 3-4 rondas.
-- Incluí calentamiento dinámico y vuelta a la calma con movilidad.`;
-      if (lugar === "Aire libre")
-        return `FIT AL AIRE LIBRE:
-- Cardio funcional combinado con fuerza en entorno natural.
-- Ejercicios: sprints, saltos, burpees, flexiones, sentadillas con salto, dominadas en plaza, bear crawl, skipping, carrera con cambios de ritmo.
-- Formato: circuitos en el parque, intervalos de carrera + ejercicios de fuerza, trabajo en parejas si es posible.
-- Aprovechá el terreno: cuestas, escalones, bancos de plaza.`;
+        return `FIT EN GYM: Circuitos funcionales, poco descanso. Kettlebell, battle ropes, TRX, box jump, ergómetro. Formato AMRAP o circuitos 4-6 ejercicios × 3-4 rondas.`;
       if (lugar === "Casa")
-        return `FIT EN CASA:
-- HIIT bodyweight sin equipamiento. Intensidad alta, descansos cortos.
-- Ejercicios: burpees, jumping jacks, mountain climbers, sentadilla con salto, flexiones rápidas, plancha dinámica, kick boxing sin impacto, skipping en el lugar.
-- Formato: Tabata (20 seg trabajo / 10 seg descanso) o circuitos de 5-6 ejercicios × 3 rondas.
-- Sin ruido: incluí opciones de bajo impacto para cada ejercicio.`;
+        return `FIT EN CASA: HIIT bodyweight. Burpees, jumping jacks, mountain climbers, sentadilla con salto, flexiones rápidas, plancha dinámica. Tabata o circuitos 5-6 ejercicios × 3 rondas.`;
     }
-
-    if (tipo === "Ejercicio en Casa")
-      return `EJERCICIO EN CASA — REGLAS ESTRICTAS:
-- SOLO ejercicios sin equipamiento o con lo que hay en cualquier hogar: silla, escalón, pared, banda elástica opcional.
-- PROHIBIDO cualquier máquina, barra de gym o peso libre.
-- Ejercicios: flexiones, sentadillas, zancadas, fondos en silla, glute bridge, plancha, superman, mountain climbers, elevación de piernas, crunch.
-- Sessiones completas de cuerpo entero o divididas por zona. Máximo 6 ejercicios. Explicar cómo adaptarlo al hogar.`;
-
     return "";
   };
 
   const tipoRules = getTipoRules(tipo, lugarEfectivo);
   const variationSeed = `[Variación #${Math.floor(Math.random() * 9000) + 1000}]`;
 
-  // Obtener ejercicios del catálogo que coincidan con tipo+lugar → GPT solo usa estos
-  const catalogGoal  = tipo === "Ejercicio en Casa" ? "Ejercicio en Casa" : tipo;
-  const catalogPlace = lugarEfectivo;
+  // Obtener ejercicios del catálogo que coincidan con tipo+lugar
   const catalogExercises = await Exercise.find({
-    tipos:   catalogGoal,
-    lugares: catalogPlace,
+    tipos:   tipo,
+    lugares: lugarEfectivo,
     seeded:  true,
     imageUrl: { $ne: null },
     active:  true,
@@ -188,20 +133,7 @@ ${variationSeed}
 ${exerciseList}
 ${tipoRules}
 
-${isRunning
-  ? `PLAN DE RUNNING — REGLAS ESTRICTAS:
-1. weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""} (día1, día2… día${frecNum}).
-2. Dentro de cada día, el array "exercises" tiene 3 entradas: calentamiento, sesión principal y vuelta a la calma.
-3. El campo "name" de cada ejercicio DEBE ser uno de los nombres exactos de la lista EJERCICIOS DISPONIBLES.
-4. Usá estos campos así:
-   - "name": nombre exacto del catálogo (ej: "Trote suave", "Caminata rápida", "Intervalos cortos 30-30")
-   - "sets": kilómetros como número entero (ej: 2 para 2km)
-   - "reps": ritmo o intensidad (ej: "Suave", "Moderado", "Fuerte")
-   - "rest": tiempo estimado total (ej: "15 min", "35 min")
-   - "notes": tip de técnica o respiración
-5. Ejemplo de nombre de día: "Día 1 — Rodaje suave", "Día 2 — Intervalos".
-6. Progresión de volumen: +10% máximo por semana.`
-  : `Distribución inteligente de grupos musculares para ${frecNum} días (push/pull/legs, full body, etc.). weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""}. Máximo 6 ejercicios por sesión con series, reps y descanso.`}
+Distribución inteligente de grupos musculares para ${frecNum} días (push/pull/legs, full body, etc.). weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""}. Máximo 6 ejercicios por sesión con series, reps y descanso.
 
 Respondé ÚNICAMENTE con este JSON sin texto extra:
 {

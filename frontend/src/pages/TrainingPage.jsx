@@ -27,17 +27,14 @@ import PeanutMascot            from "../components/PeanutMascot.jsx";
 // ─── config ─────────────────────────────────────────────────────────────────
 
 const TIPOS = [
-  { id: "Calistenia",        emoji: "🤸", desc: "Peso corporal y fuerza funcional",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"  },
-  { id: "Hipertrofia",       emoji: "💪", desc: "Ganar músculo y aumentar masa",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"   },
-  { id: "Fit",               emoji: "✨", desc: "Tonificar y mejorar condición física", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)"  },
-  { id: "Ejercicio en Casa", emoji: "🏠", desc: "Sin equipamiento, desde casa",         color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
-  { id: "Running",           emoji: "🏃", desc: "Plan de carrera con progresión",       color: "#E65100", bg: "#FFF3E0", border: "rgba(230,81,0,0.25)"    },
+  { id: "Hipertrofia", emoji: "💪", desc: "Ganar músculo y aumentar masa",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
+  { id: "Fit",         emoji: "✨", desc: "Tonificar y mejorar condición física", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
+  { id: "Calistenia",  emoji: "🤸", desc: "Peso corporal y fuerza funcional",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
 ];
 
 const LUGARES = [
-  { id: "Gym",        emoji: "🏋️", desc: "Pesas, máquinas, equipamiento completo", color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"  },
-  { id: "Aire libre", emoji: "🌳", desc: "Plaza, parque, barras de calistenia",    color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
-  { id: "Casa",       emoji: "🏠", desc: "Sin equipamiento o con elementos básicos",color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)"  },
+  { id: "Gym",  emoji: "🏋️", desc: "Pesas, máquinas, equipamiento completo",  color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
+  { id: "Casa", emoji: "🏠", desc: "Sin equipamiento o con elementos básicos", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
 ];
 
 const DURACIONES = [
@@ -288,8 +285,8 @@ const TrainingPage = () => {
   const elapsed     = startDate ? Math.floor((Date.now() - new Date(startDate)) / 86400000) : 0;
   const currentWeek = Math.max(1, Math.ceil((elapsed + 1) / 7));
   const activeTipo  = TIPOS.find(t => t.id === (config?.tipo || tipo));
-  const skipLugar   = tipo === "Ejercicio en Casa" || config?.tipo === "Ejercicio en Casa";
-  const isRunning   = tipo === "Running" || config?.tipo === "Running";
+  const skipLugar   = false;
+  const isRunning   = false;
   const todayStr    = new Date().toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
   const todayDays   = new Set(sessions.filter(s => s.date === todayStr).map(s => s.dayKey));
   const loggedExs   = [...new Set(sessions.flatMap(s => Object.keys(s.exercises)))];
