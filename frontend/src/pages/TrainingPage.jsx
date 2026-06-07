@@ -491,7 +491,10 @@ const TrainingPage = () => {
     setSimilarOptions([]);
     try {
       const muscleGroup = getFocusMuscleGroup(dayFocus);
-      const params = new URLSearchParams({ exclude: ex.name });
+      // Excluir el ejercicio actual + todos los del mismo día
+      const dayExercises = plan.weekStructure[dayKey]?.exercises || [];
+      const excludeNames = dayExercises.map(e => e.name).join(",");
+      const params = new URLSearchParams({ exclude: excludeNames });
       if (muscleGroup)   params.set("muscleGroup", muscleGroup);
       if (config?.tipo)  params.set("tipo",  config.tipo);
       if (config?.lugar) params.set("lugar", config.lugar);

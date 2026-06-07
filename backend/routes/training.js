@@ -615,16 +615,18 @@ router.get("/exercises/similar", authMiddleware, async (req, res) => {
     const { muscleGroup, exclude, tipo, lugar } = req.query;
     if (!muscleGroup) return res.status(400).json({ error: "muscleGroup requerido." });
 
+    // exclude puede ser un nombre o una lista separada por comas
+    const excludeList = exclude ? exclude.split(",").map(n => n.trim()).filter(Boolean) : [];
+
     const filter = { seeded: true, muscleGroup };
-    if (exclude) filter.name = { $ne: exclude };
+    if (excludeList.length) filter.name = { $nin: excludeList };
     if (tipo)    filter.tipos   = tipo;
     if (lugar)   filter.lugares = lugar;
 
-    // Intentar con todos los filtros, si no hay suficientes relajar tipo/lugar
     let results = await Exercise.find(filter).select("name muscleGroup imageUrl equipment description").lean();
 
     if (results.length < 3) {
-      const fallback = { seeded: true, muscleGroup, ...(exclude && { name: { $ne: exclude } }) };
+      const fallback = { seeded: true, muscleGroup, ...(excludeList.length && { name: { $nin: excludeList } }) };
       results = await Exercise.find(fallback).select("name muscleGroup imageUrl equipment description").lean();
     }
 
