@@ -78,11 +78,9 @@ const evaluateYesterday = async (userId, user) => {
 
 /* ─── Calorías estimadas por tipo de entrenamiento (kcal/min) ── */
 const KCAL_PER_MIN = {
-  "Hipertrofia":      7,
-  "Calistenia":       6,
-  "Running":          9,
-  "Fit":              7,
-  "Ejercicio en Casa":5,
+  "Hipertrofia": 7,
+  "Calistenia":  6,
+  "Fit":         7,
 };
 
 /* ─── PUT /goal ─ guardar objetivo nutricional ──────────────── */

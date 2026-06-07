@@ -1309,7 +1309,7 @@ const TrainingPage = () => {
                                   <Typography sx={{ fontSize: 12, color: "#4A6B67" }}>{day.focus}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: "right", flexShrink: 0, ml: 1 }}>
-                                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{exs.length} {isRunning ? "partes" : "ejercicios"}</Typography>
+                                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{exs.length} ejercicios</Typography>
                                   {sessCount > 0 && <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>{sessCount} sesión{sessCount > 1 ? "es" : ""}</Typography>}
                                 </Box>
                               </Stack>
@@ -1578,8 +1578,7 @@ const TrainingPage = () => {
 
               <Stack spacing={2} mb={3}>
                 {(plan.weekStructure[activeDay]?.exercises || []).map((ex, i) => {
-                  const runningKeywords = /rodaje|fartlek|tirada|carrera|trote|running|sprint|intervalo/i;
-                  const exIsRunning = isRunning || runningKeywords.test(ex.name);
+                  const exIsRunning = false;
                   return (
                     <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
                       <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", overflow: "hidden",

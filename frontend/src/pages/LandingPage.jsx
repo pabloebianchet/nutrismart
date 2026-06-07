@@ -856,10 +856,10 @@ const MODULES = [
   {
     Icon: FitnessCenterRoundedIcon,
     title: "Entrenamiento personalizado",
-    desc: "Generá tu plan de entrenamiento: Hipertrofia, Running, Calistenia, Ejercicios en Casa o Fit. Seguí tu progreso sesión a sesión con registro completo.",
+    desc: "Generá tu plan de entrenamiento: Hipertrofia, Fit o Calistenia, en Gym o en Casa. Seguí tu progreso sesión a sesión con registro completo.",
     color: "#D97706",
     bg: "#FFFBEB",
-    tags: ["Hipertrofia", "Running", "Calistenia", "Fit", "En Casa"],
+    tags: ["Hipertrofia", "Fit", "Calistenia", "Gym", "Casa"],
     photo:
       "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
   },
@@ -1678,10 +1678,9 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
 /* ─── SECCIÓN DE VALOR — FONDO VERDE ─────────────────────────────────────── */
 const TRAINING_TYPES = [
   "Rutina de hipertrofia",
-  "Entrenamiento running",
   "Plan de calistenia",
-  "Ejercicios en casa",
   "Entrenamiento Fit",
+  "Entrenamiento en casa",
   "Recetas saludables con IA",
   "Lista de compras automática",
   "Análisis NOVA de productos",

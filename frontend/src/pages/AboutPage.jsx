@@ -50,7 +50,7 @@ const MODULES = [
     bg:    "#FBE9E7",
     border:"rgba(191,54,12,0.20)",
     body:  "Nui genera un plan de entrenamiento personalizado según tu perfil físico, el tipo de actividad y el lugar donde entrenás. Registrás cada sesión, seguís tu progresión de cargas y cada sesión completada suma puntos saludables y calorías quemadas al balance del día.",
-    tags:  ["Calistenia", "Hipertrofia", "Running", "Seguimiento", "Progresión"],
+    tags:  ["Hipertrofia", "Fit", "Calistenia", "Seguimiento", "Progresión"],
   },
   {
     emoji: "⚡",

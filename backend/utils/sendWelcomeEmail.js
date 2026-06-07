@@ -144,7 +144,7 @@ export const sendWelcomeEmail = async ({ name, email, trialEnd = null }) => {
                   <td style="padding-left:14px;">
                     <div style="font-size:15px;font-weight:800;color:#BF360C;margin-bottom:4px;">Entrenamiento</div>
                     <div style="font-size:13px;color:#4A6B67;line-height:1.65;">
-                      Generá un plan de entrenamiento personalizado para gym, casa o aire libre. Fuerza, cardio, running o HIIT. La IA lo diseña según tu cuerpo, nivel y disponibilidad horaria.
+                      Generá tu plan de entrenamiento personalizado: Hipertrofia, Fit o Calistenia, en Gym o en Casa. La IA lo diseña según tu cuerpo, nivel y disponibilidad.
                     </div>
                   </td>
                 </tr>

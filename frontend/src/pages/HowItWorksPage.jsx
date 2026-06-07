@@ -117,7 +117,7 @@ const MODULES = [
     border: "rgba(191,54,12,0.20)",
     features: [
       "Plan personalizado según tu perfil físico con IA",
-      "Calistenia, Hipertrofia, Running, Fit y más",
+      "Hipertrofia, Fit y Calistenia — Gym o Casa",
       "Seguimiento de sesiones y progresión de cargas",
       "Tips semanales y fases de progresión",
     ],

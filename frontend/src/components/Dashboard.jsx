@@ -574,8 +574,6 @@ const TIPO_META = {
   "Calistenia":        { color: "#1565C0", bg: "#E3F2FD", emoji: "🤸" },
   "Hipertrofia":       { color: "#BF360C", bg: "#FBE9E7", emoji: "💪" },
   "Fit":               { color: "#6A1B9A", bg: "#F3E5F5", emoji: "✨" },
-  "Ejercicio en Casa": { color: "#2E7D32", bg: "#E8F5E9", emoji: "🏠" },
-  "Running":           { color: "#E65100", bg: "#FFF3E0", emoji: "🏃" },
 };
 
 /* ── Sub-card de un plan individual ── */
@@ -739,7 +737,7 @@ const EntrenamientoWidget = () => {
 
             <Stack spacing={1.2} mb={3.5}>
               {[
-                "Calistenia, Hipertrofia, Running y más",
+                "Hipertrofia, Fit y Calistenia — Gym o Casa",
                 "Seguimiento de sesiones con progresión",
                 "Tips semanales personalizados con IA",
               ].map((f) => (

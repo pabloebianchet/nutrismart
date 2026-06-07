@@ -52,7 +52,6 @@ const sanitize = (val, maxLen = 100) => {
 
 const EQUIP = {
   "Gym":        "equipamiento completo: barras olímpicas, mancuernas de todo peso, máquinas de cables y poleas, banco ajustable",
-  "Aire libre": "peso corporal, barras de calistenia de plaza, bandas elásticas, sin maquinaria",
   "Casa":       "peso corporal, mancuernas opcionales, silla, bandas elásticas, sin máquinas",
 };
 
