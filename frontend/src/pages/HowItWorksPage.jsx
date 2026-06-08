@@ -122,13 +122,26 @@ const MODULES = [
       "Tips semanales y fases de progresión",
     ],
   },
+  {
+    emoji: "⚡",
+    title: "Balance calórico",
+    color: "#1565C0",
+    bg: "#E3F2FD",
+    border: "rgba(21,101,192,0.20)",
+    features: [
+      "Registrá comidas, actividad y agua por voz o texto",
+      "La IA calcula calorías y macros automáticamente",
+      "Objetivo calórico diario según tu metabolismo y meta",
+      "Historial mensual de balance nutricional (Plan Gold)",
+    ],
+  },
 ];
 
 /* ── Componente principal ─────────────────────────────────────────────────── */
 const HowItWorksPage = () => {
   usePageMeta({
-    title:       "Cómo funciona Nui — Análisis nutricional, recetas y entrenamiento con IA",
-    description: "Registrate gratis, completá tu perfil y empezá a analizar alimentos con IA, generar recetas saludables y seguir tu plan de entrenamiento personalizado en segundos.",
+    title:       "Cómo funciona Nui — Análisis nutricional, recetas, entrenamiento y balance calórico con IA",
+    description: "Registrate gratis, completá tu perfil y empezá a analizar alimentos con IA, generar recetas saludables, seguir tu plan de entrenamiento y registrar tu balance calórico diario.",
     canonical:   "/how-it-works",
   });
   return (
