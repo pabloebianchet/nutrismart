@@ -11,6 +11,8 @@ import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import { API_URL } from "../config/api";
+import { isBiometricSupported, isBiometricRegistered, registerBiometric } from "../utils/biometric.js";
+import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
 
 const C = {
   brand: "#0B5E55",
@@ -33,7 +35,9 @@ const fieldSx = {
 
 const UserDataPage = () => {
   const { user, userData, setUser, loadingUserData } = useNutrition();
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash,       setShowSplash]       = useState(true);
+  const [showBiometricAsk, setShowBiometricAsk] = useState(false);
+  const [pendingUser,      setPendingUser]       = useState(null);
   const navigate = useNavigate();
 
   // Tabs: 0 = Google, 1 = Email
@@ -78,11 +82,30 @@ const UserDataPage = () => {
       if (!data.user) throw new Error("Respuesta inválida del servidor");
       // Guardar el JWT propio (7 días) en lugar del credential de Google (1 hora)
       localStorage.setItem("nutrismartToken", data.token || credential);
-      setUser(data.user);
+      // Ofrecer Face ID si el dispositivo lo soporta y no está ya registrado
+      if (isBiometricSupported() && !isBiometricRegistered()) {
+        setPendingUser(data.user);
+        setShowBiometricAsk(true);
+      } else {
+        setUser(data.user);
+      }
     } catch (err) {
       console.error("Google login error:", err);
       setError("Error al iniciar sesión con Google. Intentá de nuevo.");
     }
+  };
+
+  const handleActivateBiometric = async () => {
+    try {
+      await registerBiometric(pendingUser._id || pendingUser.googleId, pendingUser.name);
+    } catch { /* si falla, continuar igual */ }
+    setShowBiometricAsk(false);
+    setUser(pendingUser);
+  };
+
+  const handleSkipBiometric = () => {
+    setShowBiometricAsk(false);
+    setUser(pendingUser);
   };
 
   /* ---------------- EMAIL LOGIN / REGISTER ---------------- */
@@ -483,6 +506,35 @@ const UserDataPage = () => {
   }
 
   /* ---------------- DASHBOARD ---------------- */
+  // Modal: activar Face ID tras login exitoso
+  if (showBiometricAsk) {
+    return (
+      <Box sx={{ minHeight: "100dvh", bgcolor: "#0B1F1C", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", px: 3 }}>
+        <Box sx={{ width: 72, height: 72, borderRadius: "50%", bgcolor: "rgba(11,94,85,0.25)",
+          border: "2px solid #0B5E55", display: "flex", alignItems: "center", justifyContent: "center", mb: 3 }}>
+          <FingerprintRoundedIcon sx={{ fontSize: 38, color: "#0B5E55" }} />
+        </Box>
+        <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center" }}>
+          ¿Activar Face ID?
+        </Typography>
+        <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 4, textAlign: "center", lineHeight: 1.6 }}>
+          La próxima vez que abras la app podés entrar directo escaneando tu cara — sin elegir cuenta.
+        </Typography>
+        <Button onClick={handleActivateBiometric} variant="contained" fullWidth
+          sx={{ borderRadius: 3, py: 1.5, fontWeight: 700, fontSize: 15, textTransform: "none",
+            bgcolor: "#0B5E55", "&:hover": { bgcolor: "#0f7a6e" }, mb: 1.5, maxWidth: 340 }}>
+          Activar Face ID
+        </Button>
+        <Button onClick={handleSkipBiometric} fullWidth
+          sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
+            color: "rgba(255,255,255,0.45)", maxWidth: 340 }}>
+          Ahora no
+        </Button>
+      </Box>
+    );
+  }
+
   return <Dashboard />;
 };
 

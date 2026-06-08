@@ -25,8 +25,11 @@ import LegalPage         from "./pages/LegalPage.jsx";
 import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
 import AppFooter         from "./components/AppFooter.jsx";
 import TrialGate         from "./components/TrialGate.jsx";
+import BiometricGate     from "./components/BiometricGate.jsx";
 import PWAInstallPrompt  from "./components/PWAInstallPrompt.jsx";
+import { isBiometricRegistered } from "./utils/biometric.js";
 import PWAUpdatePrompt   from "./components/PWAUpdatePrompt.jsx";
+import { useState }      from "react";
 import { useNutrition }  from "./context/NutritionContext.jsx";
 
 /* ── Gate: perfil no completado ─────────────────────────────── */
@@ -107,8 +110,25 @@ const TrialBanner = () => {
 /* ── HomeRoute: landing para visitantes, dashboard para logueados ── */
 const HomeRoute = () => {
   const { user, authLoading } = useNutrition();
+  const [biometricPassed, setBiometricPassed] = useState(false);
+
   if (authLoading) return null;
-  return user ? <UserDataPage /> : <LandingPage />;
+  if (!user) return <LandingPage />;
+
+  // Si tiene Face ID registrado y todavía no pasó la verificación, mostrar gate
+  if (isBiometricRegistered() && !biometricPassed) {
+    return (
+      <BiometricGate
+        userName={user.name}
+        onUnlock={() => setBiometricPassed(true)}
+        onFallback={() => {
+          setBiometricPassed(true); // limpiar biométrica ya fue hecho en el componente
+        }}
+      />
+    );
+  }
+
+  return <UserDataPage />;
 };
 
 /* ── Ocultar chrome de app en la landing ──────────────────────── */
