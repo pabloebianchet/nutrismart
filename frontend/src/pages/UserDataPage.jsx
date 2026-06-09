@@ -36,8 +36,10 @@ const fieldSx = {
 const UserDataPage = () => {
   const { user, userData, setUser, loadingUserData } = useNutrition();
   const [showSplash,       setShowSplash]       = useState(true);
-  const [showBiometricAsk, setShowBiometricAsk] = useState(false);
-  const [pendingUser,      setPendingUser]       = useState(null);
+  const [showBiometricAsk,  setShowBiometricAsk]  = useState(false);
+  const [pendingUser,       setPendingUser]        = useState(null);
+  const [biometricError,    setBiometricError]     = useState("");
+  const [biometricLoading,  setBiometricLoading]   = useState(false);
   const navigate = useNavigate();
 
   // Tabs: 0 = Google, 1 = Email
@@ -96,13 +98,25 @@ const UserDataPage = () => {
   };
 
   const handleActivateBiometric = async () => {
+    setBiometricLoading(true);
+    setBiometricError("");
     const result = await registerBiometric(
       pendingUser._id || pendingUser.googleId,
       pendingUser.name
     );
-    if (!result.ok && result.error !== "cancelled") {
-      // Si falla por algo que no sea cancelación, continuar igual
-      console.warn("Face ID registration failed:", result.error);
+    setBiometricLoading(false);
+    if (result.error === "cancelled") {
+      setBiometricError("Cancelado. Podés activarlo más tarde desde tu perfil.");
+      return;
+    }
+    if (!result.ok) {
+      setBiometricError(`No se pudo activar Face ID: ${result.error}`);
+      return;
+    }
+    // Verificar que realmente se guardó
+    if (!isBiometricRegistered()) {
+      setBiometricError("Error al guardar la credencial. Intentá de nuevo.");
+      return;
     }
     setShowBiometricAsk(false);
     setUser(pendingUser);
@@ -295,11 +309,16 @@ const UserDataPage = () => {
         <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 4, textAlign: "center", lineHeight: 1.6 }}>
           La próxima vez que abras la app podés entrar directo escaneando tu cara — sin elegir cuenta.
         </Typography>
-        <Button onClick={handleActivateBiometric} variant="contained" fullWidth
+        <Button onClick={handleActivateBiometric} disabled={biometricLoading} variant="contained" fullWidth
           sx={{ borderRadius: 3, py: 1.5, fontWeight: 700, fontSize: 15, textTransform: "none",
             bgcolor: "#0B5E55", "&:hover": { bgcolor: "#0f7a6e" }, mb: 1.5, maxWidth: 340 }}>
-          Activar Face ID
+          {biometricLoading ? "Activando..." : "Activar Face ID"}
         </Button>
+        {biometricError && (
+          <Typography sx={{ fontSize: 12.5, color: "#E24B4A", mb: 1.5, textAlign: "center", maxWidth: 340 }}>
+            {biometricError}
+          </Typography>
+        )}
         <Button onClick={handleSkipBiometric} fullWidth
           sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
             color: "rgba(255,255,255,0.45)", maxWidth: 340 }}>
