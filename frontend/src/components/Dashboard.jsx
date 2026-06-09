@@ -46,7 +46,7 @@ import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import EcoRoundedIcon from "@mui/icons-material/EcoRounded";
+import EcoRoundedIcon from "@mui/icons-material/NatureRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { API_URL } from "../config/api";
 import ShoppingListDrawer       from "./ShoppingListDrawer";
