@@ -275,6 +275,35 @@ const UserDataPage = () => {
     );
   }
 
+  /* ---------------- FACE ID ACTIVATION PROMPT ---------------- */
+  if (showBiometricAsk) {
+    return (
+      <Box sx={{ minHeight: "100dvh", bgcolor: "#0B1F1C", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", px: 3 }}>
+        <Box sx={{ width: 72, height: 72, borderRadius: "50%", bgcolor: "rgba(11,94,85,0.25)",
+          border: "2px solid #0B5E55", display: "flex", alignItems: "center", justifyContent: "center", mb: 3 }}>
+          <FingerprintRoundedIcon sx={{ fontSize: 38, color: "#0B5E55" }} />
+        </Box>
+        <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center" }}>
+          ¿Activar Face ID?
+        </Typography>
+        <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 4, textAlign: "center", lineHeight: 1.6 }}>
+          La próxima vez que abras la app podés entrar directo escaneando tu cara — sin elegir cuenta.
+        </Typography>
+        <Button onClick={handleActivateBiometric} variant="contained" fullWidth
+          sx={{ borderRadius: 3, py: 1.5, fontWeight: 700, fontSize: 15, textTransform: "none",
+            bgcolor: "#0B5E55", "&:hover": { bgcolor: "#0f7a6e" }, mb: 1.5, maxWidth: 340 }}>
+          Activar Face ID
+        </Button>
+        <Button onClick={handleSkipBiometric} fullWidth
+          sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
+            color: "rgba(255,255,255,0.45)", maxWidth: 340 }}>
+          Ahora no
+        </Button>
+      </Box>
+    );
+  }
+
   /* ---------------- LOGIN ---------------- */
   if (!user) {
     return (
@@ -507,34 +536,6 @@ const UserDataPage = () => {
 
   /* ---------------- DASHBOARD ---------------- */
   // Modal: activar Face ID tras login exitoso
-  if (showBiometricAsk) {
-    return (
-      <Box sx={{ minHeight: "100dvh", bgcolor: "#0B1F1C", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", px: 3 }}>
-        <Box sx={{ width: 72, height: 72, borderRadius: "50%", bgcolor: "rgba(11,94,85,0.25)",
-          border: "2px solid #0B5E55", display: "flex", alignItems: "center", justifyContent: "center", mb: 3 }}>
-          <FingerprintRoundedIcon sx={{ fontSize: 38, color: "#0B5E55" }} />
-        </Box>
-        <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center" }}>
-          ¿Activar Face ID?
-        </Typography>
-        <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 4, textAlign: "center", lineHeight: 1.6 }}>
-          La próxima vez que abras la app podés entrar directo escaneando tu cara — sin elegir cuenta.
-        </Typography>
-        <Button onClick={handleActivateBiometric} variant="contained" fullWidth
-          sx={{ borderRadius: 3, py: 1.5, fontWeight: 700, fontSize: 15, textTransform: "none",
-            bgcolor: "#0B5E55", "&:hover": { bgcolor: "#0f7a6e" }, mb: 1.5, maxWidth: 340 }}>
-          Activar Face ID
-        </Button>
-        <Button onClick={handleSkipBiometric} fullWidth
-          sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
-            color: "rgba(255,255,255,0.45)", maxWidth: 340 }}>
-          Ahora no
-        </Button>
-      </Box>
-    );
-  }
-
   return <Dashboard />;
 };
 
