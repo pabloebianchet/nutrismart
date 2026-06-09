@@ -1,30 +1,33 @@
 import { useEffect, useState, useRef } from "react";
 import { Box, Typography } from "@mui/material";
+import { Leaf } from "@phosphor-icons/react";
+import PeanutMascot from "./PeanutMascot";
 
-const SAD_PARTICLES = ["💔", "💧", "⚠️", "☁️", "😮‍💨"];
+const SAD_COLORS = ["#E24B4A", "#7ABFE0", "#F39C12", "#B0BEC5", "#9E9E9E"];
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
 /* ── Partícula que cae hacia abajo ───────────── */
-const SadParticle = ({ emoji, style }) => (
+const SadParticle = ({ color, style }) => (
   <Box
     sx={{
       position: "absolute",
-      fontSize: style.size,
+      width: style.size,
+      height: style.size,
+      borderRadius: style.round ? "50%" : "3px",
+      bgcolor: color,
       pointerEvents: "none",
       userSelect: "none",
       left: style.left,
       top: style.top,
       animation: `sadParticle${style.id} ${style.dur}s ease-in forwards`,
       [`@keyframes sadParticle${style.id}`]: {
-        "0%":   { transform: "translate(0,0) rotate(0deg) scale(1)",                       opacity: 1 },
-        "60%":  { opacity: 0.7 },
+        "0%":   { transform: "translate(0,0) rotate(0deg) scale(1)",                       opacity: 0.8 },
+        "60%":  { opacity: 0.6 },
         "100%": { transform: `translate(${style.tx}px,${style.ty}px) rotate(${style.rot}deg) scale(0.3)`, opacity: 0 },
       },
     }}
-  >
-    {emoji}
-  </Box>
+  />
 );
 
 /* ── Componente principal ────────────────────── */
@@ -36,8 +39,9 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
   const particles = useRef(
     Array.from({ length: 12 }, (_, i) => ({
       id: i,
-      emoji: SAD_PARTICLES[i % SAD_PARTICLES.length],
-      size: `${rand(18, 32)}px`,
+      color: SAD_COLORS[i % SAD_COLORS.length],
+      size: `${rand(8, 16)}px`,
+      round: i % 2 === 0,
       left: `${rand(15, 85)}%`,
       top:  `${rand(5, 35)}%`,
       tx: rand(-80, 80),
@@ -116,7 +120,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
     >
       {/* Partículas cayendo */}
       {particles.map((p) => (
-        <SadParticle key={p.id} emoji={p.emoji} style={p} />
+        <SadParticle key={p.id} color={p.color} style={p} />
       ))}
 
       {/* Card principal */}
@@ -143,14 +147,12 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
         {/* Maní cayendo + tumbling */}
         <Box
           sx={{
-            fontSize: 72,
-            lineHeight: 1,
             animation: "peanutTumble 0.9s cubic-bezier(0.36,0.07,0.19,0.97) both, shake 0.6s 0.9s ease both",
             display: "inline-block",
             filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.18))",
           }}
         >
-          🥜
+          <PeanutMascot points={30} size={72} />
         </Box>
 
         {/* "-3" cayendo desde la esquina */}
@@ -197,7 +199,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
               fontWeight: 500,
             }}
           >
-            Ese producto no es muy saludable 😢
+            Ese producto no es muy saludable
           </Typography>
         </Box>
 
@@ -215,7 +217,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
             gap: 1.2,
           }}
         >
-          <Typography sx={{ fontSize: 22 }}>🥜</Typography>
+          <Leaf size={22} weight="fill" color="#fff" />
           <Box>
             <Typography
               sx={{
@@ -254,7 +256,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
             fontStyle: "italic",
           }}
         >
-          Elegí opciones más naturales para sumar puntos 💪
+          Elegí opciones más naturales para sumar puntos
         </Typography>
       </Box>
     </Box>

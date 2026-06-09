@@ -1,15 +1,20 @@
 import { useEffect, useState, useRef } from "react";
 import { Box, Typography } from "@mui/material";
+import { Leaf } from "@phosphor-icons/react";
+import PeanutMascot from "./PeanutMascot";
 
-const PARTICLES = ["🍎", "🥦", "🥕", "🌿", "🍋", "🫐", "🥑", "⭐", "✨"];
+const CELEB_COLORS = ["#2ECC71", "#F5B800", "#0B5E55", "#7ABFE0", "#E87A5D", "#9B59B6"];
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
-const Particle = ({ emoji, style }) => (
+const Particle = ({ color, style }) => (
   <Box
     sx={{
       position: "absolute",
-      fontSize: style.size,
+      width: style.size,
+      height: style.size,
+      borderRadius: style.round ? "50%" : "3px",
+      bgcolor: color,
       pointerEvents: "none",
       userSelect: "none",
       left: style.left,
@@ -21,9 +26,7 @@ const Particle = ({ emoji, style }) => (
         "100%": { transform: `translate(${style.tx}px, ${style.ty}px) rotate(${style.rot}deg) scale(0.4)`, opacity: 0 },
       },
     }}
-  >
-    {emoji}
-  </Box>
+  />
 );
 
 const PointsCelebration = ({ points, totalPoints, onDone }) => {
@@ -34,8 +37,9 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
   const particles = useRef(
     Array.from({ length: 18 }, (_, i) => ({
       id: i,
-      emoji: PARTICLES[i % PARTICLES.length],
-      size: `${rand(22, 42)}px`,
+      color: CELEB_COLORS[i % CELEB_COLORS.length],
+      round: i % 2 === 0,
+      size: `${rand(8, 16)}px`,
       left: `${rand(20, 80)}%`,
       top: `${rand(30, 70)}%`,
       tx: rand(-160, 160),
@@ -105,7 +109,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
     >
       {/* Particles */}
       {particles.map((p) => (
-        <Particle key={p.id} emoji={p.emoji} style={p} />
+        <Particle key={p.id} color={p.color} style={p} />
       ))}
 
       {/* Main card */}
@@ -132,14 +136,12 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
         {/* Peanut */}
         <Box
           sx={{
-            fontSize: 72,
-            lineHeight: 1,
             animation: "peanutBounce 1.2s ease-in-out",
             display: "inline-block",
             filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.15))",
           }}
         >
-          🥜
+          <PeanutMascot points={200} size={72} />
         </Box>
 
         {/* Texto principal */}
@@ -164,7 +166,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
               fontWeight: 500,
             }}
           >
-            Seguís cuidando tu salud 💪
+            Seguís cuidando tu salud
           </Typography>
         </Box>
 
@@ -210,7 +212,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
             gap: 1,
           }}
         >
-          <Typography sx={{ fontSize: 18 }}>🥜</Typography>
+          <Leaf size={18} weight="fill" color="#fff" />
           <Typography
             sx={{
               fontSize: 13,

@@ -10,6 +10,13 @@ import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import TipsAndUpdatesOutlinedIcon from "@mui/icons-material/TipsAndUpdatesOutlined";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
+import HourglassTopRoundedIcon from "@mui/icons-material/HourglassTopRounded";
+import TrafficRoundedIcon from "@mui/icons-material/TrafficRounded";
+import { Leaf } from "@phosphor-icons/react";
 import { useNutrition } from "../context/NutritionContext";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -31,9 +38,9 @@ const getScoreLevel = (s) =>
 
 const getProcessingLevel = (text) => {
   const l = (text || "").toLowerCase();
-  if (l.includes("ultraprocesado")) return { label: "Ultraprocesado", color: "#B71C1C", icon: "⚠️" };
-  if (l.includes("no procesado"))   return { label: "No procesado",   color: "#2E7D32", icon: "🌿" };
-  if (l.includes("procesado"))      return { label: "Procesado",      color: "#E65100", icon: "⚡" };
+  if (l.includes("ultraprocesado")) return { label: "Ultraprocesado", color: "#B71C1C", Icon: WarningAmberRoundedIcon };
+  if (l.includes("no procesado"))   return { label: "No procesado",   color: "#2E7D32", Icon: SpaRoundedIcon };
+  if (l.includes("procesado"))      return { label: "Procesado",      color: "#E65100", Icon: BoltRoundedIcon };
   return null;
 };
 
@@ -204,16 +211,18 @@ const ResultScreen = () => {
   // ── limit errors ──
   if (limitError) {
     const meta = {
-      trial_limit_reached: { emoji: "🥜", title: "Límite de prueba alcanzado", cta: "Ver planes",  ctaPath: "/pricing"      },
-      daily_limit_reached: { emoji: "⏳", title: "Límite diario alcanzado",    cta: "Ver mi plan", ctaPath: "/subscription" },
-      rate_limit:          { emoji: "🚦", title: "Demasiadas solicitudes",      cta: "Volver",      ctaPath: "/"             },
+      trial_limit_reached: { Icon: Leaf,                  title: "Límite de prueba alcanzado", cta: "Ver planes",  ctaPath: "/pricing"      },
+      daily_limit_reached: { Icon: HourglassTopRoundedIcon, title: "Límite diario alcanzado",    cta: "Ver mi plan", ctaPath: "/subscription" },
+      rate_limit:          { Icon: TrafficRoundedIcon,      title: "Demasiadas solicitudes",      cta: "Volver",      ctaPath: "/"             },
     };
     const m = meta[limitError.type] || meta.rate_limit;
     return (
       <Box sx={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", px: 2, background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)" }}>
         <Paper elevation={0} sx={{ maxWidth: 420, width: "100%", borderRadius: 5, border: "1px solid rgba(11,94,85,0.12)", boxShadow: "0 20px 60px rgba(11,94,85,0.10)", overflow: "hidden", textAlign: "center" }}>
           <Box sx={{ bgcolor: "#0B5E55", px: 4, pt: 4, pb: 3 }}>
-            <Typography sx={{ fontSize: 48, mb: 1 }}>{m.emoji}</Typography>
+            {m.Icon === Leaf
+              ? <Leaf size={48} weight="fill" color="#fff" style={{ marginBottom: 8 }} />
+              : <m.Icon sx={{ fontSize: 48, color: "#fff", mb: 1 }} />}
             <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>{m.title}</Typography>
           </Box>
           <Box sx={{ p: 4 }}>
@@ -362,7 +371,7 @@ const ResultScreen = () => {
                       gap: 1,
                     }}
                   >
-                    <Typography sx={{ fontSize: 16, lineHeight: 1 }}>{processing.icon}</Typography>
+                    <processing.Icon sx={{ fontSize: 16, color: processing.color }} />
                     <Box>
                       <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: "#8AADAA", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                         Nivel de procesamiento
@@ -386,7 +395,7 @@ const ResultScreen = () => {
                       gap: 1,
                     }}
                   >
-                    <Typography sx={{ fontSize: 16, lineHeight: 1 }}>📊</Typography>
+                    <BarChartRoundedIcon sx={{ fontSize: 16, color: "#0B5E55" }} />
                     <Box>
                       <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: "#8AADAA", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                         Puntaje global

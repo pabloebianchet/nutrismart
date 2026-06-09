@@ -13,6 +13,11 @@
 
 import { Box, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
+import HotelRoundedIcon from "@mui/icons-material/HotelRounded";
+import DirectionsWalkRoundedIcon from "@mui/icons-material/DirectionsWalkRounded";
+import DirectionsRunRoundedIcon from "@mui/icons-material/DirectionsRunRounded";
+import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 
 
 /* ── Umbrales ──────────────────────────────────────────────────────────────── */
@@ -27,10 +32,12 @@ export const getAvatarState = (pts) => {
 const genderPrefix = (sexo) =>
   sexo?.toLowerCase().includes("mas") ? "m" : "f";
 
-/* ── Placeholder emoji mientras no hay imagen ──────────────────────────────── */
-const EMOJIS = ["😴", "🚶", "🏃", "💪", "🏆"];
+/* ── Placeholder con ícono mientras no hay imagen ──────────────────────────── */
+const STATE_ICONS = [HotelRoundedIcon, DirectionsWalkRoundedIcon, DirectionsRunRoundedIcon, FitnessCenterRoundedIcon, EmojiEventsRoundedIcon];
 
-const Placeholder = ({ w, h, state }) => (
+const Placeholder = ({ w, h, state }) => {
+  const StateIcon = STATE_ICONS[state - 1];
+  return (
   <Box
     sx={{
       width: w,
@@ -43,16 +50,15 @@ const Placeholder = ({ w, h, state }) => (
       gap: 0.5,
     }}
   >
-    <Typography sx={{ fontSize: h * 0.32, lineHeight: 1 }}>
-      {EMOJIS[state - 1]}
-    </Typography>
+    <StateIcon sx={{ fontSize: h * 0.32, color: "rgba(255,255,255,0.6)" }} />
     <Typography
       sx={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}
     >
       nivel {state}/5
     </Typography>
   </Box>
-);
+  );
+};
 
 /* ── Componente ─────────────────────────────────────────────────────────────── */
 const AvatarMascot = ({

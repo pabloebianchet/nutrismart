@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Avatar, Paper, Stack, Button } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 
 const RANK = {
-  1: { trophy: "🏆", color: "#F5B800", bg: "linear-gradient(135deg,#FFFBEA,#FFF3C0)", border: "rgba(245,184,0,0.40)", text: "#8A6800" },
-  2: { trophy: "🥈", color: "#9BAAB5", bg: "linear-gradient(135deg,#F4F6F8,#E8ECF0)", border: "rgba(155,170,181,0.40)", text: "#6B7A87" },
-  3: { trophy: "🥉", color: "#C07830", bg: "linear-gradient(135deg,#FDF2E8,#F5E0C8)", border: "rgba(192,120,48,0.35)", text: "#8B4C1A" },
+  1: { color: "#F5B800", bg: "linear-gradient(135deg,#FFFBEA,#FFF3C0)", border: "rgba(245,184,0,0.40)", text: "#8A6800" },
+  2: { color: "#9BAAB5", bg: "linear-gradient(135deg,#F4F6F8,#E8ECF0)", border: "rgba(155,170,181,0.40)", text: "#6B7A87" },
+  3: { color: "#C07830", bg: "linear-gradient(135deg,#FDF2E8,#F5E0C8)", border: "rgba(192,120,48,0.35)", text: "#8B4C1A" },
 };
 
 const firstName = (name) => name?.split(" ")[0] || "Usuario";
@@ -37,7 +38,7 @@ const RankRow = ({ entry, blurred }) => {
       {/* Posición */}
       <Box sx={{ width: 34, textAlign: "center", flexShrink: 0 }}>
         {rs
-          ? <Typography sx={{ fontSize: 22, lineHeight: 1 }}>{rs.trophy}</Typography>
+          ? <EmojiEventsRoundedIcon sx={{ fontSize: 22, color: rs.color }} />
           : <Typography sx={{ fontSize: 13, fontWeight: 900, color: entry.isCurrentUser ? "#0B5E55" : "#8AADAA" }}>
               #{entry.rank}
             </Typography>
@@ -119,9 +120,9 @@ const Podium = ({ top3 }) => {
             {/* Avatar + nombre encima */}
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, animation: "fadeSlideUp 0.5s ease both", animationDelay: `${i * 0.1}s` }}>
               {isFirst && (
-                <Typography sx={{ fontSize: 30, lineHeight: 1, animation: "trophyFloat 2.8s ease-in-out infinite" }}>
-                  🏆
-                </Typography>
+                <Box sx={{ display: "flex", animation: "trophyFloat 2.8s ease-in-out infinite" }}>
+                  <EmojiEventsRoundedIcon sx={{ fontSize: 30, color: "#F5B800" }} />
+                </Box>
               )}
               <Avatar
                 src={entry.picture ?? undefined}
@@ -160,7 +161,7 @@ const Podium = ({ top3 }) => {
                 animationDelay: `${i * 0.1 + 0.2}s`,
               }}
             >
-              <Typography sx={{ fontSize: isFirst ? 22 : 18 }}>{rs.trophy}</Typography>
+              <EmojiEventsRoundedIcon sx={{ fontSize: isFirst ? 22 : 18, color: rs.color }} />
             </Box>
           </Box>
         );
@@ -229,7 +230,7 @@ const LeaderboardWidget = () => {
             </Typography>
           </Box>
         </Stack>
-        <Typography sx={{ fontSize: 20 }}>🥜</Typography>
+        <Leaf size={20} weight="fill" color="#0B5E55" />
       </Box>
 
       <Box sx={{ px: 2.5, pt: 3, pb: 2 }}>
@@ -310,7 +311,9 @@ const LeaderboardWidget = () => {
         {/* Mensaje si lista vacía */}
         {topTen.length === 0 && (
           <Box sx={{ textAlign: "center", py: 3 }}>
-            <Typography sx={{ fontSize: 32, mb: 1 }}>🥜</Typography>
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
+              <Leaf size={32} weight="fill" color="#B2DDD9" />
+            </Box>
             <Typography sx={{ fontSize: 14, color: "#8AADAA" }}>
               Sé el primero en el ranking. ¡Analizá un producto saludable!
             </Typography>

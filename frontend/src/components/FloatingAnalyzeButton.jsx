@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
+import { Leaf, MagnifyingGlass } from "@phosphor-icons/react";
 
 const HIDDEN_PATHS = ["/capture", "/result", "/admin", "/recipes", "/training"];
 
@@ -78,31 +79,29 @@ const FloatingAnalyzeButton = () => {
           "&:active": { transform: "scale(0.96)" },
         }}
       >
-        {/* Ícono emoji */}
+        {/* Ícono de marca */}
         <Box
           sx={{
-            fontSize: { xs: 24, sm: 26 },
-            lineHeight: 1,
             display: "flex",
             alignItems: "center",
+            color: "#fff",
             transition: "transform 0.25s ease",
             transform: hovered ? "rotate(-8deg) scale(1.15)" : "none",
           }}
         >
-          🥜
+          <Leaf size={24} weight="fill" />
         </Box>
 
         {/* Lupa */}
         <Box
           sx={{
-            fontSize: { xs: 17, sm: 18 },
-            lineHeight: 1,
             display: "flex",
             alignItems: "center",
+            color: "#fff",
             opacity: 0.9,
           }}
         >
-          🔍
+          <MagnifyingGlass size={17} weight="bold" />
         </Box>
 
         {/* Label — siempre visible */}

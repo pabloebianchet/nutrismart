@@ -36,6 +36,22 @@ import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
+import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import EggRoundedIcon from "@mui/icons-material/EggRounded";
+import LunchDiningRoundedIcon from "@mui/icons-material/LunchDiningRounded";
+import GrainRoundedIcon from "@mui/icons-material/GrainRounded";
+import OpacityRoundedIcon from "@mui/icons-material/OpacityRounded";
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import GrassRoundedIcon from "@mui/icons-material/GrassRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import AccountBalanceRoundedIcon from "@mui/icons-material/AccountBalanceRounded";
+import GppGoodRoundedIcon from "@mui/icons-material/GppGoodRounded";
+import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
+import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
+import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
+import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 
 /* ─── Tokens ──────────────────────────────────────────────────────────────── */
@@ -1120,7 +1136,7 @@ const ModulesSection = () => (
 /* ─── LISTA DE COMPRAS FEATURE ───────────────────────────────────────────── */
 const SHOPPING_STEPS = [
   {
-    emoji: "🍽️",
+    Icon: RestaurantRoundedIcon,
     color: "#7C3AED",
     bg: "#F5F3FF",
     border: "rgba(124,58,237,0.14)",
@@ -1128,7 +1144,7 @@ const SHOPPING_STEPS = [
     desc: "Elegís el tipo de plato — Fit, Hipertrofia o Rápidas — y la IA genera ingredientes y pasos al instante.",
   },
   {
-    emoji: "🛒",
+    Icon: ShoppingCartRoundedIcon,
     color: C.brand,
     bg: C.brandSurf,
     border: C.brandBorder,
@@ -1136,7 +1152,7 @@ const SHOPPING_STEPS = [
     desc: '"Agregar a mi lista" suma todos los ingredientes necesarios. Sin copiar, sin escribir nada.',
   },
   {
-    emoji: "🔢",
+    Icon: FormatListNumberedRoundedIcon,
     color: "#D97706",
     bg: "#FFFBEB",
     border: "rgba(217,119,6,0.14)",
@@ -1144,7 +1160,7 @@ const SHOPPING_STEPS = [
     desc: "¿Una receta lleva 3 huevos y otra 2? Nui pone 5 huevos — sin duplicados, sin confusiones.",
   },
   {
-    emoji: "✏️",
+    Icon: EditRoundedIcon,
     color: "#0891B2",
     bg: "#F0FDFF",
     border: "rgba(8,145,178,0.14)",
@@ -1155,23 +1171,23 @@ const SHOPPING_STEPS = [
 
 /* ─── Mock visual de la lista ── */
 const MOCK_ITEMS = [
-  { emoji: "🥚", label: "5 huevos", source: "2 recetas", checked: true },
-  { emoji: "🐔", label: "300g pollo", source: "Taco de Pollo", checked: true },
+  { Icon: EggRoundedIcon, label: "5 huevos", source: "2 recetas", checked: true },
+  { Icon: LunchDiningRoundedIcon, label: "300g pollo", source: "Taco de Pollo", checked: true },
   {
-    emoji: "🌽",
+    Icon: GrainRoundedIcon,
     label: "2 tortillas maíz",
     source: "Taco de Pollo",
     checked: false,
   },
   {
-    emoji: "🫒",
+    Icon: OpacityRoundedIcon,
     label: "1 cda aceite oliva",
     source: "Ensalada Fit",
     checked: false,
   },
-  { emoji: "🧅", label: "1 cebolla", source: "Manual", checked: false },
+  { Icon: SpaRoundedIcon, label: "1 cebolla", source: "Manual", checked: false },
   {
-    emoji: "🥦",
+    Icon: GrassRoundedIcon,
     label: "200g brócoli",
     source: "Salteado Fit",
     checked: false,
@@ -1273,11 +1289,9 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 24,
-                    lineHeight: 1,
                   }}
                 >
-                  {step.emoji}
+                  <step.Icon sx={{ fontSize: 24, color: step.color }} />
                 </Box>
                 {/* Texto */}
                 <Box>
@@ -1469,9 +1483,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                       </Typography>
                     )}
                   </Box>
-                  <Typography sx={{ fontSize: 13.5, lineHeight: 1 }}>
-                    {item.emoji}
-                  </Typography>
+                  <item.Icon sx={{ fontSize: 15, lineHeight: 1, color: "#0B5E55", flexShrink: 0 }} />
                   <Box flex={1} minWidth={0}>
                     <Typography
                       sx={{
@@ -1605,7 +1617,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
             }}
           >
             <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-              <Typography sx={{ fontSize: 15 }}>🍽️</Typography>
+              <RestaurantRoundedIcon sx={{ fontSize: 15, color: "#7C3AED" }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.ink }}>
                 Desde la receta
               </Typography>
@@ -1630,30 +1642,29 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
       >
         {[
           {
-            icon: "🔄",
+            Icon: AutorenewRoundedIcon,
             title: "Sin duplicados",
             desc: "Ingredientes iguales de distintas recetas se suman, no se repiten.",
           },
           {
-            icon: "✏️",
+            Icon: EditRoundedIcon,
             title: "Agregar a mano",
             desc: "Sumá cualquier item manualmente: limpieza, snacks, lo que sea.",
           },
           {
-            icon: "✅",
+            Icon: CheckRoundedIcon,
             title: "Check al comprar",
             desc: "Marcá cada item mientras comprás. La app recuerda tu progreso.",
           },
           {
-            icon: "📲",
+            Icon: PhoneIphoneRoundedIcon,
             title: "Siempre en tu cel",
             desc: "Accedé desde el Dashboard o desde cualquier receta generada.",
           },
         ].map((b) => (
           <Box key={b.title}>
-            <Typography sx={{ fontSize: 28, mb: 1.2, lineHeight: 1 }}>
-              {b.icon}
-            </Typography>
+            <b.Icon sx={{ fontSize: 28, mb: 1.2, lineHeight: 1, color: "#fff" }} />
+
             <Typography
               sx={{ fontSize: 14, fontWeight: 800, color: "#fff", mb: 0.6 }}
             >
@@ -2644,7 +2655,7 @@ const fmtDateLanding = (d) =>
   new Date(d).toLocaleDateString("es-AR", { day: "numeric", month: "long" });
 
 const buildShareText = (post) =>
-  `${post.title}\n\n${post.body?.replace(/\n\n/g, "\n")}\n\n— Nui App 💚`;
+  `${post.title}\n\n${post.body?.replace(/\n\n/g, "\n")}\n\n— Nui App`;
 
 /* Modal reutilizable */
 const PostModalLanding = ({ post, open, onClose }) => {
@@ -3061,9 +3072,9 @@ const LandingPostsSection = () => {
                       gap: 1,
                     }}
                   >
-                    <Typography
+                    <Box
                       sx={{
-                        fontSize: 28,
+                        display: "flex",
                         "@keyframes pulse": {
                           "0%,100%": { opacity: 0.4 },
                           "50%": { opacity: 1 },
@@ -3071,8 +3082,8 @@ const LandingPostsSection = () => {
                         animation: "pulse 1.4s ease-in-out infinite",
                       }}
                     >
-                      🌿
-                    </Typography>
+                      <Leaf size={28} weight="fill" color="#0B5E55" />
+                    </Box>
                     <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
                       Preparando…
                     </Typography>
@@ -3289,10 +3300,9 @@ const LandingPostsSection = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 20,
                           }}
                         >
-                          🌿
+                          <Leaf size={20} weight="fill" color="#0B5E55" />
                         </Box>
                       )}
                     </Box>
@@ -3408,17 +3418,16 @@ const LandingPostsSection = () => {
               textAlign: "center",
             }}
           >
-            <Typography
+            <Box
               sx={{
-                fontSize: 28,
                 mb: 1,
+                display: "inline-flex",
                 "@keyframes spin": { to: { transform: "rotate(360deg)" } },
-                display: "inline-block",
                 animation: "spin 1s linear infinite",
               }}
             >
-              🌿
-            </Typography>
+              <Leaf size={28} weight="fill" color="#0B5E55" />
+            </Box>
             <Typography
               sx={{ fontSize: 13, color: "#4A6B67", fontWeight: 600 }}
             >
@@ -3539,9 +3548,12 @@ const LandingFooter = () => (
           <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.20)" }}>
             ·
           </Typography>
-          <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}>
-            🔒 Transacción cifrada SSL · PCI DSS compliant
-          </Typography>
+          <Stack direction="row" spacing={0.5} alignItems="center">
+            <LockRoundedIcon sx={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }} />
+            <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}>
+              Transacción cifrada SSL · PCI DSS compliant
+            </Typography>
+          </Stack>
         </Stack>
       </Box>
 
@@ -3567,10 +3579,9 @@ const LandingFooter = () => (
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 11,
             }}
           >
-            🏛️
+            <AccountBalanceRoundedIcon sx={{ fontSize: 11, color: "rgba(255,255,255,0.60)" }} />
           </Box>
           <Box
             component="a"
@@ -3604,6 +3615,9 @@ const LandingFooter = () => (
           target="_blank"
           rel="noopener noreferrer"
           sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
             fontSize: 11,
             color: "rgba(255,255,255,0.35)",
             textDecoration: "none",
@@ -3611,7 +3625,7 @@ const LandingFooter = () => (
             transition: "color 0.2s",
           }}
         >
-          🛡️ Defensa del Consumidor
+          <GppGoodRoundedIcon sx={{ fontSize: 13 }} /> Defensa del Consumidor
         </Box>
         <Typography
           sx={{
@@ -3626,6 +3640,9 @@ const LandingFooter = () => (
           component="a"
           href="tel:08006661518"
           sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
             fontSize: 11,
             color: "rgba(255,255,255,0.35)",
             textDecoration: "none",
@@ -3633,7 +3650,7 @@ const LandingFooter = () => (
             transition: "color 0.2s",
           }}
         >
-          📞 0800-666-1518
+          <PhoneRoundedIcon sx={{ fontSize: 13 }} /> 0800-666-1518
         </Box>
         <Typography
           sx={{
@@ -3650,6 +3667,9 @@ const LandingFooter = () => (
           target="_blank"
           rel="noopener noreferrer"
           sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
             fontSize: 11,
             color: "rgba(255,255,255,0.35)",
             textDecoration: "none",
@@ -3657,7 +3677,7 @@ const LandingFooter = () => (
             transition: "color 0.2s",
           }}
         >
-          ↩️ Botón de arrepentimiento
+          <UndoRoundedIcon sx={{ fontSize: 13 }} /> Botón de arrepentimiento
         </Box>
       </Box>
 

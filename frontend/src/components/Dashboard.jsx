@@ -37,6 +37,17 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import AddRoundedIcon           from "@mui/icons-material/AddRounded";
+import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
+import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import DirectionsRunRoundedIcon from "@mui/icons-material/DirectionsRunRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
+import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
+import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import EcoRoundedIcon from "@mui/icons-material/EcoRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { API_URL } from "../config/api";
 import ShoppingListDrawer       from "./ShoppingListDrawer";
 import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel } from "../utils/shoppingList";
@@ -487,7 +498,7 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 4px 14px rgba(191,54,12,0.28)",
             }}>
-              <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🏋️</Typography>
+              <FitnessCenterRoundedIcon sx={{ fontSize: 22, color: "#fff" }} />
             </Box>
             <Box flex={1} minWidth={0}>
               <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
@@ -534,7 +545,7 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 4px 14px rgba(11,94,85,0.28)",
             }}>
-              <Typography sx={{ fontSize: 22, lineHeight: 1 }}>🔍</Typography>
+              <SearchRoundedIcon sx={{ fontSize: 22, color: "#fff" }} />
             </Box>
             <Box flex={1} minWidth={0}>
               <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
@@ -571,9 +582,9 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
 ──────────────────────────────────────────── */
 
 const TIPO_META = {
-  "Calistenia":        { color: "#1565C0", bg: "#E3F2FD", emoji: "🤸" },
-  "Hipertrofia":       { color: "#BF360C", bg: "#FBE9E7", emoji: "💪" },
-  "Fit":               { color: "#6A1B9A", bg: "#F3E5F5", emoji: "✨" },
+  "Calistenia":        { color: "#1565C0", bg: "#E3F2FD", Icon: DirectionsRunRoundedIcon },
+  "Hipertrofia":       { color: "#BF360C", bg: "#FBE9E7", Icon: FitnessCenterRoundedIcon },
+  "Fit":               { color: "#6A1B9A", bg: "#F3E5F5", Icon: AutoAwesomeRoundedIcon },
 };
 
 /* ── Sub-card de un plan individual ── */
@@ -590,7 +601,7 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
   const sessionPct = Math.min(100, Math.round((sessCount / expectedSessions) * 100));
   const timePct    = total > 1 ? Math.min(100, Math.round((elapsed / total) * 100)) : 0;
   const pct        = Math.max(sessionPct, timePct);
-  const meta      = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
+  const meta      = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", Icon: FitnessCenterRoundedIcon };
 
   return (
     <Box sx={{
@@ -609,7 +620,7 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
         px: 1.2, py: 0.35, borderRadius: 999,
         bgcolor: meta.bg, border: `1px solid ${meta.color}30`,
       }}>
-        <Typography sx={{ fontSize: 13, lineHeight: 1 }}>{meta.emoji}</Typography>
+        <meta.Icon sx={{ fontSize: 14, color: meta.color }} />
         <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.06em" }}>
           {cfg.tipo}
         </Typography>
@@ -724,7 +735,7 @@ const EntrenamientoWidget = () => {
 
           <Box sx={{ position: "relative" }}>
             <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
-              <Typography sx={{ fontSize: 30 }}>🏋️</Typography>
+              <FitnessCenterRoundedIcon sx={{ fontSize: 30, color: "#fff" }} />
               <Box>
                 <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1 }}>
                   Entrenamiento
@@ -780,7 +791,7 @@ const EntrenamientoWidget = () => {
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Typography sx={{ fontSize: 20 }}>🏋️</Typography>
+            <FitnessCenterRoundedIcon sx={{ fontSize: 20, color: C.textPrimary }} />
             <Box>
               <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
                 Planes de entrenamiento
@@ -815,7 +826,7 @@ const EntrenamientoWidget = () => {
   const pct      = Math.min(100, Math.round((elapsed / total) * 100));
   const week     = Math.max(1, Math.ceil((elapsed + 1) / 7));
   const sessCount = activeData.sessions?.length || 0;
-  const meta     = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", emoji: "🏋️" };
+  const meta     = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", Icon: FitnessCenterRoundedIcon };
 
   return (
     <Paper elevation={0} sx={{
@@ -841,8 +852,9 @@ const EntrenamientoWidget = () => {
               bgcolor: `${meta.color}14`, border: `1px solid ${meta.color}30`, mb: 1.2,
             }}>
               <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
+              <FitnessCenterRoundedIcon sx={{ fontSize: 13, color: meta.color }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                🏋️ Entrenamiento activo
+                Entrenamiento activo
               </Typography>
             </Box>
 
@@ -851,7 +863,7 @@ const EntrenamientoWidget = () => {
             </Typography>
 
             <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap mb={total > 1 ? 2 : 0}>
-              <Chip label={`${meta.emoji} ${cfg.tipo}`} size="small"
+              <Chip label={cfg.tipo} size="small"
                 sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: meta.bg, color: meta.color, border: `1px solid ${meta.color}25` }} />
               {cfg.lugar && (
                 <Chip label={cfg.lugar} size="small"
@@ -914,9 +926,9 @@ const EntrenamientoWidget = () => {
    Recetas YA Banner
 ──────────────────────────────────────────── */
 const MODALIDADES_PREVIEW = [
-  { id: "Fit",         emoji: "💚", label: "Fit",         color: "#2E7D32", bg: "#E8F5E9" },
-  { id: "Hipertrofia", emoji: "💪", label: "Hipertrofia", color: "#BF360C", bg: "#FBE9E7" },
-  { id: "Rápidas",     emoji: "⚡", label: "Rápidas",     color: "#1565C0", bg: "#E3F2FD" },
+  { id: "Fit",         Icon: AutoAwesomeRoundedIcon,    label: "Fit",         color: "#2E7D32", bg: "#E8F5E9" },
+  { id: "Hipertrofia", Icon: FitnessCenterRoundedIcon,  label: "Hipertrofia", color: "#BF360C", bg: "#FBE9E7" },
+  { id: "Rápidas",     Icon: BoltRoundedIcon,           label: "Rápidas",     color: "#1565C0", bg: "#E3F2FD" },
 ];
 
 const RecetasYABanner = () => {
@@ -958,7 +970,7 @@ const RecetasYABanner = () => {
 
           {/* Title */}
           <Stack direction="row" spacing={1.2} alignItems="center" mb={1}>
-            <Typography sx={{ fontSize: 32 }}>🍽️</Typography>
+            <RestaurantRoundedIcon sx={{ fontSize: 32, color: "#fff" }} />
             <Typography sx={{ fontSize: { xs: 24, md: 28 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.8px", lineHeight: 1 }}>
               Recetas YA
             </Typography>
@@ -1034,7 +1046,7 @@ const RecetasYABanner = () => {
                 "&:hover": { transform: "translateY(-2px)", boxShadow: `0 6px 18px ${m.color}25`, borderColor: `${m.color}60` },
               }}
             >
-              <Typography sx={{ fontSize: 22, lineHeight: 1, mb: 0.6 }}>{m.emoji}</Typography>
+              <m.Icon sx={{ fontSize: 22, mb: 0.6, color: m.color }} />
               <Typography sx={{ fontSize: 13, fontWeight: 800, color: m.color, letterSpacing: "-0.2px" }}>{m.label}</Typography>
             </Box>
           ))}
@@ -1046,7 +1058,7 @@ const RecetasYABanner = () => {
             Para cada momento
           </Typography>
           <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
-            {["🌅 Desayuno", "☀️ Almuerzo", "🍎 Merienda", "🌙 Cena", "🫐 Snack"].map((m) => (
+            {["Desayuno", "Almuerzo", "Merienda", "Cena", "Snack"].map((m) => (
               <Chip
                 key={m}
                 label={m}
@@ -1105,7 +1117,7 @@ const NotifPrefsPanel = () => {
   // Los toggles individuales SIEMPRE son clickeables.
   // El master pause controla el envío, no la configuración de preferencias.
   // Cuando hay pausa activa + toggle ON → verde tenue (preferencia guardada, en pausa global).
-  const Row = ({ label, icon, fieldKey }) => {
+  const Row = ({ label, Icon, fieldKey }) => {
     const active    = prefs ? !!prefs[fieldKey] : true;
     const isPaused  = !!prefs?.paused;
     const trackColor = active
@@ -1115,7 +1127,7 @@ const NotifPrefsPanel = () => {
       <Stack direction="row" alignItems="center" justifyContent="space-between"
         sx={{ py: 1.2, borderBottom: `1px solid ${C.border}`, "&:last-child": { borderBottom: "none" } }}>
         <Stack direction="row" alignItems="center" spacing={1.2} flex={1} minWidth={0}>
-          <Typography sx={{ fontSize: 18, flexShrink: 0 }}>{icon}</Typography>
+          <Icon sx={{ fontSize: 18, flexShrink: 0, color: C.textSecondary }} />
           <Box minWidth={0}>
             <Typography sx={{ fontSize: 13, color: C.textPrimary, fontWeight: 500 }}>
               {label}
@@ -1174,7 +1186,7 @@ const NotifPrefsPanel = () => {
         }}
       >
         <Stack direction="row" alignItems="center" spacing={1.5}>
-          <Typography sx={{ fontSize: 18 }}>🔔</Typography>
+          <NotificationsRoundedIcon sx={{ fontSize: 18, color: C.textPrimary }} />
           <Box>
             <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
               Notificaciones por email
@@ -1201,7 +1213,7 @@ const NotifPrefsPanel = () => {
               <Stack direction="row" alignItems="center" justifyContent="space-between"
                 sx={{ py: 1.5, mb: 1, borderBottom: `2px solid ${C.border}` }}>
                 <Stack direction="row" alignItems="center" spacing={1.2}>
-                  <Typography sx={{ fontSize: 18 }}>⏸️</Typography>
+                  <PauseRoundedIcon sx={{ fontSize: 18, color: C.textPrimary }} />
                   <Box>
                     <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textPrimary }}>
                       Pausar todos los emails
@@ -1243,16 +1255,16 @@ const NotifPrefsPanel = () => {
                   px: 1.8, py: 1.2,
                   mb: 1.5,
                 }}>
-                  <Typography sx={{ fontSize: 15, lineHeight: 1, flexShrink: 0, mt: 0.1 }}>⏸️</Typography>
+                  <PauseRoundedIcon sx={{ fontSize: 15, flexShrink: 0, mt: 0.1, color: "#C0392B" }} />
                   <Typography sx={{ fontSize: 11.5, color: "#C0392B", lineHeight: 1.5 }}>
                     Emails pausados globalmente. Podés configurar tus preferencias; se activarán cuando desactives la pausa.
                   </Typography>
                 </Box>
               )}
 
-              <Row label="Resultado de cada análisis" icon="🔍" fieldKey="analysis" />
-              <Row label="Sesión de entrenamiento"    icon="🏋️" fieldKey="training" />
-              <Row label="Renovación de plan"         icon="🔄" fieldKey="renewal"  />
+              <Row label="Resultado de cada análisis" Icon={SearchRoundedIcon} fieldKey="analysis" />
+              <Row label="Sesión de entrenamiento"    Icon={FitnessCenterRoundedIcon} fieldKey="training" />
+              <Row label="Renovación de plan"         Icon={RefreshRoundedIcon} fieldKey="renewal"  />
 
               <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 1.5, lineHeight: 1.6 }}>
                 Los emails se envían solo si la notificación correspondiente está activa y la pausa global está desactivada.
@@ -1366,7 +1378,7 @@ const ShoppingListWidget = () => {
             </Box>
 
             <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1.1, mb: 0.6 }}>
-              🛒 Mi lista
+              Mi lista
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55, mb: 2.5 }}>
               {items.length === 0
@@ -1443,7 +1455,7 @@ const ShoppingListWidget = () => {
         >
           {items.length === 0 ? (
             <Box sx={{ textAlign: "center", py: { xs: 2, md: 0 } }}>
-              <Typography sx={{ fontSize: 40, mb: 1 }}>🛒</Typography>
+              <ShoppingCartRoundedIcon sx={{ fontSize: 40, mb: 1, color: C.textMuted }} />
               <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary, mb: 0.5 }}>
                 La lista está vacía
               </Typography>
@@ -1868,10 +1880,10 @@ const Dashboard = () => {
         const pts   = displayPoints ?? 0;
         const mood  = getMood(pts);
         const meta  = MOOD_META[mood];
-        const level = pts < 50 ? { icon: "🌱", name: "Inicio"    }
-                    : pts < 150? { icon: "🥗", name: "Saludable" }
-                    : pts < 300? { icon: "💪", name: "Activo"    }
-                    :            { icon: "🏆", name: "Experto"   };
+        const level = pts < 50 ? { Icon: EcoRoundedIcon, name: "Inicio"    }
+                    : pts < 150? { Icon: RestaurantRoundedIcon, name: "Saludable" }
+                    : pts < 300? { Icon: FitnessCenterRoundedIcon, name: "Activo"    }
+                    :            { Icon: EmojiEventsRoundedIcon, name: "Experto"   };
         return (
           <Paper
             elevation={0}
@@ -1920,7 +1932,7 @@ const Dashboard = () => {
                 </Typography>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
-                  <Typography sx={{ fontSize: 18 }}>{level.icon}</Typography>
+                  <level.Icon sx={{ fontSize: 18, color: "rgba(255,255,255,0.85)" }} />
                   <Box>
                     <Typography sx={{ fontSize: 10, color: "rgba(255,255,255,0.50)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", lineHeight: 1 }}>Nivel</Typography>
                     <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>{level.name}</Typography>

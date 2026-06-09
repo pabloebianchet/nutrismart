@@ -18,6 +18,22 @@ import AutoFixHighRoundedIcon    from "@mui/icons-material/AutoFixHighRounded";
 import AddRoundedIcon            from "@mui/icons-material/AddRounded";
 import SearchRoundedIcon         from "@mui/icons-material/SearchRounded";
 import FitnessCenterRoundedIcon  from "@mui/icons-material/FitnessCenterRounded";
+import DirectionsRunRoundedIcon  from "@mui/icons-material/DirectionsRunRounded";
+import HomeRoundedIcon           from "@mui/icons-material/HomeRounded";
+import HotelRoundedIcon          from "@mui/icons-material/HotelRounded";
+import LockRoundedIcon           from "@mui/icons-material/LockRounded";
+import PersonRoundedIcon         from "@mui/icons-material/PersonRounded";
+import AssignmentRoundedIcon     from "@mui/icons-material/AssignmentRounded";
+import EventRoundedIcon          from "@mui/icons-material/EventRounded";
+import AdjustRoundedIcon         from "@mui/icons-material/AdjustRounded";
+import AccessTimeRoundedIcon     from "@mui/icons-material/AccessTimeRounded";
+import StarRoundedIcon           from "@mui/icons-material/StarRounded";
+import LightbulbRoundedIcon      from "@mui/icons-material/LightbulbRounded";
+import EmojiEventsRoundedIcon    from "@mui/icons-material/EmojiEventsRounded";
+import TrendingUpRoundedIcon     from "@mui/icons-material/TrendingUpRounded";
+import RocketLaunchRoundedIcon   from "@mui/icons-material/RocketLaunchRounded";
+import EditNoteRoundedIcon       from "@mui/icons-material/EditNoteRounded";
+import LoopRoundedIcon           from "@mui/icons-material/LoopRounded";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
@@ -27,14 +43,14 @@ import PeanutMascot            from "../components/PeanutMascot.jsx";
 // ─── config ─────────────────────────────────────────────────────────────────
 
 const TIPOS = [
-  { id: "Hipertrofia", emoji: "💪", desc: "Ganar músculo y aumentar masa",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
-  { id: "Fit",         emoji: "✨", desc: "Tonificar y mejorar condición física", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
-  { id: "Calistenia",  emoji: "🤸", desc: "Peso corporal y fuerza funcional",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
+  { id: "Hipertrofia", Icon: FitnessCenterRoundedIcon, desc: "Ganar músculo y aumentar masa",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
+  { id: "Fit",         Icon: AutoAwesomeRoundedIcon,   desc: "Tonificar y mejorar condición física", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
+  { id: "Calistenia",  Icon: DirectionsRunRoundedIcon, desc: "Peso corporal y fuerza funcional",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
 ];
 
 const LUGARES = [
-  { id: "Gym",  emoji: "🏋️", desc: "Pesas, máquinas, equipamiento completo",  color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
-  { id: "Casa", emoji: "🏠", desc: "Sin equipamiento o con elementos básicos", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
+  { id: "Gym",  Icon: FitnessCenterRoundedIcon, desc: "Pesas, máquinas, equipamiento completo",  color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
+  { id: "Casa", Icon: HomeRoundedIcon,          desc: "Sin equipamiento o con elementos básicos", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
 ];
 
 const DURACIONES = [
@@ -88,11 +104,11 @@ const StepDot = ({ n, label }) => (
 
 const PlanLoader = ({ message }) => (
   <Box sx={{ textAlign: "center", py: 8 }}>
-    <Typography sx={{
-      fontSize: 60, lineHeight: 1, mb: 3, display: "inline-block",
+    <FitnessCenterRoundedIcon sx={{
+      fontSize: 60, mb: 3, display: "inline-block", color: "#0B5E55",
       "@keyframes lift": { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-10px)" } },
       animation: "lift 1.4s ease-in-out infinite",
-    }}>🏋️</Typography>
+    }} />
     <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
     <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
       {[0, 1, 2].map((i) => (
@@ -714,7 +730,7 @@ const TrainingPage = () => {
           dayName,
           tipoColor:  activeTipo?.color || "#0B5E55",
           tipoBg:     activeTipo?.bg    || "#E6F5F3",
-          tipoEmoji:  activeTipo?.emoji || "🏋️",
+          tipoIcon:   activeTipo?.Icon  || FitnessCenterRoundedIcon,
         });
         // auto-dismiss
         setTimeout(() => {
@@ -726,7 +742,7 @@ const TrainingPage = () => {
     } catch { /* silencioso */ }
 
     // fallback si el API falla
-    setSnackMsg("¡Sesión guardada! 💪");
+    setSnackMsg("¡Sesión guardada!");
     if (totalDays === 1 || elapsed >= totalDays) setTimeout(() => setPhase("summary"), 800);
   };
 
@@ -844,7 +860,7 @@ const TrainingPage = () => {
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={hasMainPlan && hasQuickPlan && phase === "plan" && !activeDay ? 2 : 4}>
             <Box>
               <Stack direction="row" spacing={1.2} alignItems="center">
-                <Typography sx={{ fontSize: 28 }}>🏋️</Typography>
+                <FitnessCenterRoundedIcon sx={{ fontSize: 28, color: "#0B5E55" }} />
                 <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
                   Entrenamiento
                 </Typography>
@@ -929,7 +945,7 @@ const TrainingPage = () => {
             const label = (cfg) => {
               if (!cfg) return "Plan";
               const t = TIPOS.find(t => t.id === cfg.tipo);
-              return t ? `${t.emoji} ${t.id}` : cfg.tipo;
+              return t ? t.id : cfg.tipo;
             };
             return (
               <Box sx={{ mb: 3 }}>
@@ -974,7 +990,7 @@ const TrainingPage = () => {
               {isSubscriptionExpired && (
                 <Paper elevation={0} sx={{ p: 2.2, borderRadius: 3, border: "1px solid rgba(180,83,9,0.25)", bgcolor: "#FFFBEB", mb: 3 }}>
                   <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                    <Typography sx={{ fontSize: 20, lineHeight: 1, mt: 0.2 }}>🔒</Typography>
+                    <LockRoundedIcon sx={{ fontSize: 20, mt: 0.2, color: "#92400E" }} />
                     <Box flex={1}>
                       <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#92400E", mb: 0.3 }}>
                         Suscripción inactiva — modo lectura
@@ -993,7 +1009,7 @@ const TrainingPage = () => {
                   {userData && (
                     <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", bgcolor: "#f7fcfa", mb: 3 }}>
                       <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Typography sx={{ fontSize: 22 }}>👤</Typography>
+                        <PersonRoundedIcon sx={{ fontSize: 22, color: "#0B5E55" }} />
                         <Box>
                           <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.07em", mb: 0.2 }}>Tu perfil</Typography>
                           <Typography sx={{ fontSize: 13, color: "#4A6B67" }}>
@@ -1008,7 +1024,7 @@ const TrainingPage = () => {
                   {(hasMainPlan || hasQuickPlan) && (
                     <Paper elevation={0} sx={{ p: 1.8, borderRadius: 3, border: "1px solid rgba(11,94,85,0.15)", bgcolor: "#f7fcfa", mb: 3 }}>
                       <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography sx={{ fontSize: 16 }}>📋</Typography>
+                        <AssignmentRoundedIcon sx={{ fontSize: 16, color: "#0B5E55" }} />
                         <Typography sx={{ fontSize: 13, color: "#0B5E55", lineHeight: 1.5 }}>
                           Tu plan actual se conserva. Este será tu <strong>segundo plan activo</strong>.
                         </Typography>
@@ -1033,7 +1049,7 @@ const TrainingPage = () => {
                               <CheckRoundedIcon sx={{ fontSize: 11, color: "#fff" }} />
                             </Box>
                           )}
-                          <Typography sx={{ fontSize: 26, mb: 0.6, lineHeight: 1 }}>{t.emoji}</Typography>
+                          <t.Icon sx={{ fontSize: 26, mb: 0.6, color: t.color }} />
                           <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.2px" }}>{t.id}</Typography>
                           <Typography sx={{ fontSize: 11, color: "#4A6B67", mt: 0.2, lineHeight: 1.4 }}>{t.desc}</Typography>
                         </Box>
@@ -1044,13 +1060,15 @@ const TrainingPage = () => {
                   <AnimatePresence>
                     {tipo && (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                        <Button fullWidth variant="contained" onClick={nextConfigStep} sx={{
+                        <Button fullWidth variant="contained" onClick={nextConfigStep}
+                          startIcon={activeTipo?.Icon ? <activeTipo.Icon /> : null}
+                          sx={{
                           py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: 15,
                           background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
                           boxShadow: `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
                           transition: "all 0.25s ease", "&:hover": { transform: "translateY(-2px)" },
                         }}>
-                          {activeTipo?.emoji} Continuar con {tipo}
+                          Continuar con {tipo}
                         </Button>
                       </motion.div>
                     )}
@@ -1078,7 +1096,9 @@ const TrainingPage = () => {
                           transition: "all 0.2s ease",
                           "&:hover": { borderColor: l.color, bgcolor: l.bg },
                         }}>
-                          <Typography sx={{ fontSize: 28, lineHeight: 1, width: 40, textAlign: "center" }}>{l.emoji}</Typography>
+                          <Box sx={{ width: 40, display: "flex", justifyContent: "center" }}>
+                            <l.Icon sx={{ fontSize: 28, color: l.color }} />
+                          </Box>
                           <Box flex={1}>
                             <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420" }}>{l.id}</Typography>
                             <Typography sx={{ fontSize: 12.5, color: "#4A6B67" }}>{l.desc}</Typography>
@@ -1164,7 +1184,7 @@ const TrainingPage = () => {
                       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                         <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(11,94,85,0.12)", bgcolor: "#f7fcfa", mb: 3 }}>
                           <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography sx={{ fontSize: 18 }}>🏨</Typography>
+                            <HotelRoundedIcon sx={{ fontSize: 18, color: "#4A6B67" }} />
                             <Typography sx={{ fontSize: 13, color: "#4A6B67", lineHeight: 1.5 }}>
                               Sesión única — ideal para hotel, viaje o día suelto. Se guarda como plan rápido sin afectar tu plan principal.
                             </Typography>
@@ -1181,6 +1201,7 @@ const TrainingPage = () => {
                       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
                         <Button fullWidth variant="contained" onClick={handleGenerate}
                           disabled={isSubscriptionExpired}
+                          startIcon={isSubscriptionExpired ? <LockRoundedIcon /> : (activeTipo?.Icon ? <activeTipo.Icon /> : null)}
                           sx={{
                             py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
                             background: isSubscriptionExpired
@@ -1190,7 +1211,7 @@ const TrainingPage = () => {
                             "&:hover": { transform: isSubscriptionExpired ? "none" : "translateY(-2px)" },
                             transition: "all 0.25s ease",
                           }}>
-                          {isSubscriptionExpired ? "🔒 Renovar suscripción para generar" : `${activeTipo?.emoji} Generar mi plan con IA`}
+                          {isSubscriptionExpired ? "Renovar suscripción para generar" : "Generar mi plan con IA"}
                         </Button>
                       </motion.div>
                     )}
@@ -1226,7 +1247,7 @@ const TrainingPage = () => {
                         {plan.planTitle}
                       </Typography>
                       <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
-                        {activeTipo && <Chip label={`${activeTipo.emoji} ${config?.tipo}`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo.bg, color: activeTipo.color, border: `1px solid ${activeTipo.border}` }} />}
+                        {activeTipo && <Chip icon={<activeTipo.Icon sx={{ fontSize: "14px !important" }} />} label={config?.tipo} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo.bg, color: activeTipo.color, border: `1px solid ${activeTipo.border}` }} />}
                         {config?.lugar && <Chip label={config.lugar} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
                         {config?.duracion !== "1 día" && <Chip label={`${config?.frecuencia} días/sem`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
                         {activePlanType === "quick" && hasMainPlan && <Chip label="Plan 2" size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: "rgba(11,94,85,0.08)", color: "#0B5E55" }} />}
@@ -1344,7 +1365,7 @@ const TrainingPage = () => {
                                       }),
                                 }}
                               >
-                                {isDraft ? "✏️ Retomar borrador" : doneToday ? "Registrar otra sesión" : "Registrar sesión 💪"}
+                                {isDraft ? "Retomar borrador" : doneToday ? "Registrar otra sesión" : "Registrar sesión"}
                               </Button>
                             </Box>
                           </Paper>
@@ -1373,7 +1394,7 @@ const TrainingPage = () => {
                 <motion.div key="tab-progreso" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
                   {sessions.length === 0 ? (
                     <Box sx={{ textAlign: "center", py: 8 }}>
-                      <Typography sx={{ fontSize: 44, mb: 2 }}>📋</Typography>
+                      <AssignmentRoundedIcon sx={{ fontSize: 44, mb: 2, color: "#8AADAA" }} />
                       <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 1 }}>Sin sesiones aún</Typography>
                       <Typography sx={{ fontSize: 13.5, color: "#4A6B67" }}>Registrá tu primera sesión desde "Mi semana"</Typography>
                     </Box>
@@ -1381,12 +1402,12 @@ const TrainingPage = () => {
                     <>
                       <Stack direction="row" spacing={1.5} mb={3}>
                         {[
-                          { label: "Sesiones",  value: sessions.length,  icon: "💪" },
-                          { label: "Días",       value: elapsed,          icon: "📅" },
-                          { label: "Ejercicios", value: loggedExs.length, icon: "🎯" },
+                          { label: "Sesiones",  value: sessions.length,  Icon: FitnessCenterRoundedIcon },
+                          { label: "Días",       value: elapsed,          Icon: EventRoundedIcon },
+                          { label: "Ejercicios", value: loggedExs.length, Icon: AdjustRoundedIcon },
                         ].map((stat) => (
                           <Paper key={stat.label} elevation={0} sx={{ flex: 1, p: 1.8, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", textAlign: "center" }}>
-                            <Typography sx={{ fontSize: 20, mb: 0.3 }}>{stat.icon}</Typography>
+                            <stat.Icon sx={{ fontSize: 20, mb: 0.3, color: activeTipo?.color || "#0B5E55" }} />
                             <Typography sx={{ fontSize: 20, fontWeight: 900, color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>{stat.value}</Typography>
                             <Typography sx={{ fontSize: 10.5, color: "#8AADAA", fontWeight: 600 }}>{stat.label}</Typography>
                           </Paper>
@@ -1441,7 +1462,7 @@ const TrainingPage = () => {
                               <Box onClick={() => setExpandedSess(isOpen ? null : idx)}
                                 sx={{ px: 2.5, py: 1.8, cursor: "pointer", display: "flex", alignItems: "center", gap: 1.5, "&:hover": { bgcolor: "rgba(11,94,85,0.02)" } }}>
                                 <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: activeTipo?.bg || "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                  <Typography sx={{ fontSize: 16 }}>💪</Typography>
+                                  <FitnessCenterRoundedIcon sx={{ fontSize: 16, color: activeTipo?.color || "#0B5E55" }} />
                                 </Box>
                                 <Box flex={1} minWidth={0}>
                                   <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#0F2420" }}>{sess.dayName}</Typography>
@@ -1486,7 +1507,7 @@ const TrainingPage = () => {
                       background: activeTipo ? `linear-gradient(135deg, ${activeTipo.color}10 0%, #fff 100%)` : "#fff",
                     }}>
                       <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-                        <Typography sx={{ fontSize: 16 }}>📅</Typography>
+                        <EventRoundedIcon sx={{ fontSize: 16, color: activeTipo?.color || "#0B5E55" }} />
                         <Typography sx={{ fontSize: 11, fontWeight: 800, color: activeTipo?.color || "#0B5E55", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                           {totalDays === 1 ? "Tips para hoy" : `Semana ${currentWeek}`}
                         </Typography>
@@ -1546,7 +1567,7 @@ const TrainingPage = () => {
 
                   <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid rgba(230,81,0,0.20)", bgcolor: "#FFF8F5", p: 2 }}>
                     <Stack direction="row" spacing={1.2} alignItems="flex-start">
-                      <Typography sx={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>⚠️</Typography>
+                      <WarningAmberRoundedIcon sx={{ fontSize: 16, lineHeight: 1, flexShrink: 0, color: "#BF360C" }} />
                       <Typography sx={{ fontSize: 12, color: "#BF360C", lineHeight: 1.65 }}>
                         {plan.disclaimer || "Este plan es orientativo y no reemplaza la guía de un entrenador o profesional de la salud."}
                       </Typography>
@@ -1602,11 +1623,9 @@ const TrainingPage = () => {
                               )}
                               {imgData === null && (
                                 <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
-                                  <Typography sx={{ fontSize: 28,
+                                  <FitnessCenterRoundedIcon sx={{ fontSize: 28, color: activeTipo?.color || "#0B5E55",
                                     "@keyframes pulse": { "0%,100%": { opacity: 0.4, transform: "scale(0.95)" }, "50%": { opacity: 1, transform: "scale(1.05)" } },
-                                    animation: "pulse 1.4s ease-in-out infinite" }}>
-                                    🏋️
-                                  </Typography>
+                                    animation: "pulse 1.4s ease-in-out infinite" }} />
                                   <Box sx={{ textAlign: "center" }}>
                                     <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>
                                       Generando imagen
@@ -1657,7 +1676,7 @@ const TrainingPage = () => {
                                         transition: "all 0.18s",
                                         "&:hover": { bgcolor: "rgba(11,94,85,0.95)", borderColor: "rgba(255,255,255,0.5)" },
                                       }}>
-                                      <Typography sx={{ fontSize: 13 }}>📋</Typography>
+                                      <AssignmentRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />
                                       <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>
                                         Ver guía
                                       </Typography>
@@ -1733,9 +1752,12 @@ const TrainingPage = () => {
                           </Stack>
                           {ex.notes && (
                             <Box sx={{ px: 1.5, py: 1, borderRadius: 2, bgcolor: `${activeTipo?.bg || "#E6F5F3"}`, mb: 1.5 }}>
-                              <Typography sx={{ fontSize: 11.5, color: activeTipo?.color || "#0B5E55", fontStyle: "italic", lineHeight: 1.5 }}>
-                                💡 {ex.notes}
-                              </Typography>
+                              <Stack direction="row" spacing={0.7} alignItems="flex-start">
+                                <LightbulbRoundedIcon sx={{ fontSize: 14, mt: 0.2, flexShrink: 0, color: activeTipo?.color || "#0B5E55" }} />
+                                <Typography sx={{ fontSize: 11.5, color: activeTipo?.color || "#0B5E55", fontStyle: "italic", lineHeight: 1.5 }}>
+                                  {ex.notes}
+                                </Typography>
+                              </Stack>
                             </Box>
                           )}
                           <Stack direction="row" spacing={1.5}>
@@ -1794,6 +1816,7 @@ const TrainingPage = () => {
                     if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de registrar."); return; }
                     setConfirmRegister(true);
                   }}
+                  startIcon={<FitnessCenterRoundedIcon />}
                   sx={{
                     py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
                     background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}BB 100%)`,
@@ -1801,11 +1824,11 @@ const TrainingPage = () => {
                     "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
                   }}
                 >
-                  Registrar sesión 💪
+                  Registrar sesión
                 </Button>
                 <Button
                   fullWidth
-                  onClick={() => { saveDraft(); setActiveDay(null); setPendingSession(null); setSnackMsg("Borrador guardado 📝"); }}
+                  onClick={() => { saveDraft(); setActiveDay(null); setPendingSession(null); setSnackMsg("Borrador guardado"); }}
                   sx={{
                     py: 1.4, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
                     border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
@@ -1831,11 +1854,11 @@ const TrainingPage = () => {
           {phase === "summary" && (
             <motion.div key="summary" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
               <Box sx={{ textAlign: "center", mb: 4 }}>
-                <Typography sx={{
-                  fontSize: 64, lineHeight: 1, mb: 2, display: "inline-block",
+                <EmojiEventsRoundedIcon sx={{
+                  fontSize: 64, lineHeight: 1, mb: 2, display: "inline-block", color: "#F5B800",
                   "@keyframes trophy": { "0%,100%": { transform: "scale(1) rotate(-5deg)" }, "50%": { transform: "scale(1.12) rotate(5deg)" } },
                   animation: "trophy 2.2s ease-in-out infinite",
-                }}>🏆</Typography>
+                }} />
                 <Typography sx={{ fontSize: 26, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.7px", mb: 0.5 }}>
                   ¡Plan completado!
                 </Typography>
@@ -1844,12 +1867,12 @@ const TrainingPage = () => {
 
               <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1.5, mb: 3 }}>
                 {[
-                  { icon: "💪", label: "Sesiones",  value: sessions.length },
-                  { icon: "📅", label: "Días",      value: elapsed },
-                  { icon: "🎯", label: "Ejercicios",value: loggedExs.length },
+                  { Icon: FitnessCenterRoundedIcon, label: "Sesiones",  value: sessions.length },
+                  { Icon: EventRoundedIcon, label: "Días",      value: elapsed },
+                  { Icon: AdjustRoundedIcon, label: "Ejercicios",value: loggedExs.length },
                 ].map((stat) => (
                   <Paper key={stat.label} elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", textAlign: "center" }}>
-                    <Typography sx={{ fontSize: 24, mb: 0.5 }}>{stat.icon}</Typography>
+                    <stat.Icon sx={{ fontSize: 24, mb: 0.5, color: activeTipo?.color || "#0B5E55" }} />
                     <Typography sx={{ fontSize: 22, fontWeight: 900, color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>{stat.value}</Typography>
                     <Typography sx={{ fontSize: 11, color: "#8AADAA", fontWeight: 600 }}>{stat.label}</Typography>
                   </Paper>
@@ -1870,9 +1893,14 @@ const TrainingPage = () => {
                           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.8}>
                             <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#0F2420" }}>{ex}</Typography>
                             {weights.length >= 2 && (
-                              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: weights[weights.length-1] >= weights[0] ? "#2E7D32" : "#4A6B67" }}>
-                                {weights[0]} → {weights[weights.length-1]}{weights[weights.length-1] > weights[0] ? " 📈" : ""}
-                              </Typography>
+                              <Stack direction="row" spacing={0.4} alignItems="center">
+                                <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: weights[weights.length-1] >= weights[0] ? "#2E7D32" : "#4A6B67" }}>
+                                  {weights[0]} → {weights[weights.length-1]}
+                                </Typography>
+                                {weights[weights.length-1] > weights[0] && (
+                                  <TrendingUpRoundedIcon sx={{ fontSize: 14, color: "#2E7D32" }} />
+                                )}
+                              </Stack>
                             )}
                           </Stack>
                           {weights.length >= 2 && <WeightChart weights={weights} />}
@@ -1884,13 +1912,13 @@ const TrainingPage = () => {
               )}
 
               <Stack spacing={1.5}>
-                <Button fullWidth variant="contained" onClick={() => resetPlan(false)} sx={{
+                <Button fullWidth variant="contained" onClick={() => resetPlan(false)} startIcon={<RocketLaunchRoundedIcon />} sx={{
                   py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
                   background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
                   boxShadow: "0 8px 28px rgba(11,94,85,0.30)",
                   "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
                 }}>
-                  Iniciar nuevo plan 🚀
+                  Iniciar nuevo plan
                 </Button>
                 <Button fullWidth onClick={() => resetPlan(true)} sx={{
                   py: 1.5, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
@@ -2062,7 +2090,7 @@ const TrainingPage = () => {
                   }}
                 >
                   <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                    <Typography sx={{ fontSize: 22, lineHeight: 1, mt: 0.2 }}>📋</Typography>
+                    <AssignmentRoundedIcon sx={{ fontSize: 22, lineHeight: 1, mt: 0.2, color: "#0B5E55" }} />
                     <Box>
                       <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#0B5E55", mb: 0.3 }}>
                         Mantener el actual + crear uno nuevo
@@ -2076,7 +2104,7 @@ const TrainingPage = () => {
               ) : (
                 <Box sx={{ p: 2.2, borderRadius: 3, border: "1.5px solid rgba(0,0,0,0.08)", bgcolor: "#f5f5f5", opacity: 0.55 }}>
                   <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                    <Typography sx={{ fontSize: 22, lineHeight: 1, mt: 0.2 }}>📋</Typography>
+                    <AssignmentRoundedIcon sx={{ fontSize: 22, lineHeight: 1, mt: 0.2, color: "#888" }} />
                     <Box>
                       <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#888", mb: 0.3 }}>
                         Mantener el actual + crear uno nuevo
@@ -2085,9 +2113,12 @@ const TrainingPage = () => {
                         {disabledMsg}
                       </Typography>
                       {!canHaveMultiplePlans && (
-                        <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: "#C9952A", mt: 0.5 }}>
-                          ⭐ Disponible en Gold
-                        </Typography>
+                        <Stack direction="row" spacing={0.4} alignItems="center" mt={0.5}>
+                          <StarRoundedIcon sx={{ fontSize: 14, color: "#C9952A" }} />
+                          <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: "#C9952A" }}>
+                            Disponible en Gold
+                          </Typography>
+                        </Stack>
                       )}
                     </Box>
                   </Stack>
@@ -2107,7 +2138,7 @@ const TrainingPage = () => {
               }}
             >
               <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                <Typography sx={{ fontSize: 22, lineHeight: 1, mt: 0.2 }}>🔄</Typography>
+                <LoopRoundedIcon sx={{ fontSize: 22, lineHeight: 1, mt: 0.2, color: "#E24B4A" }} />
                 <Box>
                   <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#E24B4A", mb: 0.3 }}>
                     Generar uno nuevo y borrar el actual
@@ -2138,7 +2169,10 @@ const TrainingPage = () => {
         <DialogContent sx={{ p: 3 }}>
           <Box sx={{ textAlign: "center", mb: 2.5 }}>
             <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: activeTipo?.bg || "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 1.5 }}>
-              <Typography sx={{ fontSize: 24 }}>{activeTipo?.emoji || "💪"}</Typography>
+              {(() => {
+                const SessionIcon = activeTipo?.Icon || FitnessCenterRoundedIcon;
+                return <SessionIcon sx={{ fontSize: 24, color: activeTipo?.color || "#0B5E55" }} />;
+              })()}
             </Box>
             <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
               ¿Registrar esta sesión?
@@ -2225,9 +2259,12 @@ const TrainingPage = () => {
                   </Box>
 
                   {/* Nombre de la sesión */}
-                  <Typography sx={{ fontSize: 13, fontWeight: 700, color: sessionSuccess.tipoColor, textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.5 }}>
-                    {sessionSuccess.tipoEmoji} {sessionSuccess.dayName}
-                  </Typography>
+                  <Stack direction="row" spacing={0.6} alignItems="center" justifyContent="center" mb={0.5}>
+                    <sessionSuccess.tipoIcon sx={{ fontSize: 14, color: sessionSuccess.tipoColor }} />
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: sessionSuccess.tipoColor, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      {sessionSuccess.dayName}
+                    </Typography>
+                  </Stack>
                   <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px" }}>
                     ¡Sesión completada!
                   </Typography>
@@ -2282,7 +2319,7 @@ const TrainingPage = () => {
         PaperProps={{ sx: { borderRadius: 4, mx: 2 } }}>
         <DialogContent sx={{ p: 3 }}>
           <Box sx={{ textAlign: "center", mb: 2 }}>
-            <Typography sx={{ fontSize: 28, mb: 1 }}>🗑️</Typography>
+            <DeleteOutlineRoundedIcon sx={{ fontSize: 28, mb: 1, color: "#E24B4A" }} />
             <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1 }}>
               ¿Eliminar este ejercicio?
             </Typography>
@@ -2290,9 +2327,12 @@ const TrainingPage = () => {
               Vas a quitar <strong>"{confirmDelete?.name}"</strong> de tu plan.
             </Typography>
             <Box sx={{ px: 2, py: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1px solid #B2DDD9" }}>
-              <Typography sx={{ fontSize: 12.5, color: "#0B5E55", lineHeight: 1.6 }}>
-                💡 Podés volver a agregarlo cuando quieras con el botón <strong>"Agregar ejercicio"</strong>. Se generará una nueva imagen y guía automáticamente.
-              </Typography>
+              <Stack direction="row" spacing={0.7} alignItems="flex-start">
+                <LightbulbRoundedIcon sx={{ fontSize: 14, mt: 0.2, flexShrink: 0, color: "#0B5E55" }} />
+                <Typography sx={{ fontSize: 12.5, color: "#0B5E55", lineHeight: 1.6 }}>
+                  Podés volver a agregarlo cuando quieras con el botón <strong>"Agregar ejercicio"</strong>. Se generará una nueva imagen y guía automáticamente.
+                </Typography>
+              </Stack>
             </Box>
           </Box>
           <Stack direction="row" spacing={1.5}>
@@ -2523,17 +2563,17 @@ const TrainingPage = () => {
                   const esSegmentoCarrera = fullscreenEx.isRunning &&
                     RITMOS.some(r => String(fullscreenEx.reps).toLowerCase().includes(r));
                   return [
-                    { label: esSegmentoCarrera ? `${fullscreenEx.sets} km` : `${fullscreenEx.sets} series`, icon: "🔁" },
-                    { label: esSegmentoCarrera ? `Ritmo: ${fullscreenEx.reps}` : fullscreenEx.reps, icon: "💪" },
-                    { label: fullscreenEx.rest, icon: "⏱" },
+                    { label: esSegmentoCarrera ? `${fullscreenEx.sets} km` : `${fullscreenEx.sets} series`, Icon: LoopRoundedIcon },
+                    { label: esSegmentoCarrera ? `Ritmo: ${fullscreenEx.reps}` : fullscreenEx.reps, Icon: FitnessCenterRoundedIcon },
+                    { label: fullscreenEx.rest, Icon: AccessTimeRoundedIcon },
                   ];
-                })().map(({ label, icon }) => (
-                  <Box key={icon} sx={{
+                })().map(({ label, Icon }, i) => (
+                  <Box key={i} sx={{
                     display: "flex", alignItems: "center", gap: 0.6,
                     px: 1.5, py: 0.7, borderRadius: 2,
                     bgcolor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
                   }}>
-                    <Typography sx={{ fontSize: 13 }}>{icon}</Typography>
+                    <Icon sx={{ fontSize: 13, color: "#E0F2EF" }} />
                     <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#E0F2EF" }}>{label}</Typography>
                   </Box>
                 ))}
@@ -2576,7 +2616,7 @@ const TrainingPage = () => {
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", gap: 1.2, alignItems: "flex-start" }}>
-                      <Typography sx={{ fontSize: 16, flexShrink: 0 }}>⚠️</Typography>
+                      <WarningAmberRoundedIcon sx={{ fontSize: 16, flexShrink: 0, color: "rgba(255,200,100,0.85)" }} />
                       <Typography sx={{ fontSize: 13, color: "rgba(255,200,100,0.85)", lineHeight: 1.55 }}>
                         {desc.mistakes}
                       </Typography>
@@ -2584,7 +2624,7 @@ const TrainingPage = () => {
                     {fullscreenEx.notes && (
                       <Box sx={{ display: "flex", gap: 1.2, alignItems: "flex-start", pt: 0.5,
                         borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                        <Typography sx={{ fontSize: 16, flexShrink: 0 }}>💡</Typography>
+                        <LightbulbRoundedIcon sx={{ fontSize: 16, flexShrink: 0, color: "rgba(255,255,255,0.50)" }} />
                         <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.50)", lineHeight: 1.55, fontStyle: "italic" }}>
                           {fullscreenEx.notes}
                         </Typography>

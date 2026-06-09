@@ -3,6 +3,9 @@ import { Box, Typography, Stack, Paper, LinearProgress, Button, Chip } from "@mu
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import ArrowForwardRoundedIcon        from "@mui/icons-material/ArrowForwardRounded";
 import MicRoundedIcon                 from "@mui/icons-material/MicRounded";
+import RestaurantRoundedIcon          from "@mui/icons-material/RestaurantRounded";
+import FitnessCenterRoundedIcon       from "@mui/icons-material/FitnessCenterRounded";
+import WaterDropRoundedIcon           from "@mui/icons-material/WaterDropRounded";
 import { useNavigate }  from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import { API_URL }      from "../config/api";
@@ -109,9 +112,7 @@ const EnergyWidget = () => {
           /* Gradiente fallback mientras carga o si no hay imagen */
           <Box sx={{ width: "100%", height: "100%",
             background: "linear-gradient(135deg, #071e1b 0%, #0B5E55 50%, #0d7a6e 100%)" }}>
-            <Typography sx={{ position: "absolute", fontSize: 64, bottom: -8, right: 16, opacity: 0.18, userSelect: "none" }}>
-              🔥
-            </Typography>
+            <LocalFireDepartmentRoundedIcon sx={{ position: "absolute", fontSize: 80, bottom: -8, right: 16, opacity: 0.18, color: "#fff" }} />
           </Box>
         )}
 
@@ -196,22 +197,34 @@ const EnergyWidget = () => {
 
             {/* Fila de datos */}
             <Stack direction="row" justifyContent="space-between">
-              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                🍽️ Consumidas: <strong>{consumed.toLocaleString("es-AR")}</strong> kcal
-              </Typography>
-              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                🔥 Extra: <strong>{burnedExtra.toLocaleString("es-AR")}</strong> kcal
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <RestaurantRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
+                <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                  Consumidas: <strong>{consumed.toLocaleString("es-AR")}</strong> kcal
+                </Typography>
+              </Stack>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
+                <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                  Extra: <strong>{burnedExtra.toLocaleString("es-AR")}</strong> kcal
+                </Typography>
+              </Stack>
             </Stack>
 
             {/* Proteína */}
             <Stack direction="row" justifyContent="space-between" mt={0.5}>
-              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                💪 Proteína: <strong>{Math.round(log?.totalProteinas || 0)}g</strong> / {proteinaObj}g
-              </Typography>
-              <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                💧 <strong>{((log?.totalAgua || 0) / 1000).toFixed(1)}L</strong>
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <FitnessCenterRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
+                <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                  Proteína: <strong>{Math.round(log?.totalProteinas || 0)}g</strong> / {proteinaObj}g
+                </Typography>
+              </Stack>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <WaterDropRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
+                <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
+                  <strong>{((log?.totalAgua || 0) / 1000).toFixed(1)}L</strong>
+                </Typography>
+              </Stack>
             </Stack>
 
             {/* Sin registros */}
@@ -219,7 +232,7 @@ const EnergyWidget = () => {
               <Box sx={{ mt: 1.5, px: 2, py: 1, borderRadius: 2, bgcolor: C.brandSurface,
                 border: `1px dashed ${C.brandMuted}` }}>
                 <Typography sx={{ fontSize: 12, color: C.brand, textAlign: "center" }}>
-                  ¿Qué comiste hoy? Tocá <strong>Registrar</strong> 🎯
+                  ¿Qué comiste hoy? Tocá <strong>Registrar</strong>
                 </Typography>
               </Box>
             )}
