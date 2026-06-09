@@ -18,18 +18,18 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
     setLoading(true);
     setError("");
     try {
-      const ok = await verifyBiometric();
-      if (ok) {
+      const result = await verifyBiometric();
+      if (result.ok) {
         onUnlock();
+      } else if (result.error === "cancelled") {
+        setError("Verificación cancelada.");
+      } else if (result.error === "no_registered") {
+        onFallback(); // credential eliminada del dispositivo
       } else {
         setError("No se pudo verificar. Intentá de nuevo.");
       }
-    } catch (e) {
-      if (e.name === "NotAllowedError") {
-        setError("Verificación cancelada.");
-      } else {
-        setError("Error al verificar. Usá otro método.");
-      }
+    } catch {
+      setError("Error al verificar. Usá otro método.");
     } finally {
       setLoading(false);
     }

@@ -96,9 +96,14 @@ const UserDataPage = () => {
   };
 
   const handleActivateBiometric = async () => {
-    try {
-      await registerBiometric(pendingUser._id || pendingUser.googleId, pendingUser.name);
-    } catch { /* si falla, continuar igual */ }
+    const result = await registerBiometric(
+      pendingUser._id || pendingUser.googleId,
+      pendingUser.name
+    );
+    if (!result.ok && result.error !== "cancelled") {
+      // Si falla por algo que no sea cancelación, continuar igual
+      console.warn("Face ID registration failed:", result.error);
+    }
     setShowBiometricAsk(false);
     setUser(pendingUser);
   };

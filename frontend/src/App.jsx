@@ -110,25 +110,8 @@ const TrialBanner = () => {
 /* ── HomeRoute: landing para visitantes, dashboard para logueados ── */
 const HomeRoute = () => {
   const { user, authLoading } = useNutrition();
-  const [biometricPassed, setBiometricPassed] = useState(false);
-
   if (authLoading) return null;
-  if (!user) return <LandingPage />;
-
-  // Si tiene Face ID registrado y todavía no pasó la verificación, mostrar gate
-  if (isBiometricRegistered() && !biometricPassed) {
-    return (
-      <BiometricGate
-        userName={user.name}
-        onUnlock={() => setBiometricPassed(true)}
-        onFallback={() => {
-          setBiometricPassed(true); // limpiar biométrica ya fue hecho en el componente
-        }}
-      />
-    );
-  }
-
-  return <UserDataPage />;
+  return user ? <UserDataPage /> : <LandingPage />;
 };
 
 /* ── Ocultar chrome de app en la landing ──────────────────────── */
@@ -158,10 +141,28 @@ const AppFooterConditional = () => {
   return <AppFooter />;
 };
 
+/* ── BiometricGateWrapper — aplica globalmente cuando hay sesión ── */
+const BiometricGateWrapper = ({ children }) => {
+  const { user } = useNutrition();
+  const [passed, setPassed] = useState(false);
+
+  if (user && isBiometricRegistered() && !passed) {
+    return (
+      <BiometricGate
+        userName={user.name}
+        onUnlock={() => setPassed(true)}
+        onFallback={() => setPassed(true)}
+      />
+    );
+  }
+  return children;
+};
+
 /* ── App ──────────────────────────────────────────────────────── */
 const App = () => {
   return (
     <Router>
+      <BiometricGateWrapper>
       <AppChrome />
       <Routes>
         <Route path="/"                       element={<HomeRoute />} />
@@ -186,6 +187,7 @@ const App = () => {
         <Route path="/legal"                  element={<LegalPage />} />
       </Routes>
       <AppFooterConditional />
+      </BiometricGateWrapper>
     </Router>
   );
 };
