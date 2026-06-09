@@ -21,6 +21,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+
 const normalize = (str) =>
   str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
 
@@ -47,22 +48,22 @@ async function generateDescription(name) {
   return JSON.parse(raw);
 }
 
-/* ── Generar imagen con DALL-E y subir a Cloudinary ── */
+/* ── Generar imagen con DALL-E 3 y subir a Cloudinary ── */
 async function generateAndUploadImage(name) {
-  const prompt = `Professional fitness photography of a person performing "${name}" exercise with perfect form. Gym setting, natural lighting, full body shot showing correct technique, athletic person. Clean white or neutral background. High quality. No text, no watermarks.`;
+  const prompt = `Professional fitness photography of a person performing "${name}" exercise with perfect form. Gym setting, natural lighting, full body shot showing correct technique, athletic person. Clean background. High quality. No text, no watermarks.`;
 
   const res = await openai.images.generate({
-    model:   "dall-e-3",
+    model: "gpt-image-2-2026-04-21",
     prompt,
-    size:    "1024x1024",
-    quality: "standard",
-    n: 1,
+    size:  "1024x1024",
   });
 
-  const dalleUrl = res.data[0].url;
+  const base64   = res.data[0].b64_json;
+  if (!base64) throw new Error("Sin imagen generada");
+  const source   = `data:image/png;base64,${base64}`;
   const publicId = `exercises/${normalize(name).replace(/\s+/g, "_")}`;
 
-  const uploaded = await cloudinary.uploader.upload(dalleUrl, {
+  const uploaded = await cloudinary.uploader.upload(source, {
     folder:        "exercises",
     public_id:     publicId,
     overwrite:     true,
