@@ -31,6 +31,19 @@ export const isBiometricSupported = () =>
   typeof window.PublicKeyCredential !== "undefined" &&
   typeof navigator.credentials?.create === "function";
 
+/**
+ * Verifica si el dispositivo tiene un autenticador biométrico real
+ * (Face ID, huella, Windows Hello). Devuelve una promesa.
+ */
+export const isPlatformAuthenticatorAvailable = async () => {
+  try {
+    if (!isBiometricSupported()) return false;
+    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+  } catch {
+    return false;
+  }
+};
+
 export const isBiometricRegistered = () =>
   !!localStorage.getItem(PASSKEY_KEY);
 
