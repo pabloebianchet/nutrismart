@@ -286,8 +286,7 @@ const HeroSection = ({ onCTA }) => (
         <Box
           sx={{
             width: 6,
-            marginTop: "1rem",
-            height: 6,
+                        height: 6,
             borderRadius: "50%",
             bgcolor: C.emerald,
             animation: "pulse 2s ease infinite",
@@ -303,7 +302,7 @@ const HeroSection = ({ onCTA }) => (
             fontWeight: 700,
             color: C.emerald,
             letterSpacing: "0.03em",
-          }}
+            }}
         >
           Análisis nutricional con IA · Gratis 7 días
         </Typography>
