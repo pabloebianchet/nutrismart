@@ -17,15 +17,6 @@ const arrayBufferToBase64 = (buffer) => {
   return btoa(binary);
 };
 
-const base64ToUint8Array = (base64) => {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-};
-
 export const isBiometricSupported = () =>
   typeof window !== "undefined" &&
   typeof window.PublicKeyCredential !== "undefined" &&
@@ -100,14 +91,16 @@ export const verifyBiometric = async () => {
   if (!stored) return { ok: false, error: "no_registered" };
 
   try {
-    const rawId     = base64ToUint8Array(stored);
     const challenge = crypto.getRandomValues(new Uint8Array(32));
 
+    // Sin allowCredentials: el credential se registró como discoverable
+    // (residentKey: "preferred"). Pasar el rawId con transports: ["internal"]
+    // hace que algunos navegadores Android no lo encuentren y ofrezcan
+    // "Agregar llave de acceso" en vez de pedir Face ID/huella.
     const assertion = await navigator.credentials.get({
       publicKey: {
         challenge,
         rpId: getRpId(),
-        allowCredentials: [{ type: "public-key", id: rawId, transports: ["internal"] }],
         userVerification: "required",
         timeout: 60000,
       },

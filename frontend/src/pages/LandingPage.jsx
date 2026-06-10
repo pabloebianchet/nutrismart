@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import RestaurantMenuRoundedIcon from "@mui/icons-material/RestaurantMenuRounded";
@@ -2525,7 +2526,7 @@ const PricingSection = ({ onCTA }) => {
             </Typography>
             <Box component="img" src="/img/Logo Mp.svg" alt="Mercado Pago"
               sx={{ height: 28, opacity: 0.85 }} />
-            <Typography sx={{ fontSize: 13, color: C.muted }}>·</Typography>
+            <CheckCircleRoundedIcon sx={{ fontSize: 16, color: "#2ECC71" }} />
             <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
               Cancelá cuando quieras
             </Typography>
