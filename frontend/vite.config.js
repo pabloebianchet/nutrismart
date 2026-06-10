@@ -68,6 +68,7 @@ export default defineConfig({
       workbox: {
         skipWaiting:  true,  // activa el nuevo SW inmediatamente al descargar
         clientsClaim: true,  // el nuevo SW toma control de todos los tabs
+        cleanupOutdatedCaches: true, // borra caches de builds anteriores
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 
         // Pre-cachear todos los assets del build
