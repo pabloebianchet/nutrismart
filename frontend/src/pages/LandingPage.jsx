@@ -286,6 +286,7 @@ const HeroSection = ({ onCTA }) => (
         <Box
           sx={{
             width: 6,
+            marginTop: "1rem",
             height: 6,
             borderRadius: "50%",
             bgcolor: C.emerald,
@@ -302,7 +303,6 @@ const HeroSection = ({ onCTA }) => (
             fontWeight: 700,
             color: C.emerald,
             letterSpacing: "0.03em",
-            marginTop: "1rem",
           }}
         >
           Análisis nutricional con IA · Gratis 7 días
