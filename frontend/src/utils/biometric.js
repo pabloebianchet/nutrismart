@@ -3,12 +3,14 @@
  */
 
 const RP_NAME    = "Nui App";
-// v2: las credenciales viejas se registraban con residentKey "preferred",
-// que en Android no siempre crea un passkey "discoverable". Eso hacía que
-// verifyBiometric() no encontrara nada y Chrome ofreciera "Agregar llave de
-// acceso" en vez de pedir Face ID/huella. Se cambia la key para forzar un
-// re-registro con residentKey "required".
-const PASSKEY_KEY = "nui_passkey_id_v2";
+// v3: "residentKey: required" hacía que el credential se guardara como
+// passkey sincronizable (Google Password Manager / Windows Hello), y al
+// verificar, Chrome muestra el selector de "llave de acceso guardada"
+// listando TODAS las cuentas/dispositivos en vez de pedir Face ID directo.
+// Volvemos a un credential NO discoverable, atado a este dispositivo
+// (residentKey: "discouraged"), identificado por su rawId guardado en
+// localStorage. Se bumpea la key para forzar re-registro.
+const PASSKEY_KEY = "nui_passkey_id_v3";
 
 const getRpId = () => window.location.hostname;
 
@@ -20,6 +22,15 @@ const arrayBufferToBase64 = (buffer) => {
     binary += String.fromCharCode(bytes[i]);
   }
   return btoa(binary);
+};
+
+const base64ToUint8Array = (base64) => {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 };
 
 export const isBiometricSupported = () =>
@@ -70,7 +81,7 @@ export const registerBiometric = async (userId, displayName) => {
         authenticatorSelection: {
           authenticatorAttachment: "platform",
           userVerification: "required",
-          residentKey: "required",
+          residentKey: "discouraged",
         },
         timeout: 60000,
       },
@@ -96,15 +107,18 @@ export const verifyBiometric = async () => {
   if (!stored) return { ok: false, error: "no_registered" };
 
   try {
+    const rawId     = base64ToUint8Array(stored);
     const challenge = crypto.getRandomValues(new Uint8Array(32));
 
-    // Sin allowCredentials: el credential se registra como discoverable
-    // (residentKey: "required"), así el navegador lo encuentra solo por
-    // rpId y pide directamente Face ID/huella.
+    // allowCredentials sin "transports": el credential es no-discoverable
+    // (residentKey: "discouraged"), atado a este dispositivo. Al indicar
+    // su id puntual, el navegador pide Face ID/huella directo, sin mostrar
+    // selector de cuentas/passkeys guardadas.
     const assertion = await navigator.credentials.get({
       publicKey: {
         challenge,
         rpId: getRpId(),
+        allowCredentials: [{ type: "public-key", id: rawId }],
         userVerification: "required",
         timeout: 60000,
       },
