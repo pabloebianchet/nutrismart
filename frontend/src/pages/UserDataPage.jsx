@@ -184,7 +184,7 @@ const UserDataPage = () => {
         sx={{
           position: "fixed",
           inset: 0,
-          background: "linear-gradient(150deg, #071e1b 0%, #0B5E55 60%, #0d5449 100%)",
+          bgcolor: "#0B5E55",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -200,73 +200,12 @@ const UserDataPage = () => {
             "0%,100%": { opacity: 0.88, transform: "scale(0.97)" },
             "50%":     { opacity: 1,    transform: "scale(1.03)" },
           },
-          "@keyframes blobDrift1": {
-            "0%,100%": { transform: "translate(0,0) scale(1)" },
-            "50%":     { transform: "translate(-40px,25px) scale(1.08)" },
-          },
-          "@keyframes blobDrift2": {
-            "0%,100%": { transform: "translate(0,0) scale(1)" },
-            "50%":     { transform: "translate(30px,-35px) scale(0.94)" },
-          },
-          "@keyframes blobDrift3": {
-            "0%,100%": { transform: "translate(0,0) scale(1)" },
-            "50%":     { transform: "translate(-20px,-20px) scale(1.05)" },
-          },
           "@keyframes dotBlink": {
             "0%,100%": { opacity: 0.25, transform: "scale(0.75)" },
             "50%":     { opacity: 1,    transform: "scale(1)" },
           },
         }}
       >
-        {/* ── Orb 1 — top-left grande ── */}
-        <Box sx={{
-          position: "absolute",
-          top: "-18%", left: "-12%",
-          width: 520, height: 520,
-          borderRadius: "50%",
-          background: "radial-gradient(circle at 35% 40%, rgba(20,200,170,0.14) 0%, transparent 65%)",
-          filter: "blur(32px)",
-          animation: "blobDrift1 9s ease-in-out infinite",
-          pointerEvents: "none",
-        }} />
-
-        {/* ── Orb 2 — bottom-right grande ── */}
-        <Box sx={{
-          position: "absolute",
-          bottom: "-22%", right: "-14%",
-          width: 620, height: 620,
-          borderRadius: "50%",
-          background: "radial-gradient(circle at 60% 55%, rgba(11,160,135,0.16) 0%, transparent 65%)",
-          filter: "blur(40px)",
-          animation: "blobDrift2 11s ease-in-out infinite",
-          pointerEvents: "none",
-        }} />
-
-        {/* ── Orb 3 — top-right pequeño ── */}
-        <Box sx={{
-          position: "absolute",
-          top: "8%", right: "6%",
-          width: 260, height: 260,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(100,220,190,0.10) 0%, transparent 70%)",
-          filter: "blur(24px)",
-          animation: "blobDrift3 7s ease-in-out infinite",
-          pointerEvents: "none",
-        }} />
-
-        {/* ── Orb 4 — bottom-left pequeño ── */}
-        <Box sx={{
-          position: "absolute",
-          bottom: "10%", left: "5%",
-          width: 200, height: 200,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(50,200,165,0.10) 0%, transparent 70%)",
-          filter: "blur(20px)",
-          animation: "blobDrift1 8s ease-in-out 2s infinite",
-          pointerEvents: "none",
-        }} />
-
-
         {/* ── Contenido central ── */}
         <Box
           sx={{
