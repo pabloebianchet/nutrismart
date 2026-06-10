@@ -302,6 +302,7 @@ const HeroSection = ({ onCTA }) => (
             fontWeight: 700,
             color: C.emerald,
             letterSpacing: "0.03em",
+            marginTop: "1rem",
           }}
         >
           Análisis nutricional con IA · Gratis 7 días
@@ -1172,8 +1173,18 @@ const SHOPPING_STEPS = [
 
 /* ─── Mock visual de la lista ── */
 const MOCK_ITEMS = [
-  { Icon: EggRoundedIcon, label: "5 huevos", source: "2 recetas", checked: true },
-  { Icon: LunchDiningRoundedIcon, label: "300g pollo", source: "Taco de Pollo", checked: true },
+  {
+    Icon: EggRoundedIcon,
+    label: "5 huevos",
+    source: "2 recetas",
+    checked: true,
+  },
+  {
+    Icon: LunchDiningRoundedIcon,
+    label: "300g pollo",
+    source: "Taco de Pollo",
+    checked: true,
+  },
   {
     Icon: GrainRoundedIcon,
     label: "2 tortillas maíz",
@@ -1186,7 +1197,12 @@ const MOCK_ITEMS = [
     source: "Ensalada Fit",
     checked: false,
   },
-  { Icon: SpaRoundedIcon, label: "1 cebolla", source: "Manual", checked: false },
+  {
+    Icon: SpaRoundedIcon,
+    label: "1 cebolla",
+    source: "Manual",
+    checked: false,
+  },
   {
     Icon: GrassRoundedIcon,
     label: "200g brócoli",
@@ -1484,7 +1500,14 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                       </Typography>
                     )}
                   </Box>
-                  <item.Icon sx={{ fontSize: 15, lineHeight: 1, color: "#0B5E55", flexShrink: 0 }} />
+                  <item.Icon
+                    sx={{
+                      fontSize: 15,
+                      lineHeight: 1,
+                      color: "#0B5E55",
+                      flexShrink: 0,
+                    }}
+                  />
                   <Box flex={1} minWidth={0}>
                     <Typography
                       sx={{
@@ -1664,7 +1687,9 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
           },
         ].map((b) => (
           <Box key={b.title}>
-            <b.Icon sx={{ fontSize: 28, mb: 1.2, lineHeight: 1, color: "#fff" }} />
+            <b.Icon
+              sx={{ fontSize: 28, mb: 1.2, lineHeight: 1, color: "#fff" }}
+            />
 
             <Typography
               sx={{ fontSize: 14, fontWeight: 800, color: "#fff", mb: 0.6 }}
@@ -2524,8 +2549,12 @@ const PricingSection = ({ onCTA }) => {
             <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
               Pago seguro a través de
             </Typography>
-            <Box component="img" src="/img/Logo Mp.svg" alt="Mercado Pago"
-              sx={{ height: 28, opacity: 0.85 }} />
+            <Box
+              component="img"
+              src="/img/Logo Mp.svg"
+              alt="Mercado Pago"
+              sx={{ height: 28, opacity: 0.85 }}
+            />
             <CheckCircleRoundedIcon sx={{ fontSize: 16, color: "#2ECC71" }} />
             <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
               Cancelá cuando quieras
@@ -2873,26 +2902,31 @@ const PostModalLanding = ({ post, open, onClose }) => {
 const injectArticleSchema = (post) => {
   const id = "nui-article-schema";
   let el = document.getElementById(id);
-  if (!el) { el = document.createElement("script"); el.id = id; el.type = "application/ld+json"; document.head.appendChild(el); }
+  if (!el) {
+    el = document.createElement("script");
+    el.id = id;
+    el.type = "application/ld+json";
+    document.head.appendChild(el);
+  }
   el.textContent = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": post.title,
-    "description": post.excerpt,
-    "keywords": (post.tags || []).join(", "),
-    "datePublished": post.publishedAt,
-    "dateModified": post.publishedAt,
-    "author": { "@type": "Organization", "name": "Nui", "url": "https://nuiapp.com" },
-    "publisher": {
+    headline: post.title,
+    description: post.excerpt,
+    keywords: (post.tags || []).join(", "),
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
+    author: { "@type": "Organization", name: "Nui", url: "https://nuiapp.com" },
+    publisher: {
       "@type": "Organization",
-      "name": "Nui App",
-      "logo": { "@type": "ImageObject", "url": "https://nuiapp.com/img/logo.png" },
+      name: "Nui App",
+      logo: { "@type": "ImageObject", url: "https://nuiapp.com/img/logo.png" },
     },
-    "image": post.imageUrl || "https://nuiapp.com/img/og-image.png",
-    "url": "https://nuiapp.com/",
-    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://nuiapp.com/" },
-    "inLanguage": "es-AR",
-    "about": { "@type": "Thing", "name": "Salud y Nutrición" },
+    image: post.imageUrl || "https://nuiapp.com/img/og-image.png",
+    url: "https://nuiapp.com/",
+    mainEntityOfPage: { "@type": "WebPage", "@id": "https://nuiapp.com/" },
+    inLanguage: "es-AR",
+    about: { "@type": "Thing", name: "Salud y Nutrición" },
   });
 };
 
@@ -3542,7 +3576,7 @@ const LandingFooter = () => (
               alt="Mercado Pago"
               sx={{
                 height: 48,
-                opacity: 0.90,
+                opacity: 0.9,
               }}
             />
           </Stack>
@@ -3550,8 +3584,12 @@ const LandingFooter = () => (
             ·
           </Typography>
           <Stack direction="row" spacing={0.5} alignItems="center">
-            <LockRoundedIcon sx={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }} />
-            <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}>
+            <LockRoundedIcon
+              sx={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}
+            />
+            <Typography
+              sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}
+            >
               Transacción cifrada SSL · PCI DSS compliant
             </Typography>
           </Stack>
@@ -3582,7 +3620,9 @@ const LandingFooter = () => (
               justifyContent: "center",
             }}
           >
-            <AccountBalanceRoundedIcon sx={{ fontSize: 11, color: "rgba(255,255,255,0.60)" }} />
+            <AccountBalanceRoundedIcon
+              sx={{ fontSize: 11, color: "rgba(255,255,255,0.60)" }}
+            />
           </Box>
           <Box
             component="a"
