@@ -15,6 +15,7 @@ import { isPlatformAuthenticatorAvailable, isBiometricRegistered, registerBiomet
 import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
+import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 
 const C = {
   brand: "#0B5E55",
@@ -371,9 +372,19 @@ const UserDataPage = () => {
           <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
             Ingresá más rápido
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 3.5, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>
+          <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 3, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>
             Activá Face ID o huella para entrar a Nui sin escribir tu contraseña cada vez.
           </Typography>
+
+          {/* Aviso: el sistema muestra su propio cartel ("llave de acceso") */}
+          <Box sx={{ display: "flex", gap: 1.25, alignItems: "flex-start",
+            bgcolor: "rgba(74,222,154,0.08)", border: "1px solid rgba(74,222,154,0.18)",
+            borderRadius: 3, px: 2, py: 1.4, mb: 3.5 }}>
+            <InfoRoundedIcon sx={{ fontSize: 18, color: "#4ADE9A", mt: "1px", flexShrink: 0 }} />
+            <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55 }}>
+              Tu celular puede mostrar un cartel para <b>"agregar llave de acceso"</b> — es el mismo paso, solo confirmá y escaneá tu huella o cara.
+            </Typography>
+          </Box>
 
           {/* Beneficios */}
           <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1.5, mb: 4 }}>
