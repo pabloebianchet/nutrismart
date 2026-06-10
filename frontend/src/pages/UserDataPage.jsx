@@ -158,6 +158,16 @@ const UserDataPage = () => {
       if (!res.ok) return setError(data.error || "Error al procesar la solicitud.");
 
       localStorage.setItem("nutrismartToken", data.token);
+
+      // Ofrecer Face ID solo si el dispositivo tiene biometría real y no está registrado
+      if (!isBiometricRegistered()) {
+        const hasBiometric = await isPlatformAuthenticatorAvailable();
+        if (hasBiometric) {
+          setPendingUser(data.user);
+          setShowBiometricAsk(true);
+          return;
+        }
+      }
       setUser(data.user);
     } catch {
       setError("Error de conexión. Verificá que el servidor esté activo.");

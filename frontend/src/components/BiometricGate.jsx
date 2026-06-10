@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import { verifyBiometric, clearBiometric } from "../utils/biometric";
 
@@ -12,7 +13,9 @@ import { verifyBiometric, clearBiometric } from "../utils/biometric";
  */
 const BiometricGate = ({ onUnlock, onFallback, userName }) => {
   const [loading,  setLoading]  = useState(false);
+  const [success,  setSuccess]  = useState(false);
   const [error,    setError]    = useState("");
+  const triedAuto = useRef(false);
 
   const handleBiometric = async () => {
     setLoading(true);
@@ -20,7 +23,10 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
     try {
       const result = await verifyBiometric();
       if (result.ok) {
-        onUnlock();
+        setLoading(false);
+        setSuccess(true);
+        setTimeout(onUnlock, 500);
+        return;
       } else if (result.error === "cancelled") {
         setError("Verificación cancelada.");
       } else if (result.error === "no_registered") {
@@ -34,6 +40,14 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
       setLoading(false);
     }
   };
+
+  // Disparar la verificación automáticamente al entrar, como en apps bancarias
+  useEffect(() => {
+    if (triedAuto.current) return;
+    triedAuto.current = true;
+    handleBiometric();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFallback = () => {
     clearBiometric();
@@ -73,12 +87,12 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
       {/* Botón biométrico */}
       <Button
         onClick={handleBiometric}
-        disabled={loading}
+        disabled={loading || success}
         sx={{
           width: 120, height: 120,
           borderRadius: "50%",
-          bgcolor: loading ? "rgba(11,94,85,0.3)" : "rgba(11,94,85,0.2)",
-          border: `2px solid ${loading ? "rgba(11,94,85,0.4)" : "#0B5E55"}`,
+          bgcolor: success ? "rgba(46,204,113,0.18)" : loading ? "rgba(11,94,85,0.3)" : "rgba(11,94,85,0.2)",
+          border: `2px solid ${success ? "#2ECC71" : loading ? "rgba(11,94,85,0.4)" : "#0B5E55"}`,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           gap: 0.5,
           transition: "all 0.2s",
@@ -87,11 +101,13 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
           mb: 3,
         }}
       >
-        {loading
-          ? <CircularProgress size={36} sx={{ color: "#0B5E55" }} />
-          : <FingerprintRoundedIcon sx={{ fontSize: 52, color: "#0B5E55" }} />
+        {success
+          ? <CheckRoundedIcon sx={{ fontSize: 56, color: "#2ECC71" }} />
+          : loading
+            ? <CircularProgress size={36} sx={{ color: "#0B5E55" }} />
+            : <FingerprintRoundedIcon sx={{ fontSize: 52, color: "#0B5E55" }} />
         }
-        {!loading && (
+        {!loading && !success && (
           <Typography sx={{ fontSize: 10, color: "#0B5E55", fontWeight: 700, letterSpacing: "0.05em" }}>
             FACE ID
           </Typography>

@@ -3,7 +3,12 @@
  */
 
 const RP_NAME    = "Nui App";
-const PASSKEY_KEY = "nui_passkey_id";
+// v2: las credenciales viejas se registraban con residentKey "preferred",
+// que en Android no siempre crea un passkey "discoverable". Eso hacía que
+// verifyBiometric() no encontrara nada y Chrome ofreciera "Agregar llave de
+// acceso" en vez de pedir Face ID/huella. Se cambia la key para forzar un
+// re-registro con residentKey "required".
+const PASSKEY_KEY = "nui_passkey_id_v2";
 
 const getRpId = () => window.location.hostname;
 
@@ -65,7 +70,7 @@ export const registerBiometric = async (userId, displayName) => {
         authenticatorSelection: {
           authenticatorAttachment: "platform",
           userVerification: "required",
-          residentKey: "preferred",
+          residentKey: "required",
         },
         timeout: 60000,
       },
@@ -93,10 +98,9 @@ export const verifyBiometric = async () => {
   try {
     const challenge = crypto.getRandomValues(new Uint8Array(32));
 
-    // Sin allowCredentials: el credential se registró como discoverable
-    // (residentKey: "preferred"). Pasar el rawId con transports: ["internal"]
-    // hace que algunos navegadores Android no lo encuentren y ofrezcan
-    // "Agregar llave de acceso" en vez de pedir Face ID/huella.
+    // Sin allowCredentials: el credential se registra como discoverable
+    // (residentKey: "required"), así el navegador lo encuentra solo por
+    // rpId y pide directamente Face ID/huella.
     const assertion = await navigator.credentials.get({
       publicKey: {
         challenge,
