@@ -1,37 +1,18 @@
 /**
- * WebAuthn biometric helper — Face ID / fingerprint como lock screen.
+ * WebAuthn biometric helper — Face ID / huella como lock screen.
+ * La credencial pública se registra y verifica contra el backend
+ * (@simplewebauthn), que guarda la public key del usuario y valida
+ * cada assertion. En el dispositivo solo se guarda un flag local.
  */
+import { startRegistration, startAuthentication } from "@simplewebauthn/browser";
+import { API_URL } from "../config/api";
 
-const RP_NAME    = "Nui App";
-// v3: "residentKey: required" hacía que el credential se guardara como
-// passkey sincronizable (Google Password Manager / Windows Hello), y al
-// verificar, Chrome muestra el selector de "llave de acceso guardada"
-// listando TODAS las cuentas/dispositivos en vez de pedir Face ID directo.
-// Volvemos a un credential NO discoverable, atado a este dispositivo
-// (residentKey: "discouraged"), identificado por su rawId guardado en
-// localStorage. Se bumpea la key para forzar re-registro.
-const PASSKEY_KEY = "nui_passkey_id_v3";
+const REGISTERED_FLAG = "nui_biometric_enabled";
 
-const getRpId = () => window.location.hostname;
-
-// Codificación segura para arrays grandes
-const arrayBufferToBase64 = (buffer) => {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-};
-
-const base64ToUint8Array = (base64) => {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-};
+const authHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("nutrismartToken")}`,
+});
 
 export const isBiometricSupported = () =>
   typeof window !== "undefined" &&
@@ -52,86 +33,80 @@ export const isPlatformAuthenticatorAvailable = async () => {
 };
 
 export const isBiometricRegistered = () =>
-  !!localStorage.getItem(PASSKEY_KEY);
+  localStorage.getItem(REGISTERED_FLAG) === "1";
 
 export const clearBiometric = () =>
-  localStorage.removeItem(PASSKEY_KEY);
+  localStorage.removeItem(REGISTERED_FLAG);
 
 /**
- * Registra la credencial biométrica.
+ * Registra la credencial biométrica contra el backend.
  * @returns {Promise<{ok: boolean, error?: string}>}
  */
-export const registerBiometric = async (userId, displayName) => {
+export const registerBiometric = async () => {
   try {
-    const challenge = crypto.getRandomValues(new Uint8Array(32));
-
-    const credential = await navigator.credentials.create({
-      publicKey: {
-        challenge,
-        rp:   { id: getRpId(), name: RP_NAME },
-        user: {
-          id:          new TextEncoder().encode(String(userId).slice(0, 64)),
-          name:        (displayName || "usuario").slice(0, 64),
-          displayName: (displayName || "usuario").slice(0, 64),
-        },
-        pubKeyCredParams: [
-          { type: "public-key", alg: -7   },
-          { type: "public-key", alg: -257 },
-        ],
-        authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          userVerification: "required",
-          residentKey: "discouraged",
-        },
-        timeout: 60000,
-      },
+    const optionsRes = await fetch(`${API_URL}/api/webauthn/register-options`, {
+      headers: authHeaders(),
     });
+    if (!optionsRes.ok) return { ok: false, error: "No se pudieron generar las opciones" };
+    const options = await optionsRes.json();
 
-    if (!credential) return { ok: false, error: "Sin credencial" };
+    let attResp;
+    try {
+      attResp = await startRegistration({ optionsJSON: options });
+    } catch (e) {
+      if (e.name === "NotAllowedError") return { ok: false, error: "cancelled" };
+      throw e;
+    }
 
-    const rawId = arrayBufferToBase64(credential.rawId);
-    localStorage.setItem(PASSKEY_KEY, rawId);
+    const verifyRes = await fetch(`${API_URL}/api/webauthn/register-verify`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ response: attResp }),
+    });
+    const data = await verifyRes.json();
+    if (!verifyRes.ok || !data.ok) return { ok: false, error: data.error || "Error desconocido" };
+
+    localStorage.setItem(REGISTERED_FLAG, "1");
     return { ok: true };
   } catch (e) {
-    if (e.name === "NotAllowedError") return { ok: false, error: "cancelled" };
     return { ok: false, error: e.message || "Error desconocido" };
   }
 };
 
 /**
- * Verifica la identidad con Face ID / huella.
+ * Verifica la identidad con Face ID / huella contra el backend.
  * @returns {Promise<{ok: boolean, error?: string}>}
  */
 export const verifyBiometric = async () => {
-  const stored = localStorage.getItem(PASSKEY_KEY);
-  if (!stored) return { ok: false, error: "no_registered" };
-
   try {
-    const rawId     = base64ToUint8Array(stored);
-    const challenge = crypto.getRandomValues(new Uint8Array(32));
-
-    // allowCredentials sin "transports": el credential es no-discoverable
-    // (residentKey: "discouraged"), atado a este dispositivo. Al indicar
-    // su id puntual, el navegador pide Face ID/huella directo, sin mostrar
-    // selector de cuentas/passkeys guardadas.
-    const assertion = await navigator.credentials.get({
-      publicKey: {
-        challenge,
-        rpId: getRpId(),
-        allowCredentials: [{ type: "public-key", id: rawId }],
-        userVerification: "required",
-        timeout: 60000,
-      },
+    const optionsRes = await fetch(`${API_URL}/api/webauthn/auth-options`, {
+      headers: authHeaders(),
     });
-
-    return assertion ? { ok: true } : { ok: false, error: "Sin respuesta" };
-  } catch (e) {
-    if (e.name === "NotAllowedError") return { ok: false, error: "cancelled" };
-    // Si el credential no existe más en el dispositivo, limpiarlo
-    if (e.name === "InvalidStateError" || e.name === "UnknownError") {
+    if (optionsRes.status === 404) {
       clearBiometric();
       return { ok: false, error: "no_registered" };
     }
+    if (!optionsRes.ok) return { ok: false, error: "No se pudieron generar las opciones" };
+    const options = await optionsRes.json();
+
+    let authResp;
+    try {
+      authResp = await startAuthentication({ optionsJSON: options });
+    } catch (e) {
+      if (e.name === "NotAllowedError") return { ok: false, error: "cancelled" };
+      throw e;
+    }
+
+    const verifyRes = await fetch(`${API_URL}/api/webauthn/auth-verify`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ response: authResp }),
+    });
+    const data = await verifyRes.json();
+    if (!verifyRes.ok || !data.ok) return { ok: false, error: data.error || "Error desconocido" };
+
+    return { ok: true };
+  } catch (e) {
     return { ok: false, error: e.message || "Error desconocido" };
   }
 };

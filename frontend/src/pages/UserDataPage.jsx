@@ -13,6 +13,8 @@ import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import { API_URL } from "../config/api";
 import { isPlatformAuthenticatorAvailable, isBiometricRegistered, registerBiometric } from "../utils/biometric.js";
 import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
 
 const C = {
   brand: "#0B5E55",
@@ -103,10 +105,7 @@ const UserDataPage = () => {
   const handleActivateBiometric = async () => {
     setBiometricLoading(true);
     setBiometricError("");
-    const result = await registerBiometric(
-      pendingUser._id || pendingUser.googleId,
-      pendingUser.name
-    );
+    const result = await registerBiometric();
     setBiometricLoading(false);
     if (result.error === "cancelled") {
       setBiometricError("Cancelado. Podés activarlo más tarde desde tu perfil.");
@@ -310,33 +309,117 @@ const UserDataPage = () => {
   /* ---------------- FACE ID ACTIVATION PROMPT ---------------- */
   if (showBiometricAsk) {
     return (
-      <Box sx={{ minHeight: "100dvh", bgcolor: "#0B1F1C", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", px: 3 }}>
-        <Box sx={{ width: 72, height: 72, borderRadius: "50%", bgcolor: "rgba(11,94,85,0.25)",
-          border: "2px solid #0B5E55", display: "flex", alignItems: "center", justifyContent: "center", mb: 3 }}>
-          <FingerprintRoundedIcon sx={{ fontSize: 38, color: "#0B5E55" }} />
-        </Box>
-        <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center" }}>
-          ¿Activar Face ID?
-        </Typography>
-        <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 4, textAlign: "center", lineHeight: 1.6 }}>
-          La próxima vez que abras la app podés entrar directo escaneando tu cara — sin elegir cuenta.
-        </Typography>
-        <Button onClick={handleActivateBiometric} disabled={biometricLoading} variant="contained" fullWidth
-          sx={{ borderRadius: 3, py: 1.5, fontWeight: 700, fontSize: 15, textTransform: "none",
-            bgcolor: "#0B5E55", "&:hover": { bgcolor: "#0f7a6e" }, mb: 1.5, maxWidth: 340 }}>
-          {biometricLoading ? "Activando..." : "Activar Face ID"}
-        </Button>
-        {biometricError && (
-          <Typography sx={{ fontSize: 12.5, color: "#E24B4A", mb: 1.5, textAlign: "center", maxWidth: 340 }}>
-            {biometricError}
+      <Box sx={{
+        minHeight: "100dvh",
+        background: "linear-gradient(150deg, #071e1b 0%, #0B5E55 60%, #0d5449 100%)",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        position: "relative", overflow: "hidden", px: 3,
+        "@keyframes pulseRing": {
+          "0%":   { transform: "scale(1)",   opacity: 0.55 },
+          "70%":  { transform: "scale(1.55)", opacity: 0 },
+          "100%": { transform: "scale(1.55)", opacity: 0 },
+        },
+        "@keyframes floatIn": {
+          from: { opacity: 0, transform: "translateY(14px)" },
+          to:   { opacity: 1, transform: "translateY(0)" },
+        },
+        "@keyframes blobDrift1": {
+          "0%,100%": { transform: "translate(0,0) scale(1)" },
+          "50%":     { transform: "translate(-40px,25px) scale(1.08)" },
+        },
+        "@keyframes blobDrift2": {
+          "0%,100%": { transform: "translate(0,0) scale(1)" },
+          "50%":     { transform: "translate(30px,-35px) scale(0.94)" },
+        },
+      }}>
+        {/* Orbs decorativos */}
+        <Box sx={{ position: "absolute", top: "-18%", left: "-12%", width: 420, height: 420, borderRadius: "50%",
+          background: "radial-gradient(circle at 35% 40%, rgba(20,200,170,0.16) 0%, transparent 65%)",
+          filter: "blur(32px)", animation: "blobDrift1 9s ease-in-out infinite", pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", bottom: "-20%", right: "-14%", width: 480, height: 480, borderRadius: "50%",
+          background: "radial-gradient(circle at 60% 55%, rgba(11,160,135,0.18) 0%, transparent 65%)",
+          filter: "blur(40px)", animation: "blobDrift2 11s ease-in-out infinite", pointerEvents: "none" }} />
+
+        <Box sx={{
+          position: "relative", zIndex: 1, width: "100%", maxWidth: 380,
+          bgcolor: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          backdropFilter: "blur(20px)",
+          borderRadius: 5,
+          px: { xs: 3, sm: 4.5 }, py: { xs: 4.5, sm: 5.5 },
+          display: "flex", flexDirection: "column", alignItems: "center",
+          animation: "floatIn 0.5s ease both",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
+        }}>
+          {/* Icono con anillo pulsante */}
+          <Box sx={{ position: "relative", width: 88, height: 88, mb: 3.5,
+            display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{ position: "absolute", inset: 0, borderRadius: "50%",
+              border: "2px solid #2ECC71", animation: "pulseRing 2.4s ease-out infinite" }} />
+            <Box sx={{ position: "absolute", inset: 0, borderRadius: "50%",
+              border: "2px solid #2ECC71", animation: "pulseRing 2.4s ease-out 0.6s infinite" }} />
+            <Box sx={{
+              width: 72, height: 72, borderRadius: "50%",
+              background: "linear-gradient(135deg, rgba(46,204,113,0.22), rgba(11,94,85,0.35))",
+              border: "1.5px solid rgba(46,204,113,0.5)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <FingerprintRoundedIcon sx={{ fontSize: 38, color: "#4ADE9A" }} />
+            </Box>
+          </Box>
+
+          <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
+            Ingresá más rápido
           </Typography>
-        )}
-        <Button onClick={handleSkipBiometric} fullWidth
-          sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
-            color: "rgba(255,255,255,0.45)", maxWidth: 340 }}>
-          Ahora no
-        </Button>
+          <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 3.5, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>
+            Activá Face ID o huella para entrar a Nui sin escribir tu contraseña cada vez.
+          </Typography>
+
+          {/* Beneficios */}
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1.5, mb: 4 }}>
+            {[
+              { Icon: BoltRoundedIcon,         text: "Acceso instantáneo, sin pasos extra" },
+              { Icon: VerifiedUserRoundedIcon, text: "Tu huella o cara nunca salen del dispositivo" },
+            ].map(({ Icon, text }, i) => (
+              <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1.5,
+                bgcolor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 3, px: 2, py: 1.4 }}>
+                <Box sx={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                  bgcolor: "rgba(46,204,113,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon sx={{ fontSize: 17, color: "#4ADE9A" }} />
+                </Box>
+                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 500, lineHeight: 1.4 }}>
+                  {text}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+
+          <Button onClick={handleActivateBiometric} disabled={biometricLoading} fullWidth
+            startIcon={!biometricLoading && <FingerprintRoundedIcon sx={{ fontSize: 20 }} />}
+            sx={{
+              borderRadius: 3, py: 1.6, fontWeight: 800, fontSize: 15, textTransform: "none",
+              color: "#06231F",
+              background: "linear-gradient(135deg, #4ADE9A 0%, #2ECC71 100%)",
+              "&:hover": { background: "linear-gradient(135deg, #5CEAA8 0%, #36DB80 100%)" },
+              "&.Mui-disabled": { color: "rgba(6,35,31,0.5)", background: "rgba(74,222,154,0.4)" },
+              mb: 1.5, boxShadow: "0 8px 24px rgba(46,204,113,0.25)",
+            }}>
+            {biometricLoading ? "Activando..." : "Activar Face ID / huella"}
+          </Button>
+
+          {biometricError && (
+            <Typography sx={{ fontSize: 12.5, color: "#FF8A80", mb: 1.5, textAlign: "center" }}>
+              {biometricError}
+            </Typography>
+          )}
+
+          <Button onClick={handleSkipBiometric} fullWidth
+            sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
+              color: "rgba(255,255,255,0.45)", "&:hover": { color: "rgba(255,255,255,0.7)", bgcolor: "transparent" } }}>
+            Ahora no
+          </Button>
+        </Box>
       </Box>
     );
   }

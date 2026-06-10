@@ -31,6 +31,18 @@ const userSchema = new mongoose.Schema(
       training: { type: Boolean, default: true },
       renewal:  { type: Boolean, default: true },
     },
+
+    // Face ID / huella (WebAuthn)
+    webauthnCredentials: [
+      {
+        credentialID: { type: String, required: true },
+        publicKey:    { type: String, required: true },
+        counter:      { type: Number, default: 0 },
+        transports:   [{ type: String }],
+        createdAt:    { type: Date, default: Date.now },
+      },
+    ],
+    currentChallenge: { type: String },
   },
   { timestamps: true }
 );
