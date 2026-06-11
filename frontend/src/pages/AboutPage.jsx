@@ -209,7 +209,7 @@ const AboutPage = () => {
                 border: `1.5px solid ${m.border}`,
                 boxShadow: "0 2px 16px rgba(11,94,85,0.06)",
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "auto 1fr" },
+                gridTemplateColumns: { xs: "1fr", sm: "140px 1fr" },
                 transition: "transform 0.25s ease, box-shadow 0.25s ease",
                 "&:hover": { transform: "translateY(-3px)", boxShadow: `0 16px 40px ${m.border}` },
               }}>
@@ -221,7 +221,6 @@ const AboutPage = () => {
                   alignItems: "center", justifyContent: "center", gap: 1,
                   borderRight: { xs: "none", sm: `1px solid ${m.border}` },
                   borderBottom: { xs: `1px solid ${m.border}`, sm: "none" },
-                  minWidth: { sm: 120 },
                 }}>
                   <m.Icon sx={{ fontSize: { xs: 32, sm: 44 }, color: m.color }} />
                   <Box sx={{ textAlign: { xs: "left", sm: "center" } }}>
