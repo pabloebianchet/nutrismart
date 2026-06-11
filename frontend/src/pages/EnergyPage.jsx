@@ -25,6 +25,13 @@ import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
 import DirectionsRunRoundedIcon from "@mui/icons-material/DirectionsRunRounded";
 import OpacityRoundedIcon from "@mui/icons-material/OpacityRounded";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import TrackChangesRoundedIcon from "@mui/icons-material/TrackChangesRounded";
+import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
+import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
+import DiamondRoundedIcon from "@mui/icons-material/DiamondRounded";
+import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import { API_URL } from "../config/api";
@@ -141,7 +148,7 @@ const GoalSelector = ({ onSelect, saving }) => (
   >
     <Box sx={{ maxWidth: 480, width: "100%" }}>
       <Box sx={{ textAlign: "center", mb: 5 }}>
-        <Typography sx={{ fontSize: 32, mb: 1 }}>🎯</Typography>
+        <TrackChangesRoundedIcon sx={{ fontSize: 32, mb: 1, color: C.brand }} />
         <Typography
           sx={{ fontSize: 22, fontWeight: 900, color: C.text, mb: 1 }}
         >
@@ -260,10 +267,10 @@ const EnergyPage = () => {
   const balanceStatus = () => {
     if (!dailyGoal) return null;
     if (restantes > 150)
-      return { label: "Por debajo del objetivo", color: C.blue, emoji: "📉" };
+      return { label: "Por debajo del objetivo", color: C.blue, Icon: TrendingDownRoundedIcon };
     if (restantes < -150)
-      return { label: "Por encima del objetivo", color: C.danger, emoji: "⚠️" };
-    return { label: "Dentro del objetivo", color: C.green, emoji: "✅" };
+      return { label: "Por encima del objetivo", color: C.danger, Icon: WarningAmberRoundedIcon };
+    return { label: "Dentro del objetivo", color: C.green, Icon: CheckCircleRoundedIcon };
   };
 
   /* ─── Fetch del log ── */
@@ -666,11 +673,14 @@ const EnergyPage = () => {
                   fontWeight: 800,
                   color: dayEval.goalMet ? C.green : C.danger,
                   mb: 0.3,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.6,
                 }}
               >
                 {dayEval.goalMet
-                  ? "✅ Objetivo cumplido"
-                  : "📊 Objetivo no alcanzado"}
+                  ? <><CheckCircleRoundedIcon sx={{ fontSize: 18 }} /> Objetivo cumplido</>
+                  : <><BarChartRoundedIcon sx={{ fontSize: 18 }} /> Objetivo no alcanzado</>}
               </Typography>
               <Typography
                 sx={{ fontSize: 12.5, color: C.textSec, lineHeight: 1.5 }}
@@ -865,9 +875,12 @@ const EnergyPage = () => {
                   textTransform: "uppercase",
                   letterSpacing: "0.06em",
                   mb: 0.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
                 }}
               >
-                🍽️ Consumidas
+                <RestaurantRoundedIcon sx={{ fontSize: 13 }} /> Consumidas
               </Typography>
               <Typography
                 sx={{
@@ -902,9 +915,12 @@ const EnergyPage = () => {
                   textTransform: "uppercase",
                   letterSpacing: "0.06em",
                   mb: 0.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
                 }}
               >
-                🏃 Actividad (Pesas, Dormir, Trabajr en PC, etc.)
+                <DirectionsRunRoundedIcon sx={{ fontSize: 13 }} /> Actividad (Pesas, Dormir, Trabajar en PC, etc.)
               </Typography>
               <Typography
                 sx={{
@@ -1018,7 +1034,7 @@ const EnergyPage = () => {
                 gap: 1,
               }}
             >
-              <Typography sx={{ fontSize: 18 }}>{status.emoji}</Typography>
+              <status.Icon sx={{ fontSize: 18, color: status.color }} />
               <Typography
                 sx={{ fontSize: 14, fontWeight: 700, color: status.color }}
               >
@@ -1326,16 +1342,16 @@ const EnergyPage = () => {
               )}
               {preview.tipo === "actividad" && (
                 <Typography
-                  sx={{ fontSize: 16, fontWeight: 900, color: C.brand }}
+                  sx={{ fontSize: 16, fontWeight: 900, color: C.brand, display: "flex", alignItems: "center", gap: 0.6 }}
                 >
-                  🔥 {Math.round(preview.totales?.kcal || 0)} kcal quemadas
+                  <LocalFireDepartmentRoundedIcon sx={{ fontSize: 19 }} /> {Math.round(preview.totales?.kcal || 0)} kcal quemadas
                 </Typography>
               )}
               {preview.tipo === "agua" && (
                 <Typography
-                  sx={{ fontSize: 16, fontWeight: 900, color: C.blue }}
+                  sx={{ fontSize: 16, fontWeight: 900, color: C.blue, display: "flex", alignItems: "center", gap: 0.6 }}
                 >
-                  💧 {((preview.agua_ml || 0) / 1000).toFixed(2)} litros
+                  <OpacityRoundedIcon sx={{ fontSize: 19 }} /> {((preview.agua_ml || 0) / 1000).toFixed(2)} litros
                 </Typography>
               )}
             </Box>
@@ -1506,12 +1522,20 @@ const EnergyPage = () => {
             }}
           >
             <Typography
-              sx={{ fontSize: 12.5, color: C.textSec, lineHeight: 1.6 }}
+              sx={{ fontSize: 12.5, color: C.textSec, lineHeight: 1.6, display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 0.7 }}
             >
-              {isFree &&
-                "🎁 Plan Free — acceso completo durante 7 días de prueba, incluyendo historial acumulado."}
-              {isSilver &&
-                "💎 Plan Silver — balance diario activo. El historial mensual está disponible en Plan Gold."}
+              {isFree && (
+                <>
+                  <CardGiftcardRoundedIcon sx={{ fontSize: 16, mt: "1px", flexShrink: 0 }} />
+                  Plan Free — acceso completo durante 7 días de prueba, incluyendo historial acumulado.
+                </>
+              )}
+              {isSilver && (
+                <>
+                  <DiamondRoundedIcon sx={{ fontSize: 16, mt: "1px", flexShrink: 0 }} />
+                  Plan Silver — balance diario activo. El historial mensual está disponible en Plan Gold.
+                </>
+              )}
               {!isFree &&
                 !isSilver &&
                 !isGold &&

@@ -5,6 +5,10 @@ import InsightsRoundedIcon        from "@mui/icons-material/InsightsRounded";
 import VerifiedRoundedIcon        from "@mui/icons-material/VerifiedRounded";
 import PsychologyRoundedIcon      from "@mui/icons-material/PsychologyRounded";
 import AutoAwesomeRoundedIcon     from "@mui/icons-material/AutoAwesomeRounded";
+import SearchRoundedIcon          from "@mui/icons-material/SearchRounded";
+import RestaurantRoundedIcon      from "@mui/icons-material/RestaurantRounded";
+import FitnessCenterRoundedIcon   from "@mui/icons-material/FitnessCenterRounded";
+import BoltRoundedIcon            from "@mui/icons-material/BoltRounded";
 
 const C = {
   brand:        "#0B5E55",
@@ -23,7 +27,7 @@ const C = {
 /* ── Módulos ─────────────────────────────────────────────────────────────── */
 const MODULES = [
   {
-    emoji: "🔍",
+    Icon: SearchRoundedIcon,
     title: "Análisis de alimentos",
     subtitle: "El núcleo de Nui",
     color: "#0B5E55",
@@ -33,7 +37,7 @@ const MODULES = [
     tags:  ["Ultraprocesados", "Puntaje 0–100", "Aditivos", "Clasificación NOVA"],
   },
   {
-    emoji: "🍽️",
+    Icon: RestaurantRoundedIcon,
     title: "Recetas YA",
     subtitle: "Comé bien sin complicaciones",
     color: "#6A1B9A",
@@ -43,7 +47,7 @@ const MODULES = [
     tags:  ["Fit", "Hipertrofia", "Rápidas", "Desayunos", "Guardá y compartí"],
   },
   {
-    emoji: "🏋️",
+    Icon: FitnessCenterRoundedIcon,
     title: "Entrenamiento",
     subtitle: "Moverse también cuenta",
     color: "#BF360C",
@@ -53,7 +57,7 @@ const MODULES = [
     tags:  ["Hipertrofia", "Fit", "Calistenia", "Seguimiento", "Progresión"],
   },
   {
-    emoji: "⚡",
+    Icon: BoltRoundedIcon,
     title: "Balance energético",
     subtitle: "Nutrición de precisión",
     color: "#0B5E55",
@@ -138,12 +142,12 @@ const AboutPage = () => {
         {/* 3 módulos en píldoras */}
         <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap" useFlexGap mt={4}>
           {[
-            { emoji: "🔍", label: "Análisis",      color: "#0B5E55", bg: "#E6F5F3" },
-            { emoji: "🍽️", label: "Recetas YA",    color: "#6A1B9A", bg: "#F3E5F5" },
-            { emoji: "🏋️", label: "Entrenamiento", color: "#BF360C", bg: "#FBE9E7" },
+            { Icon: SearchRoundedIcon, label: "Análisis",      color: "#0B5E55", bg: "#E6F5F3" },
+            { Icon: RestaurantRoundedIcon, label: "Recetas YA",    color: "#6A1B9A", bg: "#F3E5F5" },
+            { Icon: FitnessCenterRoundedIcon, label: "Entrenamiento", color: "#BF360C", bg: "#FBE9E7" },
           ].map((p) => (
             <Box key={p.label} sx={{ px: 2.2, py: 0.9, borderRadius: 999, bgcolor: p.bg, border: `1.5px solid ${p.color}25`, display: "inline-flex", alignItems: "center", gap: 0.8 }}>
-              <Typography sx={{ fontSize: 16, lineHeight: 1 }}>{p.emoji}</Typography>
+              <p.Icon sx={{ fontSize: 17, color: p.color }} />
               <Typography sx={{ fontSize: 14, fontWeight: 800, color: p.color }}>{p.label}</Typography>
             </Box>
           ))}
@@ -219,7 +223,7 @@ const AboutPage = () => {
                   borderBottom: { xs: `1px solid ${m.border}`, sm: "none" },
                   minWidth: { sm: 120 },
                 }}>
-                  <Typography sx={{ fontSize: { xs: 32, sm: 44 }, lineHeight: 1 }}>{m.emoji}</Typography>
+                  <m.Icon sx={{ fontSize: { xs: 32, sm: 44 }, color: m.color }} />
                   <Box sx={{ textAlign: { xs: "left", sm: "center" } }}>
                     <Typography sx={{ fontSize: 13, fontWeight: 900, color: m.color, letterSpacing: "-0.2px", lineHeight: 1.2 }}>{m.title}</Typography>
                     <Typography sx={{ fontSize: 11, color: m.color, opacity: 0.7, fontWeight: 600 }}>{m.subtitle}</Typography>

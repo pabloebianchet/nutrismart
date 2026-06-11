@@ -7,6 +7,11 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
 import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
 import DocumentScannerRoundedIcon from "@mui/icons-material/DocumentScannerRounded";
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import ScienceRoundedIcon from "@mui/icons-material/ScienceRounded";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 
 const C = {
   brand: "#0B5E55",
@@ -26,7 +31,7 @@ const C = {
 const NOVA = [
   {
     label: "No procesado",
-    emoji: "🥦",
+    Icon: SpaRoundedIcon,
     desc: "Alimentos frescos o con mínima manipulación. Frutas, verduras, carnes, huevos, legumbres.",
     color: "#2E7D32",
     bg: "#E8F5E9",
@@ -35,7 +40,7 @@ const NOVA = [
   },
   {
     label: "Procesado",
-    emoji: "🧂",
+    Icon: ScienceRoundedIcon,
     desc: "Ingredientes simples añadidos para conservar o realzar sabor. Quesos, conservas, panes artesanales.",
     color: "#E65100",
     bg: "#FFF3E0",
@@ -44,7 +49,7 @@ const NOVA = [
   },
   {
     label: "Ultraprocesado",
-    emoji: "🍟",
+    Icon: WarningAmberRoundedIcon,
     desc: "Formulaciones industriales con aditivos, colorantes, saborizantes artificiales. Snacks, gaseosas, embutidos.",
     color: "#B71C1C",
     bg: "#FFEBEE",
@@ -84,7 +89,7 @@ const STEPS = [
 /* ── Módulos de la app ────────────────────────────────────────────────────── */
 const MODULES = [
   {
-    emoji: "🔍",
+    Icon: SearchRoundedIcon,
     title: "Análisis de alimentos",
     color: "#0B5E55",
     bg: "#E6F5F3",
@@ -97,7 +102,7 @@ const MODULES = [
     ],
   },
   {
-    emoji: "🍽️",
+    Icon: RestaurantRoundedIcon,
     title: "Recetas YA",
     color: "#6A1B9A",
     bg: "#F3E5F5",
@@ -110,7 +115,7 @@ const MODULES = [
     ],
   },
   {
-    emoji: "🏋️",
+    Icon: FitnessCenterRoundedIcon,
     title: "Entrenamiento",
     color: "#BF360C",
     bg: "#FBE9E7",
@@ -123,7 +128,7 @@ const MODULES = [
     ],
   },
   {
-    emoji: "⚡",
+    Icon: BoltRoundedIcon,
     title: "Balance calórico",
     color: "#1565C0",
     bg: "#E3F2FD",
@@ -354,9 +359,7 @@ const HowItWorksPage = () => {
                   </Typography>
                 </Box>
 
-                <Typography sx={{ fontSize: 36, mb: 1.2, lineHeight: 1 }}>
-                  {n.emoji}
-                </Typography>
+                <n.Icon sx={{ fontSize: 36, mb: 1.2, color: n.color }} />
                 <Typography
                   sx={{
                     fontSize: 16,
@@ -697,17 +700,17 @@ const HowItWorksPage = () => {
             <Stack spacing={1.5}>
               {[
                 {
-                  icon: "🔍",
+                  Icon: SearchRoundedIcon,
                   text: "Análisis con puntaje ≥ 50/100",
                   pts: "+5 pts",
                 },
                 {
-                  icon: "💪",
+                  Icon: FitnessCenterRoundedIcon,
                   text: "Sesión de entrenamiento registrada",
                   pts: "+5 pts",
                 },
                 {
-                  icon: "🍔",
+                  Icon: WarningAmberRoundedIcon,
                   text: "Análisis con puntaje < 50/100",
                   pts: "−3 pts",
                 },
@@ -718,9 +721,7 @@ const HowItWorksPage = () => {
                   spacing={1.5}
                   alignItems="center"
                 >
-                  <Typography sx={{ fontSize: 18, flexShrink: 0 }}>
-                    {row.icon}
-                  </Typography>
+                  <row.Icon sx={{ fontSize: 18, flexShrink: 0, color: C.textSecondary }} />
                   <Typography
                     sx={{
                       fontSize: 13,
@@ -825,9 +826,7 @@ const HowItWorksPage = () => {
                   alignItems="center"
                   mb={2.5}
                 >
-                  <Typography sx={{ fontSize: 32, lineHeight: 1 }}>
-                    {m.emoji}
-                  </Typography>
+                  <m.Icon sx={{ fontSize: 32, color: m.color }} />
                   <Typography
                     sx={{
                       fontSize: 16,

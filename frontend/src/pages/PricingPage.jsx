@@ -13,6 +13,17 @@ import BoltRoundedIcon              from "@mui/icons-material/BoltRounded";
 import AccessTimeRoundedIcon        from "@mui/icons-material/AccessTimeRounded";
 import LocalOfferRoundedIcon        from "@mui/icons-material/LocalOfferRounded";
 import LockOutlinedIcon             from "@mui/icons-material/LockOutlined";
+import LockRoundedIcon              from "@mui/icons-material/LockRounded";
+import SearchRoundedIcon            from "@mui/icons-material/SearchRounded";
+import RestaurantRoundedIcon        from "@mui/icons-material/RestaurantRounded";
+import FitnessCenterRoundedIcon     from "@mui/icons-material/FitnessCenterRounded";
+import BarChartRoundedIcon          from "@mui/icons-material/BarChartRounded";
+import SportsEsportsRoundedIcon     from "@mui/icons-material/SportsEsportsRounded";
+import StraightenRoundedIcon        from "@mui/icons-material/StraightenRounded";
+import EmailRoundedIcon             from "@mui/icons-material/EmailRounded";
+import CalendarMonthRoundedIcon     from "@mui/icons-material/CalendarMonthRounded";
+import StarRoundedIcon              from "@mui/icons-material/StarRounded";
+import TrackChangesRoundedIcon      from "@mui/icons-material/TrackChangesRounded";
 import { API_URL } from "../config/api";
 import usePageMeta from "../hooks/usePageMeta";
 
@@ -26,7 +37,7 @@ const C = {
   textMuted:    "#8AADAA",
 };
 
-const feat = (emoji, text) => ({ emoji, text });
+const feat = (Icon, text) => ({ Icon, text });
 
 const PLANS = [
   {
@@ -44,12 +55,12 @@ const PLANS = [
     badge:     "Empezá hoy",
     badgeBg:   "#0B5E55",
     features: [
-      feat("🔍", "Análisis de alimentos ilimitados"),
-      feat("🍽️", "Recetas YA con IA, ilimitadas"),
-      feat("🏋️", "Plan de entrenamiento personalizado"),
-      feat("⚡", "Balance calórico diario por voz"),
-      feat("📊", "Dashboard + puntaje saludable"),
-      feat("🎮", "Avatar y ranking global"),
+      feat(SearchRoundedIcon, "Análisis de alimentos ilimitados"),
+      feat(RestaurantRoundedIcon, "Recetas YA con IA, ilimitadas"),
+      feat(FitnessCenterRoundedIcon, "Plan de entrenamiento personalizado"),
+      feat(BoltRoundedIcon, "Balance calórico diario por voz"),
+      feat(BarChartRoundedIcon, "Dashboard + puntaje saludable"),
+      feat(SportsEsportsRoundedIcon, "Avatar y ranking global"),
     ],
     cta: "Comenzar prueba gratis",
     ctaAction: "start_free",
@@ -65,13 +76,13 @@ const PLANS = [
     border:    "rgba(113,135,156,0.25)",
     highlight: false,
     features: [
-      feat("🔍", "1 análisis de producto por día"),
-      feat("🍽️", "Recetas YA ilimitadas"),
-      feat("🏋️", "1 plan de entrenamiento activo"),
-      feat("⚡", "Balance energético diario por voz"),
-      feat("📊", "Historial de análisis (30 días)"),
-      feat("📏", "Dashboard + métricas + IMC"),
-      feat("📧", "Soporte por email"),
+      feat(SearchRoundedIcon, "1 análisis de producto por día"),
+      feat(RestaurantRoundedIcon, "Recetas YA ilimitadas"),
+      feat(FitnessCenterRoundedIcon, "1 plan de entrenamiento activo"),
+      feat(BoltRoundedIcon, "Balance energético diario por voz"),
+      feat(BarChartRoundedIcon, "Historial de análisis (30 días)"),
+      feat(StraightenRoundedIcon, "Dashboard + métricas + IMC"),
+      feat(EmailRoundedIcon, "Soporte por email"),
     ],
     cta: "Elegir Silver",
   },
@@ -88,15 +99,15 @@ const PLANS = [
     badge:     "Más popular",
     badgeBg:   "#C9952A",
     features: [
-      feat("🔍", "Análisis de alimentos ilimitados"),
-      feat("🍽️", "Recetas YA ilimitadas + guardar favoritas"),
-      feat("🏋️", "Hasta 2 planes de entrenamiento activos"),
-      feat("⚡", "Balance energético diario por voz"),
-      feat("📅", "Historial mensual de balance (tabla por día)"),
-      feat("📊", "Historial completo sin límite"),
-      feat("⭐", "Dashboard premium + estadísticas detalladas"),
-      feat("🚀", "Acceso anticipado a nuevas funciones"),
-      feat("🎯", "Soporte prioritario"),
+      feat(SearchRoundedIcon, "Análisis de alimentos ilimitados"),
+      feat(RestaurantRoundedIcon, "Recetas YA ilimitadas + guardar favoritas"),
+      feat(FitnessCenterRoundedIcon, "Hasta 2 planes de entrenamiento activos"),
+      feat(BoltRoundedIcon, "Balance energético diario por voz"),
+      feat(CalendarMonthRoundedIcon, "Historial mensual de balance (tabla por día)"),
+      feat(BarChartRoundedIcon, "Historial completo sin límite"),
+      feat(StarRoundedIcon, "Dashboard premium + estadísticas detalladas"),
+      feat(RocketLaunchRoundedIcon, "Acceso anticipado a nuevas funciones"),
+      feat(TrackChangesRoundedIcon, "Soporte prioritario"),
     ],
     cta: "Elegir Gold",
   },
@@ -274,8 +285,8 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
           Cancelar
         </Button>
 
-        <Typography sx={{ textAlign: "center", fontSize: 11, color: C.textMuted, mt: 1.5 }}>
-          🔒 Pago seguro procesado por Mercado Pago
+        <Typography sx={{ textAlign: "center", fontSize: 11, color: C.textMuted, mt: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+          <LockRoundedIcon sx={{ fontSize: 13 }} /> Pago seguro procesado por Mercado Pago
         </Typography>
       </DialogContent>
     </Dialog>
@@ -440,7 +451,7 @@ const PricingPage = () => {
                   <Stack spacing={1.2} mb={3.5}>
                     {plan.features.map((f) => (
                       <Box key={f.text} sx={{ display: "flex", alignItems: "flex-start", gap: 1.2 }}>
-                        <Typography sx={{ fontSize: 15, lineHeight: 1.4, flexShrink: 0, mt: "1px" }}>{f.emoji}</Typography>
+                        <f.Icon sx={{ fontSize: 17, color: C.textSecondary, flexShrink: 0, mt: "1px" }} />
                         <Typography sx={{ fontSize: 13, color: C.textSecondary, lineHeight: 1.5 }}>{f.text}</Typography>
                       </Box>
                     ))}

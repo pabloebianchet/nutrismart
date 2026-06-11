@@ -14,6 +14,21 @@ import DeleteOutlineRoundedIcon   from "@mui/icons-material/DeleteOutlineRounded
 import ExpandMoreRoundedIcon      from "@mui/icons-material/ExpandMoreRounded";
 import ExpandLessRoundedIcon      from "@mui/icons-material/ExpandLessRounded";
 import AddShoppingCartRoundedIcon from "@mui/icons-material/AddShoppingCartRounded";
+import RestaurantRoundedIcon      from "@mui/icons-material/RestaurantRounded";
+import SpaRoundedIcon             from "@mui/icons-material/SpaRounded";
+import FitnessCenterRoundedIcon   from "@mui/icons-material/FitnessCenterRounded";
+import BoltRoundedIcon            from "@mui/icons-material/BoltRounded";
+import WbTwilightRoundedIcon      from "@mui/icons-material/WbTwilightRounded";
+import WbSunnyRoundedIcon         from "@mui/icons-material/WbSunnyRounded";
+import LocalCafeRoundedIcon       from "@mui/icons-material/LocalCafeRounded";
+import NightlightRoundedIcon      from "@mui/icons-material/NightlightRounded";
+import CookieRoundedIcon          from "@mui/icons-material/CookieRounded";
+import SoupKitchenRoundedIcon     from "@mui/icons-material/SoupKitchenRounded";
+import AccessTimeRoundedIcon      from "@mui/icons-material/AccessTimeRounded";
+import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
+import BarChartRoundedIcon        from "@mui/icons-material/BarChartRounded";
+import LightbulbRoundedIcon       from "@mui/icons-material/LightbulbRounded";
+import RocketLaunchRoundedIcon    from "@mui/icons-material/RocketLaunchRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }           from "../context/NutritionContext";
 import { useLocation }            from "react-router-dom";
@@ -26,17 +41,17 @@ import { getSocket, getSocketId } from "../config/socket";
 // ─── config ─────────────────────────────────────────────────────────────────
 
 const MODALIDADES = [
-  { id: "Fit",         label: "Fit",         emoji: "💚", desc: "Liviano, proteico y natural", color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
-  { id: "Hipertrofia", label: "Hipertrofia", emoji: "💪", desc: "Alto en proteína y calorías", color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"   },
-  { id: "Rápidas",     label: "Rápidas",     emoji: "⚡", desc: "Listo en menos de 15 min",   color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"   },
+  { id: "Fit",         label: "Fit",         Icon: SpaRoundedIcon,           desc: "Liviano, proteico y natural", color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
+  { id: "Hipertrofia", label: "Hipertrofia", Icon: FitnessCenterRoundedIcon, desc: "Alto en proteína y calorías", color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"   },
+  { id: "Rápidas",     label: "Rápidas",     Icon: BoltRoundedIcon,          desc: "Listo en menos de 15 min",   color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"   },
 ];
 
 const MOMENTOS = [
-  { id: "Desayuno", emoji: "🌅", color: "#F57F17" },
-  { id: "Almuerzo", emoji: "☀️", color: "#2E7D32" },
-  { id: "Merienda", emoji: "🍎", color: "#6A1B9A" },
-  { id: "Cena",     emoji: "🌙", color: "#283593" },
-  { id: "Snack",    emoji: "🫐", color: "#00695C" },
+  { id: "Desayuno", Icon: WbTwilightRoundedIcon, color: "#F57F17" },
+  { id: "Almuerzo", Icon: WbSunnyRoundedIcon,    color: "#2E7D32" },
+  { id: "Merienda", Icon: LocalCafeRoundedIcon,  color: "#6A1B9A" },
+  { id: "Cena",     Icon: NightlightRoundedIcon, color: "#283593" },
+  { id: "Snack",    Icon: CookieRoundedIcon,     color: "#00695C" },
 ];
 
 // ─── animation variants ──────────────────────────────────────────────────────
@@ -97,14 +112,12 @@ const StepLabel = ({ n, label }) => (
 
 const RecipeLoader = ({ message }) => (
   <Box sx={{ textAlign: "center", py: 8 }}>
-    <Typography sx={{
-      fontSize: 56, lineHeight: 1, mb: 3,
+    <SoupKitchenRoundedIcon sx={{
+      fontSize: 56, mb: 3, color: "#0B5E55",
       "@keyframes cookSpin": { "0%,100%": { transform: "rotate(-10deg)" }, "50%": { transform: "rotate(10deg)" } },
       animation: "cookSpin 1.2s ease-in-out infinite",
       display: "inline-block",
-    }}>
-      🍳
-    </Typography>
+    }} />
     <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
     <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
       {[0, 1, 2].map((i) => (
@@ -178,7 +191,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
           </Typography>
           <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
             {mod && (
-              <Chip label={`${mod.emoji} ${mod.label}`} size="small"
+              <Chip icon={<mod.Icon sx={{ fontSize: "13px !important" }} />} label={mod.label} size="small"
                 sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: mod.bg, color: mod.color, border: `1px solid ${mod.border}` }} />
             )}
             {recipe.momento && (
@@ -186,10 +199,16 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
                 sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
             )}
             {recipe.time && (
-              <Typography sx={{ fontSize: 11.5, color: "#8AADAA", alignSelf: "center" }}>⏱ {recipe.time}</Typography>
+              <Stack direction="row" spacing={0.4} alignItems="center">
+                <AccessTimeRoundedIcon sx={{ fontSize: 13, color: "#8AADAA" }} />
+                <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{recipe.time}</Typography>
+              </Stack>
             )}
             {recipe.calories && (
-              <Typography sx={{ fontSize: 11.5, color: "#8AADAA", alignSelf: "center" }}>🔥 {recipe.calories}</Typography>
+              <Stack direction="row" spacing={0.4} alignItems="center">
+                <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13, color: "#8AADAA" }} />
+                <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{recipe.calories}</Typography>
+              </Stack>
             )}
           </Stack>
         </Box>
@@ -252,7 +271,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
           {recipe.tip && (
             <Box sx={{ px: 2, py: 1.5, borderRadius: 2.5, bgcolor: mod?.bg || "#E6F5F3", border: `1px solid ${mod?.border || "rgba(11,94,85,0.15)"}`, mb: 2 }}>
               <Stack direction="row" spacing={1}>
-                <Typography sx={{ fontSize: 16, lineHeight: 1 }}>💡</Typography>
+                <LightbulbRoundedIcon sx={{ fontSize: 18 }} />
                 <Typography sx={{ fontSize: 13, color: "#4A6B67", lineHeight: 1.6 }}>{recipe.tip}</Typography>
               </Stack>
             </Box>
@@ -445,7 +464,7 @@ const RecipesPage = () => {
       const newRecipe = data.saved || { ...detail, modalidad, momento, _id: String(Date.now()) };
       setSavedNames((prev) => new Set([...prev, detail.name]));
       setSavedRecipes((prev) => [newRecipe, ...prev]);
-      setSnackMsg("¡Receta guardada! 💾");
+      setSnackMsg("¡Receta guardada!");
     } catch {
       setSnackMsg("No se pudo guardar. Intentá de nuevo.");
     } finally {
@@ -459,14 +478,14 @@ const RecipesPage = () => {
       await navigator.clipboard.writeText(buildShareText(recipe).replace(/\*/g, ""));
     } catch {}
     window.open("https://www.instagram.com", "_blank", "noopener");
-    setSnackMsg("¡Receta copiada! Pegala en tus Stories 📸");
+    setSnackMsg("¡Receta copiada! Pegala en tus Stories");
   };
 
   // ── copy to clipboard ──
   const handleCopy = async (recipe) => {
     try {
       await navigator.clipboard.writeText(buildShareText(recipe).replace(/\*/g, ""));
-      setSnackMsg("¡Copiado al portapapeles! 📋");
+      setSnackMsg("¡Copiado al portapapeles!");
     } catch {
       setSnackMsg("No se pudo copiar.");
     }
@@ -489,7 +508,7 @@ const RecipesPage = () => {
     updateList(merged);
     setAddedToList(true);
     setTimeout(() => setAddedToList(false), 2500);
-    setSnackMsg(`🛒 ${newItems.length} ingrediente${newItems.length > 1 ? "s" : ""} agregado${newItems.length > 1 ? "s" : ""} a tu lista`);
+    setSnackMsg(`${newItems.length} ingrediente${newItems.length > 1 ? "s" : ""} agregado${newItems.length > 1 ? "s" : ""} a tu lista`);
   };
 
   // ── delete saved recipe ──
@@ -535,7 +554,7 @@ const RecipesPage = () => {
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Box>
               <Stack direction="row" spacing={1.2} alignItems="center">
-                <Typography sx={{ fontSize: 28 }}>🍽️</Typography>
+                <RestaurantRoundedIcon sx={{ fontSize: 28, color: "#0B5E55" }} />
                 <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
                   Recetas YA
                 </Typography>
@@ -617,7 +636,7 @@ const RecipesPage = () => {
                             <CheckRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />
                           </Box>
                         )}
-                        <Typography sx={{ fontSize: 28, mb: 0.8, lineHeight: 1 }}>{m.emoji}</Typography>
+                        <m.Icon sx={{ fontSize: 28, mb: 0.8, color: m.color }} />
                         <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px" }}>{m.label}</Typography>
                         <Typography sx={{ fontSize: 12, color: "#4A6B67", mt: 0.3 }}>{m.desc}</Typography>
                       </Box>
@@ -645,7 +664,7 @@ const RecipesPage = () => {
                                 "&:hover": { borderColor: m.color, bgcolor: `${m.color}10` },
                               }}
                             >
-                              <Typography sx={{ fontSize: 18, lineHeight: 1 }}>{m.emoji}</Typography>
+                              <m.Icon sx={{ fontSize: 18, color: m.color }} />
                               <Typography sx={{ fontSize: 13.5, fontWeight: active ? 800 : 600, color: active ? m.color : "#4A6B67" }}>
                                 {m.id}
                               </Typography>
@@ -667,6 +686,7 @@ const RecipesPage = () => {
                       <Button
                         fullWidth variant="contained"
                         onClick={handleGenerate}
+                        startIcon={activeMod && <activeMod.Icon />}
                         sx={{
                           py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: 16,
                           letterSpacing: "-0.2px",
@@ -678,7 +698,7 @@ const RecipesPage = () => {
                           transition: "all 0.25s ease",
                         }}
                       >
-                        {activeMod?.emoji} Descubrir recetas de {momento}
+                        Descubrir recetas de {momento}
                       </Button>
                     </motion.div>
                   )}
@@ -704,7 +724,8 @@ const RecipesPage = () => {
                     Volver
                   </Button>
                   <Chip
-                    label={`${activeMod?.emoji} ${modalidad} · ${MOMENTOS.find(m => m.id === momento)?.emoji} ${momento}`}
+                    icon={activeMod && <activeMod.Icon sx={{ fontSize: "15px !important" }} />}
+                    label={`${modalidad} · ${momento}`}
                     size="small"
                     sx={{ bgcolor: activeMod?.bg, color: activeMod?.color, fontWeight: 700, border: `1px solid ${activeMod?.border}` }}
                   />
@@ -806,12 +827,12 @@ const RecipesPage = () => {
                       </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                         {[
-                          { label: `⏱ ${detail.time}` },
-                          { label: `📊 ${detail.difficulty}` },
-                          { label: `🔥 ${detail.calories}` },
-                          { label: `🍽️ ${detail.servings} porción${detail.servings > 1 ? "es" : ""}` },
+                          { Icon: AccessTimeRoundedIcon, label: detail.time },
+                          { Icon: BarChartRoundedIcon, label: detail.difficulty },
+                          { Icon: LocalFireDepartmentRoundedIcon, label: detail.calories },
+                          { Icon: RestaurantRoundedIcon, label: `${detail.servings} porción${detail.servings > 1 ? "es" : ""}` },
                         ].map((c) => (
-                          <Chip key={c.label} label={c.label} size="small"
+                          <Chip key={c.label} icon={<c.Icon sx={{ fontSize: "15px !important" }} />} label={c.label} size="small"
                             sx={{ bgcolor: "#fff", border: "1px solid rgba(11,94,85,0.14)", fontWeight: 600, fontSize: 12.5, color: "#4A6B67" }} />
                         ))}
                       </Stack>
@@ -832,11 +853,9 @@ const RecipesPage = () => {
                               animation: "shimmer 1.4s ease-in-out infinite",
                             }} />
                             <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1.5 }}>
-                              <Typography sx={{ fontSize: 32,
+                              <SoupKitchenRoundedIcon sx={{ fontSize: 32, color: "#0B5E55",
                                 "@keyframes pulse": { "0%,100%": { opacity: 0.4, transform: "scale(0.95)" }, "50%": { opacity: 1, transform: "scale(1.05)" } },
-                                animation: "pulse 1.4s ease-in-out infinite" }}>
-                                🍳
-                              </Typography>
+                                animation: "pulse 1.4s ease-in-out infinite" }} />
                               <Box sx={{ textAlign: "center" }}>
                                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#0B5E55" }}>
                                   Generando imagen del plato
@@ -955,6 +974,7 @@ const RecipesPage = () => {
                       <Button
                         fullWidth variant="contained"
                         onClick={() => setShowSteps(true)}
+                        endIcon={<RocketLaunchRoundedIcon />}
                         sx={{
                           py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 17,
                           letterSpacing: "-0.2px",
@@ -966,7 +986,7 @@ const RecipesPage = () => {
                           transition: "all 0.25s ease",
                         }}
                       >
-                        ¡Vamos! 🚀
+                        ¡Vamos!
                       </Button>
                     </motion.div>
                   ) : (
@@ -1010,7 +1030,7 @@ const RecipesPage = () => {
                                 border: `1px solid ${activeMod?.border || "rgba(11,94,85,0.15)"}`,
                               }}>
                                 <Stack direction="row" spacing={1.2} alignItems="flex-start">
-                                  <Typography sx={{ fontSize: 18, lineHeight: 1 }}>💡</Typography>
+                                  <LightbulbRoundedIcon sx={{ fontSize: 18 }} />
                                   <Box>
                                     <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: activeMod?.color || "#0B5E55", textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.4 }}>
                                       Tip
@@ -1055,7 +1075,7 @@ const RecipesPage = () => {
               </Box>
             ) : savedRecipes.length === 0 ? (
               <Box sx={{ textAlign: "center", py: 10 }}>
-                <Typography sx={{ fontSize: 48, mb: 2 }}>📭</Typography>
+                <BookmarkBorderRoundedIcon sx={{ fontSize: 48, mb: 2, color: "#B2DDD9" }} />
                 <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#0F2420", mb: 1 }}>
                   Aún no guardaste ninguna receta
                 </Typography>
