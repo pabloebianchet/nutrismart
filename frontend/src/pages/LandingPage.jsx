@@ -198,7 +198,7 @@ const HeroSection = ({ onCTA }) => (
       position: "relative",
       overflow: "hidden",
       px: { xs: 3, sm: 5, md: 8 },
-      pt: { xs: 14, md: 8 },
+      pt: { xs: 14, md: 14 },
       pb: { xs: 8, md: 6 },
     }}
   >
