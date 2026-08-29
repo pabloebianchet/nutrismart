@@ -196,7 +196,7 @@ router.get("/all", async (req, res) => {
   try {
     const posts = await DailyPost.find({})
       .sort({ date: 1 })
-      .select("date title publishedAt")
+      .select("date title publishedAt imageUrl tags")
       .lean();
     return res.json({ posts });
   } catch (err) {

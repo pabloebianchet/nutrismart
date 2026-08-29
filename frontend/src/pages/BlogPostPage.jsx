@@ -4,9 +4,12 @@ import { Box, Typography, Chip, Stack, Divider, IconButton, Skeleton } from "@mu
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 import usePageMeta from "../hooks/usePageMeta";
 import { buildPostSlug, dateFromSlug } from "../utils/blogSlug";
+
+const SIDEBAR_LIMIT = 8;
 
 const C = {
   brand: "#0B5E55",
@@ -64,6 +67,17 @@ const BlogPostPage = () => {
   const [post, setPost] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [allPosts, setAllPosts] = useState([]);
+
+  // Lista completa (liviana: date/title/imageUrl/tags) para el paginador
+  // anterior/siguiente y "más notas" — se trae una sola vez, no depende
+  // de qué nota se esté viendo.
+  useEffect(() => {
+    fetch(`${API_URL}/api/posts/all`)
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => setAllPosts(data.posts || []))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setPost(null);
@@ -119,9 +133,20 @@ const BlogPostPage = () => {
 
   const paragraphs = post?.body?.split("\n\n").filter(Boolean) || [];
 
+  // allPosts viene ordenado por date ascendente desde el backend.
+  const currentIndex = post ? allPosts.findIndex((p) => p.date === post.date) : -1;
+  const olderPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+  const newerPost = currentIndex >= 0 && currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+  const otherPosts = post
+    ? allPosts
+        .filter((p) => p.date !== post.date)
+        .sort((a, b) => (a.date < b.date ? 1 : -1))
+        .slice(0, SIDEBAR_LIMIT)
+    : [];
+
   return (
     <Box sx={{ background: C.surfaceAlt, minHeight: "100vh", py: { xs: 4, sm: 6 } }}>
-      <Box sx={{ maxWidth: 720, mx: "auto", px: { xs: 2.5, sm: 3 } }}>
+      <Box sx={{ maxWidth: 1080, mx: "auto", px: { xs: 2.5, sm: 3 } }}>
         <Typography
           component={Link}
           to="/"
@@ -133,6 +158,9 @@ const BlogPostPage = () => {
         >
           <ArrowBackRoundedIcon sx={{ fontSize: 16 }} /> Volver a Nui
         </Typography>
+
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 320px" }, gap: { xs: 4, md: 5 }, alignItems: "start" }}>
+        <Box sx={{ minWidth: 0 }}>
 
         <Box sx={{ bgcolor: C.surface, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden" }}>
           {!post ? (
@@ -248,6 +276,91 @@ const BlogPostPage = () => {
               </Box>
             </>
           )}
+        </Box>
+
+        {post && (olderPost || newerPost) && (
+          <Stack
+            direction="row"
+            sx={{
+              mt: 3, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden",
+              bgcolor: C.surface,
+            }}
+          >
+            <Box
+              {...(olderPost ? { component: Link, to: `/blog/${buildPostSlug(olderPost)}` } : {})}
+              sx={{
+                flex: 1, p: 2.5, textDecoration: "none", color: "inherit",
+                borderRight: newerPost ? `1px solid ${C.border}` : "none",
+                opacity: olderPost ? 1 : 0.35,
+                "&:hover": olderPost ? { bgcolor: C.brandSurface } : {},
+              }}
+            >
+              <Typography sx={{ fontSize: 11, color: C.textMuted, fontWeight: 700, mb: 0.5 }}>
+                ← Nota anterior
+              </Typography>
+              <Typography sx={{ fontSize: 13.5, color: C.textPrimary, fontWeight: 600, lineHeight: 1.4 }} noWrap>
+                {olderPost?.title || "No hay notas más antiguas"}
+              </Typography>
+            </Box>
+            <Box
+              {...(newerPost ? { component: Link, to: `/blog/${buildPostSlug(newerPost)}` } : {})}
+              sx={{
+                flex: 1, p: 2.5, textDecoration: "none", color: "inherit", textAlign: "right",
+                opacity: newerPost ? 1 : 0.35,
+                "&:hover": newerPost ? { bgcolor: C.brandSurface } : {},
+              }}
+            >
+              <Typography sx={{ fontSize: 11, color: C.textMuted, fontWeight: 700, mb: 0.5 }}>
+                Nota siguiente →
+              </Typography>
+              <Typography sx={{ fontSize: 13.5, color: C.textPrimary, fontWeight: 600, lineHeight: 1.4 }} noWrap>
+                {newerPost?.title || "Es la nota más reciente"}
+              </Typography>
+            </Box>
+          </Stack>
+        )}
+        </Box>
+
+        {post && otherPosts.length > 0 && (
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 800, color: C.textPrimary, mb: 2, letterSpacing: "-0.2px" }}>
+              Más notas
+            </Typography>
+            <Stack spacing={0} sx={{ bgcolor: C.surface, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden", p: 1 }}>
+              {otherPosts.map((p, i) => (
+                <Box
+                  key={p.date}
+                  component={Link}
+                  to={`/blog/${buildPostSlug(p)}`}
+                  sx={{
+                    display: "flex", alignItems: "center", gap: 1.5, p: 1.2, borderRadius: 2,
+                    textDecoration: "none", color: "inherit",
+                    borderBottom: i < otherPosts.length - 1 ? `1px solid ${C.border}` : "none",
+                    "&:hover": { bgcolor: C.brandSurface },
+                  }}
+                >
+                  <Box sx={{ width: 44, height: 44, borderRadius: 1.5, overflow: "hidden", flexShrink: 0, bgcolor: C.brandSurface }}>
+                    {p.imageUrl ? (
+                      <Box component="img" src={p.imageUrl} alt={p.title} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    ) : (
+                      <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Leaf size={16} weight="fill" color={C.brand} />
+                      </Box>
+                    )}
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontSize: 12.5, fontWeight: 600, color: C.textPrimary, lineHeight: 1.3, mb: 0.2 }} noWrap>
+                      {p.title}
+                    </Typography>
+                    <Typography sx={{ fontSize: 10.5, color: C.textMuted }}>
+                      {fmtDate(p.publishedAt)}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        )}
         </Box>
       </Box>
     </Box>
