@@ -280,7 +280,7 @@ const BlogPostPage = () => {
 
         {post && (olderPost || newerPost) && (
           <Stack
-            direction="row"
+            direction={{ xs: "column", sm: "row" }}
             sx={{
               mt: 3, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden",
               bgcolor: C.surface,
@@ -289,8 +289,9 @@ const BlogPostPage = () => {
             <Box
               {...(olderPost ? { component: Link, to: `/blog/${buildPostSlug(olderPost)}` } : {})}
               sx={{
-                flex: 1, p: 2.5, textDecoration: "none", color: "inherit",
-                borderRight: newerPost ? `1px solid ${C.border}` : "none",
+                flex: 1, minWidth: 0, p: 2.5, textDecoration: "none", color: "inherit",
+                borderRight: { sm: newerPost ? `1px solid ${C.border}` : "none" },
+                borderBottom: { xs: newerPost ? `1px solid ${C.border}` : "none", sm: "none" },
                 opacity: olderPost ? 1 : 0.35,
                 "&:hover": olderPost ? { bgcolor: C.brandSurface } : {},
               }}
@@ -305,7 +306,8 @@ const BlogPostPage = () => {
             <Box
               {...(newerPost ? { component: Link, to: `/blog/${buildPostSlug(newerPost)}` } : {})}
               sx={{
-                flex: 1, p: 2.5, textDecoration: "none", color: "inherit", textAlign: "right",
+                flex: 1, minWidth: 0, p: 2.5, textDecoration: "none", color: "inherit",
+                textAlign: { xs: "left", sm: "right" },
                 opacity: newerPost ? 1 : 0.35,
                 "&:hover": newerPost ? { bgcolor: C.brandSurface } : {},
               }}
