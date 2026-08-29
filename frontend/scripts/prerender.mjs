@@ -79,18 +79,36 @@ const MIME_TYPES = {
   ".html":  "text/html",
 };
 
-/* ─── Servidor estático local que imita el fallback SPA de Vercel ──── */
-const startServer = () =>
+/* ─── Servidor estático local que imita el fallback SPA de Vercel ────
+ * `originalIndexHtml` es el snapshot del index.html tal como lo dejó
+ * `vite build`, ANTES de que este script empiece a escribir versiones
+ * prerenderizadas. El fallback SPA siempre sirve ESE snapshot congelado
+ * — nunca el archivo en disco, que va cambiando a medida que cada ruta
+ * se procesa. Sin esto, la ruta "/" (primera del array) pisa dist/index.html
+ * con su propio resultado, y las rutas siguientes navegan contra un
+ * fallback ya "contaminado" con el HTML de la home en vez del shell
+ * vacío original — funciona por casualidad (React con createRoot vuelve
+ * a montar todo igual), pero es un comportamiento frágil que no debería
+ * depender de esa autocorrección.
+ */
+const startServer = (originalIndexHtml) =>
   new Promise((resolve) => {
     const server = createServer(async (req, res) => {
       const urlPath = decodeURIComponent(req.url.split("?")[0]);
-      let filePath = path.join(distDir, urlPath);
+      const filePath = path.join(distDir, urlPath);
 
+      let isRealFile = false;
       try {
         const s = await stat(filePath);
-        if (s.isDirectory()) filePath = path.join(distDir, "index.html");
+        isRealFile = !s.isDirectory();
       } catch {
-        filePath = path.join(distDir, "index.html");
+        isRealFile = false;
+      }
+
+      if (!isRealFile) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(originalIndexHtml);
+        return;
       }
 
       try {
@@ -112,27 +130,45 @@ async function main() {
   }
 
   const templateHtml = await readFile(path.join(distDir, "index.html"), "utf-8");
-  const server = await startServer();
+  const server = await startServer(templateHtml);
   const { port } = server.address();
 
   const browser = await launchBrowser();
+  console.log(`Navegador listo (isCI=${isCI}). Servidor local en :${port}.\n`);
 
   let ok = 0;
   for (const route of ROUTES) {
+    const t0 = Date.now();
+    const log = (msg) => console.log(`   [${route}] +${String(Date.now() - t0).padStart(5)}ms  ${msg}`);
     try {
       const page = await browser.newPage();
-      await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "networkidle0", timeout: 30000 });
-      await page.waitForSelector("h1", { timeout: 10000 }).catch(() => {
-        console.warn(`⚠️  ${route}: no se encontró <h1> — se guarda igual, revisar la página.`);
-      });
-      // Pequeño margen extra para que terminen de asentarse fuentes/layout async.
-      await new Promise((r) => setTimeout(r, 250));
+      page.on("console",     (m)   => log(`console.${m.type()}: ${m.text().slice(0, 200)}`));
+      page.on("pageerror",   (err) => log(`⚠ pageerror: ${err.message}`));
+      page.on("requestfailed", (r) => log(`⚠ requestfailed: ${r.url()} — ${r.failure()?.errorText}`));
+
+      // domcontentloaded, no networkidle0: la home dispara un fetch real al
+      // backend (LandingPostsSection → /api/posts/landing) que puede tardar
+      // si el backend estuvo inactivo (cold start de Render, 15-50s). Con
+      // networkidle0 ese fetch lento bloquea la navegación ENTERA hasta
+      // los 30s de timeout — con domcontentloaded seguimos apenas el DOM
+      // inicial está listo y esperamos el contenido real por selector.
+      await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "domcontentloaded", timeout: 30000 });
+      log("domcontentloaded");
+
+      const h1Found = await page.waitForSelector("h1", { timeout: 15000 }).then(() => true).catch(() => false);
+      log(h1Found ? "<h1> encontrado" : "⚠ <h1> NO encontrado tras 15s");
+
+      // Margen adicional acotado para secciones async lentas (ej. el blog
+      // de la home) — nunca bloquea la captura si no llegan a tiempo,
+      // solo les da una oportunidad razonable antes de tomar el snapshot.
+      await new Promise((r) => setTimeout(r, 1000));
 
       const rootHtml = await page.evaluate(() => document.getElementById("root")?.innerHTML || "");
+      log(`snapshot tomado — ${rootHtml.length} caracteres`);
       await page.close();
 
       if (!rootHtml.trim()) {
-        console.warn(`⚠️  ${route}: contenido vacío, se omite (se sirve la versión CSR normal).`);
+        console.warn(`❌ ${route}: contenido vacío tras domcontentloaded+h1 — se omite, queda el shell CSR original.`);
         continue;
       }
 
@@ -147,10 +183,10 @@ async function main() {
 
       await mkdir(path.dirname(outPath), { recursive: true });
       await writeFile(outPath, finalHtml, "utf-8");
-      console.log(`✅ ${route.padEnd(16)} -> ${path.relative(distDir, outPath)}`);
+      console.log(`✅ ${route.padEnd(16)} -> ${path.relative(distDir, outPath)} (${Date.now() - t0}ms, ${rootHtml.length} chars)`);
       ok++;
     } catch (err) {
-      console.error(`❌ ${route}: ${err.message}`);
+      console.error(`❌ ${route}: ${err.message} (falló a los ${Date.now() - t0}ms)`);
     }
   }
 
