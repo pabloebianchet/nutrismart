@@ -4,6 +4,7 @@ import { authMiddleware } from "../middleware/auth.js";
 import { isAdmin } from "../middleware/isAdmin.js";
 import DailyPost from "../models/DailyPost.js";
 import { generateImage } from "../utils/generateImage.js";
+import { uploadImage } from "../utils/cloudinary.js";
 
 const router = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -96,12 +97,17 @@ Solo JSON:
     imageUrl:       null,
   });
 
-  // Imagen en background
+  // Imagen en background — se genera en base64 y se sube a Cloudinary
+  // (nunca guardar el data URI en Mongo: infla cada documento a varios MB
+  // y ese peso termina horneado en el HTML prerenderizado de la home).
   generateImage(openai, {
     prompt: `Professional editorial illustration for a health article about "${topic}". Clean, modern wellness aesthetic, pastel green tones, no text, no watermarks.`,
     size:   "1024x1024",
   })
-    .then(({ imageUrl }) => DailyPost.findByIdAndUpdate(post._id, { $set: { imageUrl } }))
+    .then(async ({ imageUrl: dataUrl }) => {
+      const imageUrl = await uploadImage(dataUrl, "daily-posts", `post-${date}`);
+      await DailyPost.findByIdAndUpdate(post._id, { $set: { imageUrl } });
+    })
     .catch(() => {});
 
   return post;
