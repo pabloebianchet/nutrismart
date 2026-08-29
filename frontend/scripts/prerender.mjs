@@ -17,7 +17,36 @@ import { readFile, writeFile, mkdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import puppeteer from "puppeteer";
+
+/**
+ * Lanzamiento del browser según entorno:
+ * - Local (dev): `puppeteer` normal — trae su propio Chrome vía postinstall
+ *   (sin restricciones en una máquina de desarrollador).
+ * - Vercel/CI: el contenedor de build bloquea el postinstall de `puppeteer`
+ *   por seguridad (no descarga Chrome), y aunque se lo fuerce a mano, la
+ *   imagen Linux no tiene las librerías del sistema que Chrome necesita
+ *   (libnspr4, libnss3, etc — no hay apt disponible ahí). Se usa en cambio
+ *   `@sparticuz/chromium`: un binario headless-only que viaja empaquetado
+ *   dentro del propio paquete npm (nada de red ni de librerías del SO).
+ */
+const isCI = Boolean(process.env.VERCEL || process.env.CI);
+
+async function launchBrowser() {
+  if (isCI) {
+    const { default: chromium }  = await import("@sparticuz/chromium");
+    const { default: puppeteer } = await import("puppeteer-core");
+    return puppeteer.launch({
+      args:           puppeteer.defaultArgs({ args: chromium.args, headless: "shell" }),
+      executablePath: await chromium.executablePath(),
+      headless:       "shell",
+    });
+  }
+  const { default: puppeteer } = await import("puppeteer");
+  return puppeteer.launch({
+    headless: "new",
+    args:     ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir   = path.resolve(__dirname, "..", "dist");
@@ -86,10 +115,7 @@ async function main() {
   const server = await startServer();
   const { port } = server.address();
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  const browser = await launchBrowser();
 
   let ok = 0;
   for (const route of ROUTES) {
