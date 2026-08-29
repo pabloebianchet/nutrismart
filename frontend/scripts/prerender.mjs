@@ -6,11 +6,17 @@
  * que crawlers que no ejecutan JS (bots de buscadores, GPTBot, ClaudeBot,
  * PerplexityBot, etc.) reciban el contenido real en vez de un <div> vacío.
  *
- * No toca el <head> del build (title/description/OG/canonical quedan
- * intactos) — solo reemplaza el contenido de #root por el HTML ya
- * renderizado. Los usuarios reales siguen recibiendo la SPA normal:
- * main.jsx usa createRoot (no hydrateRoot), así que React reemplaza este
- * contenido estático apenas carga el bundle — no hay hydration mismatch.
+ * Además del contenido de #root, también captura el <head> resultante
+ * después de que cada página corre su propio usePageMeta (title,
+ * description, canonical, OG, Twitter) y lo hornea en el HTML estático
+ * — así cada ruta queda con su metadata propia en vez de la genérica
+ * de home para las 8 páginas. La home no llama a usePageMeta (su OG es
+ * deliberadamente distinto del title/description principal), así que
+ * para "/" esto es un no-op: se relee lo mismo que ya había.
+ *
+ * Los usuarios reales siguen recibiendo la SPA normal: main.jsx usa
+ * createRoot (no hydrateRoot), así que React reemplaza el contenido
+ * estático apenas carga el bundle — no hay hydration mismatch.
  */
 import { createServer } from "node:http";
 import { readFile, writeFile, mkdir, stat } from "node:fs/promises";
@@ -62,6 +68,57 @@ const ROUTES = [
   "/terminos",
   "/legal",
 ];
+
+const escapeAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+const escapeHtml = (s) => escapeAttr(s).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/* ─── Reemplaza title/description/canonical/OG/Twitter en el <head> ──
+ * Cada regex apunta al tag exacto tal como lo emite Vite en el build
+ * (mismo formato que frontend/index.html). Si algún valor no vino
+ * (por ejemplo home, que no llama a usePageMeta), el regex simplemente
+ * no matchea nada distinto y el tag original queda igual.
+ */
+const applyPageMeta = (html, meta) => {
+  let out = html;
+  if (meta.title) {
+    out = out.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`);
+  }
+  if (meta.description) {
+    out = out.replace(
+      /(<meta name="description" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.description)}$2`
+    );
+    out = out.replace(
+      /(<meta name="twitter:description" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.description)}$2`
+    );
+    out = out.replace(
+      /(<meta property="og:description" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.description)}$2`
+    );
+  }
+  if (meta.canonical) {
+    out = out.replace(
+      /(<link rel="canonical" href=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.canonical)}$2`
+    );
+    out = out.replace(
+      /(<meta property="og:url" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.canonical)}$2`
+    );
+  }
+  if (meta.title) {
+    out = out.replace(
+      /(<meta property="og:title" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.title)}$2`
+    );
+    out = out.replace(
+      /(<meta name="twitter:title" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.title)}$2`
+    );
+  }
+  return out;
+};
 
 const MIME_TYPES = {
   ".js":    "text/javascript",
@@ -164,7 +221,12 @@ async function main() {
       await new Promise((r) => setTimeout(r, 1000));
 
       const rootHtml = await page.evaluate(() => document.getElementById("root")?.innerHTML || "");
-      log(`snapshot tomado — ${rootHtml.length} caracteres`);
+      const pageMeta = await page.evaluate(() => ({
+        title:       document.title || "",
+        description: document.querySelector('meta[name="description"]')?.content || "",
+        canonical:   document.querySelector('link[rel="canonical"]')?.href || "",
+      }));
+      log(`snapshot tomado — ${rootHtml.length} caracteres — title: "${pageMeta.title}"`);
       await page.close();
 
       if (!rootHtml.trim()) {
@@ -172,10 +234,16 @@ async function main() {
         continue;
       }
 
-      const finalHtml = templateHtml.replace(
+      let finalHtml = templateHtml.replace(
         '<div id="root"></div>',
         `<div id="root">${rootHtml}</div>`
       );
+      // La home no llama a usePageMeta (su OG es deliberadamente más corto
+      // que el title/description principal) — no tocar su <head> en absoluto.
+      // Leer y reaplicar el canonical vía `.href` lo normaliza agregando
+      // una barra final ("nuiapp.com" -> "nuiapp.com/"), un cambio no
+      // pedido — más simple y seguro: para "/" ni se intenta.
+      if (route !== "/") finalHtml = applyPageMeta(finalHtml, pageMeta);
 
       const outPath = route === "/"
         ? path.join(distDir, "index.html")

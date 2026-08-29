@@ -6,6 +6,7 @@ import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { API_URL } from "../config/api";
+import usePageMeta from "../hooks/usePageMeta";
 
 const C = {
   brand: "#0B5E55",
@@ -33,6 +34,11 @@ const fieldSx = {
 };
 
 const ContactPage = () => {
+  usePageMeta({
+    title:       "Contacto — Nui App",
+    description: "¿Tenés dudas sobre Nui? Escribinos y te respondemos a la brevedad — soporte sobre la app, suscripciones y funcionalidades.",
+    canonical:   "/contact",
+  });
   const [sent,     setSent]     = useState(false);
   const [sending,  setSending]  = useState(false);
   const [apiError, setApiError] = useState("");

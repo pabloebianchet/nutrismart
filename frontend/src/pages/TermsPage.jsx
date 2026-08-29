@@ -1,5 +1,6 @@
 import { Box, Typography, Container, Paper, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import usePageMeta from "../hooks/usePageMeta";
 
 const C = { brand: "#0B5E55", surface: "#F7F9F8", border: "rgba(11,94,85,0.12)", text: "#0F2420", muted: "#4A6B67", faint: "#8AADAA" };
 
@@ -13,6 +14,11 @@ const P = ({ children }) => <Typography sx={{ fontSize: 14, color: C.muted, line
 const Li = ({ children }) => <Typography component="li" sx={{ fontSize: 14, color: C.muted, lineHeight: 1.85, mb: 0.5, ml: 2 }}>{children}</Typography>;
 
 export default function TermsPage() {
+  usePageMeta({
+    title:       "Términos y Condiciones — Nui App",
+    description: "Términos y condiciones de uso de Nui: registro, suscripciones, cancelaciones y uso aceptable del servicio.",
+    canonical:   "/terminos",
+  });
   const navigate = useNavigate();
   const updated = "Mayo 2025";
 
