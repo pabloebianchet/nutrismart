@@ -1,5 +1,6 @@
 import express        from "express";
 import OpenAI          from "openai";
+import rateLimit        from "express-rate-limit";
 import { authMiddleware } from "../middleware/auth.js";
 import DailyLog        from "../models/DailyLog.js";
 import TrainingPlan    from "../models/TrainingPlan.js";
@@ -8,6 +9,56 @@ import Log             from "../models/Log.js";
 
 const router   = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Costoso en OpenAI — limitar abuso del endpoint de interpretación por voz/texto
+const parseLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 min
+  max: 15,
+  message: { error: "Demasiados registros por minuto. Esperá un momento." },
+});
+
+/* ─── Validación de entrada confirmada (POST /log) ──────────── */
+const TIPOS_VALIDOS = ["comida", "actividad", "agua"];
+const MAX_ITEMS = 20;
+const MAX_RESUMEN_LEN = 300;
+const MAX_STR_LEN = 120;
+
+const isFiniteNumber = (n) => typeof n === "number" && Number.isFinite(n);
+
+const validateParsedEntry = (parsed) => {
+  if (!parsed || typeof parsed !== "object") return "Datos inválidos.";
+  if (!TIPOS_VALIDOS.includes(parsed.tipo)) return "Tipo inválido.";
+  if (typeof parsed.resumen !== "string" || !parsed.resumen.trim() || parsed.resumen.length > MAX_RESUMEN_LEN)
+    return "Resumen inválido.";
+
+  if (parsed.items !== undefined) {
+    if (!Array.isArray(parsed.items) || parsed.items.length > MAX_ITEMS)
+      return "Items inválidos.";
+    for (const item of parsed.items) {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return "Item inválido.";
+      for (const [key, val] of Object.entries(item)) {
+        if (typeof val === "string" && val.length > MAX_STR_LEN) return "Item inválido.";
+        if (typeof val === "number" && !Number.isFinite(val)) return "Item inválido.";
+        if (val !== null && typeof val === "object") return "Item inválido.";
+      }
+    }
+  }
+
+  const totales = parsed.totales || {};
+  const kcal = totales.kcal ?? 0;
+  const proteinas = totales.proteinas ?? 0;
+  const carbos = totales.carbos ?? 0;
+  const grasas = totales.grasas ?? 0;
+  const agua_ml = parsed.agua_ml ?? 0;
+
+  if (!isFiniteNumber(kcal) || kcal < 0 || kcal > 20000) return "Calorías inválidas.";
+  if (!isFiniteNumber(proteinas) || proteinas < 0 || proteinas > 2000) return "Proteínas inválidas.";
+  if (!isFiniteNumber(carbos) || carbos < 0 || carbos > 2000) return "Carbohidratos inválidos.";
+  if (!isFiniteNumber(grasas) || grasas < 0 || grasas > 2000) return "Grasas inválidas.";
+  if (!isFiniteNumber(agua_ml) || agua_ml < 0 || agua_ml > 10000) return "Agua inválida.";
+
+  return null;
+};
 
 const todayDate = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" }); // YYYY-MM-DD en zona AR
 
@@ -164,9 +215,10 @@ router.get("/today", authMiddleware, async (req, res) => {
 });
 
 /* ─── POST /parse ─ interpretar texto/voz con GPT ───────────── */
-router.post("/parse", authMiddleware, async (req, res) => {
+router.post("/parse", authMiddleware, parseLimiter, async (req, res) => {
   const { texto, peso = 70, sexo = "M", edad = 30 } = req.body;
   if (!texto?.trim()) return res.status(400).json({ error: "Texto requerido." });
+  if (texto.length > 500) return res.status(400).json({ error: "Texto demasiado largo." });
 
   try {
     const openai = getOpenAI();
@@ -215,7 +267,8 @@ REGLAS IMPORTANTES:
 router.post("/log", authMiddleware, async (req, res) => {
   try {
     const { parsed } = req.body; // resultado de /parse ya confirmado por el usuario
-    if (!parsed?.tipo) return res.status(400).json({ error: "Datos inválidos." });
+    const validationError = validateParsedEntry(parsed);
+    if (validationError) return res.status(400).json({ error: validationError });
 
     const date  = todayDate();
     const entry = {
