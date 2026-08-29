@@ -1,5 +1,5 @@
 import { Box, Typography, Container, Paper, Divider } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import usePageMeta from "../hooks/usePageMeta";
 
 const C = { brand: "#0B5E55", surface: "#F7F9F8", border: "rgba(11,94,85,0.12)", text: "#0F2420", muted: "#4A6B67", faint: "#8AADAA" };
@@ -30,7 +30,6 @@ export default function LegalPage() {
     description: "Aviso legal y política de cookies de Nui: identificación del titular, propiedad intelectual y gestión de cookies.",
     canonical:   "/legal",
   });
-  const navigate = useNavigate();
   const updated = "Mayo 2025";
 
   return (
@@ -39,8 +38,9 @@ export default function LegalPage() {
 
         <Box sx={{ mb: 5 }}>
           <Typography
-            onClick={() => navigate("/")}
-            sx={{ fontSize: 13, color: C.brand, fontWeight: 700, cursor: "pointer", mb: 2, "&:hover": { textDecoration: "underline" } }}
+            component={Link}
+            to="/"
+            sx={{ fontSize: 13, color: C.brand, fontWeight: 700, textDecoration: "none", mb: 2, display: "inline-block", "&:hover": { textDecoration: "underline" } }}
           >
             ← Volver a Nui
           </Typography>

@@ -1,5 +1,5 @@
 import { Box, Typography, Container, Paper, Divider } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import usePageMeta from "../hooks/usePageMeta";
 
 const C = { brand: "#0B5E55", surface: "#F7F9F8", border: "rgba(11,94,85,0.12)", text: "#0F2420", muted: "#4A6B67", faint: "#8AADAA" };
@@ -20,7 +20,6 @@ export default function PrivacyPage() {
     description: "Cómo Nui recopila, usa y protege tus datos personales y de salud, conforme a la Ley 25.326 de Protección de Datos Personales.",
     canonical:   "/privacidad",
   });
-  const navigate = useNavigate();
   const updated = "Mayo 2025";
 
   return (
@@ -30,8 +29,9 @@ export default function PrivacyPage() {
         {/* Header */}
         <Box sx={{ mb: 5 }}>
           <Typography
-            onClick={() => navigate("/")}
-            sx={{ fontSize: 13, color: C.brand, fontWeight: 700, cursor: "pointer", mb: 2, "&:hover": { textDecoration: "underline" } }}
+            component={Link}
+            to="/"
+            sx={{ fontSize: 13, color: C.brand, fontWeight: 700, textDecoration: "none", mb: 2, display: "inline-block", "&:hover": { textDecoration: "underline" } }}
           >
             ← Volver a Nui
           </Typography>
@@ -177,9 +177,9 @@ export default function PrivacyPage() {
               Nui utiliza cookies y tecnologías similares para el funcionamiento de la plataforma.
               Para información detallada, consulte nuestra{" "}
               <Typography
-                component="span"
-                onClick={() => navigate("/legal")}
-                sx={{ color: C.brand, fontWeight: 700, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                component={Link}
+                to="/legal"
+                sx={{ color: C.brand, fontWeight: 700, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
               >
                 Política de Cookies
               </Typography>.
