@@ -159,7 +159,7 @@ const BlogPostPage = () => {
           <ArrowBackRoundedIcon sx={{ fontSize: 16 }} /> Volver a Nui
         </Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 320px" }, gap: { xs: 4, md: 5 }, alignItems: "start" }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 1fr) 320px" }, gap: { xs: 4, md: 5 }, alignItems: "start" }}>
         <Box sx={{ minWidth: 0 }}>
 
         <Box sx={{ bgcolor: C.surface, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden" }}>
@@ -324,7 +324,7 @@ const BlogPostPage = () => {
         </Box>
 
         {post && otherPosts.length > 0 && (
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography sx={{ fontSize: 13, fontWeight: 800, color: C.textPrimary, mb: 2, letterSpacing: "-0.2px" }}>
               Más notas
             </Typography>
