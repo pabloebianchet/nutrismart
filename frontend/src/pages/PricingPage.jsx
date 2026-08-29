@@ -367,7 +367,7 @@ const PricingPage = () => {
             label="Planes y precios"
             sx={{ mb: 3, bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
           />
-          <Typography variant="h3" fontWeight={900} sx={{
+          <Typography variant="h3" component="h1" fontWeight={900} sx={{
             letterSpacing: "-1.5px", lineHeight: 1.12, mb: 3,
             background: `linear-gradient(135deg, ${C.textPrimary} 30%, ${C.brandLight} 100%)`,
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",

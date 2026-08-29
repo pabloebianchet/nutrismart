@@ -5,7 +5,7 @@ const C = { brand: "#0B5E55", surface: "#F7F9F8", border: "rgba(11,94,85,0.12)",
 
 const Section = ({ title, children }) => (
   <Box sx={{ mb: 4 }}>
-    <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.brand, mb: 1.5 }}>{title}</Typography>
+    <Typography component="h2" sx={{ fontSize: 16, fontWeight: 800, color: C.brand, mb: 1.5 }}>{title}</Typography>
     <Box>{children}</Box>
   </Box>
 );
@@ -27,7 +27,7 @@ export default function TermsPage() {
           >
             ← Volver a Nui
           </Typography>
-          <Typography sx={{ fontSize: 28, fontWeight: 900, color: C.text, letterSpacing: "-0.8px", mb: 1 }}>
+          <Typography component="h1" sx={{ fontSize: 28, fontWeight: 900, color: C.text, letterSpacing: "-0.8px", mb: 1 }}>
             Términos y Condiciones
           </Typography>
           <Typography sx={{ fontSize: 13, color: C.faint }}>Última actualización: {updated}</Typography>

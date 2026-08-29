@@ -148,6 +148,7 @@ const ContactPage = () => {
 
           <Typography
             variant="h3"
+            component="h1"
             fontWeight={900}
             sx={{
               letterSpacing: "-1.5px",
