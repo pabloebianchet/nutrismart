@@ -283,6 +283,7 @@ const HowItWorksPage = () => {
             </Typography>
             <Typography
               variant="h5"
+              component="h2"
               fontWeight={900}
               sx={{
                 letterSpacing: "-0.8px",
@@ -364,6 +365,7 @@ const HowItWorksPage = () => {
 
                   <n.Icon sx={{ fontSize: 36, mb: 1.2, color: n.color }} />
                   <Typography
+                    component="h3"
                     sx={{
                       fontSize: 16,
                       fontWeight: 900,
@@ -436,6 +438,7 @@ const HowItWorksPage = () => {
             </Typography>
             <Typography
               variant="h5"
+              component="h2"
               fontWeight={900}
               sx={{
                 letterSpacing: "-0.8px",
@@ -532,6 +535,7 @@ const HowItWorksPage = () => {
                     </Typography>
                   </Box>
                   <Typography
+                    component="h3"
                     sx={{
                       fontWeight: 700,
                       fontSize: 16,
@@ -592,6 +596,7 @@ const HowItWorksPage = () => {
               </Typography>
               <Typography
                 variant="h5"
+                component="h2"
                 fontWeight={900}
                 sx={{
                   letterSpacing: "-0.6px",
@@ -687,6 +692,7 @@ const HowItWorksPage = () => {
               </Typography>
               <Typography
                 variant="h5"
+                component="h2"
                 fontWeight={900}
                 sx={{
                   letterSpacing: "-0.6px",
@@ -800,6 +806,7 @@ const HowItWorksPage = () => {
             </Typography>
             <Typography
               variant="h5"
+              component="h2"
               fontWeight={900}
               sx={{
                 letterSpacing: "-0.8px",
@@ -846,6 +853,7 @@ const HowItWorksPage = () => {
                   >
                     <m.Icon sx={{ fontSize: 32, color: m.color }} />
                     <Typography
+                      component="h3"
                       sx={{
                         fontSize: 16,
                         fontWeight: 900,
