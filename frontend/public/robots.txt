@@ -9,6 +9,7 @@ Allow: /contact
 Allow: /privacidad
 Allow: /terminos
 Allow: /legal
+Allow: /blog/
 
 # App privada — no indexar
 Disallow: /login

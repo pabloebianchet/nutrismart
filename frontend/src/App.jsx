@@ -17,6 +17,7 @@ import ResetPasswordPage  from "./pages/ResetPasswordPage.jsx";
 import PricingPage       from "./pages/PricingPage.jsx";
 import SubscriptionPage  from "./pages/SubscriptionPage.jsx";
 import RecipesPage       from "./pages/RecipesPage.jsx";
+import BlogPostPage      from "./pages/BlogPostPage.jsx";
 import TrainingPage      from "./pages/TrainingPage.jsx";
 import EnergyPage        from "./pages/EnergyPage.jsx";
 import PrivacyPage       from "./pages/PrivacyPage.jsx";
@@ -39,7 +40,7 @@ import { useNutrition }  from "./context/NutritionContext.jsx";
  */
 const PROFILE_FREE_PATHS = [
   "/profile", "/pricing", "/about", "/how-it-works", "/contact",
-  "/privacidad", "/terminos", "/legal", "/admin",
+  "/privacidad", "/terminos", "/legal", "/admin", "/blog",
   "/forgot-password", "/reset-password", "/",
 ];
 
@@ -173,6 +174,7 @@ const App = () => {
         <Route path="/about"                  element={<AboutPage />} />
         <Route path="/how-it-works"           element={<HowItWorksPage />} />
         <Route path="/contact"                element={<ContactPage />} />
+        <Route path="/blog/:slug"             element={<BlogPostPage />} />
         <Route path="/admin"                  element={<AdminDashboard />} />
         <Route path="/forgot-password"        element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token"  element={<ResetPasswordPage />} />

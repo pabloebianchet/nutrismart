@@ -12,9 +12,6 @@ import {
   Stack,
   Chip,
   Skeleton,
-  Dialog,
-  DialogContent,
-  IconButton,
   Divider,
 } from "@mui/material";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
@@ -34,9 +31,6 @@ import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
 import FormatListNumberedRoundedIcon from "@mui/icons-material/FormatListNumberedRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
@@ -54,6 +48,7 @@ import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
+import { buildPostSlug } from "../utils/blogSlug";
 
 /* ─── Tokens ──────────────────────────────────────────────────────────────── */
 const C = {
@@ -2683,259 +2678,11 @@ const FinalCTA = ({ onCTA }) => (
 const fmtDateLanding = (d) =>
   new Date(d).toLocaleDateString("es-AR", { day: "numeric", month: "long" });
 
-const buildShareText = (post) =>
-  `${post.title}\n\n${post.body?.replace(/\n\n/g, "\n")}\n\n— Nui App`;
-
-/* Modal reutilizable */
-const PostModalLanding = ({ post, open, onClose }) => {
-  const [copied, setCopied] = useState(false);
-  if (!post) return null;
-  const paragraphs = post.body?.split("\n\n").filter(Boolean) || [];
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(buildShareText(post)).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      sx={{
-        "& .MuiDialog-container": {
-          alignItems: "flex-start",
-          pt: { xs: "72px", sm: "8vh" },
-          pb: { xs: 2, sm: "8vh" },
-        },
-      }}
-      PaperProps={{
-        sx: {
-          borderRadius: { xs: 3, sm: 4 },
-          mx: { xs: 1.5, sm: 2 },
-          maxHeight: { xs: "calc(100dvh - 90px)", sm: "84vh" },
-          width: "100%",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
-      <DialogContent
-        sx={{
-          p: 0,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
-        {/* Header fijo */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            px: 2.5,
-            py: 1.5,
-            borderBottom: "1px solid rgba(11,94,85,0.10)",
-            flexShrink: 0,
-            bgcolor: "#fff",
-          }}
-        >
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Chip
-              label="Nui Editorial"
-              size="small"
-              sx={{
-                bgcolor: "#E6F5F3",
-                color: "#0B5E55",
-                fontWeight: 700,
-                fontSize: 10.5,
-              }}
-            />
-            <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
-              {post.readingMinutes} min
-            </Typography>
-          </Stack>
-          <IconButton
-            onClick={onClose}
-            size="small"
-            sx={{
-              color: "#8AADAA",
-              "&:hover": { bgcolor: "#E6F5F3", color: "#0B5E55" },
-            }}
-          >
-            <CloseRoundedIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-        {/* Imagen */}
-        {post.imageUrl && (
-          <Box
-            sx={{
-              width: "100%",
-              height: { xs: 150, sm: 200 },
-              flexShrink: 0,
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              component="img"
-              src={post.imageUrl}
-              alt={post.title}
-              sx={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-              }}
-            />
-          </Box>
-        )}
-        {/* Contenido */}
-        <Box sx={{ flex: 1, overflowY: "auto", px: 3, pt: 2.5, pb: 3 }}>
-          <Typography
-            sx={{
-              fontSize: { xs: 19, sm: 22 },
-              fontWeight: 900,
-              color: "#0F2420",
-              letterSpacing: "-0.5px",
-              lineHeight: 1.25,
-              mb: 1,
-            }}
-          >
-            {post.title}
-          </Typography>
-          <Typography sx={{ fontSize: 12, color: "#8AADAA", mb: 2.5 }}>
-            Publicado por <strong style={{ color: "#0B5E55" }}>Nui</strong> ·{" "}
-            {fmtDateLanding(post.publishedAt)}
-          </Typography>
-          <Divider sx={{ mb: 2.5 }} />
-          <Typography
-            sx={{
-              fontSize: 15,
-              fontStyle: "italic",
-              color: "#4A6B67",
-              borderLeft: "3px solid #0B5E55",
-              pl: 2,
-              mb: 2.5,
-              lineHeight: 1.6,
-            }}
-          >
-            {post.excerpt}
-          </Typography>
-          <Stack spacing={2} mb={3}>
-            {paragraphs.map((p, i) => (
-              <Typography
-                key={i}
-                sx={{ fontSize: 14.5, color: "#0F2420", lineHeight: 1.75 }}
-              >
-                {p}
-              </Typography>
-            ))}
-          </Stack>
-          {post.tags?.length > 0 && (
-            <Stack
-              direction="row"
-              spacing={0.8}
-              flexWrap="wrap"
-              useFlexGap
-              mb={3}
-            >
-              {post.tags.map((t) => (
-                <Chip
-                  key={t}
-                  label={`#${t}`}
-                  size="small"
-                  sx={{
-                    bgcolor: "#E6F5F3",
-                    color: "#0B5E55",
-                    fontWeight: 600,
-                    fontSize: 11,
-                    height: 22,
-                  }}
-                />
-              ))}
-            </Stack>
-          )}
-          <Divider sx={{ mb: 2 }} />
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Typography
-              sx={{ fontSize: 12, color: "#8AADAA", fontWeight: 600 }}
-            >
-              Compartir:
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={() =>
-                window.open(
-                  `https://wa.me/?text=${encodeURIComponent(buildShareText(post))}`,
-                  "_blank",
-                  "noopener",
-                )
-              }
-              sx={{
-                color: "#25D366",
-                "&:hover": { bgcolor: "rgba(37,211,102,0.10)" },
-              }}
-            >
-              <WhatsAppIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={handleCopy}
-              sx={{
-                color: copied ? "#0B5E55" : "#8AADAA",
-                "&:hover": { bgcolor: "#E6F5F3" },
-              }}
-            >
-              <ContentCopyRoundedIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Stack>
-        </Box>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-/* ─── Schema.org Article para posts (Rich Results en Google) ──── */
-const injectArticleSchema = (post) => {
-  const id = "nui-article-schema";
-  let el = document.getElementById(id);
-  if (!el) {
-    el = document.createElement("script");
-    el.id = id;
-    el.type = "application/ld+json";
-    document.head.appendChild(el);
-  }
-  el.textContent = JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.excerpt,
-    keywords: (post.tags || []).join(", "),
-    datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    author: { "@type": "Organization", name: "Nui", url: "https://nuiapp.com" },
-    publisher: {
-      "@type": "Organization",
-      name: "Nui App",
-      logo: { "@type": "ImageObject", url: "https://nuiapp.com/img/logo.png" },
-    },
-    image: post.imageUrl || "https://nuiapp.com/img/og-image.png",
-    url: "https://nuiapp.com/",
-    mainEntityOfPage: { "@type": "WebPage", "@id": "https://nuiapp.com/" },
-    inLanguage: "es-AR",
-    about: { "@type": "Thing", name: "Salud y Nutrición" },
-  });
-};
-
 const LandingPostsSection = () => {
   const [featured, setFeatured] = useState(null);
   const [archive, setArchive] = useState([]);
   const [loading, setLoading] = useState(true);
   const [archiveLoading, setArchiveLoading] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [fetchingPost, setFetchingPost] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -2945,10 +2692,7 @@ const LandingPostsSection = () => {
     try {
       const res = await fetch(`${API_URL}/api/posts/landing?page=${p}`);
       const data = await res.json();
-      if (p === 1 && data.featured) {
-        setFeatured(data.featured);
-        injectArticleSchema(data.featured); // Schema.org para Google
-      }
+      if (p === 1 && data.featured) setFeatured(data.featured);
       setArchive(data.archive || []);
       setPage(data.page || p);
       setTotalPages(data.totalPages || 1);
@@ -2962,24 +2706,6 @@ const LandingPostsSection = () => {
   useEffect(() => {
     fetchPage(1, true);
   }, []); // eslint-disable-line
-
-  const openPost = async (post) => {
-    // Si ya tiene body e imageUrl (post destacado), abrirlo directo
-    if (post.body) {
-      setSelected(post);
-      return;
-    }
-    // Si es del archivo (sin body), fetchear el completo
-    setFetchingPost(true);
-    try {
-      const res = await fetch(`${API_URL}/api/posts/${post.date}`);
-      const data = await res.json();
-      if (data.post) setSelected(data.post);
-    } catch {
-    } finally {
-      setFetchingPost(false);
-    }
-  };
 
   return (
     <Box
@@ -3047,7 +2773,8 @@ const LandingPostsSection = () => {
         ) : (
           featured && (
             <Box
-              onClick={() => openPost(featured)}
+              component={Link}
+              to={`/blog/${buildPostSlug(featured)}`}
               sx={{
                 borderRadius: 4,
                 overflow: "hidden",
@@ -3056,6 +2783,8 @@ const LandingPostsSection = () => {
                 border: "1px solid rgba(11,94,85,0.10)",
                 boxShadow: "0 4px 24px rgba(11,94,85,0.10)",
                 cursor: "pointer",
+                textDecoration: "none",
+                color: "inherit",
                 display: "flex",
                 flexDirection: { xs: "column", sm: "row" },
                 transition: "all 0.2s",
@@ -3286,7 +3015,8 @@ const LandingPostsSection = () => {
                 {archive.map((p, i) => (
                   <Box
                     key={p._id}
-                    onClick={() => openPost(p)}
+                    component={Link}
+                    to={`/blog/${buildPostSlug(p)}`}
                     sx={{
                       display: "flex",
                       alignItems: "center",
@@ -3295,6 +3025,8 @@ const LandingPostsSection = () => {
                       px: 1.5,
                       cursor: "pointer",
                       borderRadius: 2,
+                      textDecoration: "none",
+                      color: "inherit",
                       borderBottom:
                         i < archive.length - 1
                           ? "1px solid rgba(11,94,85,0.08)"
@@ -3424,52 +3156,6 @@ const LandingPostsSection = () => {
         )}
       </Box>
 
-      <PostModalLanding
-        post={selected}
-        open={!!selected}
-        onClose={() => setSelected(null)}
-      />
-
-      {/* Overlay cargando post completo */}
-      {fetchingPost && (
-        <Box
-          sx={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 1400,
-            bgcolor: "rgba(0,0,0,0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Box
-            sx={{
-              bgcolor: "#fff",
-              borderRadius: 4,
-              px: 4,
-              py: 3,
-              textAlign: "center",
-            }}
-          >
-            <Box
-              sx={{
-                mb: 1,
-                display: "inline-flex",
-                "@keyframes spin": { to: { transform: "rotate(360deg)" } },
-                animation: "spin 1s linear infinite",
-              }}
-            >
-              <Leaf size={28} weight="fill" color="#0B5E55" />
-            </Box>
-            <Typography
-              sx={{ fontSize: 13, color: "#4A6B67", fontWeight: 600 }}
-            >
-              Cargando artículo…
-            </Typography>
-          </Box>
-        </Box>
-      )}
     </Box>
   );
 };
