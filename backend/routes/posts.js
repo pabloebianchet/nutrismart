@@ -191,6 +191,19 @@ router.get("/landing", async (req, res) => {
   }
 });
 
+/* ─── GET /all — lista completa (para sitemap.xml y prerender) ── */
+router.get("/all", async (req, res) => {
+  try {
+    const posts = await DailyPost.find({})
+      .sort({ date: 1 })
+      .select("date title publishedAt")
+      .lean();
+    return res.json({ posts });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener la lista de posts." });
+  }
+});
+
 /* ─── GET /:date — catch-all, SIEMPRE al final ───────────────── */
 router.get("/:date", async (req, res) => {
   try {
