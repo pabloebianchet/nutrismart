@@ -37,6 +37,11 @@ const PLAN_META = {
 const formatARS = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 
+const formatUSD = (n) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+
+const formatAmount = (n, currency) => (currency === "USD" ? formatUSD(n) : formatARS(n));
+
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "long", year: "numeric" }) : "—";
 
@@ -179,10 +184,10 @@ const SubscriptionPage = () => {
               <Box sx={{ px: 3.5, py: 3 }}>
                 <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2.5 }}>
                   {[
-                    { label: "Monto mensual",      value: formatARS(sub.amount) },
+                    { label: "Monto mensual",      value: formatAmount(sub.amount, sub.currency) },
                     { label: "Vence el", value: formatDate(sub.endDate) },
                     { label: "Suscripción desde",  value: formatDate(sub.startDate) },
-                    { label: "Método de pago",     value: "Mercado Pago" },
+                    { label: "Método de pago",     value: sub.provider === "stripe" ? "Stripe" : "Mercado Pago" },
                   ].map(({ label, value }) => (
                     <Box key={label}>
                       <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.4 }}>{label}</Typography>
@@ -224,9 +229,13 @@ const SubscriptionPage = () => {
                     <AutorenewRoundedIcon sx={{ fontSize: 20, color: C.brand }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>Renovación manual</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>
+                      {sub.provider === "stripe" ? "Renovación automática" : "Renovación manual"}
+                    </Typography>
                     <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
-                      Te avisamos por mail antes del {formatDate(sub.endDate)} para que puedas renovar cuando quieras.
+                      {sub.provider === "stripe"
+                        ? `Se cobra automáticamente cada mes hasta el ${formatDate(sub.endDate)}, salvo que canceles antes.`
+                        : `Te avisamos por mail antes del ${formatDate(sub.endDate)} para que puedas renovar cuando quieras.`}
                     </Typography>
                   </Box>
                 </Stack>
@@ -253,7 +262,7 @@ const SubscriptionPage = () => {
                       </Box>
                       <Stack direction="row" spacing={1.5} alignItems="center">
                         <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
-                          {formatARS(p.amount)}
+                          {formatAmount(p.amount, p.currency || sub.currency)}
                         </Typography>
                         <Chip
                           label={p.status === "approved" ? "Pagado" : p.status}

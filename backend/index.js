@@ -16,6 +16,8 @@ import Analysis from "./models/Analysis.js";
 import adminRoutes from "./routes/admin.js";
 import authEmailRoutes from "./routes/authEmail.js";
 import paymentsRouter from "./routes/payments.js";
+import stripePaymentsRouter, { stripeWebhookHandler } from "./routes/stripePayments.js";
+import geoRouter from "./routes/geo.js";
 import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
@@ -54,6 +56,11 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
 
+// Render (y la mayoría de los PaaS) corren detrás de un proxy — sin esto,
+// req.ip devuelve la IP interna del proxy, no la del visitante real
+// (rompe geo-detección y el logging de IP que ya existía).
+app.set("trust proxy", 1);
+
 // ── Seguridad básica de headers ──────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -90,6 +97,12 @@ app.use(
     credentials: true,
   }),
 );
+
+// Webhook de Stripe: necesita el body crudo (sin parsear) para validar la
+// firma con stripe.webhooks.constructEvent — tiene que montarse ANTES del
+// express.json() global, que si corriera primero ya habría parseado/
+// alterado el body y la verificación de firma fallaría siempre.
+app.post("/api/payments/stripe/webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
 
 app.use(express.json({ limit: "2mb" }));
 
@@ -622,6 +635,8 @@ const PORT = process.env.PORT || 3001;
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authEmailRoutes);
 app.use("/api/payments", paymentsRouter);
+app.use("/api/payments/stripe", stripePaymentsRouter);
+app.use("/api/geo", geoRouter);
 app.use("/api/recipes",       recipesRouter);
 app.use("/api/training",      trainingRouter);
 app.use("/api/shopping-list", shoppingRouter);

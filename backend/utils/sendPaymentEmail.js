@@ -46,6 +46,9 @@ const formatDate = (d) =>
 const formatARS = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 
+const formatUSD = (n) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+
 /* ─────────────────────────────────────────────────────────────────────────
    Email de bienvenida / confirmación de suscripción
    Se envía al usuario cada vez que un pago es aprobado (suscripción nueva o renovación)
@@ -57,7 +60,7 @@ export const sendPaymentEmail = async ({ name, email, plan, amount, currency, en
   const appUrl      = process.env.FRONTEND_URL || "http://localhost:5173";
   const supportEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
   const meta        = PLAN_META[plan] || PLAN_META.silver;
-  const amountFmt   = currency === "ARS" ? formatARS(amount) : `${currency} ${amount}`;
+  const amountFmt   = currency === "ARS" ? formatARS(amount) : currency === "USD" ? formatUSD(amount) : `${currency} ${amount}`;
   const year        = new Date().getFullYear();
 
   const subject = isRenewal

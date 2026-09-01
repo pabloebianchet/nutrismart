@@ -116,8 +116,11 @@ const PLANS = [
 const formatARS = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 
+const formatUSD = (n) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+
 /* ── Modal de checkout ───────────────────────────────────────── */
-const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
+const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
   const [couponInput, setCouponInput] = useState("");
   const [validating,  setValidating]  = useState(false);
   const [couponData,  setCouponData]  = useState(null);
@@ -125,9 +128,12 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
   const [paying,      setPaying]      = useState(false);
 
   const basePrice = plan.id === "silver" ? planPrices.silver : planPrices.gold;
-  const finalPrice = couponData
+  // Stripe (EE.UU.) no tiene cupones en esta primera versión — el sistema
+  // de cupones actual está atado a mpPaymentId, es específico de MP.
+  const finalPrice = !isUS && couponData
     ? Math.round(basePrice * (1 - couponData.discountPct / 100))
     : basePrice;
+  const fmt = isUS ? formatUSD : formatARS;
 
   const validateCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
@@ -181,13 +187,13 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
             </Typography>
           </Box>
           <Box sx={{ ml: "auto !important", textAlign: "right" }}>
-            {couponData && (
+            {!isUS && couponData && (
               <Typography sx={{ fontSize: 13, color: C.textMuted, textDecoration: "line-through", lineHeight: 1 }}>
-                {formatARS(basePrice)}
+                {fmt(basePrice)}
               </Typography>
             )}
             <Typography sx={{ fontSize: 26, fontWeight: 900, color: plan.color, lineHeight: 1.1 }}>
-              {formatARS(finalPrice)}
+              {fmt(finalPrice)}
             </Typography>
             <Typography sx={{ fontSize: 11, color: C.textMuted }}>por mes</Typography>
           </Box>
@@ -195,6 +201,8 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
 
         <Divider sx={{ mb: 2.5 }} />
 
+        {isUS ? null : (
+        <>
         {/* Cupón */}
         <Typography sx={{ fontSize: 12, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 1.2 }}>
           ¿Tenés un código de descuento?
@@ -254,12 +262,14 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
                 </Typography>
               </Box>
             </Stack>
-            <Chip label={`-${formatARS(basePrice - finalPrice)}`} size="small"
+            <Chip label={`-${fmt(basePrice - finalPrice)}`} size="small"
               sx={{ bgcolor: "rgba(46,125,50,0.12)", color: "#2E7D32", fontWeight: 800, fontSize: 11 }} />
           </Box>
         )}
 
         {couponError && <Box sx={{ mb: 2.5 }} />}
+        </>
+        )}
 
         {/* Botón pagar */}
         <Button
@@ -276,7 +286,7 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
             "&:hover": { bgcolor: plan.highlight ? "#b8841f" : C.brandLight },
           }}
         >
-          {paying ? "Redirigiendo…" : `Ir a Mercado Pago · ${formatARS(finalPrice)}`}
+          {paying ? "Redirigiendo…" : isUS ? `Pagar con Stripe · ${fmt(finalPrice)}` : `Ir a Mercado Pago · ${fmt(finalPrice)}`}
         </Button>
 
         <Button fullWidth onClick={onClose}
@@ -286,7 +296,7 @@ const CheckoutModal = ({ plan, planPrices, onClose, onPay }) => {
         </Button>
 
         <Typography sx={{ textAlign: "center", fontSize: 11, color: C.textMuted, mt: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-          <LockRoundedIcon sx={{ fontSize: 13 }} /> Pago seguro procesado por Mercado Pago
+          <LockRoundedIcon sx={{ fontSize: 13 }} /> Pago seguro procesado por {isUS ? "Stripe" : "Mercado Pago"}
         </Typography>
       </DialogContent>
     </Dialog>
@@ -303,6 +313,8 @@ const PricingPage = () => {
   const { user, subPlan, subStatus, trialDaysLeft, isTrialExpired, refreshSubscription } = useNutrition();
   const navigate = useNavigate();
   const [planPrices,    setPlanPrices]    = useState({ silver: 2990, gold: 5990 });
+  const [usdPrices,     setUsdPrices]     = useState({ silver: 6.99, gold: 12.99 });
+  const [isUS,          setIsUS]          = useState(false); // default: Argentina/Mercado Pago
   const [checkoutPlan,  setCheckoutPlan]  = useState(null); // plan a pagar
 
   useEffect(() => {
@@ -311,10 +323,22 @@ const PricingPage = () => {
       .then((r) => r.json())
       .then((d) => setPlanPrices({ silver: d.silver?.amount ?? 2990, gold: d.gold?.amount ?? 5990 }))
       .catch(() => {});
+    fetch(`${API_URL}/api/payments/stripe/plans`)
+      .then((r) => r.json())
+      .then((d) => setUsdPrices({ silver: d.silver?.amount ?? 6.99, gold: d.gold?.amount ?? 12.99 }))
+      .catch(() => {});
+    // Detección de región — si falla o no se puede determinar, se queda con
+    // el comportamiento por defecto (Argentina / Mercado Pago), nunca rompe.
+    fetch(`${API_URL}/api/geo`)
+      .then((r) => r.json())
+      .then((d) => setIsUS(d.country === "US"))
+      .catch(() => {});
   }, []); // eslint-disable-line
 
-  const priceFor = (planId) =>
-    planId === "silver" ? planPrices.silver : planId === "gold" ? planPrices.gold : null;
+  const priceFor = (planId) => {
+    const source = isUS ? usdPrices : planPrices;
+    return planId === "silver" ? source.silver : planId === "gold" ? source.gold : null;
+  };
 
   const handleAction = (plan) => {
     if (!user) { navigate("/"); return; }
@@ -324,6 +348,19 @@ const PricingPage = () => {
 
   const handlePay = async (plan, couponCode) => {
     const token = localStorage.getItem("nutrismartToken");
+
+    if (isUS) {
+      const res = await fetch(`${API_URL}/api/payments/stripe/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan: plan.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Error al procesar el pago."); return; }
+      window.location.href = data.url;
+      return;
+    }
+
     const res = await fetch(`${API_URL}/api/payments/subscribe`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -434,9 +471,11 @@ const PricingPage = () => {
                     {price ? (
                       <>
                         <Typography sx={{ fontSize: 38, fontWeight: 900, color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>
-                          {formatARS(price)}
+                          {isUS ? formatUSD(price) : formatARS(price)}
                         </Typography>
-                        <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>{plan.label}</Typography>
+                        <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>
+                          {isUS ? plan.label.replace("renovación manual", "renovación automática") : plan.label}
+                        </Typography>
                       </>
                     ) : (
                       <>
@@ -502,7 +541,8 @@ const PricingPage = () => {
       {checkoutPlan && (
         <CheckoutModal
           plan={checkoutPlan}
-          planPrices={planPrices}
+          planPrices={isUS ? usdPrices : planPrices}
+          isUS={isUS}
           onClose={() => setCheckoutPlan(null)}
           onPay={handlePay}
         />
