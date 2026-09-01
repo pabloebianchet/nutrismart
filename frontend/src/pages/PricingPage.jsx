@@ -320,6 +320,13 @@ const PricingPage = () => {
       .then((r) => r.json())
       .then((d) => setUsdPrices({ silver: d.silver?.amount ?? 6.99, gold: d.gold?.amount ?? 12.99 }))
       .catch(() => {});
+    // Override de prueba — abrí /pricing?region=us para forzar la vista de
+    // EE.UU. sin necesitar una IP real de ahí (VPN, etc). Quitar el param
+    // vuelve al comportamiento normal (detección real por IP).
+    const forcedRegion = new URLSearchParams(window.location.search).get("region");
+    if (forcedRegion === "us") { setIsUS(true); return; }
+    if (forcedRegion === "ar") { setIsUS(false); return; }
+
     // Detección de región — si falla o no se puede determinar, se queda con
     // el comportamiento por defecto (Argentina / Mercado Pago), nunca rompe.
     fetch(`${API_URL}/api/geo`)
