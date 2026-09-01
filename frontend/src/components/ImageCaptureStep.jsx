@@ -22,14 +22,20 @@ const C = {
   textMuted: "#8AADAA",
 };
 
-const TIPS = [
-  "Buena iluminación, sin reflejos ni sombras",
-  "Enfocá bien el texto, sin cortar bordes",
-  "Vale captura o imagen de la galería",
-];
+const getTips = (isUS) => isUS
+  ? [
+      "Good lighting, no glare or shadows",
+      "Focus clearly on the text, don't cut off edges",
+      "A screenshot or gallery photo works too",
+    ]
+  : [
+      "Buena iluminación, sin reflejos ni sombras",
+      "Enfocá bien el texto, sin cortar bordes",
+      "Vale captura o imagen de la galería",
+    ];
 
 /* ── Zona de carga de imagen ──────────────────── */
-const UploadZone = ({ label, sublabel, emoji, inputId, image, setImage, onFileChange }) => {
+const UploadZone = ({ label, sublabel, emoji, inputId, image, setImage, onFileChange, isUS }) => {
   const hasImage = !!image;
   const previewUrl = hasImage ? URL.createObjectURL(image) : null;
 
@@ -109,7 +115,7 @@ const UploadZone = ({ label, sublabel, emoji, inputId, image, setImage, onFileCh
               {/* Label abajo */}
               <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2, py: 1.5 }}>
                 <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{label}</Typography>
-                <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.70)" }}>Tocá para cambiar</Typography>
+                <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.70)" }}>{isUS ? "Tap to change" : "Tocá para cambiar"}</Typography>
               </Box>
             </>
           ) : (
@@ -133,7 +139,7 @@ const UploadZone = ({ label, sublabel, emoji, inputId, image, setImage, onFileCh
                 }}
               >
                 <PhotoCameraRoundedIcon sx={{ fontSize: 15, color: "#fff" }} />
-                <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>Subir foto</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{isUS ? "Upload photo" : "Subir foto"}</Typography>
               </Box>
             </Stack>
           )}
@@ -149,7 +155,7 @@ const ImageCaptureStep = () => {
   const [ingredientesImage, setIngredientesImage] = useState(null);
   const [loading,          setLoading]          = useState(false);
   const [errorMessage,     setErrorMessage]     = useState("");
-  const { updateOcrText } = useNutrition();
+  const { updateOcrText, isUS } = useNutrition();
   const navigate = useNavigate();
 
   const bothReady = !!tablaImage && !!ingredientesImage;
@@ -166,7 +172,7 @@ const ImageCaptureStep = () => {
         setImage(file);
       }
     } catch {
-      setErrorMessage("No pudimos procesar la imagen.");
+      setErrorMessage(isUS ? "We couldn't process the image." : "No pudimos procesar la imagen.");
     }
   };
 
@@ -187,7 +193,7 @@ const ImageCaptureStep = () => {
       updateOcrText(data.text);
       navigate("/result");
     } catch {
-      setErrorMessage("Error al leer las imágenes. Intentá de nuevo.");
+      setErrorMessage(isUS ? "Error reading the images. Please try again." : "Error al leer las imágenes. Intentá de nuevo.");
       setLoading(false);
     }
   };
@@ -202,7 +208,7 @@ const ImageCaptureStep = () => {
         justifyContent: "center",
         background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)",
       }}>
-        <AnalyzingLoader message="Leyendo las imágenes del producto..." />
+        <AnalyzingLoader message={isUS ? "Reading the product images..." : "Leyendo las imágenes del producto..."} />
       </Box>
     );
   }
@@ -239,16 +245,16 @@ const ImageCaptureStep = () => {
           </Box>
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.8px", lineHeight: 1.1 }}>
-              Analizá tu producto
+              {isUS ? "Analyze your product" : "Analizá tu producto"}
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: C.textSecondary, mt: 0.8 }}>
-              Subí las fotos del packaging y la IA hará el resto
+              {isUS ? "Upload photos of the packaging and the AI will do the rest" : "Subí las fotos del packaging y la IA hará el resto"}
             </Typography>
           </Box>
 
           {/* Progress indicator */}
           <Stack direction="row" spacing={1} mt={0.5}>
-            {["📊 Tabla nutricional", "📋 Ingredientes"].map((label, i) => {
+            {(isUS ? ["📊 Nutrition facts", "📋 Ingredients"] : ["📊 Tabla nutricional", "📋 Ingredientes"]).map((label, i) => {
               const isDone = i === 0 ? !!tablaImage : !!ingredientesImage;
               return (
                 <Chip
@@ -273,22 +279,24 @@ const ImageCaptureStep = () => {
         {/* Zonas de carga */}
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={3} sx={{ animation: "fadeUp 0.5s 0.1s ease both" }}>
           <UploadZone
-            label="Tabla nutricional"
-            sublabel="Calorías, grasas, sodio..."
+            label={isUS ? "Nutrition facts" : "Tabla nutricional"}
+            sublabel={isUS ? "Calories, fat, sodium..." : "Calorías, grasas, sodio..."}
             emoji="📊"
             inputId="tabla-input"
             image={tablaImage}
             setImage={setTablaImage}
             onFileChange={handleFileChange}
+            isUS={isUS}
           />
           <UploadZone
-            label="Lista de ingredientes"
-            sublabel="Todos los ingredientes"
+            label={isUS ? "Ingredients list" : "Lista de ingredientes"}
+            sublabel={isUS ? "All the ingredients" : "Todos los ingredientes"}
             emoji="📋"
             inputId="ingredientes-input"
             image={ingredientesImage}
             setImage={setIngredientesImage}
             onFileChange={handleFileChange}
+            isUS={isUS}
           />
         </Stack>
 
@@ -304,11 +312,11 @@ const ImageCaptureStep = () => {
           <Stack direction="row" spacing={1} alignItems="center" mb={1}>
             <LightbulbOutlinedIcon sx={{ fontSize: 16, color: C.brand }} />
             <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: C.brand, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              Tips para mejores resultados
+              {isUS ? "Tips for better results" : "Tips para mejores resultados"}
             </Typography>
           </Stack>
           <Stack spacing={0.6}>
-            {TIPS.map((tip) => (
+            {getTips(isUS).map((tip) => (
               <Stack key={tip} direction="row" spacing={1} alignItems="flex-start">
                 <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: C.brandMuted, mt: 0.7, flexShrink: 0 }} />
                 <Typography sx={{ fontSize: 12.5, color: C.textSecondary, lineHeight: 1.5 }}>{tip}</Typography>
@@ -351,14 +359,16 @@ const ImageCaptureStep = () => {
             }}
           >
             {bothReady
-              ? "Analizar producto"
-              : `Subí ${done === 0 ? "las 2 fotos" : "la foto restante"} para continuar`}
+              ? (isUS ? "Analyze product" : "Analizar producto")
+              : isUS
+                ? `Upload ${done === 0 ? "both photos" : "the remaining photo"} to continue`
+                : `Subí ${done === 0 ? "las 2 fotos" : "la foto restante"} para continuar`}
           </Button>
 
           {/* Contador debajo del botón */}
           <Typography sx={{ textAlign: "center", fontSize: 12.5, color: C.textMuted, mt: 1.5 }}>
-            {done}/2 fotos listas
-            {bothReady && " · Listo para analizar 🚀"}
+            {isUS ? `${done}/2 photos ready` : `${done}/2 fotos listas`}
+            {bothReady && (isUS ? " · Ready to analyze 🚀" : " · Listo para analizar 🚀")}
           </Typography>
         </Box>
       </Box>

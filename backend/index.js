@@ -18,6 +18,7 @@ import authEmailRoutes from "./routes/authEmail.js";
 import paymentsRouter from "./routes/payments.js";
 import stripePaymentsRouter, { stripeWebhookHandler } from "./routes/stripePayments.js";
 import geoRouter from "./routes/geo.js";
+import { getLang } from "./utils/lang.js";
 import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
@@ -181,9 +182,11 @@ app.post(
 app.post("/api/analyze", authMiddleware, async (req, res) => {
   try {
     const { userData, productText } = req.body;
+    const lang = getLang(req);
+    const isEN = lang === "en";
 
     if (!userData || !productText) {
-      return res.status(400).json({ error: "Faltan datos requeridos" });
+      return res.status(400).json({ error: isEN ? "Missing required data" : "Faltan datos requeridos" });
     }
 
     // ── Usuario autenticado via JWT ──────────────────────────
@@ -198,7 +201,9 @@ app.post("/api/analyze", authMiddleware, async (req, res) => {
         await Subscription.updateOne({ _id: sub._id }, { $set: { status: "expired" } });
         return res.status(403).json({
           error: "trial_expired",
-          message: "Tu período de prueba gratuito venció. Elegí un plan para continuar.",
+          message: isEN
+            ? "Your free trial has ended. Choose a plan to continue."
+            : "Tu período de prueba gratuito venció. Elegí un plan para continuar.",
         });
       }
 
@@ -213,7 +218,9 @@ app.post("/api/analyze", authMiddleware, async (req, res) => {
           return res.status(403).json({
             error:     "subscription_required",
             code:      "SUBSCRIPTION_REQUIRED",
-            message:   "Tu suscripción venció. Renovar para continuar analizando.",
+            message:   isEN
+              ? "Your subscription has ended. Renew to keep analyzing."
+              : "Tu suscripción venció. Renovar para continuar analizando.",
             subStatus: expiredPaid.status,
             subPlan:   expiredPaid.plan,
           });
@@ -224,7 +231,9 @@ app.post("/api/analyze", authMiddleware, async (req, res) => {
         if (expiredTrial) {
           return res.status(403).json({
             error: "trial_expired",
-            message: "Tu período de prueba gratuito venció. Elegí un plan para continuar.",
+            message: isEN
+              ? "Your free trial has ended. Choose a plan to continue."
+              : "Tu período de prueba gratuito venció. Elegí un plan para continuar.",
           });
         }
         // Fallback: máximo 3 análisis (usuarios sin trial previo)
@@ -232,7 +241,9 @@ app.post("/api/analyze", authMiddleware, async (req, res) => {
         if (total >= 3) {
           return res.status(403).json({
             error: "trial_limit_reached",
-            message: "Alcanzaste el límite de 3 análisis gratuitos. Elegí un plan para continuar.",
+            message: isEN
+              ? "You've reached the limit of 3 free analyses. Choose a plan to continue."
+              : "Alcanzaste el límite de 3 análisis gratuitos. Elegí un plan para continuar.",
           });
         }
       } else if (sub.plan === "silver") {
@@ -242,14 +253,90 @@ app.post("/api/analyze", authMiddleware, async (req, res) => {
         if (todayCount >= 1) {
           return res.status(403).json({
             error: "daily_limit_reached",
-            message: "Alcanzaste el límite diario del Plan Silver (1 análisis por día). Tu límite se renueva mañana.",
+            message: isEN
+              ? "You've reached the Silver Plan's daily limit (1 analysis per day). Your limit renews tomorrow."
+              : "Alcanzaste el límite diario del Plan Silver (1 análisis por día). Tu límite se renueva mañana.",
           });
         }
       }
       // Free (activo) o Gold: sin límite
     }
 
-    const prompt = `
+    const prompt = isEN ? `
+Role:
+You are a nutritionist trained in healthy eating based on European guidelines
+(WHO Europe, EFSA, Mediterranean diet). You provide general guidance, not clinical advice.
+
+Context:
+You are writing the result a user will read inside an app.
+This is not a technical report nor a chat reply.
+
+User data:
+Sex: ${userData.sexo}
+Age: ${userData.edad}
+Physical activity level: ${userData.actividad}
+Weight: ${userData.peso} kg
+Height: ${userData.altura} cm
+
+Product analyzed:
+${productText}
+
+IMPORTANT:
+Never present the response as a diagnosis, treatment, or personalized medical recommendation.
+Always use an informative, general-guidance tone based on general guidelines.
+
+MANDATORY VALIDATION BEFORE ANALYZING:
+
+You can only analyze the product if the text contains verifiable nutritional information.
+
+This includes at least one of the following:
+- ingredient list
+- nutrition facts table (calories, fat, sugar, protein, sodium, etc.)
+
+If the text does NOT contain this type of information (for example: loose food names like fruits or vegetables, visual descriptions, objects, body parts, ambiguous text, or text generated from images without clear nutritional data):
+- Do not perform a nutritional analysis
+- Do not assign a score
+- Do not classify the product
+
+In that case, respond only with:
+There isn't enough nutritional information to perform an analysis.
+
+CRITICAL RULE:
+Do not infer ingredients or nutritional values.
+Do not assume food composition.
+If the information is not explicitly present in the text, it must not be considered.
+
+MANDATORY NUTRITIONAL CRITERIA (only if valid data is present):
+
+- Assess the level of processing (unprocessed, processed, ultra-processed).
+- Consider ingredient quality, presence of additives, sugars, sodium, and overall profile.
+- Do not automatically penalize products without a clear reason based on the available data.
+
+MANDATORY RULES (if not followed, the response is incorrect):
+- Do not use markdown.
+- Do not use headings, subheadings, lists, bullet points, or numbering.
+- Do not use asterisks, special symbols, or emojis.
+- Do not write long introductions.
+- Do not explain processes or steps.
+- Do not repeat the user's data.
+- Do not write more than 120 words total.
+
+MANDATORY RESPONSE FORMAT (only if it's a valid product):
+
+First, a short sentence clearly stating:
+- whether the product is ultra-processed, processed, or unprocessed
+- whether it fits within typical consumption according to general guidelines
+
+Then, on a separate line, write exactly:
+Score: XX / 100
+
+Then, a brief paragraph (max 3 lines) explaining the main reason for the score.
+
+Finally, practical, general guidance on how this product could fit into a balanced diet, without prescribing or prohibiting.
+
+STYLE:
+Natural, clear, human, and direct, like a short note inside a nutrition app.
+` : `
 Rol:
 Sos un nutricionista con formación en alimentación saludable basada en guías europeas
 (OMS Europa, EFSA, dieta mediterránea). Brindás información orientativa, no clínica.
@@ -330,8 +417,9 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
       messages: [
         {
           role: "system",
-          content:
-            "Respondé SOLO en texto plano. No uses markdown, listas, títulos, asteriscos, emojis ni símbolos especiales.",
+          content: isEN
+            ? "Respond ONLY in plain text. Do not use markdown, lists, headings, asterisks, emojis, or special symbols."
+            : "Respondé SOLO en texto plano. No uses markdown, listas, títulos, asteriscos, emojis ni símbolos especiales.",
         },
         {
           role: "user",
@@ -343,13 +431,13 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
 
     const rawAnalysis =
       completion.choices?.[0]?.message?.content ??
-      "No se pudo generar análisis";
+      (isEN ? "Could not generate an analysis" : "No se pudo generar análisis");
 
     // 🔥 LIMPIEZA CLAVE
     const analysis = cleanText(rawAnalysis);
 
-    // Extraer puntaje (ya sobre texto limpio)
-    const match = analysis.match(/Puntaje global:\s*(\d+)\s*\/\s*100/i);
+    // Extraer puntaje (ya sobre texto limpio) — soporta ambos idiomas
+    const match = analysis.match(/(?:Puntaje global|Score):\s*(\d+)\s*\/\s*100/i);
 
     const score = match ? parseInt(match[1], 10) : 0;
 
@@ -415,7 +503,7 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
     });
   } catch (err) {
     console.error("Analyze error:", err);
-    return res.status(500).json({ error: "Error en análisis IA" });
+    return res.status(500).json({ error: req.body?.lang === "en" ? "AI analysis error" : "Error en análisis IA" });
   }
 });
 

@@ -23,17 +23,17 @@ const C = {
   border:       "rgba(11,94,85,0.14)",
 };
 
-const GENEROS = [
-  { value: "Femenino",  emoji: "👩", label: "Femenino"  },
-  { value: "Masculino", emoji: "👨", label: "Masculino" },
-  { value: "Otro",      emoji: "🧑", label: "Otro"      },
+const getGeneros = (isUS) => [
+  { value: "Femenino",  emoji: "👩", label: isUS ? "Female" : "Femenino"  },
+  { value: "Masculino", emoji: "👨", label: isUS ? "Male"   : "Masculino" },
+  { value: "Otro",      emoji: "🧑", label: isUS ? "Other"  : "Otro"      },
 ];
 
-const ACTIVIDADES = [
-  { value: "Nula",        emoji: "🛋️", label: "Sin actividad",  desc: "Trabajo sedentario, casi nada de movimiento" },
-  { value: "Moderada",    emoji: "🚶", label: "Moderada",       desc: "Ejercicio 2–3 veces por semana" },
-  { value: "Intensa",     emoji: "🏃", label: "Intensa",        desc: "Ejercicio 4–5 veces por semana" },
-  { value: "Profesional", emoji: "🏆", label: "Profesional",    desc: "Entrenamiento intensivo todos los días" },
+const getActividades = (isUS) => [
+  { value: "Nula",        emoji: "🛋️", label: isUS ? "No activity"  : "Sin actividad", desc: isUS ? "Desk job, almost no movement"      : "Trabajo sedentario, casi nada de movimiento" },
+  { value: "Moderada",    emoji: "🚶", label: isUS ? "Moderate"     : "Moderada",       desc: isUS ? "Exercise 2–3 times a week"         : "Ejercicio 2–3 veces por semana" },
+  { value: "Intensa",     emoji: "🏃", label: isUS ? "Intense"      : "Intensa",        desc: isUS ? "Exercise 4–5 times a week"         : "Ejercicio 4–5 veces por semana" },
+  { value: "Profesional", emoji: "🏆", label: isUS ? "Professional" : "Profesional",    desc: isUS ? "Intensive training every day"      : "Entrenamiento intensivo todos los días" },
 ];
 
 const TOTAL = 3;
@@ -47,10 +47,10 @@ const fieldSx = {
   },
 };
 
-const STEPS_META = [
-  { title: null, sub: "Necesitamos algunos datos para personalizar tu experiencia." },
-  { title: "Tus medidas 📏",         sub: "Con tu peso y altura calculamos tu IMC y mejoramos tus recomendaciones." },
-  { title: "¿Cuánto te movés? 🏃",   sub: "Tu nivel de actividad determina cuántas calorías necesitás por día." },
+const getStepsMeta = (isUS) => [
+  { title: null, sub: isUS ? "We need a few details to personalize your experience." : "Necesitamos algunos datos para personalizar tu experiencia." },
+  { title: isUS ? "Your measurements 📏"   : "Tus medidas 📏",       sub: isUS ? "With your weight and height we calculate your BMI and improve your recommendations." : "Con tu peso y altura calculamos tu IMC y mejoramos tus recomendaciones." },
+  { title: isUS ? "How active are you? 🏃" : "¿Cuánto te movés? 🏃", sub: isUS ? "Your activity level determines how many calories you need per day." : "Tu nivel de actividad determina cuántas calorías necesitás por día." },
 ];
 
 /* ════════════════════════════════════════════════════════════ */
@@ -62,8 +62,12 @@ const UserDataFormStyled = () => {
     sexo: "", edad: "", peso: "", altura: "", actividad: "",
   });
 
-  const { updateUserData, user } = useNutrition();
+  const { updateUserData, user, isUS } = useNutrition();
   const navigate = useNavigate();
+
+  const GENEROS    = getGeneros(isUS);
+  const ACTIVIDADES = getActividades(isUS);
+  const STEPS_META  = getStepsMeta(isUS);
 
   /* Cargar perfil existente */
   useEffect(() => {
@@ -126,13 +130,13 @@ const UserDataFormStyled = () => {
       updateUserData(data.user ?? { ...form, profileCompleted: true });
       navigate("/");
     } catch {
-      setError("Error al guardar. Intentá de nuevo.");
+      setError(isUS ? "Error saving. Please try again." : "Error al guardar. Intentá de nuevo.");
     } finally {
       setSaving(false);
     }
   };
 
-  const firstName = user?.name?.split(" ")[0] || "ahí";
+  const firstName = user?.name?.split(" ")[0] || (isUS ? "there" : "ahí");
   const pct       = ((step + 1) / TOTAL) * 100;
   const meta      = STEPS_META[step];
 
@@ -143,12 +147,14 @@ const UserDataFormStyled = () => {
       <Box sx={{ mb: 3, px: 0.5 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            Paso {step + 1} de {TOTAL}
+            {isUS ? `Step ${step + 1} of ${TOTAL}` : `Paso ${step + 1} de ${TOTAL}`}
           </Typography>
           <Typography sx={{ fontSize: 11.5, color: C.textMuted }}>
             {TOTAL - step - 1 === 0
-              ? "¡Último paso!"
-              : `Falta${TOTAL - step - 1 !== 1 ? "n" : ""} ${TOTAL - step - 1} paso${TOTAL - step - 1 !== 1 ? "s" : ""}`}
+              ? (isUS ? "Last step!" : "¡Último paso!")
+              : isUS
+                ? `${TOTAL - step - 1} step${TOTAL - step - 1 !== 1 ? "s" : ""} left`
+                : `Falta${TOTAL - step - 1 !== 1 ? "n" : ""} ${TOTAL - step - 1} paso${TOTAL - step - 1 !== 1 ? "s" : ""}`}
           </Typography>
         </Stack>
 
@@ -197,7 +203,7 @@ const UserDataFormStyled = () => {
         {/* Header */}
         <Box sx={{ px: { xs: 3, sm: 4 }, pt: 4, pb: 2.5 }}>
           <Typography sx={{ fontSize: { xs: 20, sm: 23 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 0.75 }}>
-            {step === 0 ? `¡Hola, ${firstName}! 👋` : meta.title}
+            {step === 0 ? (isUS ? `Hi, ${firstName}! 👋` : `¡Hola, ${firstName}! 👋`) : meta.title}
           </Typography>
           <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
             {meta.sub}
@@ -214,7 +220,7 @@ const UserDataFormStyled = () => {
             <Stack spacing={3}>
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
-                  Género
+                  {isUS ? "Gender" : "Género"}
                 </Typography>
                 <Stack direction="row" spacing={1.5}>
                   {GENEROS.map(({ value, emoji, label }) => {
@@ -245,19 +251,19 @@ const UserDataFormStyled = () => {
 
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
-                  Edad
+                  {isUS ? "Age" : "Edad"}
                 </Typography>
                 <TextField
                   type="number"
                   value={form.edad}
                   onChange={e => set("edad", e.target.value)}
-                  placeholder="ej: 28"
+                  placeholder={isUS ? "e.g: 28" : "ej: 28"}
                   fullWidth
                   inputProps={{ min: 5, max: 120 }}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <Typography sx={{ color: C.textMuted, fontWeight: 600, fontSize: 13.5 }}>años</Typography>
+                        <Typography sx={{ color: C.textMuted, fontWeight: 600, fontSize: 13.5 }}>{isUS ? "years" : "años"}</Typography>
                       </InputAdornment>
                     ),
                   }}
@@ -272,13 +278,13 @@ const UserDataFormStyled = () => {
             <Stack spacing={3}>
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
-                  Peso
+                  {isUS ? "Weight" : "Peso"}
                 </Typography>
                 <TextField
                   type="number"
                   value={form.peso}
                   onChange={e => set("peso", e.target.value)}
-                  placeholder="ej: 70"
+                  placeholder={isUS ? "e.g: 70" : "ej: 70"}
                   fullWidth
                   inputProps={{ min: 20, max: 350 }}
                   InputProps={{
@@ -294,13 +300,13 @@ const UserDataFormStyled = () => {
 
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
-                  Altura
+                  {isUS ? "Height" : "Altura"}
                 </Typography>
                 <TextField
                   type="number"
                   value={form.altura}
                   onChange={e => set("altura", e.target.value)}
-                  placeholder="ej: 170"
+                  placeholder={isUS ? "e.g: 170" : "ej: 170"}
                   fullWidth
                   inputProps={{ min: 80, max: 260 }}
                   InputProps={{
@@ -369,7 +375,7 @@ const UserDataFormStyled = () => {
                   "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand, color: C.brand },
                 }}
               >
-                Atrás
+                {isUS ? "Back" : "Atrás"}
               </Button>
             )}
 
@@ -392,7 +398,11 @@ const UserDataFormStyled = () => {
                 },
               }}
             >
-              {saving ? "Guardando…" : step < TOTAL - 1 ? "Continuar" : "¡Comencemos!"}
+              {saving
+                ? (isUS ? "Saving…" : "Guardando…")
+                : step < TOTAL - 1
+                  ? (isUS ? "Continue" : "Continuar")
+                  : (isUS ? "Let's start!" : "¡Comencemos!")}
             </Button>
           </Stack>
         </Box>

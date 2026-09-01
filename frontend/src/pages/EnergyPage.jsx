@@ -55,35 +55,48 @@ const C = {
 };
 
 /* ─── Opciones de objetivo ────────────────────────────────────── */
-const GOALS = [
+const GOALS_BASE = [
   {
     id: "bajar_peso",
-    label: "Bajar peso / perder grasa",
+    labelEs: "Bajar peso / perder grasa",
+    labelEn: "Lose weight / burn fat",
     Icon: TrendingDownRoundedIcon,
     adj: -500,
     color: "#E24B4A",
     bg: "#FFF5F5",
-    desc: "Déficit de 500 kcal/día",
+    descEs: "Déficit de 500 kcal/día",
+    descEn: "500 kcal/day deficit",
   },
   {
     id: "mantener",
-    label: "Mantener peso",
+    labelEs: "Mantener peso",
+    labelEn: "Maintain weight",
     Icon: TrendingFlatRoundedIcon,
     adj: 0,
     color: "#0B5E55",
     bg: "#E6F5F3",
-    desc: "Equilibrio calórico",
+    descEs: "Equilibrio calórico",
+    descEn: "Caloric balance",
   },
   {
     id: "ganar_musculo",
-    label: "Subir peso / ganar músculo",
+    labelEs: "Subir peso / ganar músculo",
+    labelEn: "Gain weight / build muscle",
     Icon: TrendingUpRoundedIcon,
     adj: 300,
     color: "#C9952A",
     bg: "#FDF6E3",
-    desc: "Superávit de 300 kcal/día",
+    descEs: "Superávit de 300 kcal/día",
+    descEn: "300 kcal/day surplus",
   },
 ];
+
+const getGoals = (isUS) =>
+  GOALS_BASE.map((g) => ({
+    ...g,
+    label: isUS ? g.labelEn : g.labelEs,
+    desc: isUS ? g.descEn : g.descEs,
+  }));
 
 /* ─── Factores de actividad (TDEE = BMR × factor) ────────────── */
 const ACTIVITY_FACTOR = {
@@ -114,12 +127,13 @@ const calcTDEE = (bmr, actividad) => {
 };
 
 const calcDailyGoal = (tdee, goalId) => {
-  const goal = GOALS.find((g) => g.id === goalId);
+  const goal = GOALS_BASE.find((g) => g.id === goalId);
   return tdee + (goal?.adj || 0);
 };
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
-const fmt = (n) => Math.round(n || 0).toLocaleString("es-AR");
+const fmt = (n, isUS) =>
+  Math.round(n || 0).toLocaleString(isUS ? "en-US" : "es-AR");
 const pctVal = (v, max) =>
   Math.min(100, Math.round(((v || 0) / Math.max(max || 1, 1)) * 100));
 
@@ -133,7 +147,7 @@ const typeColor = (tipo) =>
   tipo === "comida" ? C.gold : tipo === "actividad" ? C.brand : C.blue;
 
 /* ─── Pantalla de selección de objetivo ──────────────────────── */
-const GoalSelector = ({ onSelect, saving }) => (
+const GoalSelector = ({ onSelect, saving, isUS }) => (
   <Box
     sx={{
       minHeight: "100dvh",
@@ -152,15 +166,16 @@ const GoalSelector = ({ onSelect, saving }) => (
         <Typography
           sx={{ fontSize: 22, fontWeight: 900, color: C.text, mb: 1 }}
         >
-          ¿Cuál es tu objetivo nutricional?
+          {isUS ? "What's your nutrition goal?" : "¿Cuál es tu objetivo nutricional?"}
         </Typography>
         <Typography sx={{ fontSize: 14, color: C.textMuted, lineHeight: 1.6 }}>
-          Tu objetivo calórico diario se calcula en base a tu metabolismo basal,
-          nivel de actividad y esta meta.
+          {isUS
+            ? "Your daily calorie target is calculated based on your basal metabolism, activity level, and this goal."
+            : "Tu objetivo calórico diario se calcula en base a tu metabolismo basal, nivel de actividad y esta meta."}
         </Typography>
       </Box>
       <Stack spacing={2}>
-        {GOALS.map(({ id, label, Icon, desc, color, bg }) => (
+        {getGoals(isUS).map(({ id, label, Icon, desc, color, bg }) => (
           <Paper
             key={id}
             elevation={0}
@@ -219,7 +234,7 @@ const GoalSelector = ({ onSelect, saving }) => (
 
 /* ─── Componente principal ────────────────────────────────────── */
 const EnergyPage = () => {
-  const { userData, subPlan, subStatus } = useNutrition();
+  const { userData, subPlan, subStatus, isUS } = useNutrition();
   const navigate = useNavigate();
   const token = localStorage.getItem("nutrismartToken");
 
@@ -249,7 +264,7 @@ const EnergyPage = () => {
   /* ─── Cálculos ── */
   const bmr = calcBMR(userData);
   const tdee = bmr ? calcTDEE(bmr, userData?.actividad) : null;
-  const goalData = GOALS.find((g) => g.id === energyGoal);
+  const goalData = getGoals(isUS).find((g) => g.id === energyGoal);
   const dailyGoal = tdee && energyGoal ? calcDailyGoal(tdee, energyGoal) : null;
 
   const consumed = log?.totalConsumido || 0;
@@ -267,17 +282,29 @@ const EnergyPage = () => {
   const balanceStatus = () => {
     if (!dailyGoal) return null;
     if (restantes > 150)
-      return { label: "Por debajo del objetivo", color: C.blue, Icon: TrendingDownRoundedIcon };
+      return {
+        label: isUS ? "Below target" : "Por debajo del objetivo",
+        color: C.blue,
+        Icon: TrendingDownRoundedIcon,
+      };
     if (restantes < -150)
-      return { label: "Por encima del objetivo", color: C.danger, Icon: WarningAmberRoundedIcon };
-    return { label: "Dentro del objetivo", color: C.green, Icon: CheckCircleRoundedIcon };
+      return {
+        label: isUS ? "Above target" : "Por encima del objetivo",
+        color: C.danger,
+        Icon: WarningAmberRoundedIcon,
+      };
+    return {
+      label: isUS ? "Within target" : "Dentro del objetivo",
+      color: C.green,
+      Icon: CheckCircleRoundedIcon,
+    };
   };
 
   /* ─── Fetch del log ── */
   const fetchLog = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_URL}/api/energy/today`, {
+      const res = await fetch(`${API_URL}/api/energy/today?lang=${isUS ? "en" : "es"}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -288,7 +315,7 @@ const EnergyPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, isUS]);
 
   // Limpiar micrófono al salir de la página o al perder el foco
   useEffect(() => {
@@ -348,12 +375,14 @@ const EnergyPage = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
       alert(
-        "Tu navegador no soporta reconocimiento de voz. Escribí directamente.",
+        isUS
+          ? "Your browser doesn't support voice recognition. Please type instead."
+          : "Tu navegador no soporta reconocimiento de voz. Escribí directamente.",
       );
       return;
     }
     const r = new SR();
-    r.lang = "es-AR";
+    r.lang = isUS ? "en-US" : "es-AR";
     r.interimResults = true;
     r.continuous = false;
     r.onresult = (e) => {
@@ -418,6 +447,7 @@ const EnergyPage = () => {
           peso: userData?.peso || 70,
           sexo: userData?.sexo || "M",
           edad: userData?.edad || 30,
+          lang: isUS ? "en" : "es",
         }),
       });
       const data = await res.json();
@@ -425,7 +455,12 @@ const EnergyPage = () => {
       setPreview(data);
       setInterim("");
     } catch (err) {
-      alert(err.message || "Error al interpretar. Intentá de nuevo.");
+      alert(
+        err.message ||
+          (isUS
+            ? "Error interpreting. Please try again."
+            : "Error al interpretar. Intentá de nuevo."),
+      );
     } finally {
       setParsing(false);
     }
@@ -577,7 +612,7 @@ const EnergyPage = () => {
         return reverted;
       });
       setMonthly((prev) => applyEntryToMonthly(prev, tempEntry, -1));
-      alert("Error al guardar. Intentá de nuevo.");
+      alert(isUS ? "Error saving. Please try again." : "Error al guardar. Intentá de nuevo.");
     }
   };
 
@@ -618,7 +653,7 @@ const EnergyPage = () => {
 
   /* ─── Pantalla de selección de objetivo ── */
   if ((!loading && !energyGoal) || showGoalPicker) {
-    return <GoalSelector onSelect={handleSelectGoal} saving={savingGoal} />;
+    return <GoalSelector onSelect={handleSelectGoal} saving={savingGoal} isUS={isUS} />;
   }
 
   if (loading)
@@ -679,8 +714,8 @@ const EnergyPage = () => {
                 }}
               >
                 {dayEval.goalMet
-                  ? <><CheckCircleRoundedIcon sx={{ fontSize: 18 }} /> Objetivo cumplido</>
-                  : <><BarChartRoundedIcon sx={{ fontSize: 18 }} /> Objetivo no alcanzado</>}
+                  ? <><CheckCircleRoundedIcon sx={{ fontSize: 18 }} /> {isUS ? "Goal met" : "Objetivo cumplido"}</>
+                  : <><BarChartRoundedIcon sx={{ fontSize: 18 }} /> {isUS ? "Goal not reached" : "Objetivo no alcanzado"}</>}
               </Typography>
               <Typography
                 sx={{ fontSize: 12.5, color: C.textSec, lineHeight: 1.5 }}
@@ -743,10 +778,10 @@ const EnergyPage = () => {
                   letterSpacing: "-0.5px",
                 }}
               >
-                Balance energético
+                {isUS ? "Energy balance" : "Balance energético"}
               </Typography>
               <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-                {new Date().toLocaleDateString("es-AR", {
+                {new Date().toLocaleDateString(isUS ? "en-US" : "es-AR", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
@@ -820,7 +855,7 @@ const EnergyPage = () => {
                     letterSpacing: "0.07em",
                   }}
                 >
-                  Objetivo diario
+                  {isUS ? "Daily target" : "Objetivo diario"}
                 </Typography>
                 <Typography
                   sx={{
@@ -830,7 +865,7 @@ const EnergyPage = () => {
                     lineHeight: 1.1,
                   }}
                 >
-                  {dailyGoal ? fmt(dailyGoal) : "—"}
+                  {dailyGoal ? fmt(dailyGoal, isUS) : "—"}
                   <Typography
                     component="span"
                     sx={{ fontSize: 13, color: C.textMuted, fontWeight: 400 }}
@@ -842,12 +877,12 @@ const EnergyPage = () => {
               </Box>
               <Box sx={{ textAlign: "right" }}>
                 <Typography sx={{ fontSize: 11, color: C.textMuted }}>
-                  metabolismo base
+                  {isUS ? "basal metabolism" : "metabolismo base"}
                 </Typography>
                 <Typography
                   sx={{ fontSize: 13, fontWeight: 700, color: C.textSec }}
                 >
-                  {fmt(bmr)} kcal
+                  {fmt(bmr, isUS)} kcal
                 </Typography>
               </Box>
             </Stack>
@@ -880,7 +915,7 @@ const EnergyPage = () => {
                   gap: 0.5,
                 }}
               >
-                <RestaurantRoundedIcon sx={{ fontSize: 13 }} /> Consumidas
+                <RestaurantRoundedIcon sx={{ fontSize: 13 }} /> {isUS ? "Consumed" : "Consumidas"}
               </Typography>
               <Typography
                 sx={{
@@ -890,10 +925,10 @@ const EnergyPage = () => {
                   lineHeight: 1,
                 }}
               >
-                {fmt(consumed)}
+                {fmt(consumed, isUS)}
               </Typography>
               <Typography sx={{ fontSize: 10.5, color: C.textMuted }}>
-                kcal comidas
+                {isUS ? "kcal from food" : "kcal comidas"}
               </Typography>
             </Paper>
 
@@ -920,7 +955,7 @@ const EnergyPage = () => {
                   gap: 0.5,
                 }}
               >
-                <DirectionsRunRoundedIcon sx={{ fontSize: 13 }} /> Actividad (Pesas, Dormir, Trabajar en PC, etc.)
+                <DirectionsRunRoundedIcon sx={{ fontSize: 13 }} /> {isUS ? "Activity (Weights, Sleep, Desk work, etc.)" : "Actividad (Pesas, Dormir, Trabajar en PC, etc.)"}
               </Typography>
               <Typography
                 sx={{
@@ -930,10 +965,10 @@ const EnergyPage = () => {
                   lineHeight: 1,
                 }}
               >
-                {fmt(burnedExtra)}
+                {fmt(burnedExtra, isUS)}
               </Typography>
               <Typography sx={{ fontSize: 10.5, color: C.textMuted }}>
-                kcal quemadas hoy
+                {isUS ? "kcal burned today" : "kcal quemadas hoy"}
               </Typography>
             </Paper>
           </Box>
@@ -970,8 +1005,8 @@ const EnergyPage = () => {
                   }}
                 >
                   {restantes !== null && restantes < -150
-                    ? "Te pasaste"
-                    : "Podés comer"}
+                    ? isUS ? "You went over" : "Te pasaste"
+                    : isUS ? "You can eat" : "Podés comer"}
                 </Typography>
                 <Typography
                   sx={{
@@ -986,7 +1021,7 @@ const EnergyPage = () => {
                           : C.green,
                   }}
                 >
-                  {restantes !== null ? fmt(Math.abs(restantes)) : "—"}
+                  {restantes !== null ? fmt(Math.abs(restantes), isUS) : "—"}
                   <Typography
                     component="span"
                     sx={{ fontSize: 13, color: C.textMuted, fontWeight: 400 }}
@@ -996,7 +1031,9 @@ const EnergyPage = () => {
                   </Typography>
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: C.textSec, mt: 0.5 }}>
-                  Objetivo {fmt(dailyGoal)} kcal · comiste {fmt(consumed)} kcal
+                  {isUS
+                    ? `Target ${fmt(dailyGoal, isUS)} kcal · ate ${fmt(consumed, isUS)} kcal`
+                    : `Objetivo ${fmt(dailyGoal, isUS)} kcal · comiste ${fmt(consumed, isUS)} kcal`}
                 </Typography>
               </Box>
             </Stack>
@@ -1055,28 +1092,28 @@ const EnergyPage = () => {
         >
           {[
             {
-              label: "Proteína",
+              label: isUS ? "Protein" : "Proteína",
               val: log?.totalProteinas || 0,
               obj: proteinaObj,
               unit: "g",
               color: C.blue,
             },
             {
-              label: "Carbos",
+              label: isUS ? "Carbs" : "Carbos",
               val: log?.totalCarbos || 0,
               obj: 250,
               unit: "g",
               color: C.gold,
             },
             {
-              label: "Grasas",
+              label: isUS ? "Fat" : "Grasas",
               val: log?.totalGrasas || 0,
               obj: 65,
               unit: "g",
               color: C.danger,
             },
             {
-              label: "Agua",
+              label: isUS ? "Water" : "Agua",
               val: Math.round((log?.totalAgua || 0) / 100) / 10,
               obj: Math.round(aguaObj / 100) / 10,
               unit: "L",
@@ -1152,11 +1189,11 @@ const EnergyPage = () => {
             mb={2}
           >
             <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.brand }}>
-              ¿Qué comiste o hiciste hoy?
+              {isUS ? "What did you eat or do today?" : "¿Qué comiste o hiciste hoy?"}
             </Typography>
             {listening && (
               <Chip
-                label="Escuchando…"
+                label={isUS ? "Listening…" : "Escuchando…"}
                 size="small"
                 sx={{
                   bgcolor: "rgba(226,75,74,0.12)",
@@ -1181,8 +1218,12 @@ const EnergyPage = () => {
               maxRows={8}
               placeholder={
                 listening
-                  ? "Hablá ahora… el texto aparece en tiempo real"
-                  : 'Ej: "Comí un plato de pasta con pollo" · "Caminé 40 minutos" · "Tomé 2 vasos de agua"'
+                  ? isUS
+                    ? "Speak now… text appears in real time"
+                    : "Hablá ahora… el texto aparece en tiempo real"
+                  : isUS
+                    ? 'E.g.: "I ate a plate of pasta with chicken" · "I walked 40 minutes" · "I drank 2 glasses of water"'
+                    : 'Ej: "Comí un plato de pasta con pollo" · "Caminé 40 minutos" · "Tomé 2 vasos de agua"'
               }
               value={
                 listening
@@ -1229,7 +1270,7 @@ const EnergyPage = () => {
                 minWidth: 130,
               }}
             >
-              {listening ? "Detener" : "Grabar"}
+              {isUS ? (listening ? "Stop" : "Record") : (listening ? "Detener" : "Grabar")}
             </Button>
             <Button
               onClick={handleParse}
@@ -1248,10 +1289,10 @@ const EnergyPage = () => {
               {parsing ? (
                 <>
                   <CircularProgress size={16} sx={{ color: "#fff", mr: 1 }} />
-                  Interpretando…
+                  {isUS ? "Interpreting…" : "Interpretando…"}
                 </>
               ) : (
-                "Interpretar →"
+                isUS ? "Interpret →" : "Interpretar →"
               )}
             </Button>
           </Stack>
@@ -1276,7 +1317,7 @@ const EnergyPage = () => {
               mb={2}
             >
               <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>
-                ¿Registrar esto?
+                {isUS ? "Log this?" : "¿Registrar esto?"}
               </Typography>
               <IconButton
                 size="small"
@@ -1314,17 +1355,17 @@ const EnergyPage = () => {
                       color: C.gold,
                     },
                     {
-                      label: "Proteína",
+                      label: isUS ? "Protein" : "Proteína",
                       val: preview.totales?.proteinas,
                       color: C.blue,
                     },
                     {
-                      label: "Carbos",
+                      label: isUS ? "Carbs" : "Carbos",
                       val: preview.totales?.carbos,
                       color: C.brand,
                     },
                     {
-                      label: "Grasas",
+                      label: isUS ? "Fat" : "Grasas",
                       val: preview.totales?.grasas,
                       color: C.danger,
                     },
@@ -1344,14 +1385,14 @@ const EnergyPage = () => {
                 <Typography
                   sx={{ fontSize: 16, fontWeight: 900, color: C.brand, display: "flex", alignItems: "center", gap: 0.6 }}
                 >
-                  <LocalFireDepartmentRoundedIcon sx={{ fontSize: 19 }} /> {Math.round(preview.totales?.kcal || 0)} kcal quemadas
+                  <LocalFireDepartmentRoundedIcon sx={{ fontSize: 19 }} /> {Math.round(preview.totales?.kcal || 0)} {isUS ? "kcal burned" : "kcal quemadas"}
                 </Typography>
               )}
               {preview.tipo === "agua" && (
                 <Typography
                   sx={{ fontSize: 16, fontWeight: 900, color: C.blue, display: "flex", alignItems: "center", gap: 0.6 }}
                 >
-                  <OpacityRoundedIcon sx={{ fontSize: 19 }} /> {((preview.agua_ml || 0) / 1000).toFixed(2)} litros
+                  <OpacityRoundedIcon sx={{ fontSize: 19 }} /> {((preview.agua_ml || 0) / 1000).toFixed(2)} {isUS ? "liters" : "litros"}
                 </Typography>
               )}
             </Box>
@@ -1368,7 +1409,7 @@ const EnergyPage = () => {
                   border: `1px solid ${C.border}`,
                 }}
               >
-                Corregir
+                {isUS ? "Fix" : "Corregir"}
               </Button>
               <Button
                 onClick={handleConfirm}
@@ -1390,7 +1431,7 @@ const EnergyPage = () => {
                   "&:hover": { filter: "brightness(0.9)" },
                 }}
               >
-                {saving ? "Guardando…" : "Confirmar"}
+                {isUS ? (saving ? "Saving…" : "Confirm") : (saving ? "Guardando…" : "Confirmar")}
               </Button>
             </Stack>
           </Paper>
@@ -1410,7 +1451,7 @@ const EnergyPage = () => {
                 mb: 1.5,
               }}
             >
-              Registrado hoy
+              {isUS ? "Logged today" : "Registrado hoy"}
             </Typography>
             <Stack spacing={1}>
               {[...(log?.entries || [])].reverse().map((entry) => (
@@ -1458,9 +1499,13 @@ const EnergyPage = () => {
                       </Typography>
                       <Typography sx={{ fontSize: 11, color: C.textMuted }}>
                         {entry.tipo === "comida"
-                          ? `${Math.round(entry.kcal || 0)} kcal · ${Math.round(entry.proteinas || 0)}g prot`
+                          ? isUS
+                            ? `${Math.round(entry.kcal || 0)} kcal · ${Math.round(entry.proteinas || 0)}g protein`
+                            : `${Math.round(entry.kcal || 0)} kcal · ${Math.round(entry.proteinas || 0)}g prot`
                           : entry.tipo === "actividad"
-                            ? `${Math.round(entry.kcal || 0)} kcal quemadas`
+                            ? isUS
+                              ? `${Math.round(entry.kcal || 0)} kcal burned`
+                              : `${Math.round(entry.kcal || 0)} kcal quemadas`
                             : `${((entry.agua_ml || 0) / 1000).toFixed(2)} L`}
                       </Typography>
                     </Box>
@@ -1497,13 +1542,27 @@ const EnergyPage = () => {
             <Typography
               sx={{ fontSize: 13, color: C.textMuted, lineHeight: 1.7 }}
             >
-              Tu TMB es{" "}
-              <strong style={{ color: C.text }}>{fmt(bmr)} kcal</strong> · TDEE
-              estimado{" "}
-              <strong style={{ color: C.text }}>{fmt(tdee)} kcal</strong>
-              <br />
-              Usá el micrófono para registrar tu primera comida o actividad del
-              día.
+              {isUS ? (
+                <>
+                  Your BMR is{" "}
+                  <strong style={{ color: C.text }}>{fmt(bmr, isUS)} kcal</strong>{" "}
+                  · estimated TDEE{" "}
+                  <strong style={{ color: C.text }}>{fmt(tdee, isUS)} kcal</strong>
+                  <br />
+                  Use the microphone to log your first meal or activity of the
+                  day.
+                </>
+              ) : (
+                <>
+                  Tu TMB es{" "}
+                  <strong style={{ color: C.text }}>{fmt(bmr, isUS)} kcal</strong> · TDEE
+                  estimado{" "}
+                  <strong style={{ color: C.text }}>{fmt(tdee, isUS)} kcal</strong>
+                  <br />
+                  Usá el micrófono para registrar tu primera comida o actividad del
+                  día.
+                </>
+              )}
             </Typography>
           </Box>
         )}
@@ -1527,19 +1586,25 @@ const EnergyPage = () => {
               {isFree && (
                 <>
                   <CardGiftcardRoundedIcon sx={{ fontSize: 16, mt: "1px", flexShrink: 0 }} />
-                  Plan Free — acceso completo durante 7 días de prueba, incluyendo historial acumulado.
+                  {isUS
+                    ? "Free Plan — full access during your 7-day trial, including accumulated history."
+                    : "Plan Free — acceso completo durante 7 días de prueba, incluyendo historial acumulado."}
                 </>
               )}
               {isSilver && (
                 <>
                   <DiamondRoundedIcon sx={{ fontSize: 16, mt: "1px", flexShrink: 0 }} />
-                  Plan Silver — balance diario activo. El historial mensual está disponible en Plan Gold.
+                  {isUS
+                    ? "Silver Plan — daily balance active. Monthly history is available on the Gold Plan."
+                    : "Plan Silver — balance diario activo. El historial mensual está disponible en Plan Gold."}
                 </>
               )}
               {!isFree &&
                 !isSilver &&
                 !isGold &&
-                "Suscribite para guardar tu historial de balance."}
+                (isUS
+                  ? "Subscribe to save your balance history."
+                  : "Suscribite para guardar tu historial de balance.")}
             </Typography>
             {isSilver && (
               <Button
@@ -1556,7 +1621,7 @@ const EnergyPage = () => {
                   px: 2,
                 }}
               >
-                Ver Plan Gold →
+                {isUS ? "View Gold Plan →" : "Ver Plan Gold →"}
               </Button>
             )}
           </Box>
@@ -1569,14 +1634,14 @@ const EnergyPage = () => {
             <Typography
               sx={{ fontSize: 15, fontWeight: 900, color: C.text, mb: 0.5 }}
             >
-              Historial del mes
+              {isUS ? "Monthly history" : "Historial del mes"}
             </Typography>
             <Typography sx={{ fontSize: 12, color: C.textMuted, mb: 2.5 }}>
-              {new Date().toLocaleDateString("es-AR", {
+              {new Date().toLocaleDateString(isUS ? "en-US" : "es-AR", {
                 month: "long",
                 year: "numeric",
               })}{" "}
-              · {monthly.daily.length} días registrados
+              · {monthly.daily.length} {isUS ? "days logged" : "días registrados"}
             </Typography>
 
             {/* Tabla — scroll horizontal en mobile */}
@@ -1601,7 +1666,10 @@ const EnergyPage = () => {
                     borderBottom: `1px solid ${C.border}`,
                   }}
                 >
-                  {["Día", "Kcal", "Proteína", "Carbos", "Agua", "Act."].map(
+                  {(isUS
+                    ? ["Day", "Kcal", "Protein", "Carbs", "Water", "Act."]
+                    : ["Día", "Kcal", "Proteína", "Carbos", "Agua", "Act."]
+                  ).map(
                     (h) => (
                       <Typography
                         key={h}
@@ -1644,7 +1712,7 @@ const EnergyPage = () => {
                         sx={{ fontSize: 12.5, fontWeight: 700, color: C.text }}
                       >
                         {parseInt(day)}{" "}
-                        {new Date(d.date).toLocaleDateString("es-AR", {
+                        {new Date(d.date).toLocaleDateString(isUS ? "en-US" : "es-AR", {
                           weekday: "short",
                         })}
                       </Typography>
@@ -1655,7 +1723,7 @@ const EnergyPage = () => {
                           color: d.kcal > 0 ? C.gold : C.textMuted,
                         }}
                       >
-                        {d.kcal > 0 ? `${d.kcal.toLocaleString("es-AR")}` : "—"}
+                        {d.kcal > 0 ? `${d.kcal.toLocaleString(isUS ? "en-US" : "es-AR")}` : "—"}
                       </Typography>
                       <Typography
                         sx={{

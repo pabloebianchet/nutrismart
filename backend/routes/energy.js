@@ -6,6 +6,7 @@ import DailyLog        from "../models/DailyLog.js";
 import TrainingPlan    from "../models/TrainingPlan.js";
 import User            from "../models/User.js";
 import Log             from "../models/Log.js";
+import { getLang }     from "../utils/lang.js";
 
 const router   = express.Router();
 const getOpenAI = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -84,7 +85,7 @@ const calcDailyGoalForUser = (u) => {
 };
 
 /* ─── Evaluar día anterior y otorgar puntos saludables ──────── */
-const evaluateYesterday = async (userId, user) => {
+const evaluateYesterday = async (userId, user, isEN = false) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yDate = yesterday.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
@@ -121,9 +122,13 @@ const evaluateYesterday = async (userId, user) => {
     dailyGoal,
     goalMet,
     points,
-    message:  goalMet
-      ? `✅ Objetivo calórico del ${yesterday.toLocaleDateString("es-AR", { day: "numeric", month: "long" })} cumplido — +${points} puntos saludables`
-      : `📊 Objetivo del ${yesterday.toLocaleDateString("es-AR", { day: "numeric", month: "long" })} no alcanzado — ${points} puntos`,
+    message: isEN
+      ? goalMet
+        ? `✅ Calorie goal met for ${yesterday.toLocaleDateString("en-US", { day: "numeric", month: "long" })} — +${points} healthy points`
+        : `📊 Goal missed for ${yesterday.toLocaleDateString("en-US", { day: "numeric", month: "long" })} — ${points} points`
+      : goalMet
+        ? `✅ Objetivo calórico del ${yesterday.toLocaleDateString("es-AR", { day: "numeric", month: "long" })} cumplido — +${points} puntos saludables`
+        : `📊 Objetivo del ${yesterday.toLocaleDateString("es-AR", { day: "numeric", month: "long" })} no alcanzado — ${points} puntos`,
   };
 };
 
@@ -146,6 +151,7 @@ router.put("/goal", authMiddleware, async (req, res) => {
 
 /* ─── GET /today ─ balance completo del día ─────────────────── */
 router.get("/today", authMiddleware, async (req, res) => {
+  const isEN = getLang(req) === "en";
   try {
     const user    = await User.findById(req.user._id).lean();
     const date    = todayDate();
@@ -193,7 +199,7 @@ router.get("/today", authMiddleware, async (req, res) => {
     const totalGrasas    = comida.reduce((a, e) => a + (e.grasas || 0), 0);
 
     // Evaluar día anterior y otorgar/restar puntos (async, no bloquea)
-    const dayResult = await evaluateYesterday(user._id, user).catch(() => null);
+    const dayResult = await evaluateYesterday(user._id, user, isEN).catch(() => null);
 
     return res.json({
       date,
@@ -210,15 +216,16 @@ router.get("/today", authMiddleware, async (req, res) => {
     });
   } catch (err) {
     console.error("Energy today error:", err.message);
-    return res.status(500).json({ error: "Error al obtener balance." });
+    return res.status(500).json({ error: isEN ? "Error fetching balance." : "Error al obtener balance." });
   }
 });
 
 /* ─── POST /parse ─ interpretar texto/voz con GPT ───────────── */
 router.post("/parse", authMiddleware, parseLimiter, async (req, res) => {
   const { texto, peso = 70, sexo = "M", edad = 30 } = req.body;
-  if (!texto?.trim()) return res.status(400).json({ error: "Texto requerido." });
-  if (texto.length > 500) return res.status(400).json({ error: "Texto demasiado largo." });
+  const isEN = getLang(req) === "en";
+  if (!texto?.trim()) return res.status(400).json({ error: isEN ? "Text required." : "Texto requerido." });
+  if (texto.length > 500) return res.status(400).json({ error: isEN ? "Text too long." : "Texto demasiado largo." });
 
   try {
     const openai = getOpenAI();
@@ -226,10 +233,31 @@ router.post("/parse", authMiddleware, parseLimiter, async (req, res) => {
       model: "gpt-4o-mini",
       messages: [{
         role: "system",
-        content: "Sos un nutricionista argentino. Respondés SOLO con JSON válido, sin markdown.",
+        content: isEN
+          ? "You are a nutritionist. You respond ONLY with valid JSON, no markdown."
+          : "Sos un nutricionista argentino. Respondés SOLO con JSON válido, sin markdown.",
       }, {
         role: "user",
-        content: `El usuario (${peso}kg, ${sexo === "M" || sexo === "masculino" ? "hombre" : "mujer"}, ${edad} años) registró:
+        content: isEN ? `The user (${peso}kg, ${sexo === "M" || sexo === "masculino" ? "male" : "female"}, ${edad} years old) logged:
+"${texto}"
+
+Determine whether it's FOOD, PHYSICAL ACTIVITY, or WATER and respond with one of these formats. Write all text values (resumen, nombre, etc.) in English. The "tipo" field must be exactly the literal value "comida", "actividad", or "agua" (do not translate this field, it's an internal code):
+
+FOOD:
+{"tipo":"comida","resumen":"brief description","items":[{"nombre":"...","cantidad":"...","kcal":0,"proteinas":0,"carbos":0,"grasas":0}],"totales":{"kcal":0,"proteinas":0,"carbos":0,"grasas":0}}
+
+ACTIVITY:
+{"tipo":"actividad","resumen":"brief description","items":[{"nombre":"...","duracion_min":0,"intensidad":"suave|moderada|intensa","kcal":0}],"totales":{"kcal":0}}
+
+WATER:
+{"tipo":"agua","resumen":"...","agua_ml":0}
+
+IMPORTANT RULES:
+- If no quantity is mentioned, use a standard US portion
+- If it says "a little" or "some", use the minimum portion
+- ALWAYS underestimate when in doubt (better for the user to correct upward)
+- For activities, use standard MET values and the user's weight
+- JSON only, no extra text` : `El usuario (${peso}kg, ${sexo === "M" || sexo === "masculino" ? "hombre" : "mujer"}, ${edad} años) registró:
 "${texto}"
 
 Determiná si es COMIDA, ACTIVIDAD FÍSICA o AGUA y respondé con uno de estos formatos:
@@ -259,7 +287,7 @@ REGLAS IMPORTANTES:
     return res.json(data);
   } catch (err) {
     console.error("Energy parse error:", err.message);
-    return res.status(500).json({ error: "Error al interpretar el texto." });
+    return res.status(500).json({ error: isEN ? "Error interpreting the text." : "Error al interpretar el texto." });
   }
 });
 

@@ -37,7 +37,7 @@ const fieldSx = {
 };
 
 const UserDataPage = () => {
-  const { user, userData, setUser, loadingUserData } = useNutrition();
+  const { user, userData, setUser, loadingUserData, isUS } = useNutrition();
   const [showSplash,       setShowSplash]       = useState(true);
   const [showBiometricAsk,  setShowBiometricAsk]  = useState(false);
   const [pendingUser,       setPendingUser]        = useState(null);
@@ -81,7 +81,7 @@ const UserDataPage = () => {
       const data = await res.json();
       if (!res.ok) {
         // Propagar el mensaje exacto del backend (ej: cuenta con contraseña existente)
-        setError(data.error || "Error al iniciar sesión con Google.");
+        setError(data.error || (isUS ? "Error signing in with Google." : "Error al iniciar sesión con Google."));
         return;
       }
       if (!data.user) throw new Error("Respuesta inválida del servidor");
@@ -99,7 +99,7 @@ const UserDataPage = () => {
       setUser(data.user);
     } catch (err) {
       console.error("Google login error:", err);
-      setError("Error al iniciar sesión con Google. Intentá de nuevo.");
+      setError(isUS ? "Error signing in with Google. Please try again." : "Error al iniciar sesión con Google. Intentá de nuevo.");
     }
   };
 
@@ -109,16 +109,16 @@ const UserDataPage = () => {
     const result = await registerBiometric();
     setBiometricLoading(false);
     if (result.error === "cancelled") {
-      setBiometricError("Cancelado. Podés activarlo más tarde desde tu perfil.");
+      setBiometricError(isUS ? "Cancelled. You can activate it later from your profile." : "Cancelado. Podés activarlo más tarde desde tu perfil.");
       return;
     }
     if (!result.ok) {
-      setBiometricError(`No se pudo activar Face ID: ${result.error}`);
+      setBiometricError(isUS ? `Couldn't activate Face ID: ${result.error}` : `No se pudo activar Face ID: ${result.error}`);
       return;
     }
     // Verificar que realmente se guardó
     if (!isBiometricRegistered()) {
-      setBiometricError("Error al guardar la credencial. Intentá de nuevo.");
+      setBiometricError(isUS ? "Error saving the credential. Please try again." : "Error al guardar la credencial. Intentá de nuevo.");
       return;
     }
     setShowBiometricAsk(false);
@@ -136,9 +136,9 @@ const UserDataPage = () => {
     setError("");
 
     if (mode === "register") {
-      if (!form.name.trim()) return setError("El nombre es obligatorio.");
-      if (form.password !== form.confirm) return setError("Las contraseñas no coinciden.");
-      if (form.password.length < 6) return setError("La contraseña debe tener al menos 6 caracteres.");
+      if (!form.name.trim()) return setError(isUS ? "Name is required." : "El nombre es obligatorio.");
+      if (form.password !== form.confirm) return setError(isUS ? "Passwords don't match." : "Las contraseñas no coinciden.");
+      if (form.password.length < 6) return setError(isUS ? "Password must be at least 6 characters." : "La contraseña debe tener al menos 6 caracteres.");
     }
 
     setLoading(true);
@@ -155,7 +155,7 @@ const UserDataPage = () => {
       });
 
       const data = await res.json();
-      if (!res.ok) return setError(data.error || "Error al procesar la solicitud.");
+      if (!res.ok) return setError(data.error || (isUS ? "Error processing the request." : "Error al procesar la solicitud."));
 
       localStorage.setItem("nutrismartToken", data.token);
 
@@ -170,7 +170,7 @@ const UserDataPage = () => {
       }
       setUser(data.user);
     } catch {
-      setError("Error de conexión. Verificá que el servidor esté activo.");
+      setError(isUS ? "Connection error. Please check that the server is running." : "Error de conexión. Verificá que el servidor esté activo.");
     } finally {
       setLoading(false);
     }
@@ -309,10 +309,10 @@ const UserDataPage = () => {
           </Box>
 
           <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
-            Ingresá más rápido
+            {isUS ? "Sign in faster" : "Ingresá más rápido"}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 3, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>
-            Activá Face ID o huella para entrar a Nui sin escribir tu contraseña cada vez.
+            {isUS ? "Activate Face ID or fingerprint to log into Nui without typing your password every time." : "Activá Face ID o huella para entrar a Nui sin escribir tu contraseña cada vez."}
           </Typography>
 
           {/* Aviso: el sistema muestra su propio cartel ("llave de acceso") */}
@@ -321,16 +321,24 @@ const UserDataPage = () => {
             borderRadius: 3, px: 2, py: 1.4, mb: 3.5 }}>
             <InfoRoundedIcon sx={{ fontSize: 18, color: "#4ADE9A", mt: "1px", flexShrink: 0 }} />
             <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55 }}>
-              Tu celular puede mostrar un cartel para <b>"agregar llave de acceso"</b> — es el mismo paso, solo confirmá y escaneá tu huella o cara.
+              {isUS
+                ? <>Your phone may show its own prompt to <b>"add a passkey"</b> — it's the same step, just confirm and scan your fingerprint or face.</>
+                : <>Tu celular puede mostrar un cartel para <b>"agregar llave de acceso"</b> — es el mismo paso, solo confirmá y escaneá tu huella o cara.</>}
             </Typography>
           </Box>
 
           {/* Beneficios */}
           <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1.5, mb: 4 }}>
-            {[
-              { Icon: BoltRoundedIcon,         text: "Acceso instantáneo, sin pasos extra" },
-              { Icon: VerifiedUserRoundedIcon, text: "Tu huella o cara nunca salen del dispositivo" },
-            ].map(({ Icon, text }, i) => (
+            {(isUS
+              ? [
+                  { Icon: BoltRoundedIcon,         text: "Instant access, no extra steps" },
+                  { Icon: VerifiedUserRoundedIcon, text: "Your fingerprint or face never leaves your device" },
+                ]
+              : [
+                  { Icon: BoltRoundedIcon,         text: "Acceso instantáneo, sin pasos extra" },
+                  { Icon: VerifiedUserRoundedIcon, text: "Tu huella o cara nunca salen del dispositivo" },
+                ]
+            ).map(({ Icon, text }, i) => (
               <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1.5,
                 bgcolor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
                 borderRadius: 3, px: 2, py: 1.4 }}>
@@ -355,7 +363,7 @@ const UserDataPage = () => {
               "&.Mui-disabled": { color: "rgba(6,35,31,0.5)", background: "rgba(74,222,154,0.4)" },
               mb: 1.5, boxShadow: "0 8px 24px rgba(46,204,113,0.25)",
             }}>
-            {biometricLoading ? "Activando..." : "Activar Face ID / huella"}
+            {biometricLoading ? (isUS ? "Activating..." : "Activando...") : (isUS ? "Activate Face ID / fingerprint" : "Activar Face ID / huella")}
           </Button>
 
           {biometricError && (
@@ -367,7 +375,7 @@ const UserDataPage = () => {
           <Button onClick={handleSkipBiometric} fullWidth
             sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
               color: "rgba(255,255,255,0.45)", "&:hover": { color: "rgba(255,255,255,0.7)", bgcolor: "transparent" } }}>
-            Ahora no
+            {isUS ? "Not now" : "Ahora no"}
           </Button>
         </Box>
       </Box>
@@ -415,10 +423,14 @@ const UserDataPage = () => {
               sx={{ height: 40, mb: 2, filter: "brightness(0) invert(1)" }}
             />
             <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.4px" }}>
-              {mode === "login" ? "Bienvenido de nuevo" : "Crear cuenta"}
+              {mode === "login"
+                ? (isUS ? "Welcome back" : "Bienvenido de nuevo")
+                : (isUS ? "Create account" : "Crear cuenta")}
             </Typography>
             <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.65)", mt: 0.5 }}>
-              {mode === "login" ? "Ingresá a tu cuenta para continuar" : "Empezá a usar NUI App gratis"}
+              {mode === "login"
+                ? (isUS ? "Log in to your account to continue" : "Ingresá a tu cuenta para continuar")
+                : (isUS ? "Start using NUI App for free" : "Empezá a usar NUI App gratis")}
             </Typography>
           </Box>
 
@@ -436,7 +448,7 @@ const UserDataPage = () => {
               }}
             >
               <Tab label="Google" />
-              <Tab label="Email y contraseña" data-testid="login-email-tab" />
+              <Tab label={isUS ? "Email & password" : "Email y contraseña"} data-testid="login-email-tab" />
             </Tabs>
 
             {/* Error */}
@@ -451,10 +463,10 @@ const UserDataPage = () => {
               <Stack spacing={2} alignItems="center">
                 <GoogleLogin
                   onSuccess={(res) => handleGoogleSuccess(res.credential)}
-                  onError={() => setError("Error al iniciar sesión con Google.")}
+                  onError={() => setError(isUS ? "Error signing in with Google." : "Error al iniciar sesión con Google.")}
                 />
                 <Typography variant="caption" color="text.secondary" textAlign="center">
-                  No compartimos tu información personal.
+                  {isUS ? "We don't share your personal information." : "No compartimos tu información personal."}
                 </Typography>
               </Stack>
             )}
@@ -465,7 +477,7 @@ const UserDataPage = () => {
                 <Stack spacing={2}>
                   {mode === "register" && (
                     <TextField
-                      label="Nombre completo"
+                      label={isUS ? "Full name" : "Nombre completo"}
                       name="name"
                       value={form.name}
                       onChange={handleField}
@@ -490,7 +502,7 @@ const UserDataPage = () => {
                   />
 
                   <TextField
-                    label="Contraseña"
+                    label={isUS ? "Password" : "Contraseña"}
                     name="password"
                     type={showPass ? "text" : "password"}
                     value={form.password}
@@ -517,7 +529,7 @@ const UserDataPage = () => {
 
                   {mode === "register" && (
                     <TextField
-                      label="Confirmar contraseña"
+                      label={isUS ? "Confirm password" : "Confirmar contraseña"}
                       name="confirm"
                       type={showPass ? "text" : "password"}
                       value={form.confirm}
@@ -536,7 +548,7 @@ const UserDataPage = () => {
                         to="/forgot-password"
                         sx={{ fontSize: 12.5, color: C.brand, fontWeight: 600, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
                       >
-                        ¿Olvidaste tu contraseña?
+                        {isUS ? "Forgot your password?" : "¿Olvidaste tu contraseña?"}
                       </Typography>
                     </Box>
                   )}
@@ -558,20 +570,26 @@ const UserDataPage = () => {
                       "&:hover": { bgcolor: "#0f7a6e" },
                     }}
                   >
-                    {loading ? "Procesando..." : mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
+                    {loading
+                      ? (isUS ? "Processing..." : "Procesando...")
+                      : mode === "login"
+                        ? (isUS ? "Log in" : "Iniciar sesión")
+                        : (isUS ? "Create account" : "Crear cuenta")}
                   </Button>
 
                   <Divider sx={{ my: 0.5 }} />
 
                   <Typography sx={{ fontSize: 13, textAlign: "center", color: "text.secondary" }}>
-                    {mode === "login" ? "¿No tenés cuenta?" : "¿Ya tenés cuenta?"}
+                    {mode === "login"
+                      ? (isUS ? "Don't have an account?" : "¿No tenés cuenta?")
+                      : (isUS ? "Already have an account?" : "¿Ya tenés cuenta?")}
                     {" "}
                     <Typography
                       component="span"
                       onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}
                       sx={{ color: C.brand, fontWeight: 700, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
                     >
-                      {mode === "login" ? "Registrate" : "Iniciá sesión"}
+                      {mode === "login" ? (isUS ? "Sign up" : "Registrate") : (isUS ? "Log in" : "Iniciá sesión")}
                     </Typography>
                   </Typography>
                 </Stack>
@@ -595,7 +613,7 @@ const UserDataPage = () => {
           alignItems: "center",
         }}
       >
-        <Typography color="text.secondary">Cargando tu perfil...</Typography>
+        <Typography color="text.secondary">{isUS ? "Loading your profile..." : "Cargando tu perfil..."}</Typography>
       </Box>
     );
   }

@@ -29,24 +29,24 @@ import { API_URL } from "../config/api";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-const getScoreLevel = (s) =>
-  s >= 90 ? { label: "Excelente",  color: "#1B5E20", bg: "#E8F5E9" } :
-  s >= 75 ? { label: "Saludable",  color: "#2E7D32", bg: "#E8F5E9" } :
-  s >= 60 ? { label: "Aceptable",  color: "#E65100", bg: "#FFF3E0" } :
-  s >= 45 ? { label: "Mejorable",  color: "#D84315", bg: "#FBE9E7" } :
-            { label: "A evitar",   color: "#B71C1C", bg: "#FFEBEE" };
+const getScoreLevel = (s, isUS) =>
+  s >= 90 ? { label: isUS ? "Excellent"  : "Excelente",  color: "#1B5E20", bg: "#E8F5E9" } :
+  s >= 75 ? { label: isUS ? "Healthy"    : "Saludable",  color: "#2E7D32", bg: "#E8F5E9" } :
+  s >= 60 ? { label: isUS ? "Acceptable" : "Aceptable",  color: "#E65100", bg: "#FFF3E0" } :
+  s >= 45 ? { label: isUS ? "Improvable" : "Mejorable",  color: "#D84315", bg: "#FBE9E7" } :
+            { label: isUS ? "Avoid"      : "A evitar",   color: "#B71C1C", bg: "#FFEBEE" };
 
-const getProcessingLevel = (text) => {
+const getProcessingLevel = (text, isUS) => {
   const l = (text || "").toLowerCase();
-  if (l.includes("ultraprocesado")) return { label: "Ultraprocesado", color: "#B71C1C", Icon: WarningAmberRoundedIcon };
-  if (l.includes("no procesado"))   return { label: "No procesado",   color: "#2E7D32", Icon: SpaRoundedIcon };
-  if (l.includes("procesado"))      return { label: "Procesado",      color: "#E65100", Icon: BoltRoundedIcon };
+  if (l.includes("ultraprocesado") || l.includes("ultra-processed")) return { label: isUS ? "Ultra-processed" : "Ultraprocesado", color: "#B71C1C", Icon: WarningAmberRoundedIcon };
+  if (l.includes("no procesado") || l.includes("unprocessed"))       return { label: isUS ? "Unprocessed" : "No procesado",   color: "#2E7D32", Icon: SpaRoundedIcon };
+  if (l.includes("procesado") || l.includes("processed"))            return { label: isUS ? "Processed" : "Procesado",      color: "#E65100", Icon: BoltRoundedIcon };
   return null;
 };
 
 const parseAnalysis = (text) => {
   if (!text) return {};
-  const scoreRegex = /Puntaje global:\s*\d+\s*\/\s*100/i;
+  const scoreRegex = /(?:Puntaje global|Score):\s*\d+\s*\/\s*100/i;
   const m = text.match(scoreRegex);
   if (!m) return { classification: text, explanation: "", guidance: "" };
   const idx = text.indexOf(m[0]);
@@ -125,7 +125,7 @@ const InfoCard = ({ MuiIcon, iconColor, iconBg, label, text, delay }) => {
 // ─── main component ──────────────────────────────────────────────────────────
 
 const ResultScreen = () => {
-  const { user, userData, ocrText, clearOcrText, updateUserData } = useNutrition();
+  const { user, userData, ocrText, clearOcrText, updateUserData, isUS } = useNutrition();
 
   const [analysis,    setAnalysis]    = useState("");
   const [score,       setScore]       = useState(null);
@@ -152,7 +152,7 @@ const ResultScreen = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ userData, productText: ocrText }),
+          body: JSON.stringify({ userData, productText: ocrText, lang: isUS ? "en" : "es" }),
         });
         const data = await response.json();
 
@@ -160,9 +160,9 @@ const ResultScreen = () => {
           if (data.error === "trial_limit_reached" || data.error === "daily_limit_reached") {
             setLimitError({ type: data.error, message: data.message });
           } else if (response.status === 429) {
-            setLimitError({ type: "rate_limit", message: "Demasiadas solicitudes en poco tiempo. Esperá un momento e intentá de nuevo." });
+            setLimitError({ type: "rate_limit", message: isUS ? "Too many requests in a short time. Please wait a moment and try again." : "Demasiadas solicitudes en poco tiempo. Esperá un momento e intentá de nuevo." });
           } else {
-            setAnalysis("No se pudo generar el análisis. Intentá nuevamente.");
+            setAnalysis(isUS ? "We couldn't generate the analysis. Please try again." : "No se pudo generar el análisis. Intentá nuevamente.");
             setScore(0);
           }
           return;
@@ -181,7 +181,7 @@ const ResultScreen = () => {
         }
       } catch (err) {
         console.error("Error al obtener análisis:", err);
-        setAnalysis("No se pudo generar el análisis. Intentá nuevamente.");
+        setAnalysis(isUS ? "We couldn't generate the analysis. Please try again." : "No se pudo generar el análisis. Intentá nuevamente.");
         setScore(0);
       } finally {
         setLoading(false);
@@ -211,9 +211,9 @@ const ResultScreen = () => {
   // ── limit errors ──
   if (limitError) {
     const meta = {
-      trial_limit_reached: { Icon: Leaf,                  title: "Límite de prueba alcanzado", cta: "Ver planes",  ctaPath: "/pricing"      },
-      daily_limit_reached: { Icon: HourglassTopRoundedIcon, title: "Límite diario alcanzado",    cta: "Ver mi plan", ctaPath: "/subscription" },
-      rate_limit:          { Icon: TrafficRoundedIcon,      title: "Demasiadas solicitudes",      cta: "Volver",      ctaPath: "/"             },
+      trial_limit_reached: { Icon: Leaf,                  title: isUS ? "Trial limit reached" : "Límite de prueba alcanzado", cta: isUS ? "View plans" : "Ver planes",  ctaPath: "/pricing"      },
+      daily_limit_reached: { Icon: HourglassTopRoundedIcon, title: isUS ? "Daily limit reached" : "Límite diario alcanzado",    cta: isUS ? "View my plan" : "Ver mi plan", ctaPath: "/subscription" },
+      rate_limit:          { Icon: TrafficRoundedIcon,      title: isUS ? "Too many requests" : "Demasiadas solicitudes",      cta: isUS ? "Go back" : "Volver",      ctaPath: "/"             },
     };
     const m = meta[limitError.type] || meta.rate_limit;
     return (
@@ -233,7 +233,7 @@ const ResultScreen = () => {
             </Button>
             <Button fullWidth onClick={() => navigate("/")}
               sx={{ borderRadius: 2.5, py: 1.2, textTransform: "none", fontWeight: 600, fontSize: 13.5, color: "#4A6B67" }}>
-              Volver al inicio
+              {isUS ? "Back to home" : "Volver al inicio"}
             </Button>
           </Box>
         </Paper>
@@ -242,9 +242,9 @@ const ResultScreen = () => {
   }
 
   // ── results ──
-  const level      = score !== null ? getScoreLevel(score) : null;
+  const level      = score !== null ? getScoreLevel(score, isUS) : null;
   const parsed     = parseAnalysis(analysis);
-  const processing = getProcessingLevel(parsed.classification || analysis);
+  const processing = getProcessingLevel(parsed.classification || analysis, isUS);
 
   return (
     <>
@@ -280,10 +280,10 @@ const ResultScreen = () => {
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
               <Box>
                 <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.7px", lineHeight: 1.1 }}>
-                  Resultado del análisis
+                  {isUS ? "Analysis results" : "Resultado del análisis"}
                 </Typography>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mt: 0.4 }}>
-                  Diagnóstico nutrimental basado en el packaging
+                  {isUS ? "Nutritional diagnosis based on the packaging" : "Diagnóstico nutrimental basado en el packaging"}
                 </Typography>
               </Box>
               <Button
@@ -297,7 +297,7 @@ const ResultScreen = () => {
                   "&:hover": { bgcolor: "rgba(11,94,85,0.06)", borderColor: "#0B5E55" },
                 }}
               >
-                Nuevo
+                {isUS ? "New" : "Nuevo"}
               </Button>
             </Stack>
           </motion.div>
@@ -374,7 +374,7 @@ const ResultScreen = () => {
                     <processing.Icon sx={{ fontSize: 16, color: processing.color }} />
                     <Box>
                       <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: "#8AADAA", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                        Nivel de procesamiento
+                        {isUS ? "Processing level" : "Nivel de procesamiento"}
                       </Typography>
                       <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: processing.color }}>
                         {processing.label}
@@ -398,7 +398,7 @@ const ResultScreen = () => {
                     <BarChartRoundedIcon sx={{ fontSize: 16, color: "#0B5E55" }} />
                     <Box>
                       <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: "#8AADAA", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                        Puntaje global
+                        {isUS ? "Overall score" : "Puntaje global"}
                       </Typography>
                       <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px" }}>
                         {score} <Typography component="span" sx={{ fontSize: 12, fontWeight: 600, color: "#8AADAA" }}>/ 100</Typography>
@@ -415,7 +415,7 @@ const ResultScreen = () => {
                 MuiIcon={AssignmentOutlinedIcon}
                 iconColor="#0B5E55"
                 iconBg="rgba(11,94,85,0.08)"
-                label="Clasificación del producto"
+                label={isUS ? "Product classification" : "Clasificación del producto"}
                 text={parsed.classification}
                 delay={0.15}
               />
@@ -423,7 +423,7 @@ const ResultScreen = () => {
                 MuiIcon={SearchRoundedIcon}
                 iconColor="#1565C0"
                 iconBg="rgba(21,101,192,0.08)"
-                label="Motivo del puntaje"
+                label={isUS ? "Reason for the score" : "Motivo del puntaje"}
                 text={parsed.explanation}
                 delay={0.25}
               />
@@ -431,7 +431,7 @@ const ResultScreen = () => {
                 MuiIcon={TipsAndUpdatesOutlinedIcon}
                 iconColor="#6A1B9A"
                 iconBg="rgba(106,27,154,0.08)"
-                label="Cómo incorporarlo en tu dieta"
+                label={isUS ? "How to fit it into your diet" : "Cómo incorporarlo en tu dieta"}
                 text={parsed.guidance}
                 delay={0.35}
               />
@@ -464,7 +464,7 @@ const ResultScreen = () => {
                     transition: "all 0.25s ease",
                   }}
                 >
-                  Analizar otro producto
+                  {isUS ? "Analyze another product" : "Analizar otro producto"}
                 </Button>
               </motion.div>
             </Stack>

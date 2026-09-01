@@ -42,15 +42,15 @@ import PeanutMascot            from "../components/PeanutMascot.jsx";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
-const TIPOS = [
-  { id: "Hipertrofia", Icon: FitnessCenterRoundedIcon, desc: "Ganar músculo y aumentar masa",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
-  { id: "Fit",         Icon: AutoAwesomeRoundedIcon,   desc: "Tonificar y mejorar condición física", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
-  { id: "Calistenia",  Icon: DirectionsRunRoundedIcon, desc: "Peso corporal y fuerza funcional",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
+const getTipos = (isUS) => [
+  { id: "Hipertrofia", Icon: FitnessCenterRoundedIcon, desc: isUS ? "Build muscle and gain mass"        : "Ganar músculo y aumentar masa",        color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"  },
+  { id: "Fit",         Icon: AutoAwesomeRoundedIcon,   desc: isUS ? "Tone up and improve fitness"       : "Tonificar y mejorar condición física", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
+  { id: "Calistenia",  Icon: DirectionsRunRoundedIcon, desc: isUS ? "Bodyweight and functional strength" : "Peso corporal y fuerza funcional",    color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
 ];
 
-const LUGARES = [
-  { id: "Gym",  Icon: FitnessCenterRoundedIcon, desc: "Pesas, máquinas, equipamiento completo",  color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
-  { id: "Casa", Icon: HomeRoundedIcon,          desc: "Sin equipamiento o con elementos básicos", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
+const getLugares = (isUS) => [
+  { id: "Gym",  Icon: FitnessCenterRoundedIcon, desc: isUS ? "Weights, machines, full equipment"     : "Pesas, máquinas, equipamiento completo",  color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)" },
+  { id: "Casa", Icon: HomeRoundedIcon,          desc: isUS ? "No equipment or just the basics" : "Sin equipamiento o con elementos básicos", color: "#6A1B9A", bg: "#F3E5F5", border: "rgba(106,27,154,0.25)" },
 ];
 
 const DURACIONES = [
@@ -60,6 +60,24 @@ const DURACIONES = [
   { id: "3 meses", days: 90  },
   { id: "6 meses", days: 180 },
 ];
+
+const tipoLabel = (id, isUS) => {
+  if (!isUS) return id;
+  const map = { Hipertrofia: "Hypertrophy", Fit: "Fit", Calistenia: "Calisthenics" };
+  return map[id] || id;
+};
+
+const lugarLabel = (id, isUS) => {
+  if (!isUS) return id;
+  const map = { Gym: "Gym", Casa: "Home" };
+  return map[id] || id;
+};
+
+const duracionLabel = (id, isUS) => {
+  if (!isUS) return id;
+  const map = { "1 día": "1 day", "15 días": "15 days", "1 mes": "1 month", "3 meses": "3 months", "6 meses": "6 months" };
+  return map[id] || id;
+};
 
 const FRECUENCIAS = [2, 3, 4, 5, 6];
 
@@ -148,7 +166,7 @@ const WeightChart = ({ weights }) => {
 // ─── main component ───────────────────────────────────────────────────────────
 
 const TrainingPage = () => {
-  const { user, userData, updateUserData, subPlan, isSubscriptionExpired } = useNutrition();
+  const { user, userData, updateUserData, subPlan, isSubscriptionExpired, isUS } = useNutrition();
   const location = useLocation();
 
   // Free activo y Gold pueden tener 2 planes simultáneos; Silver solo 1
@@ -298,6 +316,8 @@ const TrainingPage = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── computed
+  const TIPOS       = getTipos(isUS);
+  const LUGARES     = getLugares(isUS);
   const elapsed     = startDate ? Math.floor((Date.now() - new Date(startDate)) / 86400000) : 0;
   const currentWeek = Math.max(1, Math.ceil((elapsed + 1) / 7));
   const activeTipo  = TIPOS.find(t => t.id === (config?.tipo || tipo));
@@ -353,7 +373,7 @@ const TrainingPage = () => {
       const res  = await fetch(`${API_URL}/api/training/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ tipo, lugar: skipLugar ? "Casa" : lugar, duracion, frecuencia: freq, userData }),
+        body: JSON.stringify({ tipo, lugar: skipLugar ? "Casa" : lugar, duracion, frecuencia: freq, userData, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al generar el plan");
@@ -392,7 +412,7 @@ const TrainingPage = () => {
       const res  = await fetch(`${API_URL}/api/training/tips`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ tipo: config?.tipo, semana: currentWeek, planSummary: plan?.summary }),
+        body: JSON.stringify({ tipo: config?.tipo, semana: currentWeek, planSummary: plan?.summary, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -586,7 +606,7 @@ const TrainingPage = () => {
       const res  = await fetch(`${API_URL}/api/training/exercise-alternative`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ name: ex.name, tipo: config?.tipo, lugar: config?.lugar, focus: dayFocus }),
+        body: JSON.stringify({ name: ex.name, tipo: config?.tipo, lugar: config?.lugar, focus: dayFocus, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
       if (!res.ok || !data.name) throw new Error("Sin alternativa");
@@ -640,7 +660,7 @@ const TrainingPage = () => {
     fetch(`${API_URL}/api/training/exercise-description`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, lang: isUS ? "en" : "es" }),
     })
       .then((r) => r.ok ? r.json() : null)
       .then((data) => setExDescriptions((p) => ({ ...p, [name]: data || false })))
@@ -787,7 +807,7 @@ const TrainingPage = () => {
           const res = await fetch(`${API_URL}/api/training/generate`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ tipo: prevCfg.tipo, lugar: prevCfg.lugar, duracion: prevCfg.duracion, frecuencia: prevCfg.frecuencia, userData, prevPlan }),
+            body: JSON.stringify({ tipo: prevCfg.tipo, lugar: prevCfg.lugar, duracion: prevCfg.duracion, frecuencia: prevCfg.frecuencia, userData, prevPlan, lang: isUS ? "en" : "es" }),
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
@@ -862,11 +882,11 @@ const TrainingPage = () => {
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <FitnessCenterRoundedIcon sx={{ fontSize: 28, color: "#0B5E55" }} />
                 <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
-                  Entrenamiento
+                  {isUS ? "Training" : "Entrenamiento"}
                 </Typography>
               </Stack>
               <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mt: 0.5 }}>
-                Plan personalizado con IA · seguimiento integrado
+                {isUS ? "AI-personalized plan · built-in tracking" : "Plan personalizado con IA · seguimiento integrado"}
               </Typography>
             </Box>
 
@@ -875,7 +895,7 @@ const TrainingPage = () => {
               <Stack direction="row" spacing={0.5} alignItems="center" flexShrink={0} ml={1}>
 
                 {/* Nuevo plan — texto en sm+, ícono en xs */}
-                <Tooltip title="Nuevo plan" placement="bottom">
+                <Tooltip title={isUS ? "New plan" : "Nuevo plan"} placement="bottom">
                   <Box>
                     {/* sm+: botón con texto */}
                     <Button
@@ -888,7 +908,7 @@ const TrainingPage = () => {
                         "&:hover": { bgcolor: "rgba(11,94,85,0.06)" },
                       }}
                     >
-                      Nuevo plan
+                      {isUS ? "New plan" : "Nuevo plan"}
                     </Button>
                     {/* xs: solo ícono */}
                     <IconButton
@@ -905,7 +925,7 @@ const TrainingPage = () => {
                 </Tooltip>
 
                 {/* Borrar — texto en sm+, ícono en xs */}
-                <Tooltip title="Borrar plan" placement="bottom">
+                <Tooltip title={isUS ? "Delete plan" : "Borrar plan"} placement="bottom">
                   <Box>
                     {/* sm+: botón con texto */}
                     <Button
@@ -918,7 +938,7 @@ const TrainingPage = () => {
                         "&:hover": { bgcolor: "rgba(226,75,74,0.06)" },
                       }}
                     >
-                      Borrar
+                      {isUS ? "Delete" : "Borrar"}
                     </Button>
                     {/* xs: solo ícono */}
                     <IconButton
@@ -943,9 +963,9 @@ const TrainingPage = () => {
             const cfg1 = planCache.main?.config;
             const cfg2 = planCache.quick?.config;
             const label = (cfg) => {
-              if (!cfg) return "Plan";
+              if (!cfg) return isUS ? "Plan" : "Plan";
               const t = TIPOS.find(t => t.id === cfg.tipo);
-              return t ? t.id : cfg.tipo;
+              return t ? tipoLabel(t.id, isUS) : tipoLabel(cfg.tipo, isUS);
             };
             return (
               <Box sx={{ mb: 3 }}>
@@ -993,10 +1013,12 @@ const TrainingPage = () => {
                     <LockRoundedIcon sx={{ fontSize: 20, mt: 0.2, color: "#92400E" }} />
                     <Box flex={1}>
                       <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#92400E", mb: 0.3 }}>
-                        Suscripción inactiva — modo lectura
+                        {isUS ? "Inactive subscription — read-only mode" : "Suscripción inactiva — modo lectura"}
                       </Typography>
                       <Typography sx={{ fontSize: 12.5, color: "#78350F", lineHeight: 1.55 }}>
-                        Podés ver tu plan actual, pero no generar uno nuevo. Renová tu suscripción para desbloquear la generación con IA.
+                        {isUS
+                          ? "You can view your current plan, but not generate a new one. Renew your subscription to unlock AI generation."
+                          : "Podés ver tu plan actual, pero no generar uno nuevo. Renová tu suscripción para desbloquear la generación con IA."}
                       </Typography>
                     </Box>
                   </Stack>
@@ -1011,9 +1033,9 @@ const TrainingPage = () => {
                       <Stack direction="row" spacing={1.5} alignItems="center">
                         <PersonRoundedIcon sx={{ fontSize: 22, color: "#0B5E55" }} />
                         <Box>
-                          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.07em", mb: 0.2 }}>Tu perfil</Typography>
+                          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.07em", mb: 0.2 }}>{isUS ? "Your profile" : "Tu perfil"}</Typography>
                           <Typography sx={{ fontSize: 13, color: "#4A6B67" }}>
-                            {userData.sexo} · {userData.edad} años · {userData.peso}kg · {userData.altura}cm · Actividad: {userData.actividad}
+                            {userData.sexo} · {userData.edad} {isUS ? "yrs" : "años"} · {userData.peso}kg · {userData.altura}cm · {isUS ? "Activity" : "Actividad"}: {userData.actividad}
                           </Typography>
                         </Box>
                       </Stack>
@@ -1026,13 +1048,15 @@ const TrainingPage = () => {
                       <Stack direction="row" spacing={1} alignItems="center">
                         <AssignmentRoundedIcon sx={{ fontSize: 16, color: "#0B5E55" }} />
                         <Typography sx={{ fontSize: 13, color: "#0B5E55", lineHeight: 1.5 }}>
-                          Tu plan actual se conserva. Este será tu <strong>segundo plan activo</strong>.
+                          {isUS
+                            ? <>Your current plan is kept. This will be your <strong>second active plan</strong>.</>
+                            : <>Tu plan actual se conserva. Este será tu <strong>segundo plan activo</strong>.</>}
                         </Typography>
                       </Stack>
                     </Paper>
                   )}
 
-                  <StepDot n="1" label="¿Qué tipo de entrenamiento?" />
+                  <StepDot n="1" label={isUS ? "What type of training?" : "¿Qué tipo de entrenamiento?"} />
                   <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 4 }}>
                     {TIPOS.map((t) => {
                       const active = tipo === t.id;
@@ -1050,7 +1074,7 @@ const TrainingPage = () => {
                             </Box>
                           )}
                           <t.Icon sx={{ fontSize: 26, mb: 0.6, color: t.color }} />
-                          <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.2px" }}>{t.id}</Typography>
+                          <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.2px" }}>{tipoLabel(t.id, isUS)}</Typography>
                           <Typography sx={{ fontSize: 11, color: "#4A6B67", mt: 0.2, lineHeight: 1.4 }}>{t.desc}</Typography>
                         </Box>
                       );
@@ -1068,7 +1092,7 @@ const TrainingPage = () => {
                           boxShadow: `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
                           transition: "all 0.25s ease", "&:hover": { transform: "translateY(-2px)" },
                         }}>
-                          Continuar con {tipo}
+                          {isUS ? `Continue with ${tipoLabel(tipo, isUS)}` : `Continuar con ${tipo}`}
                         </Button>
                       </motion.div>
                     )}
@@ -1081,9 +1105,9 @@ const TrainingPage = () => {
                 <>
                   <Button onClick={prevConfigStep} startIcon={<ArrowBackRoundedIcon />} size="small"
                     sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                    Volver
+                    {isUS ? "Back" : "Volver"}
                   </Button>
-                  <StepDot n="2" label="¿Dónde vas a entrenar?" />
+                  <StepDot n="2" label={isUS ? "Where will you train?" : "¿Dónde vas a entrenar?"} />
                   <Stack spacing={1.5} mb={4}>
                     {LUGARES.map((l) => {
                       const active = lugar === l.id;
@@ -1100,7 +1124,7 @@ const TrainingPage = () => {
                             <l.Icon sx={{ fontSize: 28, color: l.color }} />
                           </Box>
                           <Box flex={1}>
-                            <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420" }}>{l.id}</Typography>
+                            <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420" }}>{lugarLabel(l.id, isUS)}</Typography>
                             <Typography sx={{ fontSize: 12.5, color: "#4A6B67" }}>{l.desc}</Typography>
                           </Box>
                           {active && <CheckRoundedIcon sx={{ color: l.color, fontSize: 20 }} />}
@@ -1115,7 +1139,7 @@ const TrainingPage = () => {
                           py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: 15,
                           background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
                         }}>
-                          Continuar →
+                          {isUS ? "Continue →" : "Continuar →"}
                         </Button>
                       </motion.div>
                     )}
@@ -1128,10 +1152,10 @@ const TrainingPage = () => {
                 <>
                   <Button onClick={prevConfigStep} startIcon={<ArrowBackRoundedIcon />} size="small"
                     sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                    Volver
+                    {isUS ? "Back" : "Volver"}
                   </Button>
 
-                  <StepDot n={skipLugar ? "2" : "3"} label="¿Cuánto tiempo dura el plan?" />
+                  <StepDot n={skipLugar ? "2" : "3"} label={isUS ? "How long should the plan run?" : "¿Cuánto tiempo dura el plan?"} />
                   <Stack direction="row" spacing={1} flexWrap="wrap" mb={4} useFlexGap>
                     {DURACIONES.map((d) => {
                       const active = duracion === d.id;
@@ -1144,7 +1168,7 @@ const TrainingPage = () => {
                           "&:hover": { borderColor: activeTipo?.color || "#0B5E55" },
                         }}>
                           <Typography sx={{ fontSize: 14, fontWeight: active ? 800 : 600, color: active ? (activeTipo?.color || "#0B5E55") : "#4A6B67" }}>
-                            {d.id}
+                            {duracionLabel(d.id, isUS)}
                           </Typography>
                         </Box>
                       );
@@ -1155,7 +1179,7 @@ const TrainingPage = () => {
                   <AnimatePresence>
                     {duracion && duracion !== "1 día" && (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.25 }}>
-                        <StepDot n={skipLugar ? "3" : "4"} label="¿Cuántos días por semana?" />
+                        <StepDot n={skipLugar ? "3" : "4"} label={isUS ? "How many days a week?" : "¿Cuántos días por semana?"} />
                         <Stack direction="row" spacing={1.2} mb={4} useFlexGap>
                           {FRECUENCIAS.map((f) => {
                             const active = frecuencia === f;
@@ -1169,7 +1193,7 @@ const TrainingPage = () => {
                                 "&:hover": { borderColor: activeTipo?.color || "#0B5E55" },
                               }}>
                                 <Typography sx={{ fontSize: 20, fontWeight: 900, color: active ? (activeTipo?.color || "#0B5E55") : "#4A6B67", lineHeight: 1 }}>{f}</Typography>
-                                <Typography sx={{ fontSize: 9.5, color: active ? (activeTipo?.color || "#0B5E55") : "#8AADAA", fontWeight: 600 }}>días</Typography>
+                                <Typography sx={{ fontSize: 9.5, color: active ? (activeTipo?.color || "#0B5E55") : "#8AADAA", fontWeight: 600 }}>{isUS ? "days" : "días"}</Typography>
                               </Box>
                             );
                           })}
@@ -1186,7 +1210,9 @@ const TrainingPage = () => {
                           <Stack direction="row" spacing={1} alignItems="center">
                             <HotelRoundedIcon sx={{ fontSize: 18, color: "#4A6B67" }} />
                             <Typography sx={{ fontSize: 13, color: "#4A6B67", lineHeight: 1.5 }}>
-                              Sesión única — ideal para hotel, viaje o día suelto. Se guarda como plan rápido sin afectar tu plan principal.
+                              {isUS
+                                ? "One-time session — great for a hotel, trip, or a day away from your routine. Saved as a quick plan without affecting your main plan."
+                                : "Sesión única — ideal para hotel, viaje o día suelto. Se guarda como plan rápido sin afectar tu plan principal."}
                             </Typography>
                           </Stack>
                         </Paper>

@@ -43,8 +43,8 @@ const formatUSD = (n) => `US$${n.toFixed(2)}`;
 
 const formatAmount = (n, currency) => (currency === "USD" ? formatUSD(n) : formatARS(n));
 
-const formatDate = (d) =>
-  d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "long", year: "numeric" }) : "—";
+const formatDate = (d, isUS) =>
+  d ? new Date(d).toLocaleDateString(isUS ? "en-US" : "es-AR", { day: "2-digit", month: "long", year: "numeric" }) : "—";
 
 const daysLeft = (endDate) => {
   if (!endDate) return 0;
@@ -52,12 +52,12 @@ const daysLeft = (endDate) => {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 };
 
-const StatusBadge = ({ status }) => {
+const StatusBadge = ({ status, isUS }) => {
   const map = {
-    active:    { label: "Activa",    color: "#2ECC71", bg: "rgba(46,204,113,0.1)" },
-    pending:   { label: "Pendiente", color: "#F39C12", bg: "rgba(243,156,18,0.1)" },
-    cancelled: { label: "Cancelada", color: C.danger,  bg: C.dangerSurface },
-    expired:   { label: "Expirada",  color: C.textMuted, bg: C.surfaceAlt },
+    active:    { label: isUS ? "Active"    : "Activa",    color: "#2ECC71", bg: "rgba(46,204,113,0.1)" },
+    pending:   { label: isUS ? "Pending"   : "Pendiente", color: "#F39C12", bg: "rgba(243,156,18,0.1)" },
+    cancelled: { label: isUS ? "Cancelled" : "Cancelada", color: C.danger,  bg: C.dangerSurface },
+    expired:   { label: isUS ? "Expired"   : "Expirada",  color: C.textMuted, bg: C.surfaceAlt },
   };
   const s = map[status] || map.expired;
   return (
@@ -66,7 +66,7 @@ const StatusBadge = ({ status }) => {
 };
 
 const SubscriptionPage = () => {
-  const { user } = useNutrition();
+  const { user, isUS } = useNutrition();
   const navigate  = useNavigate();
 
   const [sub, setSub]               = useState(null);
@@ -91,11 +91,11 @@ const SubscriptionPage = () => {
       const endpoint = sub.provider === "stripe" ? "stripe/cancel" : "cancel";
       const res = await fetch(`${API_URL}/api/payments/${endpoint}`, { method: "POST", headers });
       const data = await res.json();
-      if (!res.ok) { setCancelError(data.error || "No se pudo cancelar. Probá de nuevo."); return; }
+      if (!res.ok) { setCancelError(data.error || (isUS ? "Couldn't cancel. Please try again." : "No se pudo cancelar. Probá de nuevo.")); return; }
       await fetchSubscription();
       setCancelOpen(false);
     } catch {
-      setCancelError("No se pudo cancelar. Probá de nuevo.");
+      setCancelError(isUS ? "Couldn't cancel. Please try again." : "No se pudo cancelar. Probá de nuevo.");
     } finally {
       setCancelling(false);
     }
@@ -111,7 +111,7 @@ const SubscriptionPage = () => {
   if (loading) {
     return (
       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Typography sx={{ color: C.textMuted }}>Cargando membresía…</Typography>
+        <Typography sx={{ color: C.textMuted }}>{isUS ? "Loading membership…" : "Cargando membresía…"}</Typography>
       </Box>
     );
   }
@@ -138,11 +138,11 @@ const SubscriptionPage = () => {
         {/* Back */}
         <Button startIcon={<ArrowBackRoundedIcon />} onClick={() => navigate("/")}
           sx={{ mb: 3, textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 13, borderRadius: 999, px: 2, border: `1px solid ${C.border}`, bgcolor: C.surface, boxShadow: "0 1px 4px rgba(11,94,85,0.06)", "&:hover": { bgcolor: C.brandSurface, borderColor: C.brandMuted, color: C.brand } }}>
-          Volver al panel
+          {isUS ? "Back to dashboard" : "Volver al panel"}
         </Button>
 
         <Typography sx={{ fontSize: 22, fontWeight: 800, color: C.textPrimary, letterSpacing: "-0.4px", mb: 5, animation: "fadeUp 0.5s ease both" }}>
-          Mi membresía
+          {isUS ? "My membership" : "Mi membresía"}
         </Typography>
 
         {/* ── Sin suscripción nunca / expirada ── */}
@@ -152,14 +152,14 @@ const SubscriptionPage = () => {
               <AddCircleOutlineRoundedIcon sx={{ fontSize: 30, color: C.brand }} />
             </Box>
             <Typography sx={{ fontWeight: 700, fontSize: 18, color: C.textPrimary, mb: 1 }}>
-              Sin membresía activa
+              {isUS ? "No active membership" : "Sin membresía activa"}
             </Typography>
             <Typography sx={{ fontSize: 14, color: C.textSecondary, mb: 3, lineHeight: 1.65 }}>
-              Elegí un plan para acceder a análisis ilimitados y funciones premium.
+              {isUS ? "Choose a plan to get unlimited analyses and premium features." : "Elegí un plan para acceder a análisis ilimitados y funciones premium."}
             </Typography>
             <Button variant="contained" onClick={() => navigate("/pricing")}
               sx={{ bgcolor: C.brand, borderRadius: 2.5, py: 1.3, px: 4, textTransform: "none", fontWeight: 700, fontSize: 14.5, "&:hover": { bgcolor: C.brandLight } }}>
-              Ver planes
+              {isUS ? "See plans" : "Ver planes"}
             </Button>
           </Paper>
         ) : (
@@ -178,15 +178,25 @@ const SubscriptionPage = () => {
                   "& .MuiAlert-message": { lineHeight: 1.6 },
                 }}
               >
-                Tu suscripción fue cancelada. Seguís teniendo acceso a todos los beneficios del{" "}
-                <strong>Plan {planMeta.name}</strong> hasta el{" "}
-                <strong>{formatDate(sub.endDate)}</strong> ({remaining} día{remaining !== 1 ? "s" : ""} restante{remaining !== 1 ? "s" : ""}).
+                {isUS ? (
+                  <>
+                    Your subscription was cancelled. You'll keep access to all{" "}
+                    <strong>{planMeta.name} Plan</strong> benefits until{" "}
+                    <strong>{formatDate(sub.endDate, isUS)}</strong> ({remaining} day{remaining !== 1 ? "s" : ""} left).
+                  </>
+                ) : (
+                  <>
+                    Tu suscripción fue cancelada. Seguís teniendo acceso a todos los beneficios del{" "}
+                    <strong>Plan {planMeta.name}</strong> hasta el{" "}
+                    <strong>{formatDate(sub.endDate, isUS)}</strong> ({remaining} día{remaining !== 1 ? "s" : ""} restante{remaining !== 1 ? "s" : ""}).
+                  </>
+                )}
               </Alert>
             )}
 
             {isCancelled && remaining === 0 && (
               <Alert severity="error" sx={{ borderRadius: 3, fontSize: 13.5, animation: "fadeUp 0.5s ease both" }}>
-                Tu suscripción venció. Podés renovar eligiendo un plan nuevo.
+                {isUS ? "Your subscription has expired. You can renew by choosing a new plan." : "Tu suscripción venció. Podés renovar eligiendo un plan nuevo."}
               </Alert>
             )}
 
@@ -198,20 +208,20 @@ const SubscriptionPage = () => {
                     <planMeta.Icon sx={{ fontSize: 24, color: planMeta.color }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Tu plan</Typography>
-                    <Typography sx={{ fontSize: 20, fontWeight: 800, color: C.textPrimary, letterSpacing: "-0.4px" }}>Plan {planMeta.name}</Typography>
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>{isUS ? "Your plan" : "Tu plan"}</Typography>
+                    <Typography sx={{ fontSize: 20, fontWeight: 800, color: C.textPrimary, letterSpacing: "-0.4px" }}>{isUS ? `${planMeta.name} Plan` : `Plan ${planMeta.name}`}</Typography>
                   </Box>
                 </Stack>
-                <StatusBadge status={sub.status} />
+                <StatusBadge status={sub.status} isUS={isUS} />
               </Box>
 
               <Box sx={{ px: 3.5, py: 3 }}>
                 <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2.5 }}>
                   {[
-                    { label: "Monto mensual",      value: formatAmount(sub.amount, sub.currency) },
-                    { label: "Vence el", value: formatDate(sub.endDate) },
-                    { label: "Suscripción desde",  value: formatDate(sub.startDate) },
-                    { label: "Método de pago",     value: sub.provider === "stripe" ? "Stripe" : "Mercado Pago" },
+                    { label: isUS ? "Monthly amount"       : "Monto mensual",      value: formatAmount(sub.amount, sub.currency) },
+                    { label: isUS ? "Expires on"            : "Vence el",           value: formatDate(sub.endDate, isUS) },
+                    { label: isUS ? "Subscribed since"      : "Suscripción desde",  value: formatDate(sub.startDate, isUS) },
+                    { label: isUS ? "Payment method"        : "Método de pago",     value: sub.provider === "stripe" ? "Stripe" : "Mercado Pago" },
                   ].map(({ label, value }) => (
                     <Box key={label}>
                       <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.4 }}>{label}</Typography>
@@ -232,13 +242,17 @@ const SubscriptionPage = () => {
                   <Box>
                     <Stack direction="row" spacing={1} alignItems="center" mb={0.3}>
                       <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>
-                        Descuento activo — código {sub.couponCode}
+                        {isUS ? `Active discount — code ${sub.couponCode}` : `Descuento activo — código ${sub.couponCode}`}
                       </Typography>
-                      <Chip label={`${3 - (sub.couponMonthsUsed ?? 0)} mes${3 - sub.couponMonthsUsed !== 1 ? "es" : ""} restantes`}
+                      <Chip label={isUS
+                          ? `${3 - (sub.couponMonthsUsed ?? 0)} month${3 - sub.couponMonthsUsed !== 1 ? "s" : ""} left`
+                          : `${3 - (sub.couponMonthsUsed ?? 0)} mes${3 - sub.couponMonthsUsed !== 1 ? "es" : ""} restantes`}
                         size="small" sx={{ bgcolor: "rgba(201,149,42,0.15)", color: "#C9952A", fontWeight: 700, fontSize: 11, height: 20 }} />
                     </Stack>
                     <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
-                      Tu descuento se aplica automáticamente al renovar. Después del mes {sub.couponMonthsUsed + (3 - (sub.couponMonthsUsed ?? 0))} se cobra el precio vigente.
+                      {isUS
+                        ? `Your discount is applied automatically on renewal. After month ${sub.couponMonthsUsed + (3 - (sub.couponMonthsUsed ?? 0))}, the regular price applies.`
+                        : `Tu descuento se aplica automáticamente al renovar. Después del mes ${sub.couponMonthsUsed + (3 - (sub.couponMonthsUsed ?? 0))} se cobra el precio vigente.`}
                     </Typography>
                   </Box>
                 </Stack>
@@ -254,12 +268,18 @@ const SubscriptionPage = () => {
                   </Box>
                   <Box>
                     <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>
-                      {sub.provider === "stripe" ? "Renovación automática" : "Renovación manual"}
+                      {sub.provider === "stripe"
+                        ? (isUS ? "Automatic renewal" : "Renovación automática")
+                        : (isUS ? "Manual renewal" : "Renovación manual")}
                     </Typography>
                     <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
                       {sub.provider === "stripe"
-                        ? `Se cobra automáticamente cada mes hasta el ${formatDate(sub.endDate)}, salvo que canceles antes.`
-                        : `Te avisamos por mail antes del ${formatDate(sub.endDate)} para que puedas renovar cuando quieras.`}
+                        ? (isUS
+                            ? `You'll be charged automatically every month until ${formatDate(sub.endDate, isUS)}, unless you cancel before then.`
+                            : `Se cobra automáticamente cada mes hasta el ${formatDate(sub.endDate, isUS)}, salvo que canceles antes.`)
+                        : (isUS
+                            ? `We'll email you before ${formatDate(sub.endDate, isUS)} so you can renew whenever you want.`
+                            : `Te avisamos por mail antes del ${formatDate(sub.endDate, isUS)} para que puedas renovar cuando quieras.`)}
                     </Typography>
                   </Box>
                 </Stack>
@@ -272,7 +292,7 @@ const SubscriptionPage = () => {
                     px: 1, "&:hover": { bgcolor: C.dangerSurface },
                   }}
                 >
-                  Cancelar suscripción
+                  {isUS ? "Cancel subscription" : "Cancelar suscripción"}
                 </Button>
               </Paper>
             )}
@@ -282,17 +302,17 @@ const SubscriptionPage = () => {
               <Paper elevation={0} sx={{ borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md, overflow: "hidden", animation: "fadeUp 0.5s 0.15s ease both" }}>
                 <Box sx={{ px: 3.5, py: 2.5, borderBottom: `1px solid ${C.border}`, bgcolor: C.surfaceAlt, display: "flex", alignItems: "center", gap: 1.5 }}>
                   <ReceiptLongOutlinedIcon sx={{ fontSize: 18, color: C.brand }} />
-                  <Typography sx={{ fontWeight: 700, fontSize: 15, color: C.textPrimary }}>Historial de pagos</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: 15, color: C.textPrimary }}>{isUS ? "Payment history" : "Historial de pagos"}</Typography>
                 </Box>
                 <Stack divider={<Divider sx={{ borderColor: C.border }} />}>
                   {sub.paymentHistory.slice(0, 6).map((p, i) => (
                     <Box key={i} sx={{ px: 3.5, py: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <Box>
                         <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: C.textPrimary }}>
-                          {p.description || `Cargo mensual Plan ${planMeta.name}`}
+                          {p.description || (isUS ? `Monthly charge ${planMeta.name} Plan` : `Cargo mensual Plan ${planMeta.name}`)}
                         </Typography>
                         <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-                          {formatDate(p.createdAt)}
+                          {formatDate(p.createdAt, isUS)}
                         </Typography>
                       </Box>
                       <Stack direction="row" spacing={1.5} alignItems="center">
@@ -300,7 +320,7 @@ const SubscriptionPage = () => {
                           {formatAmount(p.amount, p.currency || sub.currency)}
                         </Typography>
                         <Chip
-                          label={p.status === "approved" ? "Pagado" : p.status}
+                          label={p.status === "approved" ? (isUS ? "Paid" : "Pagado") : p.status}
                           size="small"
                           sx={{
                             bgcolor: p.status === "approved" ? "rgba(46,204,113,0.1)" : C.surfaceAlt,
@@ -321,14 +341,14 @@ const SubscriptionPage = () => {
               <Paper elevation={0} sx={{ p: 3.5, borderRadius: 4, border: `1.5px solid ${planMeta.color}33`, bgcolor: planMeta.bg, boxShadow: shadow.md, animation: "fadeUp 0.5s 0.2s ease both" }}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
                   <Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary, mb: 0.3 }}>¿Querés continuar?</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary, mb: 0.3 }}>{isUS ? "Want to continue?" : "¿Querés continuar?"}</Typography>
                     <Typography sx={{ fontSize: 12.5, color: C.textSecondary }}>
-                      Podés elegir un plan nuevo en cualquier momento.
+                      {isUS ? "You can choose a new plan anytime." : "Podés elegir un plan nuevo en cualquier momento."}
                     </Typography>
                   </Box>
                   <Button onClick={() => navigate("/pricing")} variant="contained"
                     sx={{ bgcolor: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, px: 2.5, "&:hover": { bgcolor: C.brandLight } }}>
-                    Ver planes
+                    {isUS ? "See plans" : "Ver planes"}
                   </Button>
                 </Stack>
               </Paper>
@@ -339,12 +359,12 @@ const SubscriptionPage = () => {
               <Paper elevation={0} sx={{ p: 3.5, borderRadius: 4, border: "1.5px solid rgba(201,149,42,0.3)", bgcolor: "#FDF6E3", boxShadow: shadow.md, animation: "fadeUp 0.5s 0.25s ease both" }}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
                   <Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: "#0F2420", mb: 0.3 }}>Mejorar a Plan Gold</Typography>
-                    <Typography sx={{ fontSize: 12.5, color: C.textSecondary }}>Análisis ilimitados y funciones prioritarias.</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: "#0F2420", mb: 0.3 }}>{isUS ? "Upgrade to Gold Plan" : "Mejorar a Plan Gold"}</Typography>
+                    <Typography sx={{ fontSize: 12.5, color: C.textSecondary }}>{isUS ? "Unlimited analyses and priority features." : "Análisis ilimitados y funciones prioritarias."}</Typography>
                   </Box>
                   <Button onClick={() => navigate("/pricing")} variant="contained"
                     sx={{ bgcolor: "#C9952A", borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, px: 2.5, "&:hover": { bgcolor: "#b8841f" } }}>
-                    Ver Plan Gold
+                    {isUS ? "See Gold Plan" : "Ver Plan Gold"}
                   </Button>
                 </Stack>
               </Paper>
@@ -359,12 +379,21 @@ const SubscriptionPage = () => {
         PaperProps={{ sx: { borderRadius: 4, mx: 2, maxWidth: 420 } }}>
         <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.2, fontSize: 17, fontWeight: 800, color: C.textPrimary }}>
           <WarningAmberRoundedIcon sx={{ color: C.danger }} />
-          Cancelar suscripción
+          {isUS ? "Cancel subscription" : "Cancelar suscripción"}
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 14, color: C.textSecondary, lineHeight: 1.7, mb: cancelError ? 1.5 : 0 }}>
-            Vas a seguir teniendo acceso a todos los beneficios del <strong>Plan {planMeta?.name}</strong> hasta
-            el <strong>{formatDate(sub?.endDate)}</strong>. Después de esa fecha no se te va a cobrar de nuevo.
+            {isUS ? (
+              <>
+                You'll keep access to all <strong>{planMeta?.name} Plan</strong> benefits until{" "}
+                <strong>{formatDate(sub?.endDate, isUS)}</strong>. After that date you won't be charged again.
+              </>
+            ) : (
+              <>
+                Vas a seguir teniendo acceso a todos los beneficios del <strong>Plan {planMeta?.name}</strong> hasta
+                el <strong>{formatDate(sub?.endDate, isUS)}</strong>. Después de esa fecha no se te va a cobrar de nuevo.
+              </>
+            )}
           </Typography>
           {cancelError && (
             <Typography sx={{ fontSize: 13, color: C.danger, fontWeight: 600 }}>{cancelError}</Typography>
@@ -373,7 +402,7 @@ const SubscriptionPage = () => {
         <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
           <Button onClick={() => setCancelOpen(false)} disabled={cancelling}
             sx={{ textTransform: "none", fontWeight: 600, color: C.textSecondary, borderRadius: 2.5 }}>
-            Volver
+            {isUS ? "Back" : "Volver"}
           </Button>
           <Button
             onClick={handleConfirmCancel}
@@ -382,7 +411,7 @@ const SubscriptionPage = () => {
             startIcon={cancelling ? <CircularProgress size={15} sx={{ color: "#fff" }} /> : null}
             sx={{ bgcolor: C.danger, borderRadius: 2.5, textTransform: "none", fontWeight: 700, px: 2.5, "&:hover": { bgcolor: "#c73f3e" } }}
           >
-            {cancelling ? "Cancelando…" : "Sí, cancelar"}
+            {cancelling ? (isUS ? "Cancelling…" : "Cancelando…") : (isUS ? "Yes, cancel" : "Sí, cancelar")}
           </Button>
         </DialogActions>
       </Dialog>

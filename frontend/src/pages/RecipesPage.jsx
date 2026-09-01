@@ -40,18 +40,18 @@ import { getSocket, getSocketId } from "../config/socket";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
-const MODALIDADES = [
-  { id: "Fit",         label: "Fit",         Icon: SpaRoundedIcon,           desc: "Liviano, proteico y natural", color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
-  { id: "Hipertrofia", label: "Hipertrofia", Icon: FitnessCenterRoundedIcon, desc: "Alto en proteína y calorías", color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"   },
-  { id: "Rápidas",     label: "Rápidas",     Icon: BoltRoundedIcon,          desc: "Listo en menos de 15 min",   color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"   },
+const getModalidades = (isUS) => [
+  { id: "Fit",         label: "Fit",                              Icon: SpaRoundedIcon,           desc: isUS ? "Light, protein-rich, and natural"    : "Liviano, proteico y natural", color: "#2E7D32", bg: "#E8F5E9", border: "rgba(46,125,50,0.25)"   },
+  { id: "Hipertrofia", label: isUS ? "Hypertrophy" : "Hipertrofia", Icon: FitnessCenterRoundedIcon, desc: isUS ? "High in protein and calories"        : "Alto en proteína y calorías", color: "#BF360C", bg: "#FBE9E7", border: "rgba(191,54,12,0.25)"   },
+  { id: "Rápidas",     label: isUS ? "Quick" : "Rápidas",          Icon: BoltRoundedIcon,          desc: isUS ? "Ready in under 15 min"               : "Listo en menos de 15 min",   color: "#1565C0", bg: "#E3F2FD", border: "rgba(21,101,192,0.25)"   },
 ];
 
-const MOMENTOS = [
-  { id: "Desayuno", Icon: WbTwilightRoundedIcon, color: "#F57F17" },
-  { id: "Almuerzo", Icon: WbSunnyRoundedIcon,    color: "#2E7D32" },
-  { id: "Merienda", Icon: LocalCafeRoundedIcon,  color: "#6A1B9A" },
-  { id: "Cena",     Icon: NightlightRoundedIcon, color: "#283593" },
-  { id: "Snack",    Icon: CookieRoundedIcon,     color: "#00695C" },
+const getMomentos = (isUS) => [
+  { id: "Desayuno", label: isUS ? "Breakfast"       : "Desayuno", Icon: WbTwilightRoundedIcon, color: "#F57F17" },
+  { id: "Almuerzo", label: isUS ? "Lunch"           : "Almuerzo", Icon: WbSunnyRoundedIcon,    color: "#2E7D32" },
+  { id: "Merienda", label: isUS ? "Afternoon Snack" : "Merienda", Icon: LocalCafeRoundedIcon,  color: "#6A1B9A" },
+  { id: "Cena",     label: isUS ? "Dinner"          : "Cena",     Icon: NightlightRoundedIcon, color: "#283593" },
+  { id: "Snack",    label: isUS ? "Snack"           : "Snack",    Icon: CookieRoundedIcon,     color: "#00695C" },
 ];
 
 // ─── animation variants ──────────────────────────────────────────────────────
@@ -78,19 +78,19 @@ const InstagramIcon = () => (
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-const buildShareText = (recipe) => {
+const buildShareText = (recipe, isUS) => {
   const lines = [
     `${recipe.emoji || "🍽️"} *${recipe.name}*`,
     `⏱ ${recipe.time}  🔥 ${recipe.calories}  📊 ${recipe.difficulty}`,
     "",
-    "🛒 *Ingredientes:*",
+    isUS ? "🛒 *Ingredients:*" : "🛒 *Ingredientes:*",
     ...(recipe.ingredients || []).map((i) => `• ${i}`),
     "",
-    "👨‍🍳 *Preparación:*",
+    isUS ? "👨‍🍳 *Instructions:*" : "👨‍🍳 *Preparación:*",
     ...(recipe.steps || []).map((s, idx) => `${idx + 1}. ${s}`),
   ];
   if (recipe.tip) lines.push("", `💡 *Tip:* ${recipe.tip}`);
-  lines.push("", "Generado con NUI App 💚");
+  lines.push("", isUS ? "Made with NUI App 💚" : "Generado con NUI App 💚");
   return lines.join("\n");
 };
 
@@ -131,18 +131,18 @@ const RecipeLoader = ({ message }) => (
   </Box>
 );
 
-const ShareIcons = ({ recipe, onCopy, onInstagram }) => (
+const ShareIcons = ({ recipe, onCopy, onInstagram, isUS }) => (
   <Stack direction="row" spacing={0.5}>
-    <Tooltip title="Compartir por WhatsApp">
+    <Tooltip title={isUS ? "Share via WhatsApp" : "Compartir por WhatsApp"}>
       <IconButton
         size="small"
-        onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildShareText(recipe))}`, "_blank", "noopener")}
+        onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildShareText(recipe, isUS))}`, "_blank", "noopener")}
         sx={{ color: "#25D366", "&:hover": { bgcolor: "rgba(37,211,102,0.10)" } }}
       >
         <WhatsAppIcon sx={{ fontSize: 19 }} />
       </IconButton>
     </Tooltip>
-    <Tooltip title="Compartir en Instagram">
+    <Tooltip title={isUS ? "Share on Instagram" : "Compartir en Instagram"}>
       <IconButton
         size="small"
         onClick={onInstagram}
@@ -151,7 +151,7 @@ const ShareIcons = ({ recipe, onCopy, onInstagram }) => (
         <InstagramIcon />
       </IconButton>
     </Tooltip>
-    <Tooltip title="Copiar receta">
+    <Tooltip title={isUS ? "Copy recipe" : "Copiar receta"}>
       <IconButton
         size="small"
         onClick={onCopy}
@@ -165,8 +165,9 @@ const ShareIcons = ({ recipe, onCopy, onInstagram }) => (
 
 // ─── saved recipe card (for Guardadas tab) ────────────────────────────────────
 
-const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, deleting }) => {
-  const mod = MODALIDADES.find((m) => m.id === recipe.modalidad);
+const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, deleting, isUS }) => {
+  const mod = getModalidades(isUS).find((m) => m.id === recipe.modalidad);
+  const recipeMomentoLabel = getMomentos(isUS).find((m) => m.id === recipe.momento)?.label || recipe.momento;
   return (
     <Paper elevation={0} sx={{
       borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)",
@@ -195,7 +196,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
                 sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: mod.bg, color: mod.color, border: `1px solid ${mod.border}` }} />
             )}
             {recipe.momento && (
-              <Chip label={recipe.momento} size="small"
+              <Chip label={recipeMomentoLabel} size="small"
                 sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
             )}
             {recipe.time && (
@@ -232,7 +233,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
 
           {/* ingredients */}
           <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2, mt: 1.5 }}>
-            Ingredientes
+            {isUS ? "Ingredients" : "Ingredientes"}
           </Typography>
           <Stack spacing={0.7} mb={2}>
             {(recipe.ingredients || []).map((ing, i) => (
@@ -247,7 +248,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
           {(recipe.steps || []).length > 0 && (
             <>
               <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.2 }}>
-                Preparación
+                {isUS ? "Instructions" : "Preparación"}
               </Typography>
               <Stack spacing={1.8} mb={2}>
                 {recipe.steps.map((s, i) => (
@@ -279,8 +280,8 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
 
           {/* actions */}
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <ShareIcons recipe={recipe} onCopy={onCopy} onInstagram={onInstagram} />
-            <Tooltip title="Eliminar receta">
+            <ShareIcons recipe={recipe} onCopy={onCopy} onInstagram={onInstagram} isUS={isUS} />
+            <Tooltip title={isUS ? "Delete recipe" : "Eliminar receta"}>
               <IconButton
                 size="small"
                 onClick={(e) => { e.stopPropagation(); onDelete(); }}
@@ -304,7 +305,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
 // ─── main page ───────────────────────────────────────────────────────────────
 
 const RecipesPage = () => {
-  const { userData } = useNutrition();
+  const { userData, isUS } = useNutrition();
   const location     = useLocation();
 
   const preselected = location.state?.modalidad ?? null;
@@ -339,7 +340,10 @@ const RecipesPage = () => {
 
   const token       = localStorage.getItem("nutrismartToken");
   const canGenerate = modalidad && momento;
-  const activeMod   = MODALIDADES.find((m) => m.id === modalidad);
+  const modalidades = getModalidades(isUS);
+  const momentos    = getMomentos(isUS);
+  const activeMod   = modalidades.find((m) => m.id === modalidad);
+  const activeMomento = momentos.find((m) => m.id === momento);
   const isSaved     = detail ? savedNames.has(detail.name) : false;
 
   // ── load saved on mount ──
@@ -396,10 +400,10 @@ const RecipesPage = () => {
       const res  = await fetch(`${API_URL}/api/recipes/suggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ modalidad, momento, userData }),
+        body: JSON.stringify({ modalidad, momento, userData, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al generar recetas");
+      if (!res.ok) throw new Error(data.error || (isUS ? "Error generating recipes" : "Error al generar recetas"));
       setSuggestions(data.recipes || []);
       setStep("suggestions");
     } catch (err) {
@@ -435,10 +439,10 @@ const RecipesPage = () => {
       const res  = await fetch(`${API_URL}/api/recipes/detail`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: recipe.name, emoji: recipe.emoji, modalidad, momento, userData }),
+        body: JSON.stringify({ name: recipe.name, emoji: recipe.emoji, modalidad, momento, userData, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al cargar la receta");
+      if (!res.ok) throw new Error(data.error || (isUS ? "Error loading the recipe" : "Error al cargar la receta"));
       setDetail(data);
       setStep("detail");
       // Generar imagen de forma asíncrona (no bloquea la UI)
@@ -464,9 +468,9 @@ const RecipesPage = () => {
       const newRecipe = data.saved || { ...detail, modalidad, momento, _id: String(Date.now()) };
       setSavedNames((prev) => new Set([...prev, detail.name]));
       setSavedRecipes((prev) => [newRecipe, ...prev]);
-      setSnackMsg("¡Receta guardada!");
+      setSnackMsg(isUS ? "Recipe saved!" : "¡Receta guardada!");
     } catch {
-      setSnackMsg("No se pudo guardar. Intentá de nuevo.");
+      setSnackMsg(isUS ? "Couldn't save. Please try again." : "No se pudo guardar. Intentá de nuevo.");
     } finally {
       setSaving(false);
     }
@@ -475,19 +479,19 @@ const RecipesPage = () => {
   // ── instagram: copy + open ──
   const handleInstagram = async (recipe) => {
     try {
-      await navigator.clipboard.writeText(buildShareText(recipe).replace(/\*/g, ""));
+      await navigator.clipboard.writeText(buildShareText(recipe, isUS).replace(/\*/g, ""));
     } catch {}
     window.open("https://www.instagram.com", "_blank", "noopener");
-    setSnackMsg("¡Receta copiada! Pegala en tus Stories");
+    setSnackMsg(isUS ? "Recipe copied! Paste it in your Stories" : "¡Receta copiada! Pegala en tus Stories");
   };
 
   // ── copy to clipboard ──
   const handleCopy = async (recipe) => {
     try {
-      await navigator.clipboard.writeText(buildShareText(recipe).replace(/\*/g, ""));
-      setSnackMsg("¡Copiado al portapapeles!");
+      await navigator.clipboard.writeText(buildShareText(recipe, isUS).replace(/\*/g, ""));
+      setSnackMsg(isUS ? "Copied to clipboard!" : "¡Copiado al portapapeles!");
     } catch {
-      setSnackMsg("No se pudo copiar.");
+      setSnackMsg(isUS ? "Couldn't copy." : "No se pudo copiar.");
     }
   };
 
@@ -508,7 +512,9 @@ const RecipesPage = () => {
     updateList(merged);
     setAddedToList(true);
     setTimeout(() => setAddedToList(false), 2500);
-    setSnackMsg(`${newItems.length} ingrediente${newItems.length > 1 ? "s" : ""} agregado${newItems.length > 1 ? "s" : ""} a tu lista`);
+    setSnackMsg(isUS
+      ? `${newItems.length} ingredient${newItems.length > 1 ? "s" : ""} added to your list`
+      : `${newItems.length} ingrediente${newItems.length > 1 ? "s" : ""} agregado${newItems.length > 1 ? "s" : ""} a tu lista`);
   };
 
   // ── delete saved recipe ──
@@ -523,9 +529,9 @@ const RecipesPage = () => {
       const removed = savedRecipes.find((r) => r._id === id);
       setSavedRecipes((prev) => prev.filter((r) => r._id !== id));
       if (removed) setSavedNames((prev) => { const s = new Set(prev); s.delete(removed.name); return s; });
-      setSnackMsg("Receta eliminada.");
+      setSnackMsg(isUS ? "Recipe deleted." : "Receta eliminada.");
     } catch {
-      setSnackMsg("No se pudo eliminar.");
+      setSnackMsg(isUS ? "Couldn't delete." : "No se pudo eliminar.");
     } finally {
       setDeletingId(null);
     }
@@ -556,11 +562,11 @@ const RecipesPage = () => {
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <RestaurantRoundedIcon sx={{ fontSize: 28, color: "#0B5E55" }} />
                 <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
-                  Recetas YA
+                  {isUS ? "Instant Recipes" : "Recetas YA"}
                 </Typography>
               </Stack>
               <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mt: 0.5 }}>
-                IA que cocina para vos · rápido y personalizado
+                {isUS ? "AI that cooks for you · fast and personalized" : "IA que cocina para vos · rápido y personalizado"}
               </Typography>
             </Box>
             {step !== "select" && activeTab === "create" && (
@@ -569,7 +575,7 @@ const RecipesPage = () => {
                 startIcon={<RefreshRoundedIcon />}
                 sx={{ textTransform: "none", fontWeight: 700, fontSize: 13, color: "#0B5E55", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
               >
-                Nueva
+                {isUS ? "New" : "Nueva"}
               </Button>
             )}
           </Stack>
@@ -579,8 +585,10 @@ const RecipesPage = () => {
             <Stack direction="row" spacing={0}
               sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex" }}>
               {[
-                { id: "create", label: "Crear receta" },
-                { id: "saved",  label: savedRecipes.length ? `Guardadas (${savedRecipes.length})` : "Guardadas" },
+                { id: "create", label: isUS ? "Create recipe" : "Crear receta" },
+                { id: "saved",  label: savedRecipes.length
+                    ? (isUS ? `Saved (${savedRecipes.length})` : `Guardadas (${savedRecipes.length})`)
+                    : (isUS ? "Saved" : "Guardadas") },
               ].map((tab) => (
                 <Box
                   key={tab.id}
@@ -614,9 +622,9 @@ const RecipesPage = () => {
             {step === "select" && (
               <motion.div key="select" variants={slide} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
 
-                <StepLabel n="1" label="¿Qué tipo de receta?" />
+                <StepLabel n="1" label={isUS ? "What type of recipe?" : "¿Qué tipo de receta?"} />
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 4 }}>
-                  {MODALIDADES.map((m) => {
+                  {modalidades.map((m) => {
                     const active = modalidad === m.id;
                     return (
                       <Box
@@ -647,9 +655,9 @@ const RecipesPage = () => {
                 <AnimatePresence>
                   {modalidad && (
                     <motion.div key="momento" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.3 }}>
-                      <StepLabel n="2" label="¿Para qué momento?" />
+                      <StepLabel n="2" label={isUS ? "For which time of day?" : "¿Para qué momento?"} />
                       <Stack direction="row" spacing={1.2} flexWrap="wrap" mb={4} useFlexGap>
-                        {MOMENTOS.map((m) => {
+                        {momentos.map((m) => {
                           const active = momento === m.id;
                           return (
                             <Box
@@ -666,7 +674,7 @@ const RecipesPage = () => {
                             >
                               <m.Icon sx={{ fontSize: 18, color: m.color }} />
                               <Typography sx={{ fontSize: 13.5, fontWeight: active ? 800 : 600, color: active ? m.color : "#4A6B67" }}>
-                                {m.id}
+                                {m.label}
                               </Typography>
                             </Box>
                           );
@@ -698,7 +706,7 @@ const RecipesPage = () => {
                           transition: "all 0.25s ease",
                         }}
                       >
-                        Descubrir recetas de {momento}
+                        {isUS ? `Discover ${activeMomento?.label} recipes` : `Descubrir recetas de ${momento}`}
                       </Button>
                     </motion.div>
                   )}
@@ -710,7 +718,7 @@ const RecipesPage = () => {
             {step === "loading" && (
               <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
                 <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                  <RecipeLoader message="Preparando tus recetas…" />
+                  <RecipeLoader message={isUS ? "Preparing your recipes…" : "Preparando tus recetas…"} />
                 </Paper>
               </motion.div>
             )}
@@ -721,21 +729,21 @@ const RecipesPage = () => {
                 <Stack direction="row" spacing={1} alignItems="center" mb={3}>
                   <Button onClick={() => setStep("select")} startIcon={<ArrowBackRoundedIcon />} size="small"
                     sx={{ textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                    Volver
+                    {isUS ? "Back" : "Volver"}
                   </Button>
                   <Chip
                     icon={activeMod && <activeMod.Icon sx={{ fontSize: "15px !important" }} />}
-                    label={`${modalidad} · ${momento}`}
+                    label={`${activeMod?.label} · ${activeMomento?.label}`}
                     size="small"
                     sx={{ bgcolor: activeMod?.bg, color: activeMod?.color, fontWeight: 700, border: `1px solid ${activeMod?.border}` }}
                   />
                 </Stack>
 
                 <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#0F2420", mb: 0.5, letterSpacing: "-0.4px" }}>
-                  Elegí tu receta
+                  {isUS ? "Choose your recipe" : "Elegí tu receta"}
                 </Typography>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
-                  Tocá una para ver los ingredientes
+                  {isUS ? "Tap one to see the ingredients" : "Tocá una para ver los ingredientes"}
                 </Typography>
 
                 {error && <Typography sx={{ fontSize: 13.5, color: "#E24B4A", mb: 2 }}>{error}</Typography>}
@@ -782,7 +790,7 @@ const RecipesPage = () => {
                   startIcon={<RefreshRoundedIcon />}
                   sx={{ mt: 3, textTransform: "none", fontWeight: 600, fontSize: 13.5, color: "#4A6B67", borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
                 >
-                  Otras opciones
+                  {isUS ? "Other options" : "Otras opciones"}
                 </Button>
               </motion.div>
             )}
@@ -791,7 +799,7 @@ const RecipesPage = () => {
             {step === "loading-detail" && (
               <motion.div key="loading-detail" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
                 <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                  <RecipeLoader message={`Preparando "${selected?.name}"…`} />
+                  <RecipeLoader message={isUS ? `Preparing "${selected?.name}"…` : `Preparando "${selected?.name}"…`} />
                 </Paper>
               </motion.div>
             )}
@@ -802,7 +810,7 @@ const RecipesPage = () => {
 
                 <Button onClick={() => { setStep("suggestions"); setShowSteps(false); }} startIcon={<ArrowBackRoundedIcon />} size="small"
                   sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
-                  Otras recetas
+                  {isUS ? "Other recipes" : "Otras recetas"}
                 </Button>
 
                 {/* Recipe card */}
@@ -1150,7 +1158,7 @@ const RecipesPage = () => {
       >
         <Alert
           onClose={() => setSnackMsg("")}
-          severity={snackMsg.includes("pudo") ? "error" : "success"}
+          severity={(snackMsg.includes("pudo") || snackMsg.includes("Couldn't")) ? "error" : "success"}
           variant="filled"
           sx={{ borderRadius: 3, fontWeight: 700 }}
         >

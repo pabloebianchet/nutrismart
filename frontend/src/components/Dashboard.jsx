@@ -149,8 +149,11 @@ const StatPill = ({ label, value, icon: Icon, accent }) => (
 );
 
 const ScoreBadge = ({ score }) => {
+  const { isUS } = useNutrition();
   const color = score >= 75 ? C.success : score >= 50 ? C.accentWarm : C.danger;
-  const label = score >= 75 ? "Excelente" : score >= 50 ? "Regular" : "Mejorar";
+  const label = isUS
+    ? (score >= 75 ? "Great" : score >= 50 ? "Fair" : "Needs work")
+    : (score >= 75 ? "Excelente" : score >= 50 ? "Regular" : "Mejorar");
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color, flexShrink: 0 }} />
