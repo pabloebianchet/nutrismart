@@ -63,6 +63,11 @@ router.post("/checkout", authMiddleware, async (req, res) => {
       subscription_data: { metadata: { userId: user._id.toString(), plan } },
       success_url: `${frontendUrl}/subscription/success?provider=stripe`,
       cancel_url:  `${frontendUrl}/pricing`,
+      // Managed Payments (cálculo/remisión automática de impuestos de Stripe)
+      // viene habilitado por defecto en cuentas nuevas y exige tax_code en
+      // cada producto — decisión de compliance a tomar a propósito más
+      // adelante, no algo para activar como efecto colateral acá.
+      managed_payments: { enabled: false },
     });
 
     return res.json({ url: session.url });
