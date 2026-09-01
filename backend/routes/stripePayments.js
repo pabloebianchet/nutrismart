@@ -10,6 +10,19 @@ import { logInfo, logError } from "../utils/logger.js";
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// Precios EE.UU. — Price IDs creados con scripts/setupStripeProducts.mjs
+// El monto acá es solo para mostrar en la UI; el cobro real lo define el
+// Price de Stripe (priceEnv) — si se cambia el precio en Stripe, actualizar
+// este número también para que no quede desincronizado con lo que se cobra.
+const STRIPE_PLANS = {
+  silver: { name: "Plan Silver", priceEnv: "STRIPE_PRICE_SILVER", dailyLimit: 1,    amount: 6.99 },
+  gold:   { name: "Plan Gold",   priceEnv: "STRIPE_PRICE_GOLD",   dailyLimit: null, amount: 12.99 },
+};
+
+const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
+
+const router = express.Router();
+
 // ── TEMPORAL: diagnóstico de un caso puntual (webhook de checkout.session.
 // completed que nunca actualizó Mongo para un usuario específico) — borrar
 // apenas se resuelva. Gateado por un secreto de un solo uso, no por sesión
@@ -43,19 +56,6 @@ router.get("/debug-customer", async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 });
-
-// Precios EE.UU. — Price IDs creados con scripts/setupStripeProducts.mjs
-// El monto acá es solo para mostrar en la UI; el cobro real lo define el
-// Price de Stripe (priceEnv) — si se cambia el precio en Stripe, actualizar
-// este número también para que no quede desincronizado con lo que se cobra.
-const STRIPE_PLANS = {
-  silver: { name: "Plan Silver", priceEnv: "STRIPE_PRICE_SILVER", dailyLimit: 1,    amount: 6.99 },
-  gold:   { name: "Plan Gold",   priceEnv: "STRIPE_PRICE_GOLD",   dailyLimit: null, amount: 12.99 },
-};
-
-const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
-
-const router = express.Router();
 
 /* ─── Cupones — mismo sistema/códigos que Mercado Pago ───────────
  * Un Cupón de Nui (Mongo) se refleja en un Coupon nativo de Stripe,
