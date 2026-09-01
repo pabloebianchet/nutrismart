@@ -82,25 +82,10 @@ const ROUTES = [
   "/en/how-it-works",
   "/en/pricing",
   "/en/contact",
+  "/en/privacy",
+  "/en/terms",
+  "/en/legal",
 ];
-
-// Prioridad/frecuencia de las rutas estáticas en el sitemap (se preservan
-// los valores que ya tenía el sitemap.xml escrito a mano).
-const STATIC_SITEMAP_META = {
-  "/":              { changefreq: "weekly",  priority: "1.0" },
-  "/pricing":       { changefreq: "monthly", priority: "0.9" },
-  "/about":         { changefreq: "monthly", priority: "0.8" },
-  "/how-it-works":  { changefreq: "monthly", priority: "0.8" },
-  "/contact":       { changefreq: "monthly", priority: "0.6" },
-  "/privacidad":    { changefreq: "yearly",  priority: "0.3" },
-  "/terminos":      { changefreq: "yearly",  priority: "0.3" },
-  "/legal":         { changefreq: "yearly",  priority: "0.3" },
-  "/en":            { changefreq: "weekly",  priority: "1.0" },
-  "/en/pricing":    { changefreq: "monthly", priority: "0.9" },
-  "/en/about":      { changefreq: "monthly", priority: "0.8" },
-  "/en/how-it-works": { changefreq: "monthly", priority: "0.8" },
-  "/en/contact":    { changefreq: "monthly", priority: "0.6" },
-};
 
 // Backend real — en Vercel viene de VITE_API_URL (mismo valor que usa el
 // frontend en producción); en local, sin esa variable, se apunta directo

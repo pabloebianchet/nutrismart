@@ -3735,10 +3735,10 @@ const LandingFooter = () => {
           >
             {(isUS
               ? [
-                  ["Privacy", "/privacidad"],
-                  ["Terms", "/terminos"],
-                  ["Contact", "/contact"],
-                  ["Pricing", "/pricing"],
+                  ["Privacy", "/en/privacy"],
+                  ["Terms", "/en/terms"],
+                  ["Contact", "/en/contact"],
+                  ["Pricing", "/en/pricing"],
                 ]
               : [
                   ["Privacidad", "/privacidad"],

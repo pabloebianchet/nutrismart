@@ -39,6 +39,9 @@ const STATIC_URLS = [
   { loc: "/en/about",         changefreq: "monthly", priority: "0.8" },
   { loc: "/en/how-it-works",  changefreq: "monthly", priority: "0.8" },
   { loc: "/en/contact",       changefreq: "monthly", priority: "0.6" },
+  { loc: "/en/privacy",       changefreq: "yearly",  priority: "0.3" },
+  { loc: "/en/terms",         changefreq: "yearly",  priority: "0.3" },
+  { loc: "/en/legal",         changefreq: "yearly",  priority: "0.3" },
 ];
 
 router.get("/sitemap.xml", async (req, res) => {

@@ -96,14 +96,29 @@
     }
     </script>
 
-    <!-- ── Google Analytics GA4 ─────────────────────────────── -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4MNP4XN25S"></script>
+    <!-- ── Google Analytics GA4 (Consent Mode v2) ────────────
+         Analytics arranca DENEGADO por default — solo se activa si el
+         usuario acepta el banner de cookies (ver CookieConsentBanner.jsx).
+         Si ya había una elección guardada de una visita anterior, se
+         respeta acá mismo antes de que gtag registre nada. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+      });
+      try {
+        if (localStorage.getItem('nuiCookieConsent') === 'accepted') {
+          gtag('consent', 'update', { 'analytics_storage': 'granted' });
+        }
+      } catch (e) {}
       gtag('js', new Date());
       gtag('config', 'G-4MNP4XN25S');
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4MNP4XN25S"></script>
 
     <!-- ── Fonts ─────────────────────────────────────────────── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

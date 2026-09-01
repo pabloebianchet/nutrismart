@@ -14,6 +14,9 @@ Allow: /en/pricing
 Allow: /en/about
 Allow: /en/how-it-works
 Allow: /en/contact
+Allow: /en/privacy
+Allow: /en/terms
+Allow: /en/legal
 Allow: /es-ar/notas/
 Allow: /en/notes/
 

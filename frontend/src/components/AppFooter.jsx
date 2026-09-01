@@ -79,11 +79,11 @@ export default function AppFooter() {
         </Typography>
 
         <Stack direction="row" spacing={2} alignItems="center">
-          <Link to="/privacidad">{isUS ? "Privacy" : "Privacidad"}</Link>
+          <Link to={isUS ? "/en/privacy" : "/privacidad"}>{isUS ? "Privacy" : "Privacidad"}</Link>
           <Dot />
-          <Link to="/terminos">{isUS ? "Terms" : "Términos"}</Link>
+          <Link to={isUS ? "/en/terms" : "/terminos"}>{isUS ? "Terms" : "Términos"}</Link>
           <Dot />
-          <Link to="/legal">{isUS ? "Legal & cookies" : "Aviso legal y cookies"}</Link>
+          <Link to={isUS ? "/en/legal" : "/legal"}>{isUS ? "Legal & cookies" : "Aviso legal y cookies"}</Link>
           <Dot />
           <Link to="/contact">{isUS ? "Contact" : "Contacto"}</Link>
         </Stack>
@@ -109,14 +109,14 @@ export default function AppFooter() {
 
         {/* Fila 1: Privacidad · Términos */}
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <Link to="/privacidad">{isUS ? "Privacy" : "Privacidad"}</Link>
+          <Link to={isUS ? "/en/privacy" : "/privacidad"}>{isUS ? "Privacy" : "Privacidad"}</Link>
           <Dot />
-          <Link to="/terminos">{isUS ? "Terms" : "Términos"}</Link>
+          <Link to={isUS ? "/en/terms" : "/terminos"}>{isUS ? "Terms" : "Términos"}</Link>
         </Stack>
 
         {/* Fila 2: Aviso legal y cookies · Contacto */}
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <Link to="/legal">{isUS ? "Legal & cookies" : "Aviso legal y cookies"}</Link>
+          <Link to={isUS ? "/en/legal" : "/legal"}>{isUS ? "Legal & cookies" : "Aviso legal y cookies"}</Link>
           <Dot />
           <Link to="/contact">{isUS ? "Contact" : "Contacto"}</Link>
         </Stack>

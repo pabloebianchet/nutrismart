@@ -24,8 +24,12 @@ import EnergyPage        from "./pages/EnergyPage.jsx";
 import PrivacyPage       from "./pages/PrivacyPage.jsx";
 import TermsPage         from "./pages/TermsPage.jsx";
 import LegalPage         from "./pages/LegalPage.jsx";
+import PrivacyPageEN     from "./pages/PrivacyPageEN.jsx";
+import TermsPageEN       from "./pages/TermsPageEN.jsx";
+import LegalPageEN       from "./pages/LegalPageEN.jsx";
 import FloatingAnalyzeButton from "./components/FloatingAnalyzeButton.jsx";
 import AppFooter         from "./components/AppFooter.jsx";
+import CookieConsentBanner from "./components/CookieConsentBanner.jsx";
 import TrialGate         from "./components/TrialGate.jsx";
 import BiometricGate     from "./components/BiometricGate.jsx";
 import PWAInstallPrompt  from "./components/PWAInstallPrompt.jsx";
@@ -230,8 +234,12 @@ const App = () => {
         <Route path="/en/how-it-works"        element={<HowItWorksPage />} />
         <Route path="/en/contact"             element={<ContactPage />} />
         <Route path="/en/pricing"             element={<PricingPage />} />
+        <Route path="/en/privacy"             element={<PrivacyPageEN />} />
+        <Route path="/en/terms"               element={<TermsPageEN />} />
+        <Route path="/en/legal"               element={<LegalPageEN />} />
       </Routes>
       <AppFooterConditional />
+      <CookieConsentBanner />
       </BiometricGateWrapper>
     </Router>
   );
