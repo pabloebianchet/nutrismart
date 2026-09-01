@@ -7,7 +7,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 import usePageMeta from "../hooks/usePageMeta";
-import { buildPostSlug, dateFromSlug } from "../utils/blogSlug";
+import { dateFromSlug } from "../utils/blogSlug";
 
 const SIDEBAR_LIMIT = 8;
 
@@ -23,14 +23,64 @@ const C = {
   textMuted: "#8AADAA",
 };
 
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" }) : "";
+/**
+ * Copy por idioma — las notas ES y EN son contenido INDEPENDIENTE (no
+ * traducciones entre sí, ver diseño del bloque 4), pero la UI que las
+ * envuelve (paginador, sidebar, botones) sí necesita texto en cada idioma.
+ */
+const COPY = {
+  "es-AR": {
+    basePath: "/es-ar/notas",
+    backHome: "Volver a Nui",
+    notFoundTitle: "No encontramos esta nota",
+    notFoundBody: "Puede que se haya movido o ya no esté disponible.",
+    loadingTitle: "Cargando nota — Nui App",
+    notFoundPageTitle: "Nota no encontrada — Nui App",
+    editorial: "Nui Editorial",
+    readingSuffix: "min de lectura",
+    share: "Compartir:",
+    copied: "¡Copiado!",
+    olderPost: "← Nota anterior",
+    newerPost: "Nota siguiente →",
+    noOlder: "No hay notas más antiguas",
+    noNewer: "Es la nota más reciente",
+    moreNotes: "Más notas",
+    dateLocale: "es-AR",
+    inLanguage: "es-AR",
+    aboutThing: "Salud y Nutrición",
+    shareSuffix: "— Nui App",
+  },
+  en: {
+    basePath: "/en/notes",
+    backHome: "Back to Nui",
+    notFoundTitle: "We couldn't find this note",
+    notFoundBody: "It may have moved or is no longer available.",
+    loadingTitle: "Loading note — Nui App",
+    notFoundPageTitle: "Note not found — Nui App",
+    editorial: "Nui Editorial",
+    readingSuffix: "min read",
+    share: "Share:",
+    copied: "Copied!",
+    olderPost: "← Previous note",
+    newerPost: "Next note →",
+    noOlder: "No older notes",
+    noNewer: "This is the most recent note",
+    moreNotes: "More notes",
+    dateLocale: "en-US",
+    inLanguage: "en-US",
+    aboutThing: "Health & Nutrition",
+    shareSuffix: "— Nui App",
+  },
+};
 
-const buildShareText = (post) =>
-  `${post.title}\n\n${(post.body || "").replace(/\n\n/g, "\n")}\n\n— Nui App`;
+const fmtDate = (d, locale) =>
+  d ? new Date(d).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" }) : "";
+
+const buildShareText = (post, t) =>
+  `${post.title}\n\n${(post.body || "").replace(/\n\n/g, "\n")}\n\n${t.shareSuffix}`;
 
 /* ─── Schema.org Article — apunta a la URL real de esta nota ────── */
-const injectArticleSchema = (post, url) => {
+const injectArticleSchema = (post, url, t) => {
   const id = "nui-article-schema";
   let el = document.getElementById(id);
   if (!el) {
@@ -46,7 +96,7 @@ const injectArticleSchema = (post, url) => {
     description: post.excerpt,
     keywords: (post.tags || []).join(", "),
     datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
     author: { "@type": "Organization", name: "Nui", url: "https://nuiapp.com" },
     publisher: {
       "@type": "Organization",
@@ -56,12 +106,19 @@ const injectArticleSchema = (post, url) => {
     image: post.imageUrl || "https://nuiapp.com/img/og-image.png",
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    inLanguage: "es-AR",
-    about: { "@type": "Thing", name: "Salud y Nutrición" },
+    inLanguage: t.inLanguage,
+    about: { "@type": "Thing", name: t.aboutThing },
   });
 };
 
-const BlogPostPage = () => {
+/**
+ * Nota diaria — genérica por idioma. `lang` viene fijo desde la ruta
+ * (App.jsx renderiza <NotePage lang="es-AR" /> y <NotePage lang="en" />
+ * en árboles de rutas separados), NO depende de isUS: una nota en
+ * /es-ar/notas/ es española aunque el visitante esté en EE.UU., y viceversa.
+ */
+const NotePage = ({ lang }) => {
+  const t = COPY[lang];
   const { slug } = useParams();
   const date = dateFromSlug(slug);
   const [post, setPost] = useState(null);
@@ -69,15 +126,12 @@ const BlogPostPage = () => {
   const [copied, setCopied] = useState(false);
   const [allPosts, setAllPosts] = useState([]);
 
-  // Lista completa (liviana: date/title/imageUrl/tags) para el paginador
-  // anterior/siguiente y "más notas" — se trae una sola vez, no depende
-  // de qué nota se esté viendo.
   useEffect(() => {
-    fetch(`${API_URL}/api/posts/all`)
+    fetch(`${API_URL}/api/posts/${lang}/all`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => setAllPosts(data.posts || []))
       .catch(() => {});
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
     setPost(null);
@@ -85,13 +139,13 @@ const BlogPostPage = () => {
     if (!date) { setNotFound(true); return; }
 
     let cancelled = false;
-    fetch(`${API_URL}/api/posts/${date}`)
+    fetch(`${API_URL}/api/posts/${lang}/${date}`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
         if (cancelled) return;
         if (data.post) {
           setPost(data.post);
-          injectArticleSchema(data.post, `https://nuiapp.com/blog/${buildPostSlug(data.post)}`);
+          injectArticleSchema(data.post, `https://nuiapp.com${t.basePath}/${data.post.slug}`, t);
         } else {
           setNotFound(true);
         }
@@ -99,18 +153,20 @@ const BlogPostPage = () => {
       .catch(() => { if (!cancelled) setNotFound(true); });
 
     return () => { cancelled = true; };
-  }, [date]);
+  }, [lang, date]);
 
   usePageMeta({
-    title:       post ? `${post.title} — Nui App` : notFound ? "Nota no encontrada — Nui App" : "Cargando nota — Nui App",
+    title:       post ? `${post.title} — Nui App` : notFound ? t.notFoundPageTitle : t.loadingTitle,
     description: post?.excerpt,
-    canonical:   post ? `/blog/${buildPostSlug(post)}` : undefined,
+    canonical:   post ? `${t.basePath}/${post.slug}` : undefined,
     image:       post?.imageUrl,
+    robots:      post ? (post.indexStatus === "index" ? "index, follow" : "noindex, follow") : "noindex, follow",
+    // Sin alternates: contenido independiente entre idiomas, no hreflang.
   });
 
   const handleCopy = async () => {
     if (!post) return;
-    await navigator.clipboard.writeText(buildShareText(post)).catch(() => {});
+    await navigator.clipboard.writeText(buildShareText(post, t)).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -119,13 +175,13 @@ const BlogPostPage = () => {
     return (
       <Box sx={{ background: C.surfaceAlt, minHeight: "100vh", py: 10, textAlign: "center" }}>
         <Typography component="h1" sx={{ fontSize: 24, fontWeight: 900, color: C.textPrimary, mb: 2 }}>
-          No encontramos esta nota
+          {t.notFoundTitle}
         </Typography>
         <Typography sx={{ fontSize: 14, color: C.textSecondary, mb: 3 }}>
-          Puede que se haya movido o ya no esté disponible.
+          {t.notFoundBody}
         </Typography>
         <Typography component={Link} to="/" sx={{ color: C.brand, fontWeight: 700, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
-          ← Volver a Nui
+          {t.backHome}
         </Typography>
       </Box>
     );
@@ -156,7 +212,7 @@ const BlogPostPage = () => {
             mb: 3, "&:hover": { textDecoration: "underline" },
           }}
         >
-          <ArrowBackRoundedIcon sx={{ fontSize: 16 }} /> Volver a Nui
+          <ArrowBackRoundedIcon sx={{ fontSize: 16 }} /> {t.backHome}
         </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 1fr) 320px" }, gap: { xs: 4, md: 5 }, alignItems: "start" }}>
@@ -189,12 +245,12 @@ const BlogPostPage = () => {
               <Box sx={{ p: { xs: 3, sm: 4.5 } }}>
                 <Stack direction="row" spacing={1} alignItems="center" mb={2}>
                   <Chip
-                    label="Nui Editorial"
+                    label={t.editorial}
                     size="small"
                     sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 11 }}
                   />
                   <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-                    {fmtDate(post.publishedAt)} · {post.readingMinutes} min de lectura
+                    {fmtDate(post.publishedAt, t.dateLocale)} · {post.readingMinutes} {t.readingSuffix}
                   </Typography>
                 </Stack>
 
@@ -231,10 +287,10 @@ const BlogPostPage = () => {
 
                 {post.tags?.length > 0 && (
                   <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap mb={3}>
-                    {post.tags.map((t) => (
+                    {post.tags.map((tag) => (
                       <Chip
-                        key={t}
-                        label={`#${t}`}
+                        key={tag}
+                        label={`#${tag}`}
                         size="small"
                         sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 600, fontSize: 11.5, height: 24 }}
                       />
@@ -245,13 +301,13 @@ const BlogPostPage = () => {
                 <Divider sx={{ mb: 2.5 }} />
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Typography sx={{ fontSize: 12.5, color: C.textMuted, fontWeight: 600 }}>
-                    Compartir:
+                    {t.share}
                   </Typography>
                   <IconButton
                     size="small"
                     onClick={() =>
                       window.open(
-                        `https://wa.me/?text=${encodeURIComponent(buildShareText(post))}`,
+                        `https://wa.me/?text=${encodeURIComponent(buildShareText(post, t))}`,
                         "_blank",
                         "noopener"
                       )
@@ -269,7 +325,7 @@ const BlogPostPage = () => {
                   </IconButton>
                   {copied && (
                     <Typography sx={{ fontSize: 12, color: C.brand, fontWeight: 600 }}>
-                      ¡Copiado!
+                      {t.copied}
                     </Typography>
                   )}
                 </Stack>
@@ -287,7 +343,7 @@ const BlogPostPage = () => {
             }}
           >
             <Box
-              {...(olderPost ? { component: Link, to: `/blog/${buildPostSlug(olderPost)}` } : {})}
+              {...(olderPost ? { component: Link, to: `${t.basePath}/${olderPost.slug}` } : {})}
               sx={{
                 flex: 1, minWidth: 0, p: 2.5, textDecoration: "none", color: "inherit",
                 borderRight: { sm: newerPost ? `1px solid ${C.border}` : "none" },
@@ -297,14 +353,14 @@ const BlogPostPage = () => {
               }}
             >
               <Typography sx={{ fontSize: 11, color: C.textMuted, fontWeight: 700, mb: 0.5 }}>
-                ← Nota anterior
+                {t.olderPost}
               </Typography>
               <Typography sx={{ fontSize: 13.5, color: C.textPrimary, fontWeight: 600, lineHeight: 1.4 }} noWrap>
-                {olderPost?.title || "No hay notas más antiguas"}
+                {olderPost?.title || t.noOlder}
               </Typography>
             </Box>
             <Box
-              {...(newerPost ? { component: Link, to: `/blog/${buildPostSlug(newerPost)}` } : {})}
+              {...(newerPost ? { component: Link, to: `${t.basePath}/${newerPost.slug}` } : {})}
               sx={{
                 flex: 1, minWidth: 0, p: 2.5, textDecoration: "none", color: "inherit",
                 textAlign: { xs: "left", sm: "right" },
@@ -313,10 +369,10 @@ const BlogPostPage = () => {
               }}
             >
               <Typography sx={{ fontSize: 11, color: C.textMuted, fontWeight: 700, mb: 0.5 }}>
-                Nota siguiente →
+                {t.newerPost}
               </Typography>
               <Typography sx={{ fontSize: 13.5, color: C.textPrimary, fontWeight: 600, lineHeight: 1.4 }} noWrap>
-                {newerPost?.title || "Es la nota más reciente"}
+                {newerPost?.title || t.noNewer}
               </Typography>
             </Box>
           </Stack>
@@ -326,14 +382,14 @@ const BlogPostPage = () => {
         {post && otherPosts.length > 0 && (
           <Box sx={{ minWidth: 0 }}>
             <Typography sx={{ fontSize: 13, fontWeight: 800, color: C.textPrimary, mb: 2, letterSpacing: "-0.2px" }}>
-              Más notas
+              {t.moreNotes}
             </Typography>
             <Stack spacing={0} sx={{ bgcolor: C.surface, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden", p: 1 }}>
               {otherPosts.map((p, i) => (
                 <Box
                   key={p.date}
                   component={Link}
-                  to={`/blog/${buildPostSlug(p)}`}
+                  to={`${t.basePath}/${p.slug}`}
                   sx={{
                     display: "flex", alignItems: "center", gap: 1.5, p: 1.2, borderRadius: 2,
                     textDecoration: "none", color: "inherit",
@@ -355,7 +411,7 @@ const BlogPostPage = () => {
                       {p.title}
                     </Typography>
                     <Typography sx={{ fontSize: 10.5, color: C.textMuted }}>
-                      {fmtDate(p.publishedAt)}
+                      {fmtDate(p.publishedAt, t.dateLocale)}
                     </Typography>
                   </Box>
                 </Box>
@@ -369,4 +425,4 @@ const BlogPostPage = () => {
   );
 };
 
-export default BlogPostPage;
+export default NotePage;

@@ -16,7 +16,7 @@ const DEFAULT  = {
  * contact) — no usar en contenido independiente entre idiomas (las notas
  * del blog), donde un hreflang alternate sería un error semántico.
  */
-const usePageMeta = ({ title, description, image, canonical, alternates, ogTitle, ogDescription } = {}) => {
+const usePageMeta = ({ title, description, image, canonical, alternates, ogTitle, ogDescription, robots } = {}) => {
   useEffect(() => {
     const t   = title       || DEFAULT.title;
     const d   = description || DEFAULT.description;
@@ -50,6 +50,7 @@ const usePageMeta = ({ title, description, image, canonical, alternates, ogTitle
     };
 
     setMeta("description",   d);
+    setMeta("robots",        robots || "index, follow");
     setOG("og:title",        ogT);
     setOG("og:description",  ogD);
     setOG("og:image",        img);
@@ -81,7 +82,7 @@ const usePageMeta = ({ title, description, image, canonical, alternates, ogTitle
     return () => {
       document.title = prevTitle;
     };
-  }, [title, description, ogTitle, ogDescription, image, canonical, JSON.stringify(alternates)]);
+  }, [title, description, ogTitle, ogDescription, image, canonical, robots, JSON.stringify(alternates)]);
 };
 
 export default usePageMeta;

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 
 import LandingPage       from "./pages/LandingPage.jsx";
@@ -17,7 +17,8 @@ import ResetPasswordPage  from "./pages/ResetPasswordPage.jsx";
 import PricingPage       from "./pages/PricingPage.jsx";
 import SubscriptionPage  from "./pages/SubscriptionPage.jsx";
 import RecipesPage       from "./pages/RecipesPage.jsx";
-import BlogPostPage      from "./pages/BlogPostPage.jsx";
+import NotePage          from "./pages/NotePage.jsx";
+import NotesIndexPage    from "./pages/NotesIndexPage.jsx";
 import TrainingPage      from "./pages/TrainingPage.jsx";
 import EnergyPage        from "./pages/EnergyPage.jsx";
 import PrivacyPage       from "./pages/PrivacyPage.jsx";
@@ -42,6 +43,7 @@ const PROFILE_FREE_PATHS = [
   "/profile", "/pricing", "/about", "/how-it-works", "/contact",
   "/privacidad", "/terminos", "/legal", "/admin", "/blog",
   "/forgot-password", "/reset-password", "/", "/en",
+  "/es-ar/notas", "/en/notes",
 ];
 
 const ProfileGate = () => {
@@ -109,6 +111,13 @@ const TrialBanner = () => {
       </Typography>
     </Box>
   );
+};
+
+/* ── Red de seguridad para /blog/:slug viejos vía navegación SPA — el
+   301 real que hace el trabajo pesado vive en vercel.json ─────────── */
+const LegacyBlogRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/es-ar/notas/${slug}`} replace />;
 };
 
 /* ── HomeRoute: landing para visitantes, dashboard para logueados ── */
@@ -195,7 +204,14 @@ const App = () => {
         <Route path="/about"                  element={<AboutPage />} />
         <Route path="/how-it-works"           element={<HowItWorksPage />} />
         <Route path="/contact"                element={<ContactPage />} />
-        <Route path="/blog/:slug"             element={<BlogPostPage />} />
+        {/* /blog/* viejo: 301 real vive en vercel.json, esto es solo red de
+            seguridad por si algún link viejo llega igual vía navegación SPA */}
+        <Route path="/blog"                   element={<Navigate to="/es-ar/notas" replace />} />
+        <Route path="/blog/:slug"             element={<LegacyBlogRedirect />} />
+        <Route path="/es-ar/notas"            element={<NotesIndexPage lang="es-AR" />} />
+        <Route path="/es-ar/notas/:slug"      element={<NotePage lang="es-AR" />} />
+        <Route path="/en/notes"               element={<NotesIndexPage lang="en" />} />
+        <Route path="/en/notes/:slug"         element={<NotePage lang="en" />} />
         <Route path="/admin"                  element={<AdminDashboard />} />
         <Route path="/forgot-password"        element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token"  element={<ResetPasswordPage />} />

@@ -28,6 +28,10 @@ import recipesRouter  from "./routes/recipes.js";
 import trainingRouter from "./routes/training.js";
 import shoppingRouter from "./routes/shopping.js";
 import postsRouter    from "./routes/posts.js";
+// Rutas en la raíz (no /api) — Vercel las hace proxy directo desde
+// nuiapp.com/sitemap.xml (ver frontend/vercel.json), así queda dinámico
+// desde Mongo en vez de un archivo estático generado en el build.
+import sitemapRouter   from "./routes/sitemap.js";
 import energyRouter   from "./routes/energy.js";
 import webauthnRouter from "./routes/webauthn.js";
 import { initSocket } from "./socket.js";
@@ -729,6 +733,7 @@ app.use("/api/recipes",       recipesRouter);
 app.use("/api/training",      trainingRouter);
 app.use("/api/shopping-list", shoppingRouter);
 app.use("/api/posts",         postsRouter);
+app.use(sitemapRouter); // rutas en la raíz (/sitemap.xml, etc.) — ver comentario en el import
 app.use("/api/energy",        energyRouter);
 app.use("/api/webauthn",      webauthnRouter);
 

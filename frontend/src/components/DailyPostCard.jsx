@@ -179,7 +179,11 @@ const DailyPostCard = () => {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_URL}/api/posts/today`, {
+    // es-AR fijo: esta card vive en el Dashboard logueado, que todavía es
+    // español-only mientras no se termine su traducción (ver TRANSLATION_
+    // COMPLETE en Dashboard.jsx) — no tiene sentido mostrar la nota en
+    // inglés dentro de una pantalla que sigue en español.
+    fetch(`${API_URL}/api/posts/es-AR/today`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
@@ -188,7 +192,7 @@ const DailyPostCard = () => {
         // Si no tiene imagen aún, hacer polling cada 5s hasta que aparezca
         if (d.post && !d.post.imageUrl) {
           const interval = setInterval(async () => {
-            const r2   = await fetch(`${API_URL}/api/posts/today`, {
+            const r2   = await fetch(`${API_URL}/api/posts/es-AR/today`, {
               headers: { Authorization: `Bearer ${token}` },
             }).then((r) => r.json());
             if (r2.post?.imageUrl) {

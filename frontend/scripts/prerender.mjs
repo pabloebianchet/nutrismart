@@ -23,7 +23,6 @@ import { readFile, writeFile, mkdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildPostSlug } from "../src/utils/blogSlug.js";
 
 /**
  * Lanzamiento del browser según entorno:
@@ -108,14 +107,14 @@ const STATIC_SITEMAP_META = {
 // al backend de Render para poder probar con datos reales.
 const API_URL = process.env.VITE_API_URL || "https://nutrismart-backend.onrender.com";
 
-async function fetchAllPosts() {
+async function fetchAllPosts(lang) {
   try {
-    const res = await fetch(`${API_URL}/api/posts/all`);
+    const res = await fetch(`${API_URL}/api/posts/${lang}/all`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     return data.posts || [];
   } catch (err) {
-    console.error(`⚠ No se pudo obtener la lista de posts del blog (${err.message}) — se prerenderizan solo las rutas fijas.`);
+    console.error(`⚠ No se pudo obtener la lista de notas ${lang} (${err.message}) — se prerenderizan solo las rutas fijas.`);
     return [];
   }
 }
@@ -133,6 +132,12 @@ const applyPageMeta = (html, meta) => {
   let out = html;
   if (meta.htmlLang) {
     out = out.replace(/<html lang="[^"]*"/, `<html lang="${escapeAttr(meta.htmlLang)}"`);
+  }
+  if (meta.robots) {
+    out = out.replace(
+      /(<meta name="robots" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.robots)}$2`
+    );
   }
   if (meta.title) {
     out = out.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`);
@@ -211,23 +216,6 @@ const applyPageMeta = (html, meta) => {
   return out;
 };
 
-/* ─── Genera sitemap.xml dinámico: rutas fijas + un <url> por post ─── */
-const buildSitemap = (posts) => {
-  const staticUrls = ROUTES.map((route) => {
-    const { changefreq, priority } = STATIC_SITEMAP_META[route];
-    const loc = route === "/" ? "https://nuiapp.com/" : `https://nuiapp.com${route}`;
-    return `  <url>\n    <loc>${loc}</loc>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
-  });
-
-  const postUrls = posts.map((post) => {
-    const loc = `https://nuiapp.com/blog/${buildPostSlug(post)}`;
-    const lastmod = post.date;
-    return `  <url>\n    <loc>${escapeAttr(loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
-  });
-
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n${[...staticUrls, ...postUrls].join("\n\n")}\n\n</urlset>\n`;
-};
-
 const MIME_TYPES = {
   ".js":    "text/javascript",
   ".mjs":   "text/javascript",
@@ -298,12 +286,19 @@ async function main() {
   const server = await startServer(templateHtml);
   const { port } = server.address();
 
-  console.log(`Buscando posts del blog en ${API_URL}...`);
-  const posts = await fetchAllPosts();
-  const blogRoutes = posts.map((post) => `/blog/${buildPostSlug(post)}`);
-  console.log(`${posts.length} posts encontrados — se agregan ${blogRoutes.length} rutas de blog al prerender.\n`);
+  console.log(`Buscando notas en ${API_URL}...`);
+  const [postsEs, postsEn] = await Promise.all([fetchAllPosts("es-AR"), fetchAllPosts("en")]);
+  const noteRoutes = [
+    ...postsEs.map((post) => `/es-ar/notas/${post.slug}`),
+    ...postsEn.map((post) => `/en/notes/${post.slug}`),
+  ];
+  console.log(`${postsEs.length} notas ES + ${postsEn.length} notas EN — se agregan ${noteRoutes.length} rutas de notas al prerender.\n`);
 
-  const allRoutes = [...ROUTES, ...blogRoutes];
+  // Índices de notas (solo página 1 — páginas siguientes se sirven client-
+  // side, no son críticas para el crawling inicial).
+  const NOTE_INDEX_ROUTES = ["/es-ar/notas", "/en/notes"];
+
+  const allRoutes = [...ROUTES, ...NOTE_INDEX_ROUTES, ...noteRoutes];
 
   const browser = await launchBrowser();
   console.log(`Navegador listo (isCI=${isCI}). Servidor local en :${port}.\n`);
@@ -355,6 +350,7 @@ async function main() {
         alternates:    Array.from(document.querySelectorAll('link[rel="alternate"][hreflang]'))
                              .map((el) => ({ hreflang: el.getAttribute("hreflang"), href: el.getAttribute("href") })),
         htmlLang:      document.documentElement.lang || "",
+        robots:        document.querySelector('meta[name="robots"]')?.content || "",
         jsonLdScripts: Array.from(document.querySelectorAll('script[type="application/ld+json"][id]'))
                              .map((el) => ({ id: el.id, json: el.textContent })),
       }));
@@ -394,29 +390,27 @@ async function main() {
   await browser.close();
   server.close();
 
-  console.log(`\nPrerender completo: ${ok}/${allRoutes.length} rutas (${ROUTES.length} fijas + ${blogRoutes.length} de blog).`);
+  console.log(`\nPrerender completo: ${ok}/${allRoutes.length} rutas (${ROUTES.length} fijas + ${NOTE_INDEX_ROUTES.length} índices + ${noteRoutes.length} notas).`);
 
-  // Las 8 rutas fijas son críticas — si alguna falla, se corta el deploy.
-  // Un post individual del blog que falle (ej. timeout puntual) no debería
-  // tumbar todo el sitio: queda sin prerenderizar (sirve la SPA normal vía
-  // fallback) pero el resto del build sigue adelante.
+  // Las rutas fijas (incluye /en/*) son críticas — si alguna falla, se
+  // corta el deploy. Un índice o una nota individual que falle (ej.
+  // timeout puntual) no debería tumbar todo el sitio: queda sin
+  // prerenderizar (sirve la SPA normal vía fallback) pero el resto del
+  // build sigue adelante.
   const coreOk = ROUTES.filter((r) => okRoutes.has(r)).length;
   if (coreOk < ROUTES.length) {
-    console.error(`❌ ${ROUTES.length - coreOk} de las 8 rutas fijas no se pudieron prerenderizar.`);
+    console.error(`❌ ${ROUTES.length - coreOk} de las ${ROUTES.length} rutas fijas no se pudieron prerenderizar.`);
     process.exitCode = 1;
   }
-  const blogOk = blogRoutes.filter((r) => okRoutes.has(r)).length;
-  if (blogOk < blogRoutes.length) {
-    console.warn(`⚠ ${blogRoutes.length - blogOk} posts del blog no se pudieron prerenderizar (no bloquea el deploy).`);
+  const noteOk = noteRoutes.filter((r) => okRoutes.has(r)).length;
+  if (noteOk < noteRoutes.length) {
+    console.warn(`⚠ ${noteRoutes.length - noteOk} notas no se pudieron prerenderizar (no bloquea el deploy).`);
   }
 
-  // sitemap.xml dinámico — rutas fijas + una entrada por post existente.
-  try {
-    await writeFile(path.join(distDir, "sitemap.xml"), buildSitemap(posts), "utf-8");
-    console.log(`✅ sitemap.xml generado con ${ROUTES.length + posts.length} URLs.`);
-  } catch (err) {
-    console.error(`❌ No se pudo escribir sitemap.xml: ${err.message}`);
-  }
+  // sitemap.xml YA NO se genera acá — se sirve dinámico desde el backend
+  // (backend/routes/sitemap.js), leyendo Mongo en cada request (con caché
+  // corto). Antes quedaba obsoleto entre deploys porque las notas se
+  // publican todos los días pero el sitio no se redeploya todos los días.
 }
 
 main();

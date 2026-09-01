@@ -5,9 +5,23 @@
       "has": [{ "type": "host", "value": "www.nuiapp.com" }],
       "destination": "https://nuiapp.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/es-ar/notas/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/es-ar/notas",
+      "permanent": true
     }
   ],
   "rewrites": [
+    { "source": "/sitemap.xml",          "destination": "https://nutrismart-backend.onrender.com/sitemap.xml" },
+    { "source": "/sitemap-static.xml",   "destination": "https://nutrismart-backend.onrender.com/sitemap-static.xml" },
+    { "source": "/sitemap-notes-es.xml", "destination": "https://nutrismart-backend.onrender.com/sitemap-notes-es.xml" },
+    { "source": "/sitemap-notes-en.xml", "destination": "https://nutrismart-backend.onrender.com/sitemap-notes-en.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

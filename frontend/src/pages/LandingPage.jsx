@@ -50,7 +50,6 @@ import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
-import { buildPostSlug } from "../utils/blogSlug";
 
 /* ─── Tokens ──────────────────────────────────────────────────────────────── */
 const C = {
@@ -3164,6 +3163,9 @@ const fmtDateLanding = (d) =>
   new Date(d).toLocaleDateString("es-AR", { day: "numeric", month: "long" });
 
 const LandingPostsSection = () => {
+  const { isUS } = useNutrition();
+  const notesLang  = isUS ? "en" : "es-AR";
+  const notesPath  = isUS ? "/en/notes" : "/es-ar/notas";
   const [featured, setFeatured] = useState(null);
   const [archive, setArchive] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -3175,7 +3177,7 @@ const LandingPostsSection = () => {
     if (isFirst) setLoading(true);
     else setArchiveLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/posts/landing?page=${p}`);
+      const res = await fetch(`${API_URL}/api/posts/${notesLang}/landing?page=${p}`);
       const data = await res.json();
       if (p === 1 && data.featured) setFeatured(data.featured);
       setArchive(data.archive || []);
@@ -3190,7 +3192,7 @@ const LandingPostsSection = () => {
 
   useEffect(() => {
     fetchPage(1, true);
-  }, []); // eslint-disable-line
+  }, [notesLang]); // eslint-disable-line
 
   return (
     <Box
@@ -3224,7 +3226,7 @@ const LandingPostsSection = () => {
               lineHeight: 1.2,
             }}
           >
-            Salud, nutrición y bienestar — hoy
+            {isUS ? "Health, nutrition & wellness — today" : "Salud, nutrición y bienestar — hoy"}
           </Typography>
         </Box>
 
@@ -3259,7 +3261,7 @@ const LandingPostsSection = () => {
           featured && (
             <Box
               component={Link}
-              to={`/blog/${buildPostSlug(featured)}`}
+              to={`${notesPath}/${featured.slug}`}
               sx={{
                 borderRadius: 4,
                 overflow: "hidden",
@@ -3460,11 +3462,11 @@ const LandingPostsSection = () => {
                   letterSpacing: "0.08em",
                 }}
               >
-                Artículos anteriores
+                {isUS ? "Previous articles" : "Artículos anteriores"}
               </Typography>
               {totalPages > 1 && (
                 <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>
-                  Página {page} de {totalPages}
+                  {isUS ? `Page ${page} of ${totalPages}` : `Página ${page} de ${totalPages}`}
                 </Typography>
               )}
             </Stack>
@@ -3501,7 +3503,7 @@ const LandingPostsSection = () => {
                   <Box
                     key={p._id}
                     component={Link}
-                    to={`/blog/${buildPostSlug(p)}`}
+                    to={`${notesPath}/${p.slug}`}
                     sx={{
                       display: "flex",
                       alignItems: "center",
@@ -3615,7 +3617,7 @@ const LandingPostsSection = () => {
                     "&:disabled": { opacity: 0.4 },
                   }}
                 >
-                  ← Anterior
+                  {isUS ? "← Previous" : "← Anterior"}
                 </Button>
                 <Button
                   size="small"
@@ -3633,7 +3635,7 @@ const LandingPostsSection = () => {
                     "&:disabled": { opacity: 0.4 },
                   }}
                 >
-                  Siguiente →
+                  {isUS ? "Next →" : "Siguiente →"}
                 </Button>
               </Stack>
             )}

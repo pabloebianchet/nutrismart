@@ -9,12 +9,13 @@ Allow: /contact
 Allow: /privacidad
 Allow: /terminos
 Allow: /legal
-Allow: /blog/
 Allow: /en
 Allow: /en/pricing
 Allow: /en/about
 Allow: /en/how-it-works
 Allow: /en/contact
+Allow: /es-ar/notas/
+Allow: /en/notes/
 
 # App privada — no indexar
 Disallow: /login
