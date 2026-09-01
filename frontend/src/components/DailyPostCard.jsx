@@ -180,12 +180,15 @@ const DailyPostCard = () => {
   const [loading, setLoading] = useState(true);
   const [open,    setOpen]    = useState(false);
 
+  const notesLang = isUS ? "en" : "es-AR";
+
   useEffect(() => {
     if (!token) return;
-    // es-AR fijo a propósito: el blog es un sistema bilingüe independiente
-    // (notas en español y en inglés viven en URLs separadas), no atado al
-    // isUS del Dashboard — no cambiar esto a isUS.
-    fetch(`${API_URL}/api/posts/es-AR/today`, {
+    // La nota del día sigue el idioma del usuario (isUS) — igual que en
+    // Argentina se muestra la nota en español del día, acá se muestra la
+    // nota en inglés del día. Son notas independientes por idioma, no
+    // traducciones, pero cada usuario ve la que corresponde a su idioma.
+    fetch(`${API_URL}/api/posts/${notesLang}/today`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
@@ -194,7 +197,7 @@ const DailyPostCard = () => {
         // Si no tiene imagen aún, hacer polling cada 5s hasta que aparezca
         if (d.post && !d.post.imageUrl) {
           const interval = setInterval(async () => {
-            const r2   = await fetch(`${API_URL}/api/posts/es-AR/today`, {
+            const r2   = await fetch(`${API_URL}/api/posts/${notesLang}/today`, {
               headers: { Authorization: `Bearer ${token}` },
             }).then((r) => r.json());
             if (r2.post?.imageUrl) {
@@ -207,7 +210,7 @@ const DailyPostCard = () => {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []); // eslint-disable-line
+  }, [notesLang]); // eslint-disable-line
 
   if (loading) return (
     <Paper elevation={0} sx={{ borderRadius: 4, overflow: "hidden", border: `1px solid ${C.border}`,

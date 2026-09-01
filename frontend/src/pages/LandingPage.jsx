@@ -2699,7 +2699,7 @@ const getPricingPlans = (isUS) =>
         },
       ];
 
-const formatUSDLanding = (n) => `$${n.toFixed(2)}`;
+const formatUSDLanding = (n) => `US$${n.toFixed(2)}`;
 
 /* ─── Card de pricing reutilizable ───────────────────────────── */
 const PricingCard = ({ p, onCTA, isActive }) => {
