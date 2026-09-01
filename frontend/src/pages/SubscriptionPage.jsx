@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Chip, Button, Stack, Paper, Divider, Alert } from "@mui/material";
+import { Box, Typography, Chip, Button, Stack, Paper, Divider, Alert, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
@@ -10,6 +10,8 @@ import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LocalOfferRoundedIcon from "@mui/icons-material/LocalOfferRounded";
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import { API_URL } from "../config/api";
 
 const C = {
@@ -70,16 +72,39 @@ const SubscriptionPage = () => {
 
   const [sub, setSub]               = useState(null);
   const [loading, setLoading]       = useState(true);
+  const [cancelOpen,     setCancelOpen]     = useState(false);
+  const [cancelling,     setCancelling]     = useState(false);
+  const [cancelError,    setCancelError]    = useState("");
 
   const token = localStorage.getItem("nutrismartToken");
   const headers = { Authorization: `Bearer ${token}` };
 
-  useEffect(() => {
-    if (!user) { navigate("/"); return; }
+  const fetchSubscription = () =>
     fetch(`${API_URL}/api/payments/subscription`, { headers })
       .then((r) => r.json())
       .then((d) => setSub(d.subscription || null))
-      .catch(() => {})
+      .catch(() => {});
+
+  const handleConfirmCancel = async () => {
+    setCancelling(true);
+    setCancelError("");
+    try {
+      const endpoint = sub.provider === "stripe" ? "stripe/cancel" : "cancel";
+      const res = await fetch(`${API_URL}/api/payments/${endpoint}`, { method: "POST", headers });
+      const data = await res.json();
+      if (!res.ok) { setCancelError(data.error || "No se pudo cancelar. Probá de nuevo."); return; }
+      await fetchSubscription();
+      setCancelOpen(false);
+    } catch {
+      setCancelError("No se pudo cancelar. Probá de nuevo.");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) { navigate("/"); return; }
+    fetchSubscription()
       .finally(() => setLoading(false));
   }, [user]);
 
@@ -239,6 +264,17 @@ const SubscriptionPage = () => {
                     </Typography>
                   </Box>
                 </Stack>
+                <Divider sx={{ my: 2.5 }} />
+                <Button
+                  onClick={() => { setCancelError(""); setCancelOpen(true); }}
+                  startIcon={<CancelRoundedIcon sx={{ fontSize: 17 }} />}
+                  sx={{
+                    textTransform: "none", fontWeight: 700, fontSize: 13, color: C.danger,
+                    px: 1, "&:hover": { bgcolor: C.dangerSurface },
+                  }}
+                >
+                  Cancelar suscripción
+                </Button>
               </Paper>
             )}
 
@@ -318,6 +354,39 @@ const SubscriptionPage = () => {
           </Stack>
         )}
       </Box>
+
+      {/* ── Confirmar cancelación ── */}
+      <Dialog open={cancelOpen} onClose={() => !cancelling && setCancelOpen(false)}
+        PaperProps={{ sx: { borderRadius: 4, mx: 2, maxWidth: 420 } }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.2, fontSize: 17, fontWeight: 800, color: C.textPrimary }}>
+          <WarningAmberRoundedIcon sx={{ color: C.danger }} />
+          Cancelar suscripción
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ fontSize: 14, color: C.textSecondary, lineHeight: 1.7, mb: cancelError ? 1.5 : 0 }}>
+            Vas a seguir teniendo acceso a todos los beneficios del <strong>Plan {planMeta?.name}</strong> hasta
+            el <strong>{formatDate(sub?.endDate)}</strong>. Después de esa fecha no se te va a cobrar de nuevo.
+          </Typography>
+          {cancelError && (
+            <Typography sx={{ fontSize: 13, color: C.danger, fontWeight: 600 }}>{cancelError}</Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+          <Button onClick={() => setCancelOpen(false)} disabled={cancelling}
+            sx={{ textTransform: "none", fontWeight: 600, color: C.textSecondary, borderRadius: 2.5 }}>
+            Volver
+          </Button>
+          <Button
+            onClick={handleConfirmCancel}
+            disabled={cancelling}
+            variant="contained"
+            startIcon={cancelling ? <CircularProgress size={15} sx={{ color: "#fff" }} /> : null}
+            sx={{ bgcolor: C.danger, borderRadius: 2.5, textTransform: "none", fontWeight: 700, px: 2.5, "&:hover": { bgcolor: "#c73f3e" } }}
+          >
+            {cancelling ? "Cancelando…" : "Sí, cancelar"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

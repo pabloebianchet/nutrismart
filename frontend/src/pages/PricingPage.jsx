@@ -128,11 +128,7 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
   const [paying,      setPaying]      = useState(false);
 
   const basePrice = plan.id === "silver" ? planPrices.silver : planPrices.gold;
-  // Stripe (EE.UU.) no tiene cupones en esta primera versión — el sistema
-  // de cupones actual está atado a mpPaymentId, es específico de MP.
-  const finalPrice = !isUS && couponData
-    ? Math.round(basePrice * (1 - couponData.discountPct / 100))
-    : basePrice;
+  const finalPrice = couponData ? couponData.finalAmount : basePrice;
   const fmt = isUS ? formatUSD : formatARS;
 
   const validateCoupon = async () => {
@@ -143,7 +139,8 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
     setCouponData(null);
     try {
       const token = localStorage.getItem("nutrismartToken");
-      const res   = await fetch(`${API_URL}/api/payments/validate-coupon`, {
+      const endpoint = isUS ? "stripe/validate-coupon" : "validate-coupon";
+      const res   = await fetch(`${API_URL}/api/payments/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ code, plan: plan.id }),
@@ -201,8 +198,6 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
 
         <Divider sx={{ mb: 2.5 }} />
 
-        {isUS ? null : (
-        <>
         {/* Cupón */}
         <Typography sx={{ fontSize: 12, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 1.2 }}>
           ¿Tenés un código de descuento?
@@ -268,8 +263,6 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
         )}
 
         {couponError && <Box sx={{ mb: 2.5 }} />}
-        </>
-        )}
 
         {/* Botón pagar */}
         <Button
@@ -353,7 +346,7 @@ const PricingPage = () => {
       const res = await fetch(`${API_URL}/api/payments/stripe/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ plan: plan.id }),
+        body: JSON.stringify({ plan: plan.id, couponCode: couponCode || null }),
       });
       const data = await res.json();
       if (!res.ok) { alert(data.error || "Error al procesar el pago."); return; }

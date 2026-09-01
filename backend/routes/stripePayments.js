@@ -2,6 +2,7 @@ import express from "express";
 import Stripe from "stripe";
 import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
+import Coupon from "../models/Coupon.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
@@ -22,6 +23,55 @@ const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
 
 const router = express.Router();
 
+/* ─── Cupones — mismo sistema/códigos que Mercado Pago ───────────
+ * Un Cupón de Nui (Mongo) se refleja en un Coupon nativo de Stripe,
+ * creado una sola vez (id determinístico) y reutilizado. Stripe aplica
+ * el % de descuento automáticamente por 3 ciclos de facturación
+ * (duration_in_months) — a diferencia de MP no hace falta que nuestro
+ * código reaplique el descuento mes a mes, Stripe ya lo hace solo.
+ */
+const getOrCreateStripeCoupon = async (stripe, coupon, plan) => {
+  const id = `nui_${coupon.code}_${plan}`.toLowerCase();
+  try {
+    return await stripe.coupons.retrieve(id);
+  } catch {
+    return await stripe.coupons.create({
+      id,
+      percent_off: coupon.discountPct,
+      duration: "repeating",
+      duration_in_months: 3,
+      name: `${coupon.code} — ${coupon.discountPct}% x3 meses`,
+    });
+  }
+};
+
+// Mismas reglas que /api/payments/validate-coupon (MP), adaptadas: como
+// Stripe aplica el descuento automáticamente durante 3 ciclos sin que
+// nuestro backend tenga que reintervenir, el límite por usuario acá es
+// más simple — un código ya usado por ese usuario no se puede reusar
+// (evita cancelar y resuscribirse para encadenar descuentos gratis).
+const validateCouponForUser = async (code, plan, user) => {
+  const coupon = await Coupon.findOne({ code: code.toUpperCase().trim(), active: true });
+  if (!coupon) return { error: "Código inválido o inactivo." };
+
+  if (coupon.appliesTo !== "both" && coupon.appliesTo !== plan) {
+    return { error: `Este código solo aplica al Plan ${coupon.appliesTo === "silver" ? "Silver" : "Gold"}.` };
+  }
+  if (coupon.maxUses !== null && coupon.usages.length >= coupon.maxUses) {
+    return { error: "Este código ya alcanzó su límite de usos." };
+  }
+  if (coupon.validUntil && new Date() > new Date(coupon.validUntil)) {
+    return { error: "Este código de descuento venció." };
+  }
+
+  const existingSub = await Subscription.findOne({ user: user._id });
+  if (existingSub?.couponCode === coupon.code) {
+    return { error: "Ya usaste este código de descuento anteriormente." };
+  }
+
+  return { coupon };
+};
+
 /* ─── GET PRECIOS PÚBLICOS (USD) ──────────────────────────────── */
 router.get("/plans", (_req, res) => {
   res.json({
@@ -30,9 +80,38 @@ router.get("/plans", (_req, res) => {
   });
 });
 
+/* ─── VALIDAR CUPÓN (USD) ──────────────────────────────────────── */
+router.post("/validate-coupon", authMiddleware, async (req, res) => {
+  const { code, plan } = req.body;
+  if (!code || !plan) return res.status(400).json({ error: "Código y plan requeridos." });
+  if (!STRIPE_PLANS[plan]) return res.status(400).json({ error: "Plan inválido." });
+
+  try {
+    const { coupon, error } = await validateCouponForUser(code, plan, req.user);
+    if (error) return res.status(400).json({ error });
+
+    const planInfo = STRIPE_PLANS[plan];
+    const discountAmount = +(planInfo.amount * coupon.discountPct / 100).toFixed(2);
+    const finalAmount    = +(planInfo.amount - discountAmount).toFixed(2);
+
+    return res.json({
+      valid: true,
+      code: coupon.code,
+      creatorName: coupon.creatorName,
+      discountPct: coupon.discountPct,
+      originalAmount: planInfo.amount,
+      discountAmount,
+      finalAmount,
+      monthsLeft: 3,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al validar el cupón." });
+  }
+});
+
 /* ─── CREAR CHECKOUT SESSION (suscripción con auto-renovación) ── */
 router.post("/checkout", authMiddleware, async (req, res) => {
-  const { plan } = req.body;
+  const { plan, couponCode } = req.body;
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: "Stripe no está configurado. Contactá al administrador." });
@@ -53,14 +132,25 @@ router.post("/checkout", authMiddleware, async (req, res) => {
 
     const existingSub = await Subscription.findOne({ user: user._id });
 
+    let discounts;
+    let appliedCouponCode = "";
+    if (couponCode) {
+      const { coupon, error } = await validateCouponForUser(couponCode, plan, user);
+      if (error) return res.status(400).json({ error });
+      const stripeCoupon = await getOrCreateStripeCoupon(stripe, coupon, plan);
+      discounts = [{ coupon: stripeCoupon.id }];
+      appliedCouponCode = coupon.code;
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
+      ...(discounts ? { discounts } : {}),
       customer_email: existingSub?.stripeCustomerId ? undefined : user.email,
       customer: existingSub?.stripeCustomerId || undefined,
       client_reference_id: user._id.toString(),
-      metadata: { userId: user._id.toString(), plan },
-      subscription_data: { metadata: { userId: user._id.toString(), plan } },
+      metadata: { userId: user._id.toString(), plan, couponCode: appliedCouponCode },
+      subscription_data: { metadata: { userId: user._id.toString(), plan, couponCode: appliedCouponCode } },
       success_url: `${frontendUrl}/subscription/success?provider=stripe`,
       cancel_url:  `${frontendUrl}/pricing`,
       // Managed Payments (cálculo/remisión automática de impuestos de Stripe)
@@ -141,12 +231,15 @@ export const stripeWebhookHandler = async (req, res) => {
 
       const userId = session.client_reference_id || session.metadata?.userId;
       const plan   = session.metadata?.plan;
+      const couponCode = session.metadata?.couponCode || "";
       if (!userId || !STRIPE_PLANS[plan]) return res.sendStatus(200);
 
       const stripeSub = await stripe.subscriptions.retrieve(session.subscription);
       const now = new Date();
       const end = new Date(stripeSub.current_period_end * 1000);
-      const amount = (stripeSub.items.data[0]?.price?.unit_amount || 0) / 100;
+      // amount_total ya refleja el descuento del cupón si se aplicó uno —
+      // el unit_amount del Price siempre es el precio de lista, sin descuento.
+      const amount = (session.amount_total ?? stripeSub.items.data[0]?.price?.unit_amount ?? 0) / 100;
       const currency = (stripeSub.items.data[0]?.price?.currency || "usd").toUpperCase();
 
       const sub = await Subscription.findOneAndUpdate(
@@ -158,13 +251,14 @@ export const stripeWebhookHandler = async (req, res) => {
             amount, currency, autoRenew: true,
             stripeCustomerId:     session.customer,
             stripeSubscriptionId: session.subscription,
+            ...(couponCode ? { couponCode } : {}),
           },
           $push: {
             paymentHistory: {
               $each: [{
                 stripePaymentId: session.id, provider: "stripe",
                 amount, currency, status: "approved", plan,
-                description: `Pago ${STRIPE_PLANS[plan].name} — Stripe`,
+                description: `Pago ${STRIPE_PLANS[plan].name} — Stripe${couponCode ? ` (cupón ${couponCode})` : ""}`,
               }],
               $position: 0,
             },
@@ -184,6 +278,20 @@ export const stripeWebhookHandler = async (req, res) => {
         logInfo("payment", "subscription.created",
           `Nueva suscripción ${STRIPE_PLANS[plan].name} (Stripe) — ${user.email}`,
           { userId: user._id, userName: user.name, userEmail: user.email, meta: { plan, amount, currency, provider: "stripe" } });
+
+        if (couponCode) {
+          const originalAmount = STRIPE_PLANS[plan].amount;
+          await Coupon.findOneAndUpdate(
+            { code: couponCode },
+            { $push: { usages: {
+                userId: user._id, userEmail: user.email, plan,
+                originalAmount,
+                discountAmount: +(originalAmount - amount).toFixed(2),
+                finalAmount: amount,
+                stripePaymentId: session.id, provider: "stripe",
+              } } }
+          ).catch((err) => console.error("Error al registrar uso de cupón (Stripe):", err.message));
+        }
       }
     }
 

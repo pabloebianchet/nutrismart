@@ -8,7 +8,9 @@ const usageSchema = new mongoose.Schema(
     originalAmount: { type: Number },
     discountAmount: { type: Number },
     finalAmount:    { type: Number },
-    mpPaymentId:    { type: String },
+    mpPaymentId:     { type: String },
+    stripePaymentId: { type: String },
+    provider:        { type: String, enum: ["mercadopago", "stripe"], default: "mercadopago" },
   },
   { timestamps: true }
 );
