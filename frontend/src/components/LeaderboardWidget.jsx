@@ -4,6 +4,7 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
+import { useNutrition } from "../context/NutritionContext";
 
 const RANK = {
   1: { color: "#F5B800", bg: "linear-gradient(135deg,#FFFBEA,#FFF3C0)", border: "rgba(245,184,0,0.40)", text: "#8A6800" },
@@ -11,10 +12,10 @@ const RANK = {
   3: { color: "#C07830", bg: "linear-gradient(135deg,#FDF2E8,#F5E0C8)", border: "rgba(192,120,48,0.35)", text: "#8B4C1A" },
 };
 
-const firstName = (name) => name?.split(" ")[0] || "Usuario";
+const firstName = (name, isUS) => name?.split(" ")[0] || (isUS ? "User" : "Usuario");
 
 /* ── Fila del ranking ────────────────────────── */
-const RankRow = ({ entry, blurred }) => {
+const RankRow = ({ entry, blurred, isUS }) => {
   const rs   = RANK[entry.rank];
   const init = entry.name?.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "?";
 
@@ -68,7 +69,7 @@ const RankRow = ({ entry, blurred }) => {
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}
       >
-        {firstName(entry.name)}{entry.isCurrentUser ? " (vos)" : ""}
+        {firstName(entry.name, isUS)}{entry.isCurrentUser ? (isUS ? " (you)" : " (vos)") : ""}
       </Typography>
 
       {/* Puntos */}
@@ -83,7 +84,7 @@ const RankRow = ({ entry, blurred }) => {
 };
 
 /* ── Podio animado top 3 ─────────────────────── */
-const Podium = ({ top3 }) => {
+const Podium = ({ top3, isUS }) => {
   const order = [top3[1], top3[0], top3[2]].filter(Boolean); // 2nd, 1st, 3rd
   const heights = { 0: 72, 1: 96, 2: 60 };
   const init = (e) => e?.name?.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "?";
@@ -139,7 +140,7 @@ const Podium = ({ top3 }) => {
                 {!entry.picture && init(entry)}
               </Avatar>
               <Typography sx={{ fontSize: isFirst ? 13 : 12, fontWeight: 800, color: rs.text, maxWidth: 70, textAlign: "center", lineHeight: 1.2 }}>
-                {firstName(entry.name)}
+                {firstName(entry.name, isUS)}
               </Typography>
               <Typography sx={{ fontSize: 12, fontWeight: 900, color: rs.text }}>{entry.healthyPoints} pts</Typography>
             </Box>
@@ -172,6 +173,7 @@ const Podium = ({ top3 }) => {
 
 /* ── Widget principal ────────────────────────── */
 const LeaderboardWidget = () => {
+  const { isUS } = useNutrition();
   const [data, setData]         = useState(null);
   const [loading, setLoading]   = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -223,10 +225,10 @@ const LeaderboardWidget = () => {
           </Box>
           <Box>
             <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px" }}>
-              Ranking global
+              {isUS ? "Global ranking" : "Ranking global"}
             </Typography>
             <Typography sx={{ fontSize: 12, color: "#8AADAA" }}>
-              Competencia de puntos saludables
+              {isUS ? "Healthy points competition" : "Competencia de puntos saludables"}
             </Typography>
           </Box>
         </Stack>
@@ -236,14 +238,14 @@ const LeaderboardWidget = () => {
       <Box sx={{ px: 2.5, pt: 3, pb: 2 }}>
 
         {/* Podio top 3 */}
-        {top3.length >= 2 && <Podium top3={top3} />}
+        {top3.length >= 2 && <Podium top3={top3} isUS={isUS} />}
 
         {/* Lista posiciones 4-10 */}
         {rest.length > 0 && (
           <Box sx={{ position: "relative" }}>
             <Stack spacing={1}>
               {rest.map((entry) => (
-                <RankRow key={entry._id} entry={entry} blurred={!expanded} />
+                <RankRow key={entry._id} entry={entry} blurred={!expanded} isUS={isUS} />
               ))}
             </Stack>
 
@@ -278,7 +280,7 @@ const LeaderboardWidget = () => {
                     "&:hover": { bgcolor: "#0f7a6e" },
                   }}
                 >
-                  Ver más
+                  {isUS ? "See more" : "Ver más"}
                 </Button>
               </Box>
             )}
@@ -304,7 +306,7 @@ const LeaderboardWidget = () => {
                 <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(11,94,85,0.10)" }} />
               </Box>
             )}
-            <RankRow entry={currentUser} blurred={false} />
+            <RankRow entry={currentUser} blurred={false} isUS={isUS} />
           </Box>
         )}
 
@@ -315,7 +317,7 @@ const LeaderboardWidget = () => {
               <Leaf size={32} weight="fill" color="#B2DDD9" />
             </Box>
             <Typography sx={{ fontSize: 14, color: "#8AADAA" }}>
-              Sé el primero en el ranking. ¡Analizá un producto saludable!
+              {isUS ? "Be the first on the leaderboard. Analyze a healthy product!" : "Sé el primero en el ranking. ¡Analizá un producto saludable!"}
             </Typography>
           </Box>
         )}

@@ -18,6 +18,7 @@ import DirectionsWalkRoundedIcon from "@mui/icons-material/DirectionsWalkRounded
 import DirectionsRunRoundedIcon from "@mui/icons-material/DirectionsRunRounded";
 import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import { useNutrition } from "../context/NutritionContext";
 
 
 /* ── Umbrales ──────────────────────────────────────────────────────────────── */
@@ -36,6 +37,7 @@ const genderPrefix = (sexo) =>
 const STATE_ICONS = [HotelRoundedIcon, DirectionsWalkRoundedIcon, DirectionsRunRoundedIcon, FitnessCenterRoundedIcon, EmojiEventsRoundedIcon];
 
 const Placeholder = ({ w, h, state }) => {
+  const { isUS } = useNutrition();
   const StateIcon = STATE_ICONS[state - 1];
   return (
   <Box
@@ -54,7 +56,7 @@ const Placeholder = ({ w, h, state }) => {
     <Typography
       sx={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}
     >
-      nivel {state}/5
+      {isUS ? `level ${state}/5` : `nivel ${state}/5`}
     </Typography>
   </Box>
   );
@@ -68,6 +70,7 @@ const AvatarMascot = ({
   height = 700,
   showLabel = false,
 }) => {
+  const { isUS } = useNutrition();
   const state = getAvatarState(points);
   const prefix = genderPrefix(sexo);
   const srcSvg = `/avatars/${prefix}_${state}.svg`;
@@ -108,7 +111,7 @@ const AvatarMascot = ({
           component="img"
           key={src}
           src={src}
-          alt={`avatar nivel ${state}`}
+          alt={isUS ? `avatar level ${state}` : `avatar nivel ${state}`}
           onLoad={() => setLoaded(true)}
           onError={() => {
             if (src === srcSvg) {
@@ -145,7 +148,7 @@ const AvatarMascot = ({
             whiteSpace: "nowrap",
           }}
         >
-          Nivel {state} / 5
+          {isUS ? `Level ${state} / 5` : `Nivel ${state} / 5`}
         </Typography>
       )}
     </Box>

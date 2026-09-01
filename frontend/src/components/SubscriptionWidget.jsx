@@ -8,6 +8,7 @@ import ChevronRightRoundedIcon          from "@mui/icons-material/ChevronRightRo
 import PauseCircleOutlineRoundedIcon    from "@mui/icons-material/PauseCircleOutlineRounded";
 import AccessTimeRoundedIcon            from "@mui/icons-material/AccessTimeRounded";
 import { API_URL } from "../config/api";
+import { useNutrition } from "../context/NutritionContext";
 
 const C = {
   brand:        "#0B5E55",
@@ -23,14 +24,14 @@ const C = {
   danger:       "#E24B4A",
 };
 
-const PLAN_META = {
-  free:   { name: "Prueba gratuita", Icon: RocketLaunchOutlinedIcon,    color: "#0B5E55", bg: "#E6F5F3", totalDays: 7  },
-  silver: { name: "Silver",          Icon: DiamondOutlinedIcon,          color: "#71879C", bg: "#EEF2F5", totalDays: 30 },
-  gold:   { name: "Gold",            Icon: WorkspacePremiumOutlinedIcon, color: "#C9952A", bg: "#FDF6E3", totalDays: 30 },
-};
+const getPlanMeta = (isUS) => ({
+  free:   { name: isUS ? "Free trial" : "Prueba gratuita", Icon: RocketLaunchOutlinedIcon,    color: "#0B5E55", bg: "#E6F5F3", totalDays: 7  },
+  silver: { name: "Silver",                                Icon: DiamondOutlinedIcon,          color: "#71879C", bg: "#EEF2F5", totalDays: 30 },
+  gold:   { name: "Gold",                                  Icon: WorkspacePremiumOutlinedIcon, color: "#C9952A", bg: "#FDF6E3", totalDays: 30 },
+});
 
-const formatDate = (d) =>
-  d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "long" }) : "—";
+const formatDate = (d, isUS) =>
+  d ? new Date(d).toLocaleDateString(isUS ? "en-US" : "es-AR", { day: "2-digit", month: "long" }) : "—";
 
 const daysLeft = (endDate) => {
   if (!endDate) return 0;
@@ -40,6 +41,7 @@ const daysLeft = (endDate) => {
 
 const SubscriptionWidget = () => {
   const navigate = useNavigate();
+  const { isUS } = useNutrition();
   const [sub, setSub] = useState(undefined);
   const token = localStorage.getItem("nutrismartToken");
 
@@ -59,7 +61,8 @@ const SubscriptionWidget = () => {
   const isCancelled = sub?.status === "cancelled";
   const isExpired   = sub?.status === "expired" || sub?.status === "pending";
   const remaining   = (isActive || isCancelled) ? daysLeft(sub.endDate) : null;
-  const meta        = PLAN_META[sub?.plan] || PLAN_META.silver;
+  const planMeta    = getPlanMeta(isUS);
+  const meta        = planMeta[sub?.plan] || planMeta.silver;
   const totalDays   = meta.totalDays;
   const pct         = remaining !== null ? Math.min(100, (remaining / totalDays) * 100) : 0;
   const isFree      = sub?.plan === "free";
@@ -81,10 +84,10 @@ const SubscriptionWidget = () => {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 800, fontSize: 16, color: "#fff", letterSpacing: "-0.3px" }}>
-                Prueba gratuita vencida
+                {isUS ? "Free trial expired" : "Prueba gratuita vencida"}
               </Typography>
               <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)" }}>
-                Elegí un plan para seguir usando Nui
+                {isUS ? "Choose a plan to keep using Nui" : "Elegí un plan para seguir usando Nui"}
               </Typography>
             </Box>
           </Stack>
@@ -94,7 +97,7 @@ const SubscriptionWidget = () => {
             endIcon={<ChevronRightRoundedIcon />}
             sx={{ bgcolor: "#fff", color: C.brand, fontWeight: 700, fontSize: 13, borderRadius: 2.5, textTransform: "none", px: 2.5, py: 1.1, whiteSpace: "nowrap", "&:hover": { bgcolor: C.brandSurface } }}
           >
-            Ver planes
+            {isUS ? "See plans" : "Ver planes"}
           </Button>
         </Stack>
       </Paper>
@@ -118,10 +121,10 @@ const SubscriptionWidget = () => {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 800, fontSize: 16, color: "#fff", letterSpacing: "-0.3px" }}>
-                Sin membresía activa
+                {isUS ? "No active membership" : "Sin membresía activa"}
               </Typography>
               <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)" }}>
-                Elegí un plan para análisis ilimitados
+                {isUS ? "Choose a plan for unlimited analyses" : "Elegí un plan para análisis ilimitados"}
               </Typography>
             </Box>
           </Stack>
@@ -131,7 +134,7 @@ const SubscriptionWidget = () => {
             endIcon={<ChevronRightRoundedIcon />}
             sx={{ bgcolor: "#fff", color: C.brand, fontWeight: 700, fontSize: 13, borderRadius: 2.5, textTransform: "none", px: 2.5, py: 1.1, whiteSpace: "nowrap", "&:hover": { bgcolor: C.brandSurface } }}
           >
-            Ver planes
+            {isUS ? "See plans" : "Ver planes"}
           </Button>
         </Stack>
       </Paper>
@@ -153,20 +156,20 @@ const SubscriptionWidget = () => {
               <PauseCircleOutlineRoundedIcon sx={{ fontSize: 20, color: C.danger }} />
             </Box>
             <Box>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Membresía</Typography>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>{isUS ? "Membership" : "Membresía"}</Typography>
               <Typography sx={{ fontSize: 17, fontWeight: 800, color: C.textPrimary, letterSpacing: "-0.3px" }}>
-                Plan {meta.name} · cancelado
+                {isUS ? `${meta.name} Plan · cancelled` : `Plan ${meta.name} · cancelado`}
               </Typography>
             </Box>
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Chip label="Cancelada" size="small" sx={{ bgcolor: "rgba(226,75,74,0.10)", color: C.danger, fontWeight: 700, fontSize: 11, border: "1px solid rgba(226,75,74,0.25)" }} />
+            <Chip label={isUS ? "Cancelled" : "Cancelada"} size="small" sx={{ bgcolor: "rgba(226,75,74,0.10)", color: C.danger, fontWeight: 700, fontSize: 11, border: "1px solid rgba(226,75,74,0.25)" }} />
             <Button
               onClick={() => navigate("/subscription")}
               endIcon={<ChevronRightRoundedIcon sx={{ fontSize: 16 }} />}
               sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: C.brand } }}
             >
-              Ver historial
+              {isUS ? "See history" : "Ver historial"}
             </Button>
           </Stack>
         </Box>
@@ -174,18 +177,22 @@ const SubscriptionWidget = () => {
           {remaining > 0 ? (
             <>
               <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                <Typography sx={{ fontSize: 12.5, color: C.textSecondary, fontWeight: 600 }}>Acceso activo hasta el vencimiento</Typography>
+                <Typography sx={{ fontSize: 12.5, color: C.textSecondary, fontWeight: 600 }}>{isUS ? "Active access until expiration" : "Acceso activo hasta el vencimiento"}</Typography>
                 <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: remaining <= 5 ? C.danger : C.textPrimary }}>
-                  {remaining} día{remaining !== 1 ? "s" : ""} · {formatDate(sub.endDate)}
+                  {isUS
+                    ? `${remaining} day${remaining !== 1 ? "s" : ""} · ${formatDate(sub.endDate, isUS)}`
+                    : `${remaining} día${remaining !== 1 ? "s" : ""} · ${formatDate(sub.endDate, isUS)}`}
                 </Typography>
               </Stack>
               <LinearProgress variant="determinate" value={pct} sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(226,75,74,0.12)", "& .MuiLinearProgress-bar": { bgcolor: remaining <= 5 ? C.danger : "#F39C12", borderRadius: 3 } }} />
             </>
           ) : (
-            <Typography sx={{ fontSize: 13, color: C.textSecondary }}>Tu período venció. Elegí un plan para seguir usando la app.</Typography>
+            <Typography sx={{ fontSize: 13, color: C.textSecondary }}>
+              {isUS ? "Your period has expired. Choose a plan to keep using the app." : "Tu período venció. Elegí un plan para seguir usando la app."}
+            </Typography>
           )}
           <Button onClick={() => navigate("/pricing")} variant="contained" fullWidth sx={{ mt: 2, bgcolor: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13.5, py: 1.1, "&:hover": { bgcolor: C.brandLight } }}>
-            Ver planes y renovar
+            {isUS ? "See plans and renew" : "Ver planes y renovar"}
           </Button>
         </Box>
       </Paper>
@@ -213,17 +220,21 @@ const SubscriptionWidget = () => {
           </Box>
           <Box>
             <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              {isFree ? "Período de prueba" : "Membresía"}
+              {isFree ? (isUS ? "Trial period" : "Período de prueba") : (isUS ? "Membership" : "Membresía")}
             </Typography>
             <Typography sx={{ fontSize: 17, fontWeight: 800, color: urgente ? C.danger : C.textPrimary, letterSpacing: "-0.3px" }}>
-              {isFree ? (urgente ? "⏰ Vence pronto" : "🎉 Prueba activa") : `Plan ${meta.name}`}
+              {isFree
+                ? (urgente
+                    ? (isUS ? "⏰ Expiring soon" : "⏰ Vence pronto")
+                    : (isUS ? "🎉 Trial active" : "🎉 Prueba activa"))
+                : (isUS ? `${meta.name} Plan` : `Plan ${meta.name}`)}
             </Typography>
           </Box>
         </Stack>
 
         <Stack direction="row" spacing={1} alignItems="center">
           <Chip
-            label={urgente ? "Vence pronto" : "Activa"}
+            label={urgente ? (isUS ? "Expiring soon" : "Vence pronto") : (isUS ? "Active" : "Activa")}
             size="small"
             sx={{
               bgcolor: urgente ? "rgba(226,75,74,0.10)" : "rgba(46,204,113,0.12)",
@@ -238,7 +249,7 @@ const SubscriptionWidget = () => {
               endIcon={<ChevronRightRoundedIcon sx={{ fontSize: 16 }} />}
               sx={{ textTransform: "none", color: C.textSecondary, fontWeight: 600, fontSize: 12.5, borderRadius: 2, px: 1.5, border: `1px solid ${C.border}`, bgcolor: C.surface, "&:hover": { bgcolor: C.brandSurface, color: C.brand } }}
             >
-              Gestionar
+              {isUS ? "Manage" : "Gestionar"}
             </Button>
           )}
         </Stack>
@@ -248,10 +259,14 @@ const SubscriptionWidget = () => {
       <Box sx={{ px: 3, py: 2.5, bgcolor: C.surface }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography sx={{ fontSize: 12.5, color: C.textSecondary, fontWeight: 600 }}>
-            {isFree ? "Días de prueba restantes" : "Días restantes del período"}
+            {isFree ? (isUS ? "Trial days remaining" : "Días de prueba restantes") : (isUS ? "Days remaining in period" : "Días restantes del período")}
           </Typography>
           <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: (remaining !== null && remaining <= 5) ? C.danger : C.textPrimary }}>
-            {remaining !== null ? `${remaining} día${remaining !== 1 ? "s" : ""} · vence ${formatDate(sub.endDate)}` : "—"}
+            {remaining !== null
+              ? (isUS
+                  ? `${remaining} day${remaining !== 1 ? "s" : ""} · expires ${formatDate(sub.endDate, isUS)}`
+                  : `${remaining} día${remaining !== 1 ? "s" : ""} · vence ${formatDate(sub.endDate, isUS)}`)
+              : "—"}
           </Typography>
         </Stack>
         <LinearProgress
@@ -265,8 +280,8 @@ const SubscriptionWidget = () => {
         />
         <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 1 }}>
           {isFree
-            ? "Al vencer tu prueba, elegí el plan que mejor te quede."
-            : `Vence el ${formatDate(sub.endDate)} · renovación manual`}
+            ? (isUS ? "When your trial ends, choose the plan that fits you best." : "Al vencer tu prueba, elegí el plan que mejor te quede.")
+            : (isUS ? `Expires on ${formatDate(sub.endDate, isUS)} · manual renewal` : `Vence el ${formatDate(sub.endDate, isUS)} · renovación manual`)}
         </Typography>
 
         {isFree && (
@@ -275,7 +290,7 @@ const SubscriptionWidget = () => {
             variant="outlined"
             sx={{ mt: 2, borderColor: C.brand, color: C.brand, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13, py: 1, px: 3, "&:hover": { bgcolor: C.brandSurface } }}
           >
-            Ver planes →
+            {isUS ? "See plans →" : "Ver planes →"}
           </Button>
         )}
       </Box>

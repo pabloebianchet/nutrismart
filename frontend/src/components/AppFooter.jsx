@@ -1,5 +1,6 @@
 import { Box, Typography, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useNutrition } from "../context/NutritionContext";
 
 const year       = new Date().getFullYear();
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "2.1.3";
@@ -51,6 +52,7 @@ const SmallDot = () => (
 );
 
 export default function AppFooter() {
+  const { isUS } = useNutrition();
   return (
     <Box
       component="footer"
@@ -72,18 +74,18 @@ export default function AppFooter() {
         <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
           Nui
           <Typography component="span" sx={{ fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.45)", ml: 1 }}>
-            Tu salud, con IA
+            {isUS ? "Your health, with AI" : "Tu salud, con IA"}
           </Typography>
         </Typography>
 
         <Stack direction="row" spacing={2} alignItems="center">
-          <Link to="/privacidad">Privacidad</Link>
+          <Link to="/privacidad">{isUS ? "Privacy" : "Privacidad"}</Link>
           <Dot />
-          <Link to="/terminos">Términos</Link>
+          <Link to="/terminos">{isUS ? "Terms" : "Términos"}</Link>
           <Dot />
-          <Link to="/legal">Aviso legal y cookies</Link>
+          <Link to="/legal">{isUS ? "Legal & cookies" : "Aviso legal y cookies"}</Link>
           <Dot />
-          <Link to="/contact">Contacto</Link>
+          <Link to="/contact">{isUS ? "Contact" : "Contacto"}</Link>
         </Stack>
 
         <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
@@ -101,22 +103,22 @@ export default function AppFooter() {
         <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
           Nui
           <Typography component="span" sx={{ fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.45)", ml: 1 }}>
-            Tu salud, con IA
+            {isUS ? "Your health, with AI" : "Tu salud, con IA"}
           </Typography>
         </Typography>
 
         {/* Fila 1: Privacidad · Términos */}
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <Link to="/privacidad">Privacidad</Link>
+          <Link to="/privacidad">{isUS ? "Privacy" : "Privacidad"}</Link>
           <Dot />
-          <Link to="/terminos">Términos</Link>
+          <Link to="/terminos">{isUS ? "Terms" : "Términos"}</Link>
         </Stack>
 
         {/* Fila 2: Aviso legal y cookies · Contacto */}
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <Link to="/legal">Aviso legal y cookies</Link>
+          <Link to="/legal">{isUS ? "Legal & cookies" : "Aviso legal y cookies"}</Link>
           <Dot />
-          <Link to="/contact">Contacto</Link>
+          <Link to="/contact">{isUS ? "Contact" : "Contacto"}</Link>
         </Stack>
 
         <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
@@ -134,15 +136,17 @@ export default function AppFooter() {
         sx={{ mt: 2.5, pt: 2.5, borderTop: "1px solid rgba(255,255,255,0.10)", rowGap: 1 }}
       >
         <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 0.6 }}>
-          🔒 Pagos seguros con Mercado Pago y Stripe
+          {isUS ? "🔒 Secure payments with Stripe" : "🔒 Pagos seguros con Mercado Pago y Stripe"}
         </Typography>
         <SmallDot />
         <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 0.6 }}>
-          🌎 Disponible en cualquier parte del mundo
+          {isUS ? "🌎 Available worldwide" : "🌎 Disponible en cualquier parte del mundo"}
         </Typography>
       </Stack>
 
-      {/* ── CUMPLIMIENTO NORMATIVO ── */}
+      {/* ── CUMPLIMIENTO NORMATIVO — específico de Argentina (Ley de
+          Defensa del Consumidor), no aplica a visitantes de EE.UU. ── */}
+      {!isUS && (
       <Box sx={{
         mt: 1,
         pt: 2,
@@ -192,6 +196,7 @@ export default function AppFooter() {
           </ExternalLink>
         </Stack>
       </Box>
+      )}
     </Box>
   );
 }

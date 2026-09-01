@@ -5,6 +5,8 @@ const exerciseSchema = new mongoose.Schema(
     code:         { type: String, required: true, unique: true, trim: true, uppercase: true },
     name:         { type: String, required: true, trim: true },
     nameNorm:     { type: String, index: true },
+    nameEn:       { type: String, default: null },        // nombre en inglés — usado en planes/catálogo para isUS
+    nameNormEn:   { type: String, index: true },           // normalizado del nombre en inglés, para lookup de imagen/descripción
     description:  { type: String, default: null },
     category:     { type: String, default: null },        // FUERZA, CARDIO, CORE, POTENCIA, MOVILIDAD, SKILL, TECNICA, RECUPERACION
     muscleGroup:  { type: String, required: true },       // primary_muscle_group en minúsculas

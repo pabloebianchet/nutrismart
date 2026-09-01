@@ -36,8 +36,9 @@ const calcBMR = (ud) => {
 const WIDGET_IMG_KEY = "nui_energy_widget_img";
 
 const EnergyWidget = () => {
-  const { userData } = useNutrition();
+  const { userData, isUS } = useNutrition();
   const navigate     = useNavigate();
+  const locale        = isUS ? "en-US" : "es-AR";
   const token        = localStorage.getItem("nutrismartToken");
 
   const [log,        setLog]       = useState(null);
@@ -104,7 +105,7 @@ const EnergyWidget = () => {
       <Box sx={{ position: "relative", height: { xs: 130, sm: 150 }, overflow: "hidden",
         bgcolor: "#0a2e2a" }}>
         {bgImage ? (
-          <Box component="img" src={bgImage} alt="Balance energético"
+          <Box component="img" src={bgImage} alt={isUS ? "Energy balance" : "Balance energético"}
             sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
               "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
               animation: "fadeIn 0.8s ease" }} />
@@ -128,11 +129,13 @@ const EnergyWidget = () => {
                 <LocalFireDepartmentRoundedIcon sx={{ fontSize: 15, color: "rgba(255,255,255,0.80)" }} />
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "rgba(255,255,255,0.75)",
                   textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                  Balance energético
+                  {isUS ? "Energy balance" : "Balance energético"}
                 </Typography>
               </Stack>
               <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", letterSpacing: "-0.4px", lineHeight: 1.1 }}>
-                {dailyGoal ? `Objetivo: ${dailyGoal.toLocaleString("es-AR")} kcal` : "Configurá tu objetivo"}
+                {dailyGoal
+                  ? (isUS ? `Goal: ${dailyGoal.toLocaleString(locale)} kcal` : `Objetivo: ${dailyGoal.toLocaleString(locale)} kcal`)
+                  : (isUS ? "Set your goal" : "Configurá tu objetivo")}
               </Typography>
             </Box>
             <Button size="small" startIcon={<MicRoundedIcon sx={{ fontSize: 13 }} />}
@@ -144,7 +147,7 @@ const EnergyWidget = () => {
                 backdropFilter: "blur(4px)",
                 "&:hover": { bgcolor: "rgba(255,255,255,0.28)" },
                 flexShrink: 0 }}>
-              Registrar
+              {isUS ? "Log" : "Registrar"}
             </Button>
           </Stack>
         </Box>
@@ -155,10 +158,10 @@ const EnergyWidget = () => {
           /* Sin objetivo configurado */
           <Box sx={{ textAlign: "center", py: 1 }}>
             <Typography sx={{ fontSize: 13.5, color: C.text, fontWeight: 700, mb: 0.5 }}>
-              Configurá tu objetivo calórico
+              {isUS ? "Set your calorie goal" : "Configurá tu objetivo calórico"}
             </Typography>
             <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-              Tocá para elegir si querés bajar, mantener o subir de peso
+              {isUS ? "Tap to choose whether you want to lose, maintain, or gain weight" : "Tocá para elegir si querés bajar, mantener o subir de peso"}
             </Typography>
           </Box>
         ) : (
@@ -168,20 +171,20 @@ const EnergyWidget = () => {
               <Box>
                 <Typography sx={{ fontSize: 10.5, color: C.textMuted, fontWeight: 600,
                   textTransform: "uppercase", letterSpacing: "0.05em", mb: 0.3 }}>
-                  Objetivo diario
+                  {isUS ? "Daily goal" : "Objetivo diario"}
                 </Typography>
                 <Typography sx={{ fontSize: 22, fontWeight: 900, color: C.brand, lineHeight: 1 }}>
-                  {dailyGoal?.toLocaleString("es-AR") || "—"}
+                  {dailyGoal?.toLocaleString(locale) || "—"}
                   <Typography component="span" sx={{ fontSize: 11, color: C.textMuted }}> kcal</Typography>
                 </Typography>
               </Box>
               <Box sx={{ textAlign: "right" }}>
                 <Typography sx={{ fontSize: 10.5, color: C.textMuted, fontWeight: 600,
                   textTransform: "uppercase", letterSpacing: "0.05em", mb: 0.3 }}>
-                  Restantes
+                  {isUS ? "Remaining" : "Restantes"}
                 </Typography>
                 <Typography sx={{ fontSize: 22, fontWeight: 900, color: restColor, lineHeight: 1 }}>
-                  {restantes !== null ? Math.abs(restantes).toLocaleString("es-AR") : "—"}
+                  {restantes !== null ? Math.abs(restantes).toLocaleString(locale) : "—"}
                   <Typography component="span" sx={{ fontSize: 11, color: C.textMuted }}> kcal</Typography>
                 </Typography>
               </Box>
@@ -200,13 +203,13 @@ const EnergyWidget = () => {
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <RestaurantRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
                 <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                  Consumidas: <strong>{consumed.toLocaleString("es-AR")}</strong> kcal
+                  {isUS ? "Consumed" : "Consumidas"}: <strong>{consumed.toLocaleString(locale)}</strong> kcal
                 </Typography>
               </Stack>
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <LocalFireDepartmentRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
                 <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                  Extra: <strong>{burnedExtra.toLocaleString("es-AR")}</strong> kcal
+                  Extra: <strong>{burnedExtra.toLocaleString(locale)}</strong> kcal
                 </Typography>
               </Stack>
             </Stack>
@@ -216,7 +219,7 @@ const EnergyWidget = () => {
               <Stack direction="row" alignItems="center" spacing={0.5}>
                 <FitnessCenterRoundedIcon sx={{ fontSize: 13, color: C.textSec }} />
                 <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                  Proteína: <strong>{Math.round(log?.totalProteinas || 0)}g</strong> / {proteinaObj}g
+                  {isUS ? "Protein" : "Proteína"}: <strong>{Math.round(log?.totalProteinas || 0)}g</strong> / {proteinaObj}g
                 </Typography>
               </Stack>
               <Stack direction="row" alignItems="center" spacing={0.5}>
@@ -232,7 +235,9 @@ const EnergyWidget = () => {
               <Box sx={{ mt: 1.5, px: 2, py: 1, borderRadius: 2, bgcolor: C.brandSurface,
                 border: `1px dashed ${C.brandMuted}` }}>
                 <Typography sx={{ fontSize: 12, color: C.brand, textAlign: "center" }}>
-                  ¿Qué comiste hoy? Tocá <strong>Registrar</strong>
+                  {isUS
+                    ? <>What did you eat today? Tap <strong>Log</strong></>
+                    : <>¿Qué comiste hoy? Tocá <strong>Registrar</strong></>}
                 </Typography>
               </Box>
             )}

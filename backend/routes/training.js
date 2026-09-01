@@ -154,12 +154,17 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
     seeded:  true,
     imageUrl: { $ne: null },
     active:  true,
-  }).select("name muscleGroup").lean();
+  }).select("name nameEn muscleGroup").lean();
+
+  // En inglés, el catálogo usa nameEn si ya se tradujo (ver
+  // scripts/translateExerciseCatalog.mjs) — si un ejercicio puntual todavía
+  // no tiene nameEn, cae al nombre en español antes que inventar uno.
+  const catalogNames = catalogExercises.map((e) => (isEN ? (e.nameEn || e.name) : e.name));
 
   const exerciseList = catalogExercises.length > 0
     ? isEN
-      ? `\nAVAILABLE EXERCISES (use ONLY these exact names, do not invent others):\n${catalogExercises.map(e => `- ${e.name}`).join("\n")}\n`
-      : `\nEJERCICIOS DISPONIBLES (usá ÚNICAMENTE estos nombres exactos, sin inventar otros):\n${catalogExercises.map(e => `- ${e.name}`).join("\n")}\n`
+      ? `\nAVAILABLE EXERCISES (use ONLY these exact names, do not invent others):\n${catalogNames.map(n => `- ${n}`).join("\n")}\n`
+      : `\nEJERCICIOS DISPONIBLES (usá ÚNICAMENTE estos nombres exactos, sin inventar otros):\n${catalogNames.map(n => `- ${n}`).join("\n")}\n`
     : "";
 
   const prompt = isEN ? `You are a professional personal trainer. Generate a personalized training plan.
@@ -557,9 +562,15 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   try {
     const normKey = cacheKey.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
 
-    // Primero: match exacto por nameNorm
-    let seeded = await Exercise.findOne({ nameNorm: normKey, seeded: true, imageUrl: { $ne: null } })
-      .select("imageUrl").lean();
+    // Primero: match exacto por nameNorm (español) o nameNormEn (inglés) —
+    // un plan en inglés manda nombres en inglés acá, uno en español manda
+    // nombres en español; no viene un lang explícito, así que se chequean
+    // los dos campos.
+    let seeded = await Exercise.findOne({
+      $or: [{ nameNorm: normKey }, { nameNormEn: normKey }],
+      seeded: true,
+      imageUrl: { $ne: null },
+    }).select("imageUrl").lean();
 
     // Segundo: todas las palabras significativas deben estar presentes
     if (!seeded) {
@@ -567,7 +578,10 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
       if (words.length >= 2) {
         const regex = words.map((w) => `(?=.*${w})`).join("");
         seeded = await Exercise.findOne({
-          nameNorm: { $regex: regex, $options: "i" },
+          $or: [
+            { nameNorm:   { $regex: regex, $options: "i" } },
+            { nameNormEn: { $regex: regex, $options: "i" } },
+          ],
           seeded: true,
           imageUrl: { $ne: null },
         }).select("imageUrl").lean();

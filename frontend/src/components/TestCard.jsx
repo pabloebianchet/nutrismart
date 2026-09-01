@@ -1,6 +1,7 @@
 import { Box, Typography, Chip, Paper } from "@mui/material";
 import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip } from "chart.js";
+import { useNutrition } from "../context/NutritionContext";
 
 Chart.register(ArcElement, Tooltip);
 
@@ -22,12 +23,12 @@ const shadow = {
 };
 
 /* ─── Categorías IMC ──────────────────────────────────────── */
-const RANGES = [
-  { label: "Bajo peso",    min: 0,    max: 18.5, color: "#5BA4F5", text: "#1565C0", risk: "Moderado" },
-  { label: "Normal",       min: 18.5, max: 25,   color: "#2ECC71", text: "#1B7A3B", risk: "Bajo"    },
-  { label: "Sobrepeso",    min: 25,   max: 30,   color: "#FFB74D", text: "#E65100", risk: "Moderado" },
-  { label: "Obesidad I",   min: 30,   max: 35,   color: "#EF5350", text: "#C62828", risk: "Alto"    },
-  { label: "Obesidad II+", min: 35,   max: 41,   color: "#AB47BC", text: "#6A1B9A", risk: "Muy alto" },
+const getRanges = (isUS) => [
+  { label: isUS ? "Underweight"  : "Bajo peso",    min: 0,    max: 18.5, color: "#5BA4F5", text: "#1565C0", risk: isUS ? "Moderate" : "Moderado" },
+  { label: isUS ? "Normal"       : "Normal",       min: 18.5, max: 25,   color: "#2ECC71", text: "#1B7A3B", risk: isUS ? "Low"      : "Bajo"    },
+  { label: isUS ? "Overweight"   : "Sobrepeso",    min: 25,   max: 30,   color: "#FFB74D", text: "#E65100", risk: isUS ? "Moderate" : "Moderado" },
+  { label: isUS ? "Obesity I"    : "Obesidad I",   min: 30,   max: 35,   color: "#EF5350", text: "#C62828", risk: isUS ? "High"     : "Alto"    },
+  { label: isUS ? "Obesity II+"  : "Obesidad II+", min: 35,   max: 41,   color: "#AB47BC", text: "#6A1B9A", risk: isUS ? "Very High" : "Muy alto" },
 ];
 const SCALE_MAX = 41;
 
@@ -38,8 +39,8 @@ const calcIMC = (peso, alturaCm) => {
   return +(peso / (h * h)).toFixed(1);
 };
 
-const getRange = (imc) =>
-  RANGES.find((r) => imc >= r.min && imc < r.max) ?? RANGES[RANGES.length - 1];
+const getRange = (imc, ranges) =>
+  ranges.find((r) => imc >= r.min && imc < r.max) ?? ranges[ranges.length - 1];
 
 const pesoKg = (alturaCm, imcMin, imcMax) => {
   const h = alturaCm / 100;
@@ -52,8 +53,9 @@ const pesoKg = (alturaCm, imcMin, imcMax) => {
 /* ═══════════════════════════════════════════════════════════
    CARD 1 — Gauge bar
 ═══════════════════════════════════════════════════════════ */
-const GaugeCard = ({ imc, altura }) => {
-  const range = getRange(imc);
+const GaugeCard = ({ imc, altura, isUS }) => {
+  const RANGES = getRanges(isUS);
+  const range = getRange(imc, RANGES);
   const pct = Math.min((imc / SCALE_MAX) * 100, 100);
   const ideal = pesoKg(altura, 18.5, 24.9);
 
@@ -81,7 +83,7 @@ const GaugeCard = ({ imc, altura }) => {
           letterSpacing: "0.08em",
         }}
       >
-        Tu IMC
+        {isUS ? "Your BMI" : "Tu IMC"}
       </Typography>
 
       {/* Score */}
@@ -116,7 +118,7 @@ const GaugeCard = ({ imc, altura }) => {
           }}
         />
         <Chip
-          label={`Riesgo ${range.risk}`}
+          label={isUS ? `${range.risk} Risk` : `Riesgo ${range.risk}`}
           size="small"
           sx={{
             bgcolor: C.surfaceAlt,
@@ -193,7 +195,7 @@ const GaugeCard = ({ imc, altura }) => {
             mb: 0.3,
           }}
         >
-          Peso ideal para {altura} cm
+          {isUS ? `Ideal weight for ${altura} cm` : `Peso ideal para ${altura} cm`}
         </Typography>
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.brand }}>
           {ideal.min} – {ideal.max} kg
@@ -206,7 +208,8 @@ const GaugeCard = ({ imc, altura }) => {
 /* ═══════════════════════════════════════════════════════════
    CARD 2 — Donut clasificación
 ═══════════════════════════════════════════════════════════ */
-const DonutCard = ({ imc }) => {
+const DonutCard = ({ imc, isUS }) => {
+  const RANGES = getRanges(isUS);
   const idx = RANGES.findIndex((r) => imc >= r.min && imc < r.max);
   const safeIdx = idx === -1 ? RANGES.length - 1 : idx;
   const current = RANGES[safeIdx];
@@ -237,7 +240,9 @@ const DonutCard = ({ imc }) => {
         callbacks: {
           label: (ctx) => {
             const r = RANGES[ctx.dataIndex];
-            return ` IMC ${r.min} – ${r.max === 41 ? "40+" : r.max}`;
+            return isUS
+              ? ` BMI ${r.min} – ${r.max === 41 ? "40+" : r.max}`
+              : ` IMC ${r.min} – ${r.max === 41 ? "40+" : r.max}`;
           },
         },
       },
@@ -270,10 +275,10 @@ const DonutCard = ({ imc }) => {
             mb: 0.3,
           }}
         >
-          Clasificación
+          {isUS ? "Classification" : "Clasificación"}
         </Typography>
         <Typography sx={{ fontSize: 15, fontWeight: 700, color: C.textPrimary }}>
-          Categorías IMC
+          {isUS ? "BMI Categories" : "Categorías IMC"}
         </Typography>
       </Box>
 
@@ -358,8 +363,9 @@ const DonutCard = ({ imc }) => {
 /* ═══════════════════════════════════════════════════════════
    CARD 3 — Tabla referencia por altura
 ═══════════════════════════════════════════════════════════ */
-const ReferenceCard = ({ imc, altura, peso, sexo }) => {
-  const current = getRange(imc);
+const ReferenceCard = ({ imc, altura, peso, sexo, isUS }) => {
+  const RANGES = getRanges(isUS);
+  const current = getRange(imc, RANGES);
   const normalPeso = pesoKg(altura, 18.5, 24.9);
 
   const diff =
@@ -406,13 +412,13 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
             mb: 0.3,
           }}
         >
-          Referencia
+          {isUS ? "Reference" : "Referencia"}
         </Typography>
         <Typography sx={{ fontSize: 15, fontWeight: 700, color: C.textPrimary }}>
-          Peso por categoría
+          {isUS ? "Weight by category" : "Peso por categoría"}
         </Typography>
         <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-          Para {altura} cm de altura
+          {isUS ? `For a height of ${altura} cm` : `Para ${altura} cm de altura`}
         </Typography>
       </Box>
 
@@ -459,7 +465,7 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
                 </Typography>
                 {isUser && (
                   <Chip
-                    label="Vos"
+                    label={isUS ? "You" : "Vos"}
                     size="small"
                     sx={{
                       height: 16,
@@ -499,7 +505,11 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
         >
           <Typography sx={{ fontSize: 12.5, color: C.textSecondary, lineHeight: 1.55 }}>
             {imc >= 25
-              ? "Para alcanzar zona normal, reducir"
+              ? isUS
+                ? "To reach the normal range, lose"
+                : "Para alcanzar zona normal, reducir"
+              : isUS
+              ? "To reach the normal range, gain"
               : "Para alcanzar zona normal, ganar"}
             {" "}
             <Typography component="span" sx={{ fontWeight: 800, color: C.brand, fontSize: 13.5 }}>
@@ -529,7 +539,7 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
               mb: 0.3,
             }}
           >
-            Peso ideal Hamwi ({sexo})
+            {isUS ? `Hamwi ideal weight (${sexo})` : `Peso ideal Hamwi (${sexo})`}
           </Typography>
           <Typography sx={{ fontSize: 16, fontWeight: 800, color: C.brand }}>
             {hamwi} kg
@@ -544,6 +554,7 @@ const ReferenceCard = ({ imc, altura, peso, sexo }) => {
    EXPORT PRINCIPAL
 ═══════════════════════════════════════════════════════════ */
 const ImcCard = ({ peso, altura, sexo, edad }) => {
+  const { isUS } = useNutrition();
   const imc = calcIMC(peso, altura);
   if (!imc) return null;
 
@@ -561,7 +572,7 @@ const ImcCard = ({ peso, altura, sexo, edad }) => {
             mb: 0.5,
           }}
         >
-          Métricas corporales
+          {isUS ? "Body metrics" : "Métricas corporales"}
         </Typography>
         <Typography
           sx={{
@@ -571,7 +582,7 @@ const ImcCard = ({ peso, altura, sexo, edad }) => {
             letterSpacing: "-0.4px",
           }}
         >
-          Índice de Masa Corporal
+          {isUS ? "Body Mass Index" : "Índice de Masa Corporal"}
         </Typography>
       </Box>
 
@@ -584,9 +595,9 @@ const ImcCard = ({ peso, altura, sexo, edad }) => {
           alignItems: "stretch",
         }}
       >
-        <GaugeCard imc={imc} altura={altura} />
-        <DonutCard imc={imc} />
-        <ReferenceCard imc={imc} altura={altura} peso={peso} sexo={sexo} />
+        <GaugeCard imc={imc} altura={altura} isUS={isUS} />
+        <DonutCard imc={imc} isUS={isUS} />
+        <ReferenceCard imc={imc} altura={altura} peso={peso} sexo={sexo} isUS={isUS} />
       </Box>
     </Box>
   );

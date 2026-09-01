@@ -10,6 +10,7 @@ import ShareRoundedIcon          from "@mui/icons-material/ShareRounded";
 import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
 import AccessTimeOutlinedIcon    from "@mui/icons-material/AccessTimeOutlined";
 import { API_URL } from "../config/api";
+import { useNutrition } from "../context/NutritionContext";
 
 const C = {
   brand:        "#0B5E55",
@@ -33,6 +34,7 @@ const buildShareText = (post) =>
 
 /* ─── Vista expandida (modal) ────────────────────────────────── */
 const PostModal = ({ post, open, onClose }) => {
+  const { isUS } = useNutrition();
   const [copied, setCopied] = useState(false);
 
   if (!post) return null;
@@ -103,7 +105,7 @@ const PostModal = ({ post, open, onClose }) => {
             <Stack direction="row" spacing={0.5} alignItems="center">
               <AccessTimeOutlinedIcon sx={{ fontSize: 12, color: C.textMuted }} />
               <Typography sx={{ fontSize: 11, color: C.textMuted }}>
-                {post.readingMinutes} min de lectura
+                {isUS ? `${post.readingMinutes} min read` : `${post.readingMinutes} min de lectura`}
               </Typography>
             </Stack>
           </Stack>
@@ -116,7 +118,7 @@ const PostModal = ({ post, open, onClose }) => {
 
           {/* Fecha y hora */}
           <Typography sx={{ fontSize: 12, color: C.textMuted, mb: 2.5 }}>
-            Publicado por <strong style={{ color: C.brand }}>Nui</strong> · {fmtDate(post.publishedAt)} · {fmtTime(post.publishedAt)}
+            {isUS ? "Published by" : "Publicado por"} <strong style={{ color: C.brand }}>Nui</strong> · {fmtDate(post.publishedAt)} · {fmtTime(post.publishedAt)}
           </Typography>
 
           <Divider sx={{ borderColor: C.border, mb: 2.5 }} />
@@ -150,14 +152,14 @@ const PostModal = ({ post, open, onClose }) => {
 
           {/* Compartir */}
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Typography sx={{ fontSize: 12, color: C.textMuted, fontWeight: 600 }}>Compartir:</Typography>
+            <Typography sx={{ fontSize: 12, color: C.textMuted, fontWeight: 600 }}>{isUS ? "Share:" : "Compartir:"}</Typography>
             <Tooltip title="WhatsApp">
               <IconButton size="small" onClick={handleWhatsApp}
                 sx={{ color: "#25D366", "&:hover": { bgcolor: "rgba(37,211,102,0.10)" } }}>
                 <WhatsAppIcon sx={{ fontSize: 20 }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title={copied ? "¡Copiado!" : "Copiar texto"}>
+            <Tooltip title={copied ? (isUS ? "Copied!" : "¡Copiado!") : (isUS ? "Copy text" : "Copiar texto")}>
               <IconButton size="small" onClick={handleCopy}
                 sx={{ color: copied ? C.brand : C.textMuted, "&:hover": { bgcolor: C.brandSurface } }}>
                 <ContentCopyRoundedIcon sx={{ fontSize: 18 }} />
@@ -172,6 +174,7 @@ const PostModal = ({ post, open, onClose }) => {
 
 /* ─── Card compacta para el dashboard ───────────────────────── */
 const DailyPostCard = () => {
+  const { isUS } = useNutrition();
   const token = localStorage.getItem("nutrismartToken");
   const [post,    setPost]    = useState(null);
   const [loading, setLoading] = useState(true);
@@ -179,10 +182,9 @@ const DailyPostCard = () => {
 
   useEffect(() => {
     if (!token) return;
-    // es-AR fijo: esta card vive en el Dashboard logueado, que todavía es
-    // español-only mientras no se termine su traducción (ver TRANSLATION_
-    // COMPLETE en Dashboard.jsx) — no tiene sentido mostrar la nota en
-    // inglés dentro de una pantalla que sigue en español.
+    // es-AR fijo a propósito: el blog es un sistema bilingüe independiente
+    // (notas en español y en inglés viven en URLs separadas), no atado al
+    // isUS del Dashboard — no cambiar esto a isUS.
     fetch(`${API_URL}/api/posts/es-AR/today`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -251,13 +253,13 @@ const DailyPostCard = () => {
               <Typography sx={{ fontSize: 28,
                 "@keyframes pulse": { "0%,100%": { opacity: 0.4 }, "50%": { opacity: 1 } },
                 animation: "pulse 1.4s ease-in-out infinite" }}>🌿</Typography>
-              <Typography sx={{ fontSize: 11, color: C.textMuted }}>Preparando…</Typography>
+              <Typography sx={{ fontSize: 11, color: C.textMuted }}>{isUS ? "Preparing…" : "Preparando…"}</Typography>
             </Box>
           )}
           <Box sx={{ position: "absolute", top: 10, left: 10,
             bgcolor: C.brand, color: "#fff", px: 1.3, py: 0.3,
             borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>
-            POST DEL DÍA
+            {isUS ? "TODAY'S POST" : "POST DEL DÍA"}
           </Box>
         </Box>
 
@@ -294,7 +296,7 @@ const DailyPostCard = () => {
             <Button size="small" endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 14 }} />}
               sx={{ textTransform: "none", fontWeight: 700, fontSize: 12.5, color: C.brand,
                 borderRadius: 999, pr: 0, "&:hover": { bgcolor: "transparent", textDecoration: "underline" } }}>
-              Leer
+              {isUS ? "Read" : "Leer"}
             </Button>
           </Stack>
         </Box>
