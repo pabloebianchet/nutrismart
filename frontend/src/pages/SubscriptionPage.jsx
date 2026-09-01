@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Chip, Button, Stack, Paper, Divider, Alert, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
@@ -68,6 +68,7 @@ const StatusBadge = ({ status, isUS }) => {
 const SubscriptionPage = () => {
   const { user, isUS } = useNutrition();
   const navigate  = useNavigate();
+  const location  = useLocation();
 
   const [sub, setSub]               = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -84,13 +85,22 @@ const SubscriptionPage = () => {
       .then((d) => setSub(d.subscription || null))
       .catch(() => {});
 
-  const handleConfirmCancel = async () => {
+  const handleConfirmCancel = async (retried = false) => {
     setCancelling(true);
     setCancelError("");
     try {
       const endpoint = sub.provider === "stripe" ? "stripe/cancel" : "cancel";
       const res = await fetch(`${API_URL}/api/payments/${endpoint}`, { method: "POST", headers });
       const data = await res.json();
+      // wrong_provider: el estado que teníamos cargado en pantalla estaba
+      // desactualizado (ej. venía de antes de un pago reciente) — refrescar
+      // y reintentar UNA vez con el endpoint correcto en vez de solo tirar
+      // el error. Encontrado en vivo: esto es justo lo que le mostró a un
+      // usuario real un plan viejo y terminó cancelando el pago nuevo.
+      if (!res.ok && data.error === "wrong_provider" && !retried) {
+        await fetchSubscription();
+        return handleConfirmCancel(true);
+      }
       if (!res.ok) { setCancelError(data.error || (isUS ? "Couldn't cancel. Please try again." : "No se pudo cancelar. Probá de nuevo.")); return; }
       await fetchSubscription();
       setCancelOpen(false);
@@ -103,9 +113,29 @@ const SubscriptionPage = () => {
 
   useEffect(() => {
     if (!user) { navigate("/"); return; }
-    fetchSubscription()
-      .finally(() => setLoading(false));
-  }, [user]);
+
+    // Volviendo de un checkout recién pagado: el webhook que actualiza la
+    // suscripción puede tardar unos segundos en procesar. Reintentar la
+    // consulta un par de veces evita mostrar el plan viejo justo después
+    // de pagar — encontrado en vivo, causó que un usuario cancelara por
+    // error su suscripción nueva pensando que era la vieja.
+    const isSuccessReturn = location.pathname === "/subscription/success";
+    fetchSubscription().finally(() => setLoading(false));
+
+    if (isSuccessReturn) {
+      const delays = [2000, 3000, 4000]; // ~9s total, además del fetch inicial
+      let cancelled = false;
+      (async () => {
+        for (const ms of delays) {
+          if (cancelled) return;
+          await new Promise((r) => setTimeout(r, ms));
+          if (cancelled) return;
+          await fetchSubscription();
+        }
+      })();
+      return () => { cancelled = true; };
+    }
+  }, [user]); // eslint-disable-line
 
 
   if (loading) {
@@ -405,7 +435,7 @@ const SubscriptionPage = () => {
             {isUS ? "Back" : "Volver"}
           </Button>
           <Button
-            onClick={handleConfirmCancel}
+            onClick={() => handleConfirmCancel()}
             disabled={cancelling}
             variant="contained"
             startIcon={cancelling ? <CircularProgress size={15} sx={{ color: "#fff" }} /> : null}

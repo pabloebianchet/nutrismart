@@ -510,6 +510,19 @@ router.post("/cancel", authMiddleware, async (req, res) => {
     const sub = await Subscription.findOne({ user: req.user._id });
     if (!sub) return res.status(404).json({ error: "No tenés una suscripción activa." });
 
+    // Guarda real: si la suscripción actual es de Stripe, este endpoint
+    // (Mercado Pago) NO debe tocarla — cancelaría el registro local sin
+    // avisarle a Stripe, dejando la suscripción real activa y facturando
+    // sin que la app se entere. Encontrado en vivo: un usuario canceló
+    // desde acá pensando que cancelaba un plan viejo, y Stripe le siguió
+    // cobrando durante días sin que nada lo reflejara.
+    if (sub.provider === "stripe") {
+      return res.status(409).json({
+        error: "wrong_provider",
+        message: "Tu suscripción activa es de Stripe — usá el endpoint de cancelación de Stripe, no el de Mercado Pago.",
+      });
+    }
+
     // Cancelar el preapproval en MP para detener el cobro automático
     if (sub.mpSubscriptionId) {
       try {

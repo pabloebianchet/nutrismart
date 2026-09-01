@@ -23,99 +23,6 @@ const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
 
 const router = express.Router();
 
-// ── TEMPORAL: diagnóstico de un caso puntual (webhook de checkout.session.
-// completed que nunca actualizó Mongo para un usuario específico) — borrar
-// apenas se resuelva. Gateado por un secreto de un solo uso, no por sesión
-// de usuario, para poder consultarlo sin pedirle el JWT a nadie.
-router.get("/debug-customer", async (req, res) => {
-  if (req.query.k !== "nui-debug-2026-09-01-temp") return res.sendStatus(404);
-  try {
-    const stripe = getStripe();
-    const email = req.query.email;
-    const customers = await stripe.customers.list({ email, limit: 10 });
-    const safeIso = (unixSeconds) => (unixSeconds ? new Date(unixSeconds * 1000).toISOString() : null);
-    const out = [];
-    for (const c of customers.data) {
-      const subs = await stripe.subscriptions.list({ customer: c.id, limit: 10, status: "all" });
-      out.push({
-        customerId: c.id,
-        created: safeIso(c.created),
-        subscriptions: subs.data.map((s) => ({
-          id: s.id,
-          status: s.status,
-          priceId: s.items.data[0]?.price?.id,
-          amount: s.items.data[0]?.price?.unit_amount,
-          currency: s.items.data[0]?.price?.currency,
-          current_period_end: safeIso(s.current_period_end),
-          cancel_at_period_end: s.cancel_at_period_end,
-          metadata: s.metadata,
-        })),
-      });
-    }
-    return res.json({ customers: out });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
-// ── TEMPORAL: sincroniza el registro local de un usuario puntual con su
-// suscripción real de Stripe — el webhook original nunca la procesó por
-// el bug del rate limiter. Borrar junto con debug-customer.
-router.get("/sync-sub-fix", async (req, res) => {
-  if (req.query.k !== "nui-debug-2026-09-01-temp") return res.sendStatus(404);
-  try {
-    const stripe = getStripe();
-    const email = req.query.email;
-    const stripeSubId = req.query.subId;
-
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
-
-    const stripeSub = await stripe.subscriptions.retrieve(stripeSubId);
-    const rawEnd = stripeSub.current_period_end
-      || stripeSub.items?.data?.[0]?.current_period_end
-      || stripeSub.billing_cycle_anchor;
-    const endDate = rawEnd ? new Date(rawEnd * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    const amount = (stripeSub.items.data[0]?.price?.unit_amount || 0) / 100;
-    const currency = (stripeSub.items.data[0]?.price?.currency || "usd").toUpperCase();
-
-    const updated = await Subscription.findOneAndUpdate(
-      { user: user._id },
-      {
-        $set: {
-          plan: "silver",
-          status: "active",
-          provider: "stripe",
-          source: "payment",
-          stripeCustomerId: stripeSub.customer,
-          stripeSubscriptionId: stripeSub.id,
-          amount, currency, autoRenew: true,
-          startDate: new Date(stripeSub.start_date * 1000),
-          endDate,
-        },
-        $push: {
-          paymentHistory: {
-            $each: [{
-              stripePaymentId: stripeSub.latest_invoice || stripeSub.id,
-              provider: "stripe", amount, currency, status: "approved", plan: "silver",
-              description: "Pago Plan Silver — Stripe (sincronizado manualmente, el webhook original no procesó por el bug del rate limiter)",
-            }],
-            $position: 0,
-          },
-        },
-      },
-      { returnDocument: "after" }
-    );
-
-    return res.json({ ok: true, subscription: updated, stripeRaw: {
-      status: stripeSub.status, current_period_end: stripeSub.current_period_end,
-      items_current_period_end: stripeSub.items?.data?.[0]?.current_period_end,
-    } });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 /* ─── Cupones — mismo sistema/códigos que Mercado Pago ───────────
  * Un Cupón de Nui (Mongo) se refleja en un Coupon nativo de Stripe,
  * creado una sola vez (id determinístico) y reutilizado. Stripe aplica
@@ -244,8 +151,13 @@ router.post("/checkout", authMiddleware, async (req, res) => {
       client_reference_id: user._id.toString(),
       metadata: { userId: user._id.toString(), plan, couponCode: appliedCouponCode },
       subscription_data: { metadata: { userId: user._id.toString(), plan, couponCode: appliedCouponCode } },
-      success_url: `${frontendUrl}/subscription/success?provider=stripe`,
-      cancel_url:  `${frontendUrl}/pricing`,
+      // ?region=us: quien llega a este checkout es por definición un
+      // usuario de la rama Stripe/EE.UU. — sin esto, al volver de Stripe
+      // isUS se re-resuelve por geolocalización real y, si el usuario
+      // estaba probando desde otro país, la app le vuelve a aparecer en
+      // español justo después de pagar en inglés. Bug real reportado en vivo.
+      success_url: `${frontendUrl}/subscription/success?provider=stripe&region=us`,
+      cancel_url:  `${frontendUrl}/pricing?region=us`,
       // Managed Payments (cálculo/remisión automática de impuestos de Stripe)
       // viene habilitado por defecto en cuentas nuevas y exige tax_code en
       // cada producto — decisión de compliance a tomar a propósito más
