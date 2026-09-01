@@ -39,11 +39,24 @@ corregir esto porque Vercel no lo evalúa para un dominio servido así.
 Domains → configurar `www.nuiapp.com` como redirect (no hay CLI de
 Vercel disponible en este entorno para hacerlo por script).
 
-## Legal — páginas específicas de EE.UU.
+## Legal — páginas en inglés para EE.UU. (BORRADOR sin revisión de abogado)
 
-**Estado:** `/privacidad`, `/terminos`, `/legal` citan específicamente
-la Ley 25.326 argentina. No existe una versión equivalente para
-visitantes de EE.UU. (no hay `/en/privacy` ni contenido legal US-specific).
+**Estado:** implementado como borrador (setiembre 2026) — `/en/privacy`,
+`/en/terms`, `/en/legal` existen, con aviso visible en cada página de que
+es un borrador de buena fe, no revisado todavía por un abogado. Incluye
+banner de cookies (Aceptar/Rechazar) con Google Consent Mode v2 — GA4 ya
+no corre sin consentimiento.
 
-**Quién lo resuelve:** requiere revisión legal real, no es algo para
-resolver unilateralmente en código.
+**Por qué sigue acá:** el contenido está escrito con criterio razonable
+(licencia de contenido de usuario, disclaimer de actividad física,
+proceso de reclamo por copyright, indemnización, gobernanza/jurisdicción
+Argentina) pero **no tiene validez legal garantizada** hasta que lo
+revise un abogado de EE.UU., sobre todo por: (1) Nui maneja datos de
+salud, categoría sensible en varios estados; (2) la cláusula de
+jurisdicción (Argentina) puede no ser la más conveniente/ejecutable para
+un negocio con clientes en EE.UU.; (3) no hay registro de qué estado(s)
+de EE.UU. específicamente exigen qué disclosure adicional (más allá de
+California/CCPA, que es lo único contemplado explícitamente).
+
+**Quién lo resuelve:** el usuario, con un abogado de EE.UU. — el
+borrador es punto de partida, no reemplazo.
