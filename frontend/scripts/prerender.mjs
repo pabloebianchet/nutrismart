@@ -288,9 +288,9 @@ async function main() {
   const browser = await launchBrowser();
   console.log(`Navegador listo (isCI=${isCI}). Servidor local en :${port}.\n`);
 
-  let ok = 0;
-  const okRoutes = new Set();
-  for (const route of allRoutes) {
+  // Una ruta se procesa acá — separado del loop principal para poder
+  // reintentar sin duplicar toda la lógica. Devuelve true/false.
+  const renderRoute = async (route) => {
     const t0 = Date.now();
     const log = (msg) => console.log(`   [${route}] +${String(Date.now() - t0).padStart(5)}ms  ${msg}`);
     try {
@@ -343,8 +343,8 @@ async function main() {
       await page.close();
 
       if (!rootHtml.trim()) {
-        console.warn(`❌ ${route}: contenido vacío tras domcontentloaded+h1 — se omite, queda el shell CSR original.`);
-        continue;
+        console.warn(`❌ ${route}: contenido vacío tras domcontentloaded+h1.`);
+        return false;
       }
 
       let finalHtml = templateHtml.replace(
@@ -365,11 +365,28 @@ async function main() {
       await mkdir(path.dirname(outPath), { recursive: true });
       await writeFile(outPath, finalHtml, "utf-8");
       console.log(`✅ ${route.padEnd(16)} -> ${path.relative(distDir, outPath)} (${Date.now() - t0}ms, ${rootHtml.length} chars)`);
-      ok++;
-      okRoutes.add(route);
+      return true;
     } catch (err) {
       console.error(`❌ ${route}: ${err.message} (falló a los ${Date.now() - t0}ms)`);
+      return false;
     }
+  };
+
+  // Reintento único por ruta — una falla transitoria (browser flake,
+  // conexión cortada) no debería dejar una ruta entera sin prerenderizar
+  // ni cortar el deploy. Encontrado en vivo: 3 rutas nuevas fallaron en
+  // el build de Vercel una sola vez, sin volver a fallar en corridas
+  // locales inmediatamente después — típico de un flake puntual, no un
+  // bug real de la ruta.
+  let ok = 0;
+  const okRoutes = new Set();
+  for (const route of allRoutes) {
+    let success = await renderRoute(route);
+    if (!success) {
+      console.warn(`   [${route}] reintentando una vez...`);
+      success = await renderRoute(route);
+    }
+    if (success) { ok++; okRoutes.add(route); }
   }
 
   await browser.close();
