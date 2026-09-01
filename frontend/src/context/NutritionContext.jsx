@@ -34,6 +34,27 @@ export const NutritionProvider = ({ children }) => {
   const [loadingSubscription, setLoadingSubscription] = useState(false);
 
   /* ======================
+     REGIÓN — un solo fetch global, todas las páginas lo comparten.
+     isUS decide idioma (en/es) y proveedor de pago (Stripe/MP) en
+     cualquier parte de la app. ?region=us|ar en la URL fuerza el valor
+     para testing, sin pegarle a /api/geo.
+  ====================== */
+
+  const [isUS, setIsUS] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const forced = new URLSearchParams(window.location.search).get("region");
+    if (forced === "us") { setIsUS(true); return; }
+    if (forced === "ar") { setIsUS(false); return; }
+
+    fetch(`${API_URL}/api/geo`)
+      .then((r) => r.json())
+      .then((d) => setIsUS(d.country === "US"))
+      .catch(() => {}); // sin poder determinar la región, se queda en AR/es
+  }, []);
+
+  /* ======================
      AUTH BOOTSTRAP
   ====================== */
 
@@ -216,6 +237,9 @@ export const NutritionProvider = ({ children }) => {
   return (
     <NutritionContext.Provider
       value={{
+        // región (idioma + proveedor de pago)
+        isUS,
+
         // auth
         authLoading,
         user,

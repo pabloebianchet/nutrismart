@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useNutrition } from "../context/NutritionContext";
 import {
   Box,
   Typography,
@@ -80,6 +81,7 @@ const formatARS = (n) =>
 /* ─── NAV ─────────────────────────────────────────────────────────────────── */
 const LandingNav = ({ scrolled }) => {
   const navigate = useNavigate();
+  const { isUS } = useNutrition();
   return (
     <Box
       component="nav"
@@ -119,11 +121,18 @@ const LandingNav = ({ scrolled }) => {
         spacing={4}
         sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
       >
-        {[
-          ["Características", "#modulos"],
-          ["Cómo funciona", "#como-funciona"],
-          ["Precios", "#precios"],
-        ].map(([label, href]) => (
+        {(isUS
+          ? [
+              ["Features", "#modulos"],
+              ["How it works", "#como-funciona"],
+              ["Pricing", "#precios"],
+            ]
+          : [
+              ["Características", "#modulos"],
+              ["Cómo funciona", "#como-funciona"],
+              ["Precios", "#precios"],
+            ]
+        ).map(([label, href]) => (
           <Box
             key={label}
             component="a"
@@ -156,7 +165,7 @@ const LandingNav = ({ scrolled }) => {
             "&:hover": { bgcolor: "rgba(255,255,255,0.07)", color: "#fff" },
           }}
         >
-          Iniciar sesión
+          {isUS ? "Log in" : "Iniciar sesión"}
         </Button>
         <Button
           onClick={() => navigate("/login")}
@@ -173,7 +182,7 @@ const LandingNav = ({ scrolled }) => {
             transition: "all 0.2s",
           }}
         >
-          Empezar gratis
+          {isUS ? "Start free" : "Empezar gratis"}
         </Button>
       </Stack>
     </Box>
@@ -181,7 +190,9 @@ const LandingNav = ({ scrolled }) => {
 };
 
 /* ─── HERO ────────────────────────────────────────────────────────────────── */
-const HeroSection = ({ onCTA }) => (
+const HeroSection = ({ onCTA }) => {
+  const { isUS } = useNutrition();
+  return (
   <Box
     sx={{
       background: C.heroBg,
@@ -299,7 +310,9 @@ const HeroSection = ({ onCTA }) => (
             letterSpacing: "0.03em",
             }}
         >
-          Análisis nutricional con IA · Gratis 7 días
+          {isUS
+            ? "AI-powered nutrition analysis · Free for 7 days"
+            : "Análisis nutricional con IA · Gratis 7 días"}
         </Typography>
       </Box>
 
@@ -316,10 +329,21 @@ const HeroSection = ({ onCTA }) => (
           animation: "fadeUp 0.6s 0.1s ease both",
         }}
       >
-        Comé mejor.
-        <br />
-        Entrenás mejor.
-        <br />
+        {isUS ? (
+          <>
+            Eat better.
+            <br />
+            Train better.
+            <br />
+          </>
+        ) : (
+          <>
+            Comé mejor.
+            <br />
+            Entrenás mejor.
+            <br />
+          </>
+        )}
         <Box
           component="span"
           sx={{
@@ -329,7 +353,7 @@ const HeroSection = ({ onCTA }) => (
             backgroundClip: "text",
           }}
         >
-          Vivís mejor.
+          {isUS ? "Live better." : "Vivís mejor."}
         </Box>
       </Typography>
 
@@ -345,8 +369,9 @@ const HeroSection = ({ onCTA }) => (
           animation: "fadeUp 0.6s 0.2s ease both",
         }}
       >
-        Nui analiza tus alimentos con inteligencia artificial, genera recetas
-        saludables y crea tu plan de entrenamiento — todo adaptado a vos.
+        {isUS
+          ? "Nui analyzes your food with artificial intelligence, generates healthy recipes, and builds your training plan — all tailored to you."
+          : "Nui analiza tus alimentos con inteligencia artificial, genera recetas saludables y crea tu plan de entrenamiento — todo adaptado a vos."}
       </Typography>
 
       {/* CTAs */}
@@ -377,7 +402,7 @@ const HeroSection = ({ onCTA }) => (
             transition: "all 0.25s",
           }}
         >
-          Empezar gratis — 7 días
+          {isUS ? "Start free — 7 days" : "Empezar gratis — 7 días"}
         </Button>
         <Button
           onClick={onCTA}
@@ -398,7 +423,7 @@ const HeroSection = ({ onCTA }) => (
             transition: "all 0.2s",
           }}
         >
-          Iniciar sesión
+          {isUS ? "Log in" : "Iniciar sesión"}
         </Button>
       </Stack>
 
@@ -420,11 +445,18 @@ const HeroSection = ({ onCTA }) => (
         spacing={{ xs: 3, sm: 5 }}
         sx={{ animation: "fadeUp 0.6s 0.4s ease both" }}
       >
-        {[
-          ["3", "módulos IA"],
-          ["7 días", "prueba gratis"],
-          ["100%", "personalizado"],
-        ].map(([val, label]) => (
+        {(isUS
+          ? [
+              ["3", "AI modules"],
+              ["7 days", "free trial"],
+              ["100%", "personalized"],
+            ]
+          : [
+              ["3", "módulos IA"],
+              ["7 días", "prueba gratis"],
+              ["100%", "personalizado"],
+            ]
+        ).map(([val, label]) => (
           <Box key={label} textAlign="center">
             <Typography
               sx={{
@@ -451,26 +483,45 @@ const HeroSection = ({ onCTA }) => (
       </Stack>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── TICKER ──────────────────────────────────────────────────────────────── */
 const MarqueeTicker = () => {
-  const items = [
-    "ANÁLISIS NUTRICIONAL",
-    "ALIMENTOS ULTRAPROCESADOS",
-    "CLASIFICACIÓN NOVA",
-    "RUTINA DE HIPERTROFIA",
-    "ENTRENAMIENTO RUNNING",
-    "PLAN DE CALISTENIA",
-    "LISTA DE COMPRAS IA",
-    "RECETAS CON IA",
-    "NUTRICIONISTA IA",
-    "TABLA NUTRICIONAL",
-    "NUI",
-    "MICROBIOTA",
-    "PERSONAL TRAINER",
-    "NUTRICIÓN INTELIGENTE",
-  ];
+  const { isUS } = useNutrition();
+  const items = isUS
+    ? [
+        "NUTRITION ANALYSIS",
+        "ULTRA-PROCESSED FOODS",
+        "NOVA CLASSIFICATION",
+        "HYPERTROPHY ROUTINE",
+        "RUNNING TRAINING",
+        "CALISTHENICS PLAN",
+        "AI SHOPPING LIST",
+        "AI-GENERATED RECIPES",
+        "AI NUTRITIONIST",
+        "NUTRITION FACTS",
+        "NUI",
+        "GUT MICROBIOME",
+        "PERSONAL TRAINER",
+        "SMART NUTRITION",
+      ]
+    : [
+        "ANÁLISIS NUTRICIONAL",
+        "ALIMENTOS ULTRAPROCESADOS",
+        "CLASIFICACIÓN NOVA",
+        "RUTINA DE HIPERTROFIA",
+        "ENTRENAMIENTO RUNNING",
+        "PLAN DE CALISTENIA",
+        "LISTA DE COMPRAS IA",
+        "RECETAS CON IA",
+        "NUTRICIONISTA IA",
+        "TABLA NUTRICIONAL",
+        "NUI",
+        "MICROBIOTA",
+        "PERSONAL TRAINER",
+        "NUTRICIÓN INTELIGENTE",
+      ];
   const repeated = [...items, ...items];
   return (
     <Box
@@ -530,31 +581,59 @@ const MarqueeTicker = () => {
 };
 
 /* ─── POR QUÉ IMPORTA — SECCIÓN CLARA ────────────────────────────────────── */
-const FACTS = [
-  {
-    stat: "70%",
-    title: "de los productos envasados son ultraprocesados",
-    desc: "La mayoría de lo que encontrás en el supermercado está diseñado para maximizar sabor y palatabilidad, no tu salud.",
-    color: C.danger,
-    bg: "#FFF1F1",
-  },
-  {
-    stat: "+5",
-    title: "ingredientes no reconocibles = señal de alerta NOVA",
-    desc: "Más de cinco aditivos que no reconocés clasifican el producto como Grupo 4 en la escala NOVA internacional.",
-    color: C.brand,
-    bg: C.brandSurf,
-  },
-  {
-    stat: "↑3×",
-    title: "mayor riesgo de sobrepeso y enfermedades crónicas",
-    desc: "El consumo frecuente altera la microbiota intestinal y el metabolismo, generando riesgos a largo plazo.",
-    color: C.emerald,
-    bg: "#ECFDF5",
-  },
-];
+const getFacts = (isUS) =>
+  isUS
+    ? [
+        {
+          stat: "70%",
+          title: "of packaged products are ultra-processed",
+          desc: "Most of what you find at the supermarket is designed to maximize taste and palatability, not your health.",
+          color: C.danger,
+          bg: "#FFF1F1",
+        },
+        {
+          stat: "+5",
+          title: "unrecognizable ingredients = a NOVA warning sign",
+          desc: "More than five additives you don't recognize classify the product as Group 4 on the international NOVA scale.",
+          color: C.brand,
+          bg: C.brandSurf,
+        },
+        {
+          stat: "↑3×",
+          title: "higher risk of overweight and chronic disease",
+          desc: "Frequent consumption alters gut microbiota and metabolism, creating long-term risks.",
+          color: C.emerald,
+          bg: "#ECFDF5",
+        },
+      ]
+    : [
+        {
+          stat: "70%",
+          title: "de los productos envasados son ultraprocesados",
+          desc: "La mayoría de lo que encontrás en el supermercado está diseñado para maximizar sabor y palatabilidad, no tu salud.",
+          color: C.danger,
+          bg: "#FFF1F1",
+        },
+        {
+          stat: "+5",
+          title: "ingredientes no reconocibles = señal de alerta NOVA",
+          desc: "Más de cinco aditivos que no reconocés clasifican el producto como Grupo 4 en la escala NOVA internacional.",
+          color: C.brand,
+          bg: C.brandSurf,
+        },
+        {
+          stat: "↑3×",
+          title: "mayor riesgo de sobrepeso y enfermedades crónicas",
+          desc: "El consumo frecuente altera la microbiota intestinal y el metabolismo, generando riesgos a largo plazo.",
+          color: C.emerald,
+          bg: "#ECFDF5",
+        },
+      ];
 
-const WhyMattersSection = ({ onCTA }) => (
+const WhyMattersSection = ({ onCTA }) => {
+  const { isUS } = useNutrition();
+  const FACTS = getFacts(isUS);
+  return (
   <Box
     sx={{
       background: C.white,
@@ -580,7 +659,7 @@ const WhyMattersSection = ({ onCTA }) => (
             mb: 2.5,
           }}
         >
-          El problema que no se ve
+          {isUS ? "The problem you don't see" : "El problema que no se ve"}
         </Box>
         <Typography
           component="h2"
@@ -593,11 +672,23 @@ const WhyMattersSection = ({ onCTA }) => (
             mb: 2,
           }}
         >
-          El 70% de lo que comprás en el supermercado
-          <br />
-          <Box component="span" sx={{ color: C.danger }}>
-            es ultraprocesado
-          </Box>
+          {isUS ? (
+            <>
+              70% of what you buy at the supermarket
+              <br />
+              <Box component="span" sx={{ color: C.danger }}>
+                is ultra-processed
+              </Box>
+            </>
+          ) : (
+            <>
+              El 70% de lo que comprás en el supermercado
+              <br />
+              <Box component="span" sx={{ color: C.danger }}>
+                es ultraprocesado
+              </Box>
+            </>
+          )}
         </Typography>
         <Typography
           sx={{
@@ -608,9 +699,9 @@ const WhyMattersSection = ({ onCTA }) => (
             mx: "auto",
           }}
         >
-          Estos productos son más dulces, salados y grasos, con menos vitaminas
-          y fibra. Identificarlos no siempre es fácil — Nui lo hace por vos al
-          instante.
+          {isUS
+            ? "These products are sweeter, saltier, and fattier, with less vitamins and fiber. Spotting them isn't always easy — Nui does it for you instantly."
+            : "Estos productos son más dulces, salados y grasos, con menos vitaminas y fibra. Identificarlos no siempre es fácil — Nui lo hace por vos al instante."}
         </Typography>
       </Box>
 
@@ -703,7 +794,9 @@ const WhyMattersSection = ({ onCTA }) => (
             mb: 3,
           }}
         >
-          Clasificación NOVA — El estándar internacional
+          {isUS
+            ? "NOVA classification — The international standard"
+            : "Clasificación NOVA — El estándar internacional"}
         </Typography>
         <Box
           sx={{
@@ -712,32 +805,60 @@ const WhyMattersSection = ({ onCTA }) => (
             gap: 1.5,
           }}
         >
-          {[
-            {
-              grupo: "Grupo 1",
-              label: "Frescos o mínimamente procesados",
-              ej: "Frutas, verduras, huevos, carnes",
-              ok: true,
-            },
-            {
-              grupo: "Grupo 2",
-              label: "Ingredientes culinarios",
-              ej: "Aceites, sal, azúcar, vinagre",
-              ok: true,
-            },
-            {
-              grupo: "Grupo 3",
-              label: "Alimentos procesados",
-              ej: "Conservas, queso, pan, embutidos",
-              ok: true,
-            },
-            {
-              grupo: "Grupo 4",
-              label: "Ultraprocesados",
-              ej: "Snacks, cereales, refrescos, galletas",
-              ok: false,
-            },
-          ].map((g) => (
+          {(isUS
+            ? [
+                {
+                  grupo: "Group 1",
+                  label: "Fresh or minimally processed",
+                  ej: "Fruit, vegetables, eggs, meat",
+                  ok: true,
+                },
+                {
+                  grupo: "Group 2",
+                  label: "Culinary ingredients",
+                  ej: "Oils, salt, sugar, vinegar",
+                  ok: true,
+                },
+                {
+                  grupo: "Group 3",
+                  label: "Processed foods",
+                  ej: "Canned goods, cheese, bread, cured meats",
+                  ok: true,
+                },
+                {
+                  grupo: "Group 4",
+                  label: "Ultra-processed",
+                  ej: "Snacks, cereal, soda, cookies",
+                  ok: false,
+                },
+              ]
+            : [
+                {
+                  grupo: "Grupo 1",
+                  label: "Frescos o mínimamente procesados",
+                  ej: "Frutas, verduras, huevos, carnes",
+                  ok: true,
+                },
+                {
+                  grupo: "Grupo 2",
+                  label: "Ingredientes culinarios",
+                  ej: "Aceites, sal, azúcar, vinagre",
+                  ok: true,
+                },
+                {
+                  grupo: "Grupo 3",
+                  label: "Alimentos procesados",
+                  ej: "Conservas, queso, pan, embutidos",
+                  ok: true,
+                },
+                {
+                  grupo: "Grupo 4",
+                  label: "Ultraprocesados",
+                  ej: "Snacks, cereales, refrescos, galletas",
+                  ok: false,
+                },
+              ]
+          ).map((g) => (
             <Box
               key={g.grupo}
               sx={{
@@ -833,66 +954,124 @@ const WhyMattersSection = ({ onCTA }) => (
             transition: "all 0.22s",
           }}
         >
-          Analizá tu primer producto gratis
+          {isUS
+            ? "Analyze your first product for free"
+            : "Analizá tu primer producto gratis"}
         </Button>
       </Box>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── MÓDULOS ─────────────────────────────────────────────────────────────── */
-const MODULES = [
-  {
-    Icon: SearchRoundedIcon,
-    title: "Análisis de alimentos",
-    desc: "Fotografiá la tabla nutricional y los ingredientes del producto. Obtenés al instante su clasificación NOVA, macros, aditivos y recomendaciones personalizadas.",
-    color: C.brand,
-    bg: C.brandSurf,
-    tags: ["Clasificación NOVA", "Macros", "Aditivos", "Score nutricional"],
-    photo: "/img/analisisIA.jpg",
-  },
-  {
-    Icon: RestaurantMenuRoundedIcon,
-    title: "Recetas con IA",
-    desc: "Generá recetas saludables adaptadas a tu perfil y objetivo. Fit, Hipertrofia o Rápidas — con ingredientes reales, pasos detallados y lista de compras automática.",
-    color: "#7C3AED",
-    bg: "#F5F3FF",
-    tags: [
-      "Personalizadas",
-      "Ingredientes reales",
-      "Lista de compras",
-      "Favoritas",
-    ],
-    photo: "/img/recetasIA.jpg",
-  },
-  {
-    Icon: FitnessCenterRoundedIcon,
-    title: "Entrenamiento personalizado",
-    desc: "Generá tu plan de entrenamiento: Hipertrofia, Fit o Calistenia, en Gym o en Casa. Seguí tu progreso sesión a sesión con registro completo.",
-    color: "#D97706",
-    bg: "#FFFBEB",
-    tags: ["Hipertrofia", "Fit", "Calistenia", "Gym", "Casa"],
-    photo:
-      "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
-  },
-  {
-    Icon: TrendingUpRoundedIcon,
-    title: "Balance energético",
-    desc: "Registrá lo que comés y tu actividad del día por voz. La IA calcula tu objetivo calórico según tu metabolismo, nivel de actividad y meta — bajar peso, mantener o ganar músculo.",
-    color: "#0B5E55",
-    bg: "#E6F5F3",
-    tags: [
-      "Por voz",
-      "TDEE",
-      "Déficit / Superávit",
-      "Macros",
-      "Historial mensual",
-    ],
-    photo: "/img/balance.jpg",
-  },
-];
+const getModules = (isUS) =>
+  isUS
+    ? [
+        {
+          Icon: SearchRoundedIcon,
+          title: "Food analysis",
+          desc: "Photograph the nutrition facts and ingredients of a product. Instantly get its NOVA classification, macros, additives, and personalized recommendations.",
+          color: C.brand,
+          bg: C.brandSurf,
+          tags: ["NOVA classification", "Macros", "Additives", "Health score"],
+          photo: "/img/analisisIA.jpg",
+        },
+        {
+          Icon: RestaurantMenuRoundedIcon,
+          title: "AI recipes",
+          desc: "Generate healthy recipes tailored to your profile and goal. Fit, Hypertrophy, or Quick — with real ingredients, detailed steps, and an automatic shopping list.",
+          color: "#7C3AED",
+          bg: "#F5F3FF",
+          tags: [
+            "Personalized",
+            "Real ingredients",
+            "Shopping list",
+            "Favorites",
+          ],
+          photo: "/img/recetasIA.jpg",
+        },
+        {
+          Icon: FitnessCenterRoundedIcon,
+          title: "Personalized training",
+          desc: "Generate your training plan: Hypertrophy, Fit, or Calisthenics, at the Gym or at Home. Track your progress session by session with a full log.",
+          color: "#D97706",
+          bg: "#FFFBEB",
+          tags: ["Hypertrophy", "Fit", "Calisthenics", "Gym", "Home"],
+          photo:
+            "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
+        },
+        {
+          Icon: TrendingUpRoundedIcon,
+          title: "Energy balance",
+          desc: "Log what you eat and your daily activity by voice. The AI calculates your calorie target based on your metabolism, activity level, and goal — lose weight, maintain, or build muscle.",
+          color: "#0B5E55",
+          bg: "#E6F5F3",
+          tags: [
+            "By voice",
+            "TDEE",
+            "Deficit / Surplus",
+            "Macros",
+            "Monthly history",
+          ],
+          photo: "/img/balance.jpg",
+        },
+      ]
+    : [
+        {
+          Icon: SearchRoundedIcon,
+          title: "Análisis de alimentos",
+          desc: "Fotografiá la tabla nutricional y los ingredientes del producto. Obtenés al instante su clasificación NOVA, macros, aditivos y recomendaciones personalizadas.",
+          color: C.brand,
+          bg: C.brandSurf,
+          tags: ["Clasificación NOVA", "Macros", "Aditivos", "Score nutricional"],
+          photo: "/img/analisisIA.jpg",
+        },
+        {
+          Icon: RestaurantMenuRoundedIcon,
+          title: "Recetas con IA",
+          desc: "Generá recetas saludables adaptadas a tu perfil y objetivo. Fit, Hipertrofia o Rápidas — con ingredientes reales, pasos detallados y lista de compras automática.",
+          color: "#7C3AED",
+          bg: "#F5F3FF",
+          tags: [
+            "Personalizadas",
+            "Ingredientes reales",
+            "Lista de compras",
+            "Favoritas",
+          ],
+          photo: "/img/recetasIA.jpg",
+        },
+        {
+          Icon: FitnessCenterRoundedIcon,
+          title: "Entrenamiento personalizado",
+          desc: "Generá tu plan de entrenamiento: Hipertrofia, Fit o Calistenia, en Gym o en Casa. Seguí tu progreso sesión a sesión con registro completo.",
+          color: "#D97706",
+          bg: "#FFFBEB",
+          tags: ["Hipertrofia", "Fit", "Calistenia", "Gym", "Casa"],
+          photo:
+            "/img/Start%20every%20day%20strong!%20Build%20muscle%2C%20burn%20fat%E2%80%A6.jpg",
+        },
+        {
+          Icon: TrendingUpRoundedIcon,
+          title: "Balance energético",
+          desc: "Registrá lo que comés y tu actividad del día por voz. La IA calcula tu objetivo calórico según tu metabolismo, nivel de actividad y meta — bajar peso, mantener o ganar músculo.",
+          color: "#0B5E55",
+          bg: "#E6F5F3",
+          tags: [
+            "Por voz",
+            "TDEE",
+            "Déficit / Superávit",
+            "Macros",
+            "Historial mensual",
+          ],
+          photo: "/img/balance.jpg",
+        },
+      ];
 
-const ModulesSection = () => (
+const ModulesSection = () => {
+  const { isUS } = useNutrition();
+  const MODULES = getModules(isUS);
+  return (
   <Box
     id="modulos"
     sx={{
@@ -921,7 +1100,8 @@ const ModulesSection = () => (
             mb: 2.5,
           }}
         >
-          <BoltRoundedIcon sx={{ fontSize: 13 }} /> 4 módulos integrados
+          <BoltRoundedIcon sx={{ fontSize: 13 }} />{" "}
+          {isUS ? "4 built-in modules" : "4 módulos integrados"}
         </Box>
         <Typography
           sx={{
@@ -933,11 +1113,23 @@ const ModulesSection = () => (
             mb: 2,
           }}
         >
-          Todo lo que necesitás
-          <br />
-          <Box component="span" sx={{ color: C.brand }}>
-            en un solo lugar
-          </Box>
+          {isUS ? (
+            <>
+              Everything you need
+              <br />
+              <Box component="span" sx={{ color: C.brand }}>
+                in one place
+              </Box>
+            </>
+          ) : (
+            <>
+              Todo lo que necesitás
+              <br />
+              <Box component="span" sx={{ color: C.brand }}>
+                en un solo lugar
+              </Box>
+            </>
+          )}
         </Typography>
         <Typography
           sx={{
@@ -948,9 +1140,9 @@ const ModulesSection = () => (
             lineHeight: 1.8,
           }}
         >
-          Cuatro herramientas integradas que trabajan juntas: analizás lo que
-          comés, cocinás mejor, entrenás con un plan personalizado y controlás
-          tu balance calórico en tiempo real.
+          {isUS
+            ? "Four integrated tools that work together: analyze what you eat, cook better, train with a personalized plan, and track your calorie balance in real time."
+            : "Cuatro herramientas integradas que trabajan juntas: analizás lo que comés, cocinás mejor, entrenás con un plan personalizado y controlás tu balance calórico en tiempo real."}
         </Typography>
       </Box>
 
@@ -1127,85 +1319,166 @@ const ModulesSection = () => (
       </Box>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── LISTA DE COMPRAS FEATURE ───────────────────────────────────────────── */
-const SHOPPING_STEPS = [
-  {
-    Icon: RestaurantRoundedIcon,
-    color: "#7C3AED",
-    bg: "#F5F3FF",
-    border: "rgba(124,58,237,0.14)",
-    title: "Generás una receta",
-    desc: "Elegís el tipo de plato — Fit, Hipertrofia o Rápidas — y la IA genera ingredientes y pasos al instante.",
-  },
-  {
-    Icon: ShoppingCartRoundedIcon,
-    color: C.brand,
-    bg: C.brandSurf,
-    border: C.brandBorder,
-    title: "Agregás con un tap",
-    desc: '"Agregar a mi lista" suma todos los ingredientes necesarios. Sin copiar, sin escribir nada.',
-  },
-  {
-    Icon: FormatListNumberedRoundedIcon,
-    color: "#D97706",
-    bg: "#FFFBEB",
-    border: "rgba(217,119,6,0.14)",
-    title: "Se acumula solo",
-    desc: "¿Una receta lleva 3 huevos y otra 2? Nui pone 5 huevos — sin duplicados, sin confusiones.",
-  },
-  {
-    Icon: EditRoundedIcon,
-    color: "#0891B2",
-    bg: "#F0FDFF",
-    border: "rgba(8,145,178,0.14)",
-    title: "Agregás lo que quieras",
-    desc: "¿Jabón, papel, yogur? Escribilo a mano y se suma a la misma lista. Todo en un lugar.",
-  },
-];
+const getShoppingSteps = (isUS) =>
+  isUS
+    ? [
+        {
+          Icon: RestaurantRoundedIcon,
+          color: "#7C3AED",
+          bg: "#F5F3FF",
+          border: "rgba(124,58,237,0.14)",
+          title: "You generate a recipe",
+          desc: "Pick the type of dish — Fit, Hypertrophy, or Quick — and the AI generates ingredients and steps instantly.",
+        },
+        {
+          Icon: ShoppingCartRoundedIcon,
+          color: C.brand,
+          bg: C.brandSurf,
+          border: C.brandBorder,
+          title: "Add it with a tap",
+          desc: '"Add to my list" adds every ingredient you need. No copying, no typing.',
+        },
+        {
+          Icon: FormatListNumberedRoundedIcon,
+          color: "#D97706",
+          bg: "#FFFBEB",
+          border: "rgba(217,119,6,0.14)",
+          title: "It adds itself up",
+          desc: "One recipe needs 3 eggs, another needs 2? Nui shows 5 eggs — no duplicates, no confusion.",
+        },
+        {
+          Icon: EditRoundedIcon,
+          color: "#0891B2",
+          bg: "#F0FDFF",
+          border: "rgba(8,145,178,0.14)",
+          title: "Add whatever you want",
+          desc: "Soap, paper towels, yogurt? Type it in and it joins the same list. Everything in one place.",
+        },
+      ]
+    : [
+        {
+          Icon: RestaurantRoundedIcon,
+          color: "#7C3AED",
+          bg: "#F5F3FF",
+          border: "rgba(124,58,237,0.14)",
+          title: "Generás una receta",
+          desc: "Elegís el tipo de plato — Fit, Hipertrofia o Rápidas — y la IA genera ingredientes y pasos al instante.",
+        },
+        {
+          Icon: ShoppingCartRoundedIcon,
+          color: C.brand,
+          bg: C.brandSurf,
+          border: C.brandBorder,
+          title: "Agregás con un tap",
+          desc: '"Agregar a mi lista" suma todos los ingredientes necesarios. Sin copiar, sin escribir nada.',
+        },
+        {
+          Icon: FormatListNumberedRoundedIcon,
+          color: "#D97706",
+          bg: "#FFFBEB",
+          border: "rgba(217,119,6,0.14)",
+          title: "Se acumula solo",
+          desc: "¿Una receta lleva 3 huevos y otra 2? Nui pone 5 huevos — sin duplicados, sin confusiones.",
+        },
+        {
+          Icon: EditRoundedIcon,
+          color: "#0891B2",
+          bg: "#F0FDFF",
+          border: "rgba(8,145,178,0.14)",
+          title: "Agregás lo que quieras",
+          desc: "¿Jabón, papel, yogur? Escribilo a mano y se suma a la misma lista. Todo en un lugar.",
+        },
+      ];
 
 /* ─── Mock visual de la lista ── */
-const MOCK_ITEMS = [
-  {
-    Icon: EggRoundedIcon,
-    label: "5 huevos",
-    source: "2 recetas",
-    checked: true,
-  },
-  {
-    Icon: LunchDiningRoundedIcon,
-    label: "300g pollo",
-    source: "Taco de Pollo",
-    checked: true,
-  },
-  {
-    Icon: GrainRoundedIcon,
-    label: "2 tortillas maíz",
-    source: "Taco de Pollo",
-    checked: false,
-  },
-  {
-    Icon: OpacityRoundedIcon,
-    label: "1 cda aceite oliva",
-    source: "Ensalada Fit",
-    checked: false,
-  },
-  {
-    Icon: SpaRoundedIcon,
-    label: "1 cebolla",
-    source: "Manual",
-    checked: false,
-  },
-  {
-    Icon: GrassRoundedIcon,
-    label: "200g brócoli",
-    source: "Salteado Fit",
-    checked: false,
-  },
-];
+const getMockItems = (isUS) =>
+  isUS
+    ? [
+        {
+          Icon: EggRoundedIcon,
+          label: "5 eggs",
+          source: "2 recipes",
+          checked: true,
+        },
+        {
+          Icon: LunchDiningRoundedIcon,
+          label: "300g chicken",
+          source: "Chicken Taco",
+          checked: true,
+        },
+        {
+          Icon: GrainRoundedIcon,
+          label: "2 corn tortillas",
+          source: "Chicken Taco",
+          checked: false,
+        },
+        {
+          Icon: OpacityRoundedIcon,
+          label: "1 tbsp olive oil",
+          source: "Fit Salad",
+          checked: false,
+        },
+        {
+          Icon: SpaRoundedIcon,
+          label: "1 onion",
+          source: "Manual",
+          checked: false,
+        },
+        {
+          Icon: GrassRoundedIcon,
+          label: "200g broccoli",
+          source: "Fit Stir-fry",
+          checked: false,
+        },
+      ]
+    : [
+        {
+          Icon: EggRoundedIcon,
+          label: "5 huevos",
+          source: "2 recetas",
+          checked: true,
+        },
+        {
+          Icon: LunchDiningRoundedIcon,
+          label: "300g pollo",
+          source: "Taco de Pollo",
+          checked: true,
+        },
+        {
+          Icon: GrainRoundedIcon,
+          label: "2 tortillas maíz",
+          source: "Taco de Pollo",
+          checked: false,
+        },
+        {
+          Icon: OpacityRoundedIcon,
+          label: "1 cda aceite oliva",
+          source: "Ensalada Fit",
+          checked: false,
+        },
+        {
+          Icon: SpaRoundedIcon,
+          label: "1 cebolla",
+          source: "Manual",
+          checked: false,
+        },
+        {
+          Icon: GrassRoundedIcon,
+          label: "200g brócoli",
+          source: "Salteado Fit",
+          checked: false,
+        },
+      ];
 
-const ShoppingListFeatureSection = ({ onCTA }) => (
+const ShoppingListFeatureSection = ({ onCTA }) => {
+  const { isUS } = useNutrition();
+  const SHOPPING_STEPS = getShoppingSteps(isUS);
+  const MOCK_ITEMS = getMockItems(isUS);
+  return (
   <Box
     sx={{
       background: C.white,
@@ -1234,7 +1507,8 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
             mb: 2.5,
           }}
         >
-          <ShoppingCartRoundedIcon sx={{ fontSize: 13 }} /> Nueva funcionalidad
+          <ShoppingCartRoundedIcon sx={{ fontSize: 13 }} />{" "}
+          {isUS ? "New feature" : "Nueva funcionalidad"}
         </Box>
         <Typography
           component="h2"
@@ -1247,11 +1521,23 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
             mb: 2,
           }}
         >
-          Tu super, organizado
-          <br />
-          <Box component="span" sx={{ color: C.brand }}>
-            antes de salir de casa
-          </Box>
+          {isUS ? (
+            <>
+              Your grocery run, organized
+              <br />
+              <Box component="span" sx={{ color: C.brand }}>
+                before you leave the house
+              </Box>
+            </>
+          ) : (
+            <>
+              Tu super, organizado
+              <br />
+              <Box component="span" sx={{ color: C.brand }}>
+                antes de salir de casa
+              </Box>
+            </>
+          )}
         </Typography>
         <Typography
           sx={{
@@ -1262,9 +1548,9 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
             lineHeight: 1.8,
           }}
         >
-          Generás recetas y Nui arma tu lista de compras automáticamente.
-          Acumulativa, sin repetidos, con opción de agregar lo que quieras a
-          mano.
+          {isUS
+            ? "Generate recipes and Nui builds your shopping list automatically. Cumulative, no duplicates, with the option to add whatever you want by hand."
+            : "Generás recetas y Nui arma tu lista de compras automáticamente. Acumulativa, sin repetidos, con opción de agregar lo que quieras a mano."}
         </Typography>
       </Box>
 
@@ -1324,7 +1610,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                         py: 0.2,
                       }}
                     >
-                      Paso {i + 1}
+                      {isUS ? `Step ${i + 1}` : `Paso ${i + 1}`}
                     </Box>
                   </Stack>
                   <Typography
@@ -1370,7 +1656,9 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
               transition: "all 0.22s",
             }}
           >
-            Probá la lista de compras gratis
+            {isUS
+              ? "Try the shopping list for free"
+              : "Probá la lista de compras gratis"}
           </Button>
         </Box>
 
@@ -1424,13 +1712,13 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                     letterSpacing: "-0.3px",
                   }}
                 >
-                  Mi lista de compras
+                  {isUS ? "My shopping list" : "Mi lista de compras"}
                 </Typography>
               </Stack>
               <Typography
                 sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.65)" }}
               >
-                4 pendientes · 2 comprados
+                {isUS ? "4 pending · 2 bought" : "4 pendientes · 2 comprados"}
               </Typography>
               {/* Progress bar */}
               <Box
@@ -1542,7 +1830,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                 <Typography
                   sx={{ fontSize: 12.5, color: C.brand, fontWeight: 600 }}
                 >
-                  Agregar item manualmente…
+                  {isUS ? "Add an item manually…" : "Agregar item manualmente…"}
                 </Typography>
               </Box>
             </Box>
@@ -1568,7 +1856,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                 <Typography
                   sx={{ fontSize: 12.5, fontWeight: 700, color: C.brand }}
                 >
-                  Quitar comprados (2)
+                  {isUS ? "Remove bought items (2)" : "Quitar comprados (2)"}
                 </Typography>
               </Box>
             </Box>
@@ -1593,11 +1881,11 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
             <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
               <AutorenewRoundedIcon sx={{ fontSize: 16, color: C.emerald }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.ink }}>
-                Suma automática
+                {isUS ? "Auto-added up" : "Suma automática"}
               </Typography>
             </Stack>
             <Typography sx={{ fontSize: 12, color: C.muted, lineHeight: 1.4 }}>
-              3 huevos + 2 huevos
+              {isUS ? "3 eggs + 2 eggs" : "3 huevos + 2 huevos"}
             </Typography>
             <Stack direction="row" spacing={0.8} alignItems="center" mt={0.5}>
               <Typography sx={{ fontSize: 11, color: C.muted }}>= </Typography>
@@ -1612,7 +1900,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
                   py: 0.2,
                 }}
               >
-                5 huevos ✓
+                {isUS ? "5 eggs ✓" : "5 huevos ✓"}
               </Box>
             </Stack>
           </Box>
@@ -1637,11 +1925,13 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
             <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
               <RestaurantRoundedIcon sx={{ fontSize: 15, color: "#7C3AED" }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.ink }}>
-                Desde la receta
+                {isUS ? "From the recipe" : "Desde la receta"}
               </Typography>
             </Stack>
             <Typography sx={{ fontSize: 12, color: C.muted, lineHeight: 1.4 }}>
-              1 tap agrega todos los ingredientes
+              {isUS
+                ? "1 tap adds every ingredient"
+                : "1 tap agrega todos los ingredientes"}
             </Typography>
           </Box>
         </Box>
@@ -1658,28 +1948,52 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
           gap: 3,
         }}
       >
-        {[
-          {
-            Icon: AutorenewRoundedIcon,
-            title: "Sin duplicados",
-            desc: "Ingredientes iguales de distintas recetas se suman, no se repiten.",
-          },
-          {
-            Icon: EditRoundedIcon,
-            title: "Agregar a mano",
-            desc: "Sumá cualquier item manualmente: limpieza, snacks, lo que sea.",
-          },
-          {
-            Icon: CheckRoundedIcon,
-            title: "Check al comprar",
-            desc: "Marcá cada item mientras comprás. La app recuerda tu progreso.",
-          },
-          {
-            Icon: PhoneIphoneRoundedIcon,
-            title: "Siempre en tu cel",
-            desc: "Accedé desde el Dashboard o desde cualquier receta generada.",
-          },
-        ].map((b) => (
+        {(isUS
+          ? [
+              {
+                Icon: AutorenewRoundedIcon,
+                title: "No duplicates",
+                desc: "Matching ingredients from different recipes add up instead of repeating.",
+              },
+              {
+                Icon: EditRoundedIcon,
+                title: "Add by hand",
+                desc: "Add any item manually: cleaning supplies, snacks, whatever you need.",
+              },
+              {
+                Icon: CheckRoundedIcon,
+                title: "Check off as you shop",
+                desc: "Check each item while you shop. The app remembers your progress.",
+              },
+              {
+                Icon: PhoneIphoneRoundedIcon,
+                title: "Always on your phone",
+                desc: "Access it from the Dashboard or from any generated recipe.",
+              },
+            ]
+          : [
+              {
+                Icon: AutorenewRoundedIcon,
+                title: "Sin duplicados",
+                desc: "Ingredientes iguales de distintas recetas se suman, no se repiten.",
+              },
+              {
+                Icon: EditRoundedIcon,
+                title: "Agregar a mano",
+                desc: "Sumá cualquier item manualmente: limpieza, snacks, lo que sea.",
+              },
+              {
+                Icon: CheckRoundedIcon,
+                title: "Check al comprar",
+                desc: "Marcá cada item mientras comprás. La app recuerda tu progreso.",
+              },
+              {
+                Icon: PhoneIphoneRoundedIcon,
+                title: "Siempre en tu cel",
+                desc: "Accedé desde el Dashboard o desde cualquier receta generada.",
+              },
+            ]
+        ).map((b) => (
           <Box key={b.title}>
             <b.Icon
               sx={{ fontSize: 28, mb: 1.2, lineHeight: 1, color: "#fff" }}
@@ -1704,20 +2018,35 @@ const ShoppingListFeatureSection = ({ onCTA }) => (
       </Box>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── SECCIÓN DE VALOR — FONDO VERDE ─────────────────────────────────────── */
-const TRAINING_TYPES = [
-  "Rutina de hipertrofia",
-  "Plan de calistenia",
-  "Entrenamiento Fit",
-  "Entrenamiento en casa",
-  "Recetas saludables con IA",
-  "Lista de compras automática",
-  "Análisis NOVA de productos",
-];
+const getTrainingTypes = (isUS) =>
+  isUS
+    ? [
+        "Hypertrophy routine",
+        "Calisthenics plan",
+        "Fit training",
+        "Home workouts",
+        "AI healthy recipes",
+        "Automatic shopping list",
+        "NOVA product analysis",
+      ]
+    : [
+        "Rutina de hipertrofia",
+        "Plan de calistenia",
+        "Entrenamiento Fit",
+        "Entrenamiento en casa",
+        "Recetas saludables con IA",
+        "Lista de compras automática",
+        "Análisis NOVA de productos",
+      ];
 
-const CostComparisonSection = ({ onCTA }) => (
+const CostComparisonSection = ({ onCTA }) => {
+  const { isUS } = useNutrition();
+  const TRAINING_TYPES = getTrainingTypes(isUS);
+  return (
   <Box
     sx={{
       background: `linear-gradient(140deg, ${C.brand} 0%, ${C.brandMid} 100%)`,
@@ -1782,7 +2111,7 @@ const CostComparisonSection = ({ onCTA }) => (
             mb: 2.5,
           }}
         >
-          Todo en un solo lugar
+          {isUS ? "Everything in one place" : "Todo en un solo lugar"}
         </Box>
         <Typography
           component="h2"
@@ -1795,11 +2124,23 @@ const CostComparisonSection = ({ onCTA }) => (
             mb: 2,
           }}
         >
-          Tu asistente de salud
-          <br />
-          <Box component="span" sx={{ color: C.mint }}>
-            siempre disponible
-          </Box>
+          {isUS ? (
+            <>
+              Your health assistant
+              <br />
+              <Box component="span" sx={{ color: C.mint }}>
+                always available
+              </Box>
+            </>
+          ) : (
+            <>
+              Tu asistente de salud
+              <br />
+              <Box component="span" sx={{ color: C.mint }}>
+                siempre disponible
+              </Box>
+            </>
+          )}
         </Typography>
         <Typography
           sx={{
@@ -1810,8 +2151,9 @@ const CostComparisonSection = ({ onCTA }) => (
             lineHeight: 1.8,
           }}
         >
-          Análisis nutricional, recetas personalizadas y plan de entrenamiento
-          adaptado a tus metas, disponibles las 24 hs desde tu celular.
+          {isUS
+            ? "Nutrition analysis, personalized recipes, and a training plan tailored to your goals — available 24/7 from your phone."
+            : "Análisis nutricional, recetas personalizadas y plan de entrenamiento adaptado a tus metas, disponibles las 24 hs desde tu celular."}
         </Typography>
       </Box>
 
@@ -1843,7 +2185,7 @@ const CostComparisonSection = ({ onCTA }) => (
                 mb: 0.5,
               }}
             >
-              Plan Gold
+              {isUS ? "Gold Plan" : "Plan Gold"}
             </Typography>
             <Typography
               sx={{
@@ -1854,20 +2196,29 @@ const CostComparisonSection = ({ onCTA }) => (
                 mb: 0.3,
               }}
             >
-              $8.980
+              {isUS ? "$12.99" : "$8.980"}
             </Typography>
             <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.40)" }}>
-              por mes · cancelá cuando quieras
+              {isUS ? "per month · cancel anytime" : "por mes · cancelá cuando quieras"}
             </Typography>
           </Box>
           <Box sx={{ flex: 1 }}>
-            {[
-              "Análisis nutricional ilimitado",
-              "Recetas saludables con IA (Fit, Hipertrofia, Rápidas)",
-              "Balance energético diario por voz + historial mensual",
-              "2 planes de entrenamiento personalizados",
-              "Lista de compras automática desde tus recetas",
-            ].map((f) => (
+            {(isUS
+              ? [
+                  "Unlimited nutrition analysis",
+                  "AI healthy recipes (Fit, Hypertrophy, Quick)",
+                  "Daily energy balance by voice + monthly history",
+                  "2 personalized training plans",
+                  "Automatic shopping list from your recipes",
+                ]
+              : [
+                  "Análisis nutricional ilimitado",
+                  "Recetas saludables con IA (Fit, Hipertrofia, Rápidas)",
+                  "Balance energético diario por voz + historial mensual",
+                  "2 planes de entrenamiento personalizados",
+                  "Lista de compras automática desde tus recetas",
+                ]
+            ).map((f) => (
               <Stack
                 key={f}
                 direction="row"
@@ -1912,7 +2263,7 @@ const CostComparisonSection = ({ onCTA }) => (
             mb: 2,
           }}
         >
-          Objetivos disponibles
+          {isUS ? "Available goals" : "Objetivos disponibles"}
         </Typography>
         <Stack direction="row" flexWrap="wrap" gap={1} justifyContent="center">
           {TRAINING_TYPES.map((t) => (
@@ -1959,15 +2310,38 @@ const CostComparisonSection = ({ onCTA }) => (
             transition: "all 0.22s",
           }}
         >
-          Probá gratis 7 días
+          {isUS ? "Try free for 7 days" : "Probá gratis 7 días"}
         </Button>
       </Box>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── CÓMO FUNCIONA ───────────────────────────────────────────────────────── */
-const STEPS = [
+const getSteps = (isUS) =>
+  isUS
+    ? [
+        {
+          n: "01",
+          Icon: PersonAddRoundedIcon,
+          title: "Sign up in seconds",
+          desc: "Create your free account with email or Google. No credit card. In 30 seconds you're using Nui at 100% for 7 days.",
+        },
+        {
+          n: "02",
+          Icon: AccountCircleRoundedIcon,
+          title: "Set up your profile and goal",
+          desc: "Enter your age, weight, height, and activity level. Choose whether you want to lose weight, maintain, or build muscle — Nui calculates your daily calorie target automatically.",
+        },
+        {
+          n: "03",
+          Icon: TrendingUpRoundedIcon,
+          title: "Track your health in real time",
+          desc: "Analyze food with the camera, log meals and activity by voice, train with your personalized plan, and follow your energy balance day by day — all integrated.",
+        },
+      ]
+    : [
   {
     n: "01",
     Icon: PersonAddRoundedIcon,
@@ -1988,7 +2362,10 @@ const STEPS = [
   },
 ];
 
-const HowItWorksSection = () => (
+const HowItWorksSection = () => {
+  const { isUS } = useNutrition();
+  const STEPS = getSteps(isUS);
+  return (
   <Box
     id="como-funciona"
     sx={{
@@ -2015,7 +2392,7 @@ const HowItWorksSection = () => (
             mb: 2.5,
           }}
         >
-          Así funciona
+          {isUS ? "How it works" : "Así funciona"}
         </Box>
         <Typography
           sx={{
@@ -2027,13 +2404,15 @@ const HowItWorksSection = () => (
             mb: 2,
           }}
         >
-          Empezá en{" "}
+          {isUS ? "Get started in" : "Empezá en"}{" "}
           <Box component="span" sx={{ color: C.brand }}>
-            3 pasos
+            {isUS ? "3 steps" : "3 pasos"}
           </Box>
         </Typography>
         <Typography sx={{ fontSize: 17, color: C.muted, lineHeight: 1.8 }}>
-          En menos de 2 minutos ya estás usando Nui al 100%.
+          {isUS
+            ? "In under 2 minutes you're using Nui at 100%."
+            : "En menos de 2 minutos ya estás usando Nui al 100%."}
         </Typography>
       </Box>
 
@@ -2113,7 +2492,7 @@ const HowItWorksSection = () => (
                 mb: 1,
               }}
             >
-              Paso {s.n}
+              {isUS ? `Step ${s.n}` : `Paso ${s.n}`}
             </Typography>
             <Typography
               sx={{
@@ -2140,78 +2519,151 @@ const HowItWorksSection = () => (
       </Box>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── PRICING ─────────────────────────────────────────────────────────────── */
-const PRICING_PLANS = [
-  {
-    id: "free",
-    name: "Free",
-    Icon: RocketLaunchRoundedIcon,
-    price: null,
-    sub: "Gratis · 7 días",
-    color: C.brand,
-    border: C.brandBorder,
-    bg: C.white,
-    highlight: false,
-    badge: null,
-    features: [
-      "Todos los módulos sin límite durante 7 días",
-      "Análisis ilimitados",
-      "Recetas con IA ilimitadas",
-      "Plan de entrenamiento personalizado",
-      "Balance energético diario acumulado (7 días)",
-      "Dashboard completo",
-    ],
-    cta: "Empezar gratis",
-  },
-  {
-    id: "silver",
-    name: "Silver",
-    Icon: DiamondOutlinedIcon,
-    price: 6890,
-    sub: "por mes",
-    color: "#71879C",
-    border: "rgba(113,135,156,0.18)",
-    bg: "#F8FAFC",
-    highlight: false,
-    badge: null,
-    features: [
-      "1 análisis de alimentos por día",
-      "Recetas con IA ilimitadas",
-      "1 plan de entrenamiento activo",
-      "Balance energético diario por voz",
-      "Historial de análisis 30 días",
-      "Dashboard + métricas",
-    ],
-    cta: "Elegir Silver",
-  },
-  {
-    id: "gold",
-    name: "Gold",
-    Icon: WorkspacePremiumOutlinedIcon,
-    price: 8980,
-    sub: "por mes",
-    color: "#B07D1A",
-    border: "rgba(176,125,26,0.28)",
-    bg: "linear-gradient(145deg,#FDF8EC,#FEFCF5)",
-    highlight: true,
-    badge: "Más popular",
-    features: [
-      "Análisis ilimitados por día",
-      "Recetas con IA ilimitadas",
-      "2 planes de entrenamiento activos",
-      "Balance energético diario por voz",
-      "Historial mensual de balance (tabla diaria)",
-      "Historial completo sin límite",
-      "Dashboard premium + estadísticas detalladas",
-    ],
-    cta: "Elegir Gold",
-  },
-];
+const getPricingPlans = (isUS) =>
+  isUS
+    ? [
+        {
+          id: "free",
+          name: "Free",
+          Icon: RocketLaunchRoundedIcon,
+          price: null,
+          sub: "Free · 7 days",
+          color: C.brand,
+          border: C.brandBorder,
+          bg: C.white,
+          highlight: false,
+          badge: null,
+          features: [
+            "Every module with no limits for 7 days",
+            "Unlimited analysis",
+            "Unlimited AI recipes",
+            "Personalized training plan",
+            "Accumulated daily energy balance (7 days)",
+            "Full dashboard",
+          ],
+          cta: "Start free",
+        },
+        {
+          id: "silver",
+          name: "Silver",
+          Icon: DiamondOutlinedIcon,
+          price: 6.99,
+          sub: "per month",
+          color: "#71879C",
+          border: "rgba(113,135,156,0.18)",
+          bg: "#F8FAFC",
+          highlight: false,
+          badge: null,
+          features: [
+            "1 food analysis per day",
+            "Unlimited AI recipes",
+            "1 active training plan",
+            "Daily energy balance by voice",
+            "30-day analysis history",
+            "Dashboard + metrics",
+          ],
+          cta: "Choose Silver",
+        },
+        {
+          id: "gold",
+          name: "Gold",
+          Icon: WorkspacePremiumOutlinedIcon,
+          price: 12.99,
+          sub: "per month",
+          color: "#B07D1A",
+          border: "rgba(176,125,26,0.28)",
+          bg: "linear-gradient(145deg,#FDF8EC,#FEFCF5)",
+          highlight: true,
+          badge: "Most popular",
+          features: [
+            "Unlimited daily analysis",
+            "Unlimited AI recipes",
+            "2 active training plans",
+            "Daily energy balance by voice",
+            "Monthly balance history (daily table)",
+            "Unlimited full history",
+            "Premium dashboard + detailed stats",
+          ],
+          cta: "Choose Gold",
+        },
+      ]
+    : [
+        {
+          id: "free",
+          name: "Free",
+          Icon: RocketLaunchRoundedIcon,
+          price: null,
+          sub: "Gratis · 7 días",
+          color: C.brand,
+          border: C.brandBorder,
+          bg: C.white,
+          highlight: false,
+          badge: null,
+          features: [
+            "Todos los módulos sin límite durante 7 días",
+            "Análisis ilimitados",
+            "Recetas con IA ilimitadas",
+            "Plan de entrenamiento personalizado",
+            "Balance energético diario acumulado (7 días)",
+            "Dashboard completo",
+          ],
+          cta: "Empezar gratis",
+        },
+        {
+          id: "silver",
+          name: "Silver",
+          Icon: DiamondOutlinedIcon,
+          price: 6890,
+          sub: "por mes",
+          color: "#71879C",
+          border: "rgba(113,135,156,0.18)",
+          bg: "#F8FAFC",
+          highlight: false,
+          badge: null,
+          features: [
+            "1 análisis de alimentos por día",
+            "Recetas con IA ilimitadas",
+            "1 plan de entrenamiento activo",
+            "Balance energético diario por voz",
+            "Historial de análisis 30 días",
+            "Dashboard + métricas",
+          ],
+          cta: "Elegir Silver",
+        },
+        {
+          id: "gold",
+          name: "Gold",
+          Icon: WorkspacePremiumOutlinedIcon,
+          price: 8980,
+          sub: "por mes",
+          color: "#B07D1A",
+          border: "rgba(176,125,26,0.28)",
+          bg: "linear-gradient(145deg,#FDF8EC,#FEFCF5)",
+          highlight: true,
+          badge: "Más popular",
+          features: [
+            "Análisis ilimitados por día",
+            "Recetas con IA ilimitadas",
+            "2 planes de entrenamiento activos",
+            "Balance energético diario por voz",
+            "Historial mensual de balance (tabla diaria)",
+            "Historial completo sin límite",
+            "Dashboard premium + estadísticas detalladas",
+          ],
+          cta: "Elegir Gold",
+        },
+      ];
+
+const formatUSDLanding = (n) => `$${n.toFixed(2)}`;
 
 /* ─── Card de pricing reutilizable ───────────────────────────── */
-const PricingCard = ({ p, onCTA, isActive }) => (
+const PricingCard = ({ p, onCTA, isActive }) => {
+  const { isUS } = useNutrition();
+  return (
   <Box
     sx={{
       border: `1.5px solid ${p.border}`,
@@ -2275,7 +2727,7 @@ const PricingCard = ({ p, onCTA, isActive }) => (
             lineHeight: 1.1,
           }}
         >
-          Plan {p.name}
+          {isUS ? `${p.name} Plan` : `Plan ${p.name}`}
         </Typography>
         <Typography sx={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>
           {p.sub}
@@ -2294,18 +2746,18 @@ const PricingCard = ({ p, onCTA, isActive }) => (
               letterSpacing: "-1.5px",
             }}
           >
-            {formatARS(p.price)}
+            {isUS ? formatUSDLanding(p.price) : formatARS(p.price)}
           </Typography>
           <Typography
             component="span"
             sx={{ fontSize: 13, color: C.muted, ml: 0.5 }}
           >
-            /mes
+            {isUS ? "/mo" : "/mes"}
           </Typography>
         </>
       ) : (
         <Typography sx={{ fontSize: 30, fontWeight: 900, color: C.brand }}>
-          Gratis
+          {isUS ? "Free" : "Gratis"}
         </Typography>
       )}
     </Box>
@@ -2353,9 +2805,12 @@ const PricingCard = ({ p, onCTA, isActive }) => (
       {p.cta}
     </Button>
   </Box>
-);
+  );
+};
 
 const PricingSection = ({ onCTA }) => {
+  const { isUS } = useNutrition();
+  const PRICING_PLANS = getPricingPlans(isUS);
   const [active, setActive] = useState(2); // Gold al frente por defecto
   const timerRef = useRef(null);
 
@@ -2442,7 +2897,7 @@ const PricingSection = ({ onCTA }) => {
               mb: 2.5,
             }}
           >
-            Precios
+            {isUS ? "Pricing" : "Precios"}
           </Box>
           <Typography
             sx={{
@@ -2454,14 +2909,28 @@ const PricingSection = ({ onCTA }) => {
               mb: 2,
             }}
           >
-            Elegí el plan que
-            <br />
-            <Box component="span" sx={{ color: C.brand }}>
-              mejor te quede
-            </Box>
+            {isUS ? (
+              <>
+                Choose the plan that
+                <br />
+                <Box component="span" sx={{ color: C.brand }}>
+                  fits you best
+                </Box>
+              </>
+            ) : (
+              <>
+                Elegí el plan que
+                <br />
+                <Box component="span" sx={{ color: C.brand }}>
+                  mejor te quede
+                </Box>
+              </>
+            )}
           </Typography>
           <Typography sx={{ fontSize: 17, color: C.muted, lineHeight: 1.8 }}>
-            Empezá con 7 días gratis. Cancelá cuando quieras, sin penalidades.
+            {isUS
+              ? "Start with a 7-day free trial. Cancel anytime, no penalties."
+              : "Empezá con 7 días gratis. Cancelá cuando quieras, sin penalidades."}
           </Typography>
         </Box>
 
@@ -2541,17 +3010,19 @@ const PricingSection = ({ onCTA }) => {
             useFlexGap
           >
             <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
-              Pago seguro a través de
+              {isUS ? "Secure payment processed by Stripe" : "Pago seguro a través de"}
             </Typography>
-            <Box
-              component="img"
-              src="/img/Logo Mp.svg"
-              alt="Mercado Pago"
-              sx={{ height: 28, opacity: 0.85 }}
-            />
+            {!isUS && (
+              <Box
+                component="img"
+                src="/img/Logo Mp.svg"
+                alt="Mercado Pago"
+                sx={{ height: 28, opacity: 0.85 }}
+              />
+            )}
             <CheckCircleRoundedIcon sx={{ fontSize: 16, color: "#2ECC71" }} />
             <Typography sx={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>
-              Cancelá cuando quieras
+              {isUS ? "Cancel anytime" : "Cancelá cuando quieras"}
             </Typography>
           </Stack>
         </Box>
@@ -2561,7 +3032,9 @@ const PricingSection = ({ onCTA }) => {
 };
 
 /* ─── CTA FINAL ───────────────────────────────────────────────────────────── */
-const FinalCTA = ({ onCTA }) => (
+const FinalCTA = ({ onCTA }) => {
+  const { isUS } = useNutrition();
+  return (
   <Box
     sx={{
       background: `linear-gradient(140deg, ${C.heroBg} 0%, #053D38 50%, ${C.darkBg} 100%)`,
@@ -2608,7 +3081,7 @@ const FinalCTA = ({ onCTA }) => (
           mb: 2.5,
         }}
       >
-        Empezá hoy
+        {isUS ? "Start today" : "Empezá hoy"}
       </Typography>
       <Typography
         sx={{
@@ -2620,7 +3093,7 @@ const FinalCTA = ({ onCTA }) => (
           mb: 3,
         }}
       >
-        7 días completamente
+        {isUS ? "7 days completely" : "7 días completamente"}
         <br />
         <Box
           component="span"
@@ -2631,7 +3104,7 @@ const FinalCTA = ({ onCTA }) => (
             backgroundClip: "text",
           }}
         >
-          gratis.
+          {isUS ? "free." : "gratis."}
         </Box>
       </Typography>
       <Typography
@@ -2642,9 +3115,19 @@ const FinalCTA = ({ onCTA }) => (
           mb: 5.5,
         }}
       >
-        Sin tarjeta de crédito. Sin compromisos.
-        <br />
-        Probá los 3 módulos sin límites.
+        {isUS ? (
+          <>
+            No credit card. No commitments.
+            <br />
+            Try all 3 modules with no limits.
+          </>
+        ) : (
+          <>
+            Sin tarjeta de crédito. Sin compromisos.
+            <br />
+            Probá los 3 módulos sin límites.
+          </>
+        )}
       </Typography>
       <Button
         onClick={onCTA}
@@ -2667,11 +3150,12 @@ const FinalCTA = ({ onCTA }) => (
           transition: "all 0.25s",
         }}
       >
-        Crear cuenta gratis
+        {isUS ? "Create free account" : "Crear cuenta gratis"}
       </Button>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── EDITORIAL: post destacado + archivo ─────────────────────────────────── */
 
@@ -3161,7 +3645,9 @@ const LandingPostsSection = () => {
 };
 
 /* ─── FOOTER ──────────────────────────────────────────────────────────────── */
-const LandingFooter = () => (
+const LandingFooter = () => {
+  const { isUS } = useNutrition();
+  return (
   <Box
     sx={{
       background: C.heroBg,
@@ -3194,12 +3680,20 @@ const LandingFooter = () => (
           flexWrap="wrap"
           justifyContent="center"
         >
-          {[
-            ["Privacidad", "/privacidad"],
-            ["Términos", "/terminos"],
-            ["Contacto", "/contact"],
-            ["Precios", "/pricing"],
-          ].map(([label, path]) => (
+          {(isUS
+            ? [
+                ["Privacy", "/privacidad"],
+                ["Terms", "/terminos"],
+                ["Contact", "/contact"],
+                ["Pricing", "/pricing"],
+              ]
+            : [
+                ["Privacidad", "/privacidad"],
+                ["Términos", "/terminos"],
+                ["Contacto", "/contact"],
+                ["Precios", "/pricing"],
+              ]
+          ).map(([label, path]) => (
             <Box
               key={label}
               component={Link}
@@ -3253,17 +3747,21 @@ const LandingFooter = () => (
                 fontWeight: 600,
               }}
             >
-              Pago seguro procesado por
+              {isUS
+                ? "Secure payment processed by Stripe"
+                : "Pago seguro procesado por"}
             </Typography>
-            <Box
-              component="img"
-              src="/img/Logo Mp Blanco.png"
-              alt="Mercado Pago"
-              sx={{
-                height: 48,
-                opacity: 0.9,
-              }}
-            />
+            {!isUS && (
+              <Box
+                component="img"
+                src="/img/Logo Mp Blanco.png"
+                alt="Mercado Pago"
+                sx={{
+                  height: 48,
+                  opacity: 0.9,
+                }}
+              />
+            )}
           </Stack>
           <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.20)" }}>
             ·
@@ -3275,13 +3773,16 @@ const LandingFooter = () => (
             <Typography
               sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)" }}
             >
-              Transacción cifrada SSL · PCI DSS compliant
+              {isUS
+                ? "SSL encrypted transaction · PCI DSS compliant"
+                : "Transacción cifrada SSL · PCI DSS compliant"}
             </Typography>
           </Stack>
         </Stack>
       </Box>
 
-      {/* Cumplimiento normativo ARCA + Defensa del Consumidor */}
+      {/* Cumplimiento normativo ARCA + Defensa del Consumidor (solo Argentina) */}
+      {!isUS && (
       <Box
         sx={{
           display: "flex",
@@ -3406,6 +3907,7 @@ const LandingFooter = () => (
           <UndoRoundedIcon sx={{ fontSize: 13 }} /> Botón de arrepentimiento
         </Box>
       </Box>
+      )}
 
       {/* Datos legales */}
       <Typography
@@ -3416,15 +3918,28 @@ const LandingFooter = () => (
           lineHeight: 1.7,
         }}
       >
-        Nui es una aplicación de salud y nutrición. No reemplaza el consejo
-        médico profesional.
-        <br />
-        Los análisis nutricionales son orientativos. Consultá con un profesional
-        de la salud ante dudas.
+        {isUS ? (
+          <>
+            Nui is a health and nutrition app. It does not replace
+            professional medical advice.
+            <br />
+            Nutritional analysis is provided for guidance only. Consult a
+            healthcare professional if you have questions.
+          </>
+        ) : (
+          <>
+            Nui es una aplicación de salud y nutrición. No reemplaza el consejo
+            médico profesional.
+            <br />
+            Los análisis nutricionales son orientativos. Consultá con un
+            profesional de la salud ante dudas.
+          </>
+        )}
       </Typography>
     </Box>
   </Box>
-);
+  );
+};
 
 /* ─── MAIN ────────────────────────────────────────────────────────────────── */
 const LandingPage = () => {

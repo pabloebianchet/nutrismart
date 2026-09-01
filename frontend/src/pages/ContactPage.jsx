@@ -7,6 +7,7 @@ import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineR
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { API_URL } from "../config/api";
 import usePageMeta from "../hooks/usePageMeta";
+import { useNutrition } from "../context/NutritionContext";
 
 const C = {
   brand: "#0B5E55",
@@ -39,6 +40,7 @@ const ContactPage = () => {
     description: "¿Tenés dudas sobre Nui? Escribinos y te respondemos a la brevedad — soporte sobre la app, suscripciones y funcionalidades.",
     canonical:   "/contact",
   });
+  const { isUS } = useNutrition();
   const [sent,     setSent]     = useState(false);
   const [sending,  setSending]  = useState(false);
   const [apiError, setApiError] = useState("");
@@ -59,12 +61,12 @@ const ContactPage = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        setApiError(data.error || "No se pudo enviar el mensaje. Intentá de nuevo.");
+        setApiError(data.error || (isUS ? "The message could not be sent. Please try again." : "No se pudo enviar el mensaje. Intentá de nuevo."));
         return;
       }
       setSent(true);
     } catch {
-      setApiError("Error de red. Verificá tu conexión e intentá de nuevo.");
+      setApiError(isUS ? "Network error. Check your connection and try again." : "Error de red. Verificá tu conexión e intentá de nuevo.");
     } finally {
       setSending(false);
     }
@@ -140,7 +142,7 @@ const ContactPage = () => {
                 }}
               />
             }
-            label="Contacto"
+            label={isUS ? "Contact" : "Contacto"}
             sx={{
               mb: 3,
               bgcolor: C.brandSurface,
@@ -167,9 +169,19 @@ const ContactPage = () => {
               fontSize: { xs: 32, sm: 42 },
             }}
           >
-            ¿En qué podemos
-            <br />
-            ayudarte?
+            {isUS ? (
+              <>
+                How can we
+                <br />
+                help you?
+              </>
+            ) : (
+              <>
+                ¿En qué podemos
+                <br />
+                ayudarte?
+              </>
+            )}
           </Typography>
 
           <Typography
@@ -181,8 +193,9 @@ const ContactPage = () => {
               lineHeight: 1.75,
             }}
           >
-            ¿Tenés alguna consulta o sugerencia? Escribinos y te respondemos a
-            la brevedad.
+            {isUS
+              ? "Have a question or suggestion? Send us a message and we'll get back to you shortly."
+              : "¿Tenés alguna consulta o sugerencia? Escribinos y te respondemos a la brevedad."}
           </Typography>
         </Box>
 
@@ -257,7 +270,7 @@ const ContactPage = () => {
                 letterSpacing: "-0.5px",
               }}
             >
-              Hablemos
+              {isUS ? "Let's talk" : "Hablemos"}
             </Typography>
             <Typography
               sx={{
@@ -267,8 +280,9 @@ const ContactPage = () => {
                 mb: 4,
               }}
             >
-              Estamos para ayudarte. Contanos tu consulta y nuestro equipo se
-              pondrá en contacto a la brevedad.
+              {isUS
+                ? "We're here to help. Tell us what you need and our team will get in touch with you shortly."
+                : "Estamos para ayudarte. Contanos tu consulta y nuestro equipo se pondrá en contacto a la brevedad."}
             </Typography>
 
             <Stack spacing={2.5}>
@@ -280,8 +294,8 @@ const ContactPage = () => {
                 },
                 {
                   Icon: AccessTimeRoundedIcon,
-                  label: "Tiempo de respuesta",
-                  value: "24 – 48 horas hábiles",
+                  label: isUS ? "Response time" : "Tiempo de respuesta",
+                  value: isUS ? "24 – 48 business hours" : "24 – 48 horas hábiles",
                 },
               ].map(({ Icon, label, value }) => (
                 <Box
@@ -371,10 +385,12 @@ const ContactPage = () => {
                     letterSpacing: "-0.5px",
                   }}
                 >
-                  ¡Mensaje enviado!
+                  {isUS ? "Message sent!" : "¡Mensaje enviado!"}
                 </Typography>
                 <Typography sx={{ fontSize: 14, color: C.textSecondary }}>
-                  Te respondemos dentro de las próximas 24–48 horas hábiles.
+                  {isUS
+                    ? "We'll get back to you within the next 24–48 business hours."
+                    : "Te respondemos dentro de las próximas 24–48 horas hábiles."}
                 </Typography>
               </Box>
             ) : (
@@ -388,12 +404,14 @@ const ContactPage = () => {
                     letterSpacing: "-0.4px",
                   }}
                 >
-                  Envianos un mensaje
+                  {isUS ? "Send us a message" : "Envianos un mensaje"}
                 </Typography>
                 <Typography
                   sx={{ fontSize: 13.5, color: C.textMuted, mb: 4 }}
                 >
-                  Completá el formulario y te contactamos pronto.
+                  {isUS
+                    ? "Fill out the form and we'll be in touch soon."
+                    : "Completá el formulario y te contactamos pronto."}
                 </Typography>
 
                 <Stack spacing={2.5}>
@@ -405,7 +423,7 @@ const ContactPage = () => {
                     }}
                   >
                     <TextField
-                      label="Nombre completo"
+                      label={isUS ? "Full name" : "Nombre completo"}
                       name="name"
                       value={form.name}
                       onChange={handleChange}
@@ -414,7 +432,7 @@ const ContactPage = () => {
                       sx={fieldSx}
                     />
                     <TextField
-                      label="Correo electrónico"
+                      label={isUS ? "Email address" : "Correo electrónico"}
                       name="email"
                       type="email"
                       value={form.email}
@@ -426,7 +444,7 @@ const ContactPage = () => {
                   </Box>
 
                   <TextField
-                    label="Asunto"
+                    label={isUS ? "Subject" : "Asunto"}
                     name="subject"
                     value={form.subject}
                     onChange={handleChange}
@@ -436,7 +454,7 @@ const ContactPage = () => {
                   />
 
                   <TextField
-                    label="Mensaje"
+                    label={isUS ? "Message" : "Mensaje"}
                     name="message"
                     value={form.message}
                     onChange={handleChange}
@@ -483,7 +501,9 @@ const ContactPage = () => {
                       },
                     }}
                   >
-                    {sending ? "Enviando..." : "Enviar mensaje"}
+                    {sending
+                      ? (isUS ? "Sending..." : "Enviando...")
+                      : (isUS ? "Send message" : "Enviar mensaje")}
                   </Button>
                 </Stack>
               </Box>

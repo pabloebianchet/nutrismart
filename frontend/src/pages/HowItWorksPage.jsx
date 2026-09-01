@@ -1,5 +1,6 @@
 import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
 import usePageMeta from "../hooks/usePageMeta";
+import { useNutrition } from "../context/NutritionContext";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
@@ -28,117 +29,157 @@ const C = {
 };
 
 /* ── Escala NOVA de procesamiento ─────────────────────────────────────────── */
-const NOVA = [
+const getNova = (isUS) => [
   {
-    label: "No procesado",
+    label: isUS ? "Unprocessed" : "No procesado",
     Icon: SpaRoundedIcon,
-    desc: "Alimentos frescos o con mínima manipulación. Frutas, verduras, carnes, huevos, legumbres.",
+    desc: isUS
+      ? "Fresh or minimally handled foods. Fruits, vegetables, meats, eggs, legumes."
+      : "Alimentos frescos o con mínima manipulación. Frutas, verduras, carnes, huevos, legumbres.",
     color: "#2E7D32",
     bg: "#E8F5E9",
     border: "rgba(46,125,50,0.22)",
-    badge: "Ideal",
+    badge: isUS ? "Ideal" : "Ideal",
   },
   {
-    label: "Procesado",
+    label: isUS ? "Processed" : "Procesado",
     Icon: ScienceRoundedIcon,
-    desc: "Ingredientes simples añadidos para conservar o realzar sabor. Quesos, conservas, panes artesanales.",
+    desc: isUS
+      ? "Simple ingredients added to preserve or enhance flavor. Cheeses, canned goods, artisanal breads."
+      : "Ingredientes simples añadidos para conservar o realzar sabor. Quesos, conservas, panes artesanales.",
     color: "#E65100",
     bg: "#FFF3E0",
     border: "rgba(230,81,0,0.22)",
-    badge: "Moderado",
+    badge: isUS ? "Moderate" : "Moderado",
   },
   {
-    label: "Ultraprocesado",
+    label: isUS ? "Ultra-processed" : "Ultraprocesado",
     Icon: WarningAmberRoundedIcon,
-    desc: "Formulaciones industriales con aditivos, colorantes, saborizantes artificiales. Snacks, gaseosas, embutidos.",
+    desc: isUS
+      ? "Industrial formulations with additives, colorings, artificial flavors. Snacks, sodas, cold cuts."
+      : "Formulaciones industriales con aditivos, colorantes, saborizantes artificiales. Snacks, gaseosas, embutidos.",
     color: "#B71C1C",
     bg: "#FFEBEE",
     border: "rgba(183,28,28,0.22)",
-    badge: "Limitá su consumo",
+    badge: isUS ? "Limit your intake" : "Limitá su consumo",
   },
 ];
 
 /* ── Pasos del análisis ───────────────────────────────────────────────────── */
-const STEPS = [
+const getSteps = (isUS) => [
   {
     n: "01",
     Icon: PhotoCameraRoundedIcon,
-    title: "Fotografiá el envase",
-    body: "Capturás la tabla nutricional y la lista de ingredientes. NUI App puede analizar desde una simple foto del celular hasta el código de barras del producto.",
+    title: isUS ? "Photograph the label" : "Fotografiá el envase",
+    body: isUS
+      ? "Capture the nutrition facts panel and ingredient list. Nui can analyze anything from a simple phone photo to the product's barcode."
+      : "Capturás la tabla nutricional y la lista de ingredientes. NUI App puede analizar desde una simple foto del celular hasta el código de barras del producto.",
     color: "#0B5E55",
     accent: "rgba(11,94,85,0.12)",
   },
   {
     n: "02",
     Icon: AutoAwesomeRoundedIcon,
-    title: "La IA procesa el contenido",
-    body: "Nuestro motor de inteligencia artificial identifica cada ingrediente, detecta aditivos y evalúa la información nutricional según criterios científicos reconocidos internacionalmente.",
+    title: isUS ? "AI processes the content" : "La IA procesa el contenido",
+    body: isUS
+      ? "Our artificial intelligence engine identifies every ingredient, detects additives, and evaluates the nutrition facts against internationally recognized scientific criteria."
+      : "Nuestro motor de inteligencia artificial identifica cada ingrediente, detecta aditivos y evalúa la información nutricional según criterios científicos reconocidos internacionalmente.",
     color: "#0f7a6e",
     accent: "rgba(15,122,110,0.12)",
   },
   {
     n: "03",
     Icon: InsightsRoundedIcon,
-    title: "Recibís tu evaluación",
-    body: "Obtenés una clasificación (no procesado / procesado / ultraprocesado), un puntaje del 0 al 100 y recomendaciones concretas sobre cómo impacta ese alimento en tu salud.",
+    title: isUS ? "Get your evaluation" : "Recibís tu evaluación",
+    body: isUS
+      ? "You get a classification (unprocessed / processed / ultra-processed), a score from 0 to 100, and concrete recommendations on how that food impacts your health."
+      : "Obtenés una clasificación (no procesado / procesado / ultraprocesado), un puntaje del 0 al 100 y recomendaciones concretas sobre cómo impacta ese alimento en tu salud.",
     color: "#138578",
     accent: "rgba(19,133,120,0.12)",
   },
 ];
 
 /* ── Módulos de la app ────────────────────────────────────────────────────── */
-const MODULES = [
+const getModules = (isUS) => [
   {
     Icon: SearchRoundedIcon,
-    title: "Análisis de alimentos",
+    title: isUS ? "Food analysis" : "Análisis de alimentos",
     color: "#0B5E55",
     bg: "#E6F5F3",
     border: "rgba(11,94,85,0.20)",
-    features: [
-      "Clasificación ultraprocesado / procesado / no procesado",
-      "Puntaje global 0–100 basado en calidad nutricional",
-      "Detección de aditivos, colorantes y conservantes",
-      "Recomendación personalizada según tu perfil",
-    ],
+    features: isUS
+      ? [
+          "Ultra-processed / processed / unprocessed classification",
+          "Overall 0–100 score based on nutritional quality",
+          "Detection of additives, colorings and preservatives",
+          "Personalized recommendation based on your profile",
+        ]
+      : [
+          "Clasificación ultraprocesado / procesado / no procesado",
+          "Puntaje global 0–100 basado en calidad nutricional",
+          "Detección de aditivos, colorantes y conservantes",
+          "Recomendación personalizada según tu perfil",
+        ],
   },
   {
     Icon: RestaurantRoundedIcon,
-    title: "Recetas YA",
+    title: isUS ? "Recipes NOW" : "Recetas YA",
     color: "#6A1B9A",
     bg: "#F3E5F5",
     border: "rgba(106,27,154,0.20)",
-    features: [
-      "Recetas fit, de hipertrofia, rápidas y desayunos",
-      "Adaptadas al momento del día (almuerzo, cena, snack…)",
-      "Ingredientes + pasos detallados generados con IA",
-      "Guardá y compartí tus recetas favoritas",
-    ],
+    features: isUS
+      ? [
+          "Fit, muscle-building, quick and breakfast recipes",
+          "Adapted to the time of day (lunch, dinner, snack…)",
+          "Ingredients + detailed steps generated with AI",
+          "Save and share your favorite recipes",
+        ]
+      : [
+          "Recetas fit, de hipertrofia, rápidas y desayunos",
+          "Adaptadas al momento del día (almuerzo, cena, snack…)",
+          "Ingredientes + pasos detallados generados con IA",
+          "Guardá y compartí tus recetas favoritas",
+        ],
   },
   {
     Icon: FitnessCenterRoundedIcon,
-    title: "Entrenamiento",
+    title: isUS ? "Training" : "Entrenamiento",
     color: "#BF360C",
     bg: "#FBE9E7",
     border: "rgba(191,54,12,0.20)",
-    features: [
-      "Plan personalizado según tu perfil físico con IA",
-      "Hipertrofia, Fit y Calistenia — Gym o Casa",
-      "Seguimiento de sesiones y progresión de cargas",
-      "Tips semanales y fases de progresión",
-    ],
+    features: isUS
+      ? [
+          "AI-personalized plan based on your physical profile",
+          "Hypertrophy, Fit and Calisthenics — Gym or Home",
+          "Session tracking and load progression",
+          "Weekly tips and progression phases",
+        ]
+      : [
+          "Plan personalizado según tu perfil físico con IA",
+          "Hipertrofia, Fit y Calistenia — Gym o Casa",
+          "Seguimiento de sesiones y progresión de cargas",
+          "Tips semanales y fases de progresión",
+        ],
   },
   {
     Icon: BoltRoundedIcon,
-    title: "Balance calórico",
+    title: isUS ? "Calorie balance" : "Balance calórico",
     color: "#1565C0",
     bg: "#E3F2FD",
     border: "rgba(21,101,192,0.20)",
-    features: [
-      "Registrá comidas, actividad y agua por voz o texto",
-      "La IA calcula calorías y macros automáticamente",
-      "Objetivo calórico diario según tu metabolismo y meta",
-      "Historial mensual de balance nutricional (Plan Gold)",
-    ],
+    features: isUS
+      ? [
+          "Log meals, activity and water by voice or text",
+          "AI calculates calories and macros automatically",
+          "Daily calorie target based on your metabolism and goal",
+          "Monthly nutritional balance history (Gold Plan)",
+        ]
+      : [
+          "Registrá comidas, actividad y agua por voz o texto",
+          "La IA calcula calorías y macros automáticamente",
+          "Objetivo calórico diario según tu metabolismo y meta",
+          "Historial mensual de balance nutricional (Plan Gold)",
+        ],
   },
 ];
 
@@ -151,6 +192,10 @@ const HowItWorksPage = () => {
       "Registrate gratis, completá tu perfil y empezá a analizar alimentos con IA, generar recetas saludables, seguir tu plan de entrenamiento y registrar tu balance calórico diario.",
     canonical: "/how-it-works",
   });
+  const { isUS } = useNutrition();
+  const NOVA = getNova(isUS);
+  const STEPS = getSteps(isUS);
+  const MODULES = getModules(isUS);
   return (
     <Box
       sx={{
@@ -217,7 +262,7 @@ const HowItWorksPage = () => {
                 }}
               />
             }
-            label="Cómo funciona"
+            label={isUS ? "How it works" : "Cómo funciona"}
             sx={{
               mb: 3,
               bgcolor: C.brandSurface,
@@ -244,9 +289,19 @@ const HowItWorksPage = () => {
               fontSize: { xs: 30, sm: 42 },
             }}
           >
-            Sabé qué tan procesado
-            <br />
-            es lo que comés
+            {isUS ? (
+              <>
+                Know how processed
+                <br />
+                your food really is
+              </>
+            ) : (
+              <>
+                Sabé qué tan procesado
+                <br />
+                es lo que comés
+              </>
+            )}
           </Typography>
 
           <Typography
@@ -258,11 +313,23 @@ const HowItWorksPage = () => {
               lineHeight: 1.8,
             }}
           >
-            Nui analiza los ingredientes y la información nutricional de
-            cualquier alimento envasado para decirte exactamente si es{" "}
-            <strong>no procesado</strong>, <strong>procesado</strong> o{" "}
-            <strong>ultraprocesado</strong> — y qué tan seguido deberías
-            consumirlo.
+            {isUS ? (
+              <>
+                Nui analyzes the ingredients and nutrition facts of any
+                packaged food to tell you exactly whether it's{" "}
+                <strong>unprocessed</strong>, <strong>processed</strong>, or{" "}
+                <strong>ultra-processed</strong> — and how often you should
+                actually eat it.
+              </>
+            ) : (
+              <>
+                Nui analiza los ingredientes y la información nutricional de
+                cualquier alimento envasado para decirte exactamente si es{" "}
+                <strong>no procesado</strong>, <strong>procesado</strong> o{" "}
+                <strong>ultraprocesado</strong> — y qué tan seguido deberías
+                consumirlo.
+              </>
+            )}
           </Typography>
         </Box>
 
@@ -279,7 +346,7 @@ const HowItWorksPage = () => {
                 mb: 1.5,
               }}
             >
-              La escala que importa
+              {isUS ? "The scale that matters" : "La escala que importa"}
             </Typography>
             <Typography
               variant="h5"
@@ -292,7 +359,9 @@ const HowItWorksPage = () => {
                 fontSize: { xs: 22, sm: 28 },
               }}
             >
-              ¿Por qué importa el nivel de procesamiento?
+              {isUS
+                ? "Why does the level of processing matter?"
+                : "¿Por qué importa el nivel de procesamiento?"}
             </Typography>
             <Typography
               sx={{
@@ -303,14 +372,29 @@ const HowItWorksPage = () => {
                 lineHeight: 1.75,
               }}
             >
-              La evidencia científica muestra que el consumo frecuente de
-              alimentos ultraprocesados está asociado con mayor riesgo de
-              obesidad, diabetes tipo 2, enfermedades cardiovasculares y algunos
-              tipos de cáncer.{" "}
-              <strong>
-                Conocer el grado de procesamiento es el primer paso para elegir
-                mejor.
-              </strong>
+              {isUS ? (
+                <>
+                  Scientific evidence shows that frequent consumption of
+                  ultra-processed foods is associated with a higher risk of
+                  obesity, type 2 diabetes, cardiovascular disease, and
+                  certain types of cancer.{" "}
+                  <strong>
+                    Knowing the level of processing is the first step toward
+                    eating better.
+                  </strong>
+                </>
+              ) : (
+                <>
+                  La evidencia científica muestra que el consumo frecuente de
+                  alimentos ultraprocesados está asociado con mayor riesgo de
+                  obesidad, diabetes tipo 2, enfermedades cardiovasculares y
+                  algunos tipos de cáncer.{" "}
+                  <strong>
+                    Conocer el grado de procesamiento es el primer paso para
+                    elegir mejor.
+                  </strong>
+                </>
+              )}
             </Typography>
           </Box>
 
@@ -402,11 +486,14 @@ const HowItWorksPage = () => {
             }}
           />
           <Stack direction="row" justifyContent="space-between" mt={0.8}>
-            {[
-              "Ideal para el día a día",
-              "Con moderación",
-              "Limitá al máximo",
-            ].map((t) => (
+            {(isUS
+              ? ["Ideal for every day", "In moderation", "Limit as much as possible"]
+              : [
+                  "Ideal para el día a día",
+                  "Con moderación",
+                  "Limitá al máximo",
+                ]
+            ).map((t) => (
               <Typography
                 key={t}
                 sx={{ fontSize: 11, color: C.textMuted, fontWeight: 600 }}
@@ -434,7 +521,7 @@ const HowItWorksPage = () => {
                 mb: 1.5,
               }}
             >
-              El proceso
+              {isUS ? "The process" : "El proceso"}
             </Typography>
             <Typography
               variant="h5"
@@ -446,7 +533,9 @@ const HowItWorksPage = () => {
                 fontSize: { xs: 22, sm: 28 },
               }}
             >
-              Tres pasos, resultado inmediato
+              {isUS
+                ? "Three steps, instant results"
+                : "Tres pasos, resultado inmediato"}
             </Typography>
           </Box>
 
@@ -592,7 +681,7 @@ const HowItWorksPage = () => {
                   mb: 1.5,
                 }}
               >
-                El resultado
+                {isUS ? "The result" : "El resultado"}
               </Typography>
               <Typography
                 variant="h5"
@@ -605,7 +694,9 @@ const HowItWorksPage = () => {
                   fontSize: { xs: 20, sm: 24 },
                 }}
               >
-                Puntaje del 0 al 100 y clasificación de procesamiento
+                {isUS
+                  ? "A 0–100 score and processing classification"
+                  : "Puntaje del 0 al 100 y clasificación de procesamiento"}
               </Typography>
               <Typography
                 sx={{
@@ -615,32 +706,53 @@ const HowItWorksPage = () => {
                   mb: 3,
                 }}
               >
-                Cada análisis devuelve un puntaje que refleja la calidad
-                nutricional general del producto. Cuanto más alto, más natural y
-                menos industrial es el alimento. Además se identifica claramente
-                si es ultraprocesado, procesado o no procesado.
+                {isUS
+                  ? "Every analysis returns a score reflecting the product's overall nutritional quality. The higher it is, the more natural and less industrial the food is. It also clearly identifies whether it's ultra-processed, processed, or unprocessed."
+                  : "Cada análisis devuelve un puntaje que refleja la calidad nutricional general del producto. Cuanto más alto, más natural y menos industrial es el alimento. Además se identifica claramente si es ultraprocesado, procesado o no procesado."}
               </Typography>
               <Stack spacing={1.5}>
-                {[
-                  {
-                    rango: "75 – 100",
-                    label: "Excelente calidad",
-                    color: "#2E7D32",
-                    bg: "#E8F5E9",
-                  },
-                  {
-                    rango: "50 – 74",
-                    label: "Calidad aceptable",
-                    color: "#E65100",
-                    bg: "#FFF3E0",
-                  },
-                  {
-                    rango: "0 – 49",
-                    label: "Evitá o limitá mucho",
-                    color: "#B71C1C",
-                    bg: "#FFEBEE",
-                  },
-                ].map((row) => (
+                {(isUS
+                  ? [
+                      {
+                        rango: "75 – 100",
+                        label: "Excellent quality",
+                        color: "#2E7D32",
+                        bg: "#E8F5E9",
+                      },
+                      {
+                        rango: "50 – 74",
+                        label: "Acceptable quality",
+                        color: "#E65100",
+                        bg: "#FFF3E0",
+                      },
+                      {
+                        rango: "0 – 49",
+                        label: "Avoid or limit heavily",
+                        color: "#B71C1C",
+                        bg: "#FFEBEE",
+                      },
+                    ]
+                  : [
+                      {
+                        rango: "75 – 100",
+                        label: "Excelente calidad",
+                        color: "#2E7D32",
+                        bg: "#E8F5E9",
+                      },
+                      {
+                        rango: "50 – 74",
+                        label: "Calidad aceptable",
+                        color: "#E65100",
+                        bg: "#FFF3E0",
+                      },
+                      {
+                        rango: "0 – 49",
+                        label: "Evitá o limitá mucho",
+                        color: "#B71C1C",
+                        bg: "#FFEBEE",
+                      },
+                    ]
+                ).map((row) => (
                   <Stack
                     key={row.rango}
                     direction="row"
@@ -688,7 +800,7 @@ const HowItWorksPage = () => {
                   mb: 1.5,
                 }}
               >
-                Puntaje saludable acumulado
+                {isUS ? "Cumulative health score" : "Puntaje saludable acumulado"}
               </Typography>
               <Typography
                 variant="h5"
@@ -701,7 +813,7 @@ const HowItWorksPage = () => {
                   fontSize: { xs: 20, sm: 24 },
                 }}
               >
-                Cada hábito suma puntos
+                {isUS ? "Every habit adds up" : "Cada hábito suma puntos"}
               </Typography>
               <Typography
                 sx={{
@@ -711,28 +823,47 @@ const HowItWorksPage = () => {
                   mb: 3,
                 }}
               >
-                Además del análisis por producto, Nui lleva un score global de
-                tus hábitos. Cuanto más consistente seas con buenas elecciones
-                de comida y entrenamiento, tu avatar mejora su aspecto.
+                {isUS
+                  ? "Beyond the per-product analysis, Nui tracks an overall score of your habits. The more consistent you are with good food and training choices, the more your avatar's look improves."
+                  : "Además del análisis por producto, Nui lleva un score global de tus hábitos. Cuanto más consistente seas con buenas elecciones de comida y entrenamiento, tu avatar mejora su aspecto."}
               </Typography>
               <Stack spacing={1.5}>
-                {[
-                  {
-                    Icon: SearchRoundedIcon,
-                    text: "Análisis con puntaje ≥ 50/100",
-                    pts: "+5 pts",
-                  },
-                  {
-                    Icon: FitnessCenterRoundedIcon,
-                    text: "Sesión de entrenamiento registrada",
-                    pts: "+5 pts",
-                  },
-                  {
-                    Icon: WarningAmberRoundedIcon,
-                    text: "Análisis con puntaje < 50/100",
-                    pts: "−3 pts",
-                  },
-                ].map((row) => (
+                {(isUS
+                  ? [
+                      {
+                        Icon: SearchRoundedIcon,
+                        text: "Analysis with a score ≥ 50/100",
+                        pts: "+5 pts",
+                      },
+                      {
+                        Icon: FitnessCenterRoundedIcon,
+                        text: "Logged training session",
+                        pts: "+5 pts",
+                      },
+                      {
+                        Icon: WarningAmberRoundedIcon,
+                        text: "Analysis with a score < 50/100",
+                        pts: "−3 pts",
+                      },
+                    ]
+                  : [
+                      {
+                        Icon: SearchRoundedIcon,
+                        text: "Análisis con puntaje ≥ 50/100",
+                        pts: "+5 pts",
+                      },
+                      {
+                        Icon: FitnessCenterRoundedIcon,
+                        text: "Sesión de entrenamiento registrada",
+                        pts: "+5 pts",
+                      },
+                      {
+                        Icon: WarningAmberRoundedIcon,
+                        text: "Análisis con puntaje < 50/100",
+                        pts: "−3 pts",
+                      },
+                    ]
+                ).map((row) => (
                   <Stack
                     key={row.text}
                     direction="row"
@@ -802,7 +933,7 @@ const HowItWorksPage = () => {
                 mb: 1.5,
               }}
             >
-              Todo en un lugar
+              {isUS ? "Everything in one place" : "Todo en un lugar"}
             </Typography>
             <Typography
               variant="h5"
@@ -814,7 +945,7 @@ const HowItWorksPage = () => {
                 fontSize: { xs: 22, sm: 28 },
               }}
             >
-              Los cuatro módulos de Nui
+              {isUS ? "Nui's four modules" : "Los cuatro módulos de Nui"}
             </Typography>
           </Box>
 
@@ -953,7 +1084,7 @@ const HowItWorksPage = () => {
                   mb: 0.5,
                 }}
               >
-                Importante
+                {isUS ? "Important" : "Importante"}
               </Typography>
               <Typography
                 sx={{
@@ -962,13 +1093,9 @@ const HowItWorksPage = () => {
                   lineHeight: 1.75,
                 }}
               >
-                Nui no inventa información. El análisis se basa exclusivamente
-                en los datos que el fabricante informa en el envase, evaluados
-                según criterios nutricionales objetivos y estandarizados. No
-                reemplaza la consulta con un profesional de la salud ni un
-                nutricionista. Los planes de entrenamiento son orientativos —
-                consultá siempre con un especialista antes de comenzar cualquier
-                actividad física.
+                {isUS
+                  ? "Nui doesn't make up information. The analysis is based exclusively on the data the manufacturer provides on the label, evaluated against objective, standardized nutritional criteria. It doesn't replace consulting a health professional or a nutritionist. Training plans are for guidance only — always check with a specialist before starting any physical activity."
+                  : "Nui no inventa información. El análisis se basa exclusivamente en los datos que el fabricante informa en el envase, evaluados según criterios nutricionales objetivos y estandarizados. No reemplaza la consulta con un profesional de la salud ni un nutricionista. Los planes de entrenamiento son orientativos — consultá siempre con un especialista antes de comenzar cualquier actividad física."}
               </Typography>
             </Box>
           </Paper>

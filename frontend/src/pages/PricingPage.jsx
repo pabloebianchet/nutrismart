@@ -361,11 +361,10 @@ const PricingPage = () => {
     description: "Elegí el plan de salud que mejor te quede. 7 días gratis sin tarjeta. Plan Silver $6.890/mes o Gold $8.980/mes con análisis ilimitados, recetas, entrenamiento y balance energético.",
     canonical:   "/pricing",
   });
-  const { user, subPlan, subStatus, trialDaysLeft, isTrialExpired, refreshSubscription } = useNutrition();
+  const { user, subPlan, subStatus, trialDaysLeft, isTrialExpired, refreshSubscription, isUS } = useNutrition();
   const navigate = useNavigate();
   const [planPrices,    setPlanPrices]    = useState({ silver: 2990, gold: 5990 });
   const [usdPrices,     setUsdPrices]     = useState({ silver: 6.99, gold: 12.99 });
-  const [isUS,          setIsUS]          = useState(false); // default: Argentina/Mercado Pago
   const [checkoutPlan,  setCheckoutPlan]  = useState(null); // plan a pagar
 
   useEffect(() => {
@@ -377,19 +376,6 @@ const PricingPage = () => {
     fetch(`${API_URL}/api/payments/stripe/plans`)
       .then((r) => r.json())
       .then((d) => setUsdPrices({ silver: d.silver?.amount ?? 6.99, gold: d.gold?.amount ?? 12.99 }))
-      .catch(() => {});
-    // Override de prueba — abrí /pricing?region=us para forzar la vista de
-    // EE.UU. sin necesitar una IP real de ahí (VPN, etc). Quitar el param
-    // vuelve al comportamiento normal (detección real por IP).
-    const forcedRegion = new URLSearchParams(window.location.search).get("region");
-    if (forcedRegion === "us") { setIsUS(true); return; }
-    if (forcedRegion === "ar") { setIsUS(false); return; }
-
-    // Detección de región — si falla o no se puede determinar, se queda con
-    // el comportamiento por defecto (Argentina / Mercado Pago), nunca rompe.
-    fetch(`${API_URL}/api/geo`)
-      .then((r) => r.json())
-      .then((d) => setIsUS(d.country === "US"))
       .catch(() => {});
   }, []); // eslint-disable-line
 

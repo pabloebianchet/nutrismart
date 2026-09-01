@@ -1,5 +1,6 @@
 import { Box, Typography, Chip, Stack, Paper } from "@mui/material";
 import usePageMeta from "../hooks/usePageMeta";
+import { useNutrition } from "../context/NutritionContext";
 import SpaRoundedIcon             from "@mui/icons-material/SpaRounded";
 import InsightsRoundedIcon        from "@mui/icons-material/InsightsRounded";
 import VerifiedRoundedIcon        from "@mui/icons-material/VerifiedRounded";
@@ -68,6 +69,51 @@ const MODULES = [
   },
 ];
 
+// Misma estructura que MODULES (mismos Icon/color/bg/border) — solo texto en
+// inglés, se usa cuando isUS. Mantenerla en sync manualmente si se edita MODULES.
+const MODULES_EN = [
+  {
+    Icon: SearchRoundedIcon,
+    title: "Food analysis",
+    subtitle: "Nui's core feature",
+    color: "#0B5E55",
+    bg:    "#E6F5F3",
+    border:"rgba(11,94,85,0.20)",
+    body:  "Snap a photo of any food label and Nui tells you whether it's natural, processed, or ultra-processed — with a 0-to-100 score and clear recommendations. The goal is simple: help you cut back on ultra-processed foods in your everyday diet.",
+    tags:  ["Ultra-processed", "0–100 score", "Additives", "NOVA classification"],
+  },
+  {
+    Icon: RestaurantRoundedIcon,
+    title: "Recipes NOW",
+    subtitle: "Eat well, no hassle",
+    color: "#6A1B9A",
+    bg:    "#F3E5F5",
+    border:"rgba(106,27,154,0.20)",
+    body:  "Pick the type of dish (fit, muscle-building, quick, breakfast) and the time of day, and the AI generates three options instantly with real ingredients and detailed steps. Save your favorites and share them.",
+    tags:  ["Fit", "Muscle-building", "Quick", "Breakfast", "Save & share"],
+  },
+  {
+    Icon: FitnessCenterRoundedIcon,
+    title: "Training",
+    subtitle: "Movement counts too",
+    color: "#BF360C",
+    bg:    "#FBE9E7",
+    border:"rgba(191,54,12,0.20)",
+    body:  "Nui builds a personalized training plan based on your physical profile, activity type, and where you train. Log each session, track your load progression, and every completed workout adds healthy points and burned calories to your daily balance.",
+    tags:  ["Muscle-building", "Fit", "Calisthenics", "Tracking", "Progression"],
+  },
+  {
+    Icon: BoltRoundedIcon,
+    title: "Energy balance",
+    subtitle: "Precision nutrition",
+    color: "#0B5E55",
+    bg:    "#E6F5F3",
+    border:"rgba(11,94,85,0.20)",
+    body:  "Log what you eat and your daily activity using your voice — in natural language. The AI interprets portions, estimates calories and macros, and calculates your energy balance in real time based on your basal metabolism, activity level, and goal (lose weight, maintain, or build muscle).",
+    tags:  ["Voice", "Calories", "Macros", "TDEE", "Deficit / Surplus"],
+  },
+];
+
 /* ── Principios ──────────────────────────────────────────────────────────── */
 const PRINCIPIOS = [
   {
@@ -96,6 +142,35 @@ const PRINCIPIOS = [
   },
 ];
 
+// Misma estructura que PRINCIPIOS (mismos Icon/grad) — solo texto en inglés,
+// se usa cuando isUS. Mantenerla en sync manualmente si se edita PRINCIPIOS.
+const PRINCIPIOS_EN = [
+  {
+    Icon: VerifiedRoundedIcon,
+    title: "Nothing made up",
+    body:  "Food analysis is based exclusively on what the manufacturer declares on the label. We apply objective criteria — not opinions.",
+    grad:  "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+  },
+  {
+    Icon: InsightsRoundedIcon,
+    title: "Data you can actually understand",
+    body:  "We turn complex nutrition tables and endless ingredient lists into information that's clear, visual, and actionable.",
+    grad:  "linear-gradient(135deg, #0f7a6e 0%, #138578 100%)",
+  },
+  {
+    Icon: PsychologyRoundedIcon,
+    title: "Personalized to you",
+    body:  "Your physical profile (age, weight, activity level) guides your food analysis, recipes, and training plans alike.",
+    grad:  "linear-gradient(135deg, #138578 0%, #1a9080 100%)",
+  },
+  {
+    Icon: AutoAwesomeRoundedIcon,
+    title: "All-in-one: food, movement, and energy",
+    body:  "Watching what you eat, staying active, and knowing your real calorie balance are the three keys to a healthy life. Nui brings all three together with real-time, concrete data.",
+    grad:  "linear-gradient(135deg, #0a5249 0%, #0B5E55 100%)",
+  },
+];
+
 /* ── Componente ──────────────────────────────────────────────────────────── */
 const AboutPage = () => {
   usePageMeta({
@@ -103,6 +178,7 @@ const AboutPage = () => {
     description: "Nui es un asistente de salud con IA para Argentina. Conocé los módulos: análisis de alimentos, recetas personalizadas, entrenamiento y balance energético diario.",
     canonical:   "/about",
   });
+  const { isUS } = useNutrition();
   return (
   <Box sx={{
     minHeight: "100vh",
@@ -122,7 +198,7 @@ const AboutPage = () => {
       <Box textAlign="center" sx={{ mb: 10, animation: "fadeUp 0.65s ease both" }}>
         <Chip
           icon={<SpaRoundedIcon sx={{ fontSize: "14px !important", color: `${C.brand} !important` }} />}
-          label="Quiénes somos"
+          label={isUS ? "Who we are" : "Quiénes somos"}
           sx={{ mb: 3, bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
         />
 
@@ -132,20 +208,26 @@ const AboutPage = () => {
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
           fontSize: { xs: 32, sm: 44 },
         }}>
-          Nui: hábitos saludables<br />de verdad
+          {isUS ? <>Nui: real healthy<br />habits</> : <>Nui: hábitos saludables<br />de verdad</>}
         </Typography>
 
         <Typography sx={{ fontSize: { xs: 15, sm: 17 }, color: C.textSecondary, maxWidth: 600, mx: "auto", lineHeight: 1.8 }}>
-          Nui es una app para construir hábitos saludables de forma concreta. Analizás lo que comés para entender si es <strong>ultraprocesado</strong>, cocinás con <strong>recetas generadas por IA</strong> y seguís un <strong>plan de entrenamiento personalizado</strong> — todo desde el celular.
+          {isUS
+            ? <>Nui is an app for building healthy habits, concretely. Scan what you eat to find out if it's <strong>ultra-processed</strong>, cook with <strong>AI-generated recipes</strong>, and follow a <strong>personalized training plan</strong> — all from your phone.</>
+            : <>Nui es una app para construir hábitos saludables de forma concreta. Analizás lo que comés para entender si es <strong>ultraprocesado</strong>, cocinás con <strong>recetas generadas por IA</strong> y seguís un <strong>plan de entrenamiento personalizado</strong> — todo desde el celular.</>}
         </Typography>
 
         {/* 3 módulos en píldoras */}
         <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap" useFlexGap mt={4}>
-          {[
+          {(isUS ? [
+            { Icon: SearchRoundedIcon, label: "Analysis",  color: "#0B5E55", bg: "#E6F5F3" },
+            { Icon: RestaurantRoundedIcon, label: "Recipes NOW", color: "#6A1B9A", bg: "#F3E5F5" },
+            { Icon: FitnessCenterRoundedIcon, label: "Training", color: "#BF360C", bg: "#FBE9E7" },
+          ] : [
             { Icon: SearchRoundedIcon, label: "Análisis",      color: "#0B5E55", bg: "#E6F5F3" },
             { Icon: RestaurantRoundedIcon, label: "Recetas YA",    color: "#6A1B9A", bg: "#F3E5F5" },
             { Icon: FitnessCenterRoundedIcon, label: "Entrenamiento", color: "#BF360C", bg: "#FBE9E7" },
-          ].map((p) => (
+          ]).map((p) => (
             <Box key={p.label} sx={{ px: 2.2, py: 0.9, borderRadius: 999, bgcolor: p.bg, border: `1.5px solid ${p.color}25`, display: "inline-flex", alignItems: "center", gap: 0.8 }}>
               <p.Icon sx={{ fontSize: 17, color: p.color }} />
               <Typography sx={{ fontSize: 14, fontWeight: 800, color: p.color }}>{p.label}</Typography>
@@ -165,26 +247,30 @@ const AboutPage = () => {
           {/* Izq: el problema */}
           <Box sx={{ p: { xs: 3.5, md: 5 }, borderRight: { xs: "none", md: `1px solid ${C.border}` }, borderBottom: { xs: `1px solid ${C.border}`, md: "none" } }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#B71C1C", textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
-              El problema
+              {isUS ? "The problem" : "El problema"}
             </Typography>
             <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
-              Los ultraprocesados se disfrazan de alimentos normales
+              {isUS ? "Ultra-processed foods disguise themselves as normal food" : "Los ultraprocesados se disfrazan de alimentos normales"}
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: C.textSecondary, lineHeight: 1.8 }}>
-              La mayoría de los productos en un supermercado son ultraprocesados: contienen docenas de aditivos, colorantes y conservantes artificiales que el consumidor no puede identificar a simple vista. Su consumo frecuente está asociado con obesidad, diabetes tipo 2, hipertensión y otros problemas de salud crónicos.
+              {isUS
+                ? "Most products on a supermarket shelf are ultra-processed: they contain dozens of additives, colorings, and artificial preservatives that consumers can't identify at a glance. Frequent consumption is linked to obesity, type 2 diabetes, hypertension, and other chronic health problems."
+                : "La mayoría de los productos en un supermercado son ultraprocesados: contienen docenas de aditivos, colorantes y conservantes artificiales que el consumidor no puede identificar a simple vista. Su consumo frecuente está asociado con obesidad, diabetes tipo 2, hipertensión y otros problemas de salud crónicos."}
             </Typography>
           </Box>
 
           {/* Der: la solución */}
           <Box sx={{ p: { xs: 3.5, md: 5 }, bgcolor: C.surfaceAlt }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
-              La solución
+              {isUS ? "The solution" : "La solución"}
             </Typography>
             <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
-              Información clara en el momento que la necesitás
+              {isUS ? "Clear information right when you need it" : "Información clara en el momento que la necesitás"}
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: C.textSecondary, lineHeight: 1.8 }}>
-              Nui analiza el etiquetado de cualquier alimento envasado y te dice en segundos si es natural, procesado o ultraprocesado. Además te da el contexto para entenderlo y alternativas para elegir mejor. Combinado con recetas saludables y un plan de ejercicio, Nui te acompaña en el cambio de hábitos de forma integral.
+              {isUS
+                ? "Nui analyzes the label of any packaged food and tells you in seconds whether it's natural, processed, or ultra-processed. It also gives you the context to understand it and alternatives to choose better. Combined with healthy recipes and a workout plan, Nui supports your habit change every step of the way."
+                : "Nui analiza el etiquetado de cualquier alimento envasado y te dice en segundos si es natural, procesado o ultraprocesado. Además te da el contexto para entenderlo y alternativas para elegir mejor. Combinado con recetas saludables y un plan de ejercicio, Nui te acompaña en el cambio de hábitos de forma integral."}
             </Typography>
           </Box>
         </Paper>
@@ -194,15 +280,15 @@ const AboutPage = () => {
       <Box sx={{ mb: 10 }}>
         <Box textAlign="center" mb={5} sx={{ animation: "fadeUp 0.65s 0.15s ease both" }}>
           <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
-            Qué hace Nui
+            {isUS ? "What Nui does" : "Qué hace Nui"}
           </Typography>
           <Typography variant="h5" fontWeight={900} sx={{ letterSpacing: "-0.8px", color: C.textPrimary, fontSize: { xs: 22, sm: 28 } }}>
-            Tres herramientas, un mismo objetivo
+            {isUS ? "Three tools, one goal" : "Tres herramientas, un mismo objetivo"}
           </Typography>
         </Box>
 
         <Stack spacing={3}>
-          {MODULES.map((m, i) => (
+          {(isUS ? MODULES_EN : MODULES).map((m, i) => (
             <Box key={m.title} sx={{ animation: `fadeUp 0.65s ${0.2 + i * 0.12}s ease both` }}>
               <Paper elevation={0} sx={{
                 borderRadius: 5, overflow: "hidden",
@@ -252,15 +338,15 @@ const AboutPage = () => {
       <Box sx={{ mb: 10 }}>
         <Box textAlign="center" mb={5} sx={{ animation: "fadeUp 0.65s 0.35s ease both" }}>
           <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
-            Cómo lo hacemos
+            {isUS ? "How we do it" : "Cómo lo hacemos"}
           </Typography>
           <Typography variant="h5" fontWeight={900} sx={{ letterSpacing: "-0.8px", color: C.textPrimary, fontSize: { xs: 22, sm: 28 } }}>
-            Nuestros principios
+            {isUS ? "Our principles" : "Nuestros principios"}
           </Typography>
         </Box>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
-          {PRINCIPIOS.map(({ Icon, title, body, grad }, i) => (
+          {(isUS ? PRINCIPIOS_EN : PRINCIPIOS).map(({ Icon, title, body, grad }, i) => (
             <Box key={title} sx={{
               bgcolor: C.surface, border: `1px solid ${C.border}`, borderRadius: 4,
               p: { xs: 3, sm: 3.5 }, display: "flex", gap: 2.5, alignItems: "flex-start",
@@ -295,13 +381,17 @@ const AboutPage = () => {
         <Box sx={{ position: "absolute", bottom: -80, left: -40, width: 260, height: 260, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
 
         <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.12em", mb: 1.5 }}>
-          Nuestra misión
+          {isUS ? "Our mission" : "Nuestra misión"}
         </Typography>
         <Typography sx={{ fontSize: { xs: 20, md: 26 }, fontWeight: 800, color: "#fff", lineHeight: 1.5, maxWidth: 720, mx: "auto", letterSpacing: "-0.5px", mb: 2.5 }}>
-          Queremos que cualquier persona pueda saber qué tan procesado es lo que come, cocinar bien sin complicarse y mantenerse activa — sin necesitar ser experta en nutrición ni en fitness.
+          {isUS
+            ? "We want anyone to be able to know how processed what they eat really is, cook well without the hassle, and stay active — without needing to be a nutrition or fitness expert."
+            : "Queremos que cualquier persona pueda saber qué tan procesado es lo que come, cocinar bien sin complicarse y mantenerse activa — sin necesitar ser experta en nutrición ni en fitness."}
         </Typography>
         <Typography sx={{ fontSize: { xs: 13, md: 14.5 }, color: "rgba(255,255,255,0.60)", maxWidth: 580, mx: "auto", lineHeight: 1.7, fontStyle: "italic" }}>
-          Nui no reemplaza el consejo de un médico, nutricionista o entrenador profesional. Es una herramienta para entender mejor tus hábitos y tomar decisiones más informadas cada día.
+          {isUS
+            ? "Nui doesn't replace the advice of a doctor, dietitian, or professional trainer. It's a tool to help you understand your habits better and make more informed decisions every day."
+            : "Nui no reemplaza el consejo de un médico, nutricionista o entrenador profesional. Es una herramienta para entender mejor tus hábitos y tomar decisiones más informadas cada día."}
         </Typography>
       </Box>
 

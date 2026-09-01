@@ -17,22 +17,22 @@ import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
 
 // Items visibles para usuarios con sesión
 const NAV = [
-  { to: "/",             label: "Inicio",         Icon: HomeRoundedIcon         },
-  { to: "/recipes",      label: "Recetas YA",      Icon: RamenDiningRoundedIcon    },
-  { to: "/training",    label: "Entrenamiento",   Icon: FitnessCenterRoundedIcon  },
-  { to: "/about",        label: "Quiénes somos",  Icon: InfoRoundedIcon         },
-  { to: "/how-it-works", label: "Cómo funciona",  Icon: AutoAwesomeRoundedIcon  },
-  { to: "/pricing",      label: "Planes",          Icon: DiamondOutlinedIcon     },
-  { to: "/contact",      label: "Contacto",        Icon: MailRoundedIcon         },
+  { to: "/",             label: "Inicio",         labelEn: "Home",         Icon: HomeRoundedIcon         },
+  { to: "/recipes",      label: "Recetas YA",      labelEn: "Recipes Now",  Icon: RamenDiningRoundedIcon    },
+  { to: "/training",    label: "Entrenamiento",   labelEn: "Training",     Icon: FitnessCenterRoundedIcon  },
+  { to: "/about",        label: "Quiénes somos",  labelEn: "About us",     Icon: InfoRoundedIcon         },
+  { to: "/how-it-works", label: "Cómo funciona",  labelEn: "How it works", Icon: AutoAwesomeRoundedIcon  },
+  { to: "/pricing",      label: "Planes",          labelEn: "Plans",       Icon: DiamondOutlinedIcon     },
+  { to: "/contact",      label: "Contacto",        labelEn: "Contact",     Icon: MailRoundedIcon         },
 ];
 
 // Items visibles para visitantes sin sesión
 const PUBLIC_NAV = [
-  { to: "/",             label: "Inicio",         Icon: HomeRoundedIcon         },
-  { to: "/about",        label: "Quiénes somos",  Icon: InfoRoundedIcon         },
-  { to: "/how-it-works", label: "Cómo funciona",  Icon: AutoAwesomeRoundedIcon  },
-  { to: "/pricing",      label: "Planes",          Icon: DiamondOutlinedIcon     },
-  { to: "/contact",      label: "Contacto",        Icon: MailRoundedIcon         },
+  { to: "/",             label: "Inicio",         labelEn: "Home",         Icon: HomeRoundedIcon         },
+  { to: "/about",        label: "Quiénes somos",  labelEn: "About us",     Icon: InfoRoundedIcon         },
+  { to: "/how-it-works", label: "Cómo funciona",  labelEn: "How it works", Icon: AutoAwesomeRoundedIcon  },
+  { to: "/pricing",      label: "Planes",          labelEn: "Plans",       Icon: DiamondOutlinedIcon     },
+  { to: "/contact",      label: "Contacto",        labelEn: "Contact",     Icon: MailRoundedIcon         },
 ];
 
 const C = {
@@ -91,7 +91,7 @@ const UserAvatar = ({ user, size = 32, sx = {} }) => {
    Barra fija full-width con glassmorphism. Sin trucos de
    centrado que rompen en distintos tamaños de pantalla.
 ───────────────────────────────────────────────────────── */
-const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
+const DesktopHeader = ({ user, pathname, scrolled, onLogout, isUS }) => {
   const [avatarOpen, setAvatarOpen] = useState(false);
 
   return (
@@ -135,7 +135,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
 
       {/* Links nav */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 1 }}>
-        {(user ? NAV : PUBLIC_NAV).map(({ to, label, Icon }) => {
+        {(user ? NAV : PUBLIC_NAV).map(({ to, label, labelEn, Icon }) => {
           const active = isActive(to, pathname);
           return (
             <Box
@@ -165,7 +165,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
               }}
             >
               <Icon sx={{ fontSize: 16 }} />
-              {label}
+              {isUS ? labelEn : label}
             </Box>
           );
         })}
@@ -262,7 +262,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
                   >
                     <LogoutRoundedIcon sx={{ fontSize: 16, color: "#E24B4A" }} />
                     <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#E24B4A" }}>
-                      Cerrar sesión
+                      {isUS ? "Log out" : "Cerrar sesión"}
                     </Typography>
                   </Box>
                 </Box>
@@ -285,7 +285,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
               "&:hover": { bgcolor: C.brandLight, transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(11,94,85,0.35)" },
             }}
           >
-            Iniciar sesión →
+            {isUS ? "Log in →" : "Iniciar sesión →"}
           </Box>
         )}
       </Box>
@@ -298,7 +298,7 @@ const DesktopHeader = ({ user, pathname, scrolled, onLogout }) => {
    Pill flotante arriba + bottom sheet. Ya funcionaba bien,
    se mantiene sin cambios de lógica.
 ───────────────────────────────────────────────────────── */
-const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
+const MobileHeader = ({ user, pathname, scrolled, onLogout, isUS }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -422,14 +422,14 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
                 boxShadow: "0 4px 16px rgba(11,94,85,0.28)",
               }}
             >
-              Iniciar sesión →
+              {isUS ? "Log in →" : "Iniciar sesión →"}
             </Box>
           </Box>
         )}
 
         {/* Nav items */}
         <Box sx={{ px: 2, display: "flex", flexDirection: "column", gap: 0.5 }}>
-          {(user ? NAV : PUBLIC_NAV).map(({ to, label, Icon }) => {
+          {(user ? NAV : PUBLIC_NAV).map(({ to, label, labelEn, Icon }) => {
             const active = isActive(to, pathname);
             return (
               <Box
@@ -460,7 +460,7 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
                   <Icon sx={{ fontSize: 18, color: active ? "#fff" : C.brand }} />
                 </Box>
                 <Typography sx={{ fontSize: 15, fontWeight: active ? 700 : 500, color: active ? "#fff" : C.textPrimary, flex: 1 }}>
-                  {label}
+                  {isUS ? labelEn : label}
                 </Typography>
                 <KeyboardArrowRightRoundedIcon sx={{ fontSize: 18, color: active ? "rgba(255,255,255,0.5)" : C.textMuted }} />
               </Box>
@@ -492,7 +492,7 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
                   <LogoutRoundedIcon sx={{ fontSize: 18, color: "#E24B4A" }} />
                 </Box>
                 <Typography sx={{ fontSize: 15, fontWeight: 600, color: "#E24B4A" }}>
-                  Cerrar sesión
+                  {isUS ? "Log out" : "Cerrar sesión"}
                 </Typography>
               </Box>
             </Box>
@@ -507,7 +507,7 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout }) => {
    EXPORT
 ───────────────────────────────────────────────────────── */
 const AppHeader = () => {
-  const { user, logout, authLoading } = useNutrition();
+  const { user, logout, authLoading, isUS } = useNutrition();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -524,8 +524,8 @@ const AppHeader = () => {
 
   return (
     <>
-      <DesktopHeader user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} />
-      <MobileHeader  user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} />
+      <DesktopHeader user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} isUS={isUS} />
+      <MobileHeader  user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} isUS={isUS} />
       <Box sx={{ height: { xs: 68, md: 64 } }} />
     </>
   );
