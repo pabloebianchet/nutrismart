@@ -33,19 +33,20 @@ router.get("/debug-customer", async (req, res) => {
     const stripe = getStripe();
     const email = req.query.email;
     const customers = await stripe.customers.list({ email, limit: 10 });
+    const safeIso = (unixSeconds) => (unixSeconds ? new Date(unixSeconds * 1000).toISOString() : null);
     const out = [];
     for (const c of customers.data) {
       const subs = await stripe.subscriptions.list({ customer: c.id, limit: 10, status: "all" });
       out.push({
         customerId: c.id,
-        created: new Date(c.created * 1000).toISOString(),
+        created: safeIso(c.created),
         subscriptions: subs.data.map((s) => ({
           id: s.id,
           status: s.status,
           priceId: s.items.data[0]?.price?.id,
           amount: s.items.data[0]?.price?.unit_amount,
           currency: s.items.data[0]?.price?.currency,
-          current_period_end: new Date(s.current_period_end * 1000).toISOString(),
+          current_period_end: safeIso(s.current_period_end),
           cancel_at_period_end: s.cancel_at_period_end,
           metadata: s.metadata,
         })),
