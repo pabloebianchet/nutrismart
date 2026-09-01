@@ -72,6 +72,13 @@ app.use(helmet({
   crossOriginOpenerPolicy: false, // Google Sign-In popup necesita postMessage
 }));
 
+// El sitemap tiene que ser SIEMPRE fetcheable por crawlers sin límite —
+// va ANTES del rate limiter global a propósito. Google Search Console
+// mostraba "No se ha podido obtener" en sitemap-static/notes-es/notes-en
+// y la causa más probable es justamente esta: pasaban por el limiter
+// global (200 req/15min) como cualquier otra ruta.
+app.use(sitemapRouter);
+
 // ── Rate limiting global ─────────────────────────────────
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
@@ -733,7 +740,6 @@ app.use("/api/recipes",       recipesRouter);
 app.use("/api/training",      trainingRouter);
 app.use("/api/shopping-list", shoppingRouter);
 app.use("/api/posts",         postsRouter);
-app.use(sitemapRouter); // rutas en la raíz (/sitemap.xml, etc.) — ver comentario en el import
 app.use("/api/energy",        energyRouter);
 app.use("/api/webauthn",      webauthnRouter);
 
