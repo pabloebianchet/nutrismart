@@ -25,6 +25,12 @@ export const NutritionProvider = ({ children }) => {
   const [loadingUserData, setLoadingUserData] = useState(false);
 
   const lastUserIdRef = useRef(null);
+  // true una vez que una cuenta con Stripe activo forzó isUS=true — evita
+  // que el fetch de geolocalización (que corre en paralelo, sin orden
+  // garantizado) lo pise de vuelta a false si resuelve después. Bug real:
+  // el fetch de suscripción normalmente termina antes que /api/geo, pero
+  // no había ninguna garantía de eso.
+  const stripeOverrideRef = useRef(false);
 
   /* ======================
      SUBSCRIPTION STATE
@@ -57,7 +63,13 @@ export const NutritionProvider = ({ children }) => {
 
     fetch(`${API_URL}/api/geo`)
       .then((r) => r.json())
-      .then((d) => setIsUS(d.country === "US"))
+      .then((d) => {
+        // Si ya se aplicó el override de Stripe (efecto separado, puede
+        // resolver antes O después de este fetch, sin orden garantizado),
+        // no lo pisamos con el resultado de geolocalización.
+        if (stripeOverrideRef.current) return;
+        setIsUS(d.country === "US");
+      })
       .catch(() => {}); // sin poder determinar la región, se queda en AR/es
   }, []);
 
@@ -106,6 +118,7 @@ export const NutritionProvider = ({ children }) => {
     if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
       setUserData(null);
       setOcrText("");
+      stripeOverrideRef.current = false; // el override es por cuenta, no debe sobrevivir un cambio de usuario
       setSubscription(null);
     }
 
@@ -198,6 +211,7 @@ export const NutritionProvider = ({ children }) => {
     const forced = new URLSearchParams(window.location.search).get("region");
     if (forced === "ar") return; // override explícito de testing, no lo pisamos
     if (subscription?.provider === "stripe" && subscription?.status === "active") {
+      stripeOverrideRef.current = true;
       setIsUS(true);
     }
   }, [subscription]);
