@@ -80,12 +80,20 @@ app.use(helmet({
 app.use(sitemapRouter);
 
 // ── Rate limiting global ─────────────────────────────────
+// Los webhooks de pago (Stripe y Mercado Pago) NUNCA deben caer bajo este
+// límite: vienen del servidor del proveedor de pago, no de un usuario, y
+// si se les devuelve 429 el pago se cobra igual pero nuestra base de datos
+// nunca se entera — encontrado en vivo: un usuario pagó Silver por Stripe,
+// el webhook nunca actualizó Mongo, y todo lo que vio después (plan viejo,
+// cancelación equivocada) fue consecuencia directa de esto.
+const WEBHOOK_PATHS = new Set(["/api/payments/stripe/webhook", "/api/payments/webhook"]);
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
   max: 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Demasiadas solicitudes. Intentá en 15 minutos." },
+  skip: (req) => WEBHOOK_PATHS.has(req.path),
 });
 app.use(globalLimiter);
 
