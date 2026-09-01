@@ -194,6 +194,20 @@ const applyPageMeta = (html, meta) => {
       .join("\n");
     out = out.replace("</head>", `${tags}\n  </head>`);
   }
+  // JSON-LD con id propio (ej. Article schema de cada nota del blog) — se
+  // inyecta client-side vía document.head.appendChild, fuera de #root, así
+  // que sin este paso nunca llegaba al HTML estático que lee Google. El
+  // JSON-LD estático de home (WebApplication, sin id) no se toca.
+  if (meta.jsonLdScripts?.length) {
+    for (const { id, json } of meta.jsonLdScripts) {
+      const idPattern = new RegExp(`\\s*<script id="${id}"[^>]*>[\\s\\S]*?<\\/script>\\n?`, "g");
+      out = out.replace(idPattern, "");
+      out = out.replace(
+        "</head>",
+        `    <script id="${escapeAttr(id)}" type="application/ld+json">${json}</script>\n  </head>`
+      );
+    }
+  }
   return out;
 };
 
@@ -341,6 +355,8 @@ async function main() {
         alternates:    Array.from(document.querySelectorAll('link[rel="alternate"][hreflang]'))
                              .map((el) => ({ hreflang: el.getAttribute("hreflang"), href: el.getAttribute("href") })),
         htmlLang:      document.documentElement.lang || "",
+        jsonLdScripts: Array.from(document.querySelectorAll('script[type="application/ld+json"][id]'))
+                             .map((el) => ({ id: el.id, json: el.textContent })),
       }));
       log(`snapshot tomado — ${rootHtml.length} caracteres — title: "${pageMeta.title}"`);
       await page.close();
