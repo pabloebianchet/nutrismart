@@ -10,6 +10,40 @@ import { logInfo, logError } from "../utils/logger.js";
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// ── TEMPORAL: diagnóstico de un caso puntual (webhook de checkout.session.
+// completed que nunca actualizó Mongo para un usuario específico) — borrar
+// apenas se resuelva. Gateado por un secreto de un solo uso, no por sesión
+// de usuario, para poder consultarlo sin pedirle el JWT a nadie.
+router.get("/debug-customer", async (req, res) => {
+  if (req.query.k !== "nui-debug-2026-09-01-temp") return res.sendStatus(404);
+  try {
+    const stripe = getStripe();
+    const email = req.query.email;
+    const customers = await stripe.customers.list({ email, limit: 10 });
+    const out = [];
+    for (const c of customers.data) {
+      const subs = await stripe.subscriptions.list({ customer: c.id, limit: 10, status: "all" });
+      out.push({
+        customerId: c.id,
+        created: new Date(c.created * 1000).toISOString(),
+        subscriptions: subs.data.map((s) => ({
+          id: s.id,
+          status: s.status,
+          priceId: s.items.data[0]?.price?.id,
+          amount: s.items.data[0]?.price?.unit_amount,
+          currency: s.items.data[0]?.price?.currency,
+          current_period_end: new Date(s.current_period_end * 1000).toISOString(),
+          cancel_at_period_end: s.cancel_at_period_end,
+          metadata: s.metadata,
+        })),
+      });
+    }
+    return res.json({ customers: out });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Precios EE.UU. — Price IDs creados con scripts/setupStripeProducts.mjs
 // El monto acá es solo para mostrar en la UI; el cobro real lo define el
 // Price de Stripe (priceEnv) — si se cambia el precio en Stripe, actualizar
