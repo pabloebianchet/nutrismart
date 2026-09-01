@@ -58,6 +58,64 @@ router.get("/debug-customer", async (req, res) => {
   }
 });
 
+// ── TEMPORAL: sincroniza el registro local de un usuario puntual con su
+// suscripción real de Stripe — el webhook original nunca la procesó por
+// el bug del rate limiter. Borrar junto con debug-customer.
+router.get("/sync-sub-fix", async (req, res) => {
+  if (req.query.k !== "nui-debug-2026-09-01-temp") return res.sendStatus(404);
+  try {
+    const stripe = getStripe();
+    const email = req.query.email;
+    const stripeSubId = req.query.subId;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    const stripeSub = await stripe.subscriptions.retrieve(stripeSubId);
+    const rawEnd = stripeSub.current_period_end
+      || stripeSub.items?.data?.[0]?.current_period_end
+      || stripeSub.billing_cycle_anchor;
+    const endDate = rawEnd ? new Date(rawEnd * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const amount = (stripeSub.items.data[0]?.price?.unit_amount || 0) / 100;
+    const currency = (stripeSub.items.data[0]?.price?.currency || "usd").toUpperCase();
+
+    const updated = await Subscription.findOneAndUpdate(
+      { user: user._id },
+      {
+        $set: {
+          plan: "silver",
+          status: "active",
+          provider: "stripe",
+          source: "payment",
+          stripeCustomerId: stripeSub.customer,
+          stripeSubscriptionId: stripeSub.id,
+          amount, currency, autoRenew: true,
+          startDate: new Date(stripeSub.start_date * 1000),
+          endDate,
+        },
+        $push: {
+          paymentHistory: {
+            $each: [{
+              stripePaymentId: stripeSub.latest_invoice || stripeSub.id,
+              provider: "stripe", amount, currency, status: "approved", plan: "silver",
+              description: "Pago Plan Silver — Stripe (sincronizado manualmente, el webhook original no procesó por el bug del rate limiter)",
+            }],
+            $position: 0,
+          },
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+    return res.json({ ok: true, subscription: updated, stripeRaw: {
+      status: stripeSub.status, current_period_end: stripeSub.current_period_end,
+      items_current_period_end: stripeSub.items?.data?.[0]?.current_period_end,
+    } });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 /* ─── Cupones — mismo sistema/códigos que Mercado Pago ───────────
  * Un Cupón de Nui (Mongo) se refleja en un Coupon nativo de Stripe,
  * creado una sola vez (id determinístico) y reutilizado. Stripe aplica
