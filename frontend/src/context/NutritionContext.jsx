@@ -186,6 +186,22 @@ export const NutritionProvider = ({ children }) => {
     fetchSubscription();
   }, [user?._id]);
 
+  // Una cuenta con suscripción activa de Stripe (pagada en USD) se queda
+  // en inglés aunque la IP real geolocalice como Argentina — encontrado
+  // en vivo: un usuario contrató Silver con Stripe usando ?region=us para
+  // probar, y al abrir la app después desde una IP real de Argentina veía
+  // todo en español, lo cual no tiene sentido para una cuenta que pagó en
+  // dólares. El override explícito ?region=ar sigue ganando (para poder
+  // seguir probando el flujo en español a propósito).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const forced = new URLSearchParams(window.location.search).get("region");
+    if (forced === "ar") return; // override explícito de testing, no lo pisamos
+    if (subscription?.provider === "stripe" && subscription?.status === "active") {
+      setIsUS(true);
+    }
+  }, [subscription]);
+
   /* ======================
      COMPUTED SUBSCRIPTION
   ====================== */

@@ -23,6 +23,29 @@ const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
 
 const router = express.Router();
 
+// ── TEMPORAL: reenviar el mail de confirmación de suscripción a un
+// usuario puntual que no lo recibió porque el webhook original nunca
+// procesó su pago. Borrar apenas se use.
+router.get("/resend-confirmation", async (req, res) => {
+  if (req.query.k !== "nui-debug-2026-09-01-temp") return res.sendStatus(404);
+  try {
+    const email = req.query.email;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+    const sub = await Subscription.findOne({ user: user._id });
+    if (!sub) return res.status(404).json({ error: "Sin suscripción" });
+
+    await sendPaymentEmail({
+      name: user.name, email: user.email, plan: sub.plan,
+      amount: sub.amount, currency: sub.currency, endDate: sub.endDate,
+      isRenewal: false,
+    });
+    return res.json({ ok: true, sentTo: user.email });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 /* ─── Cupones — mismo sistema/códigos que Mercado Pago ───────────
  * Un Cupón de Nui (Mongo) se refleja en un Coupon nativo de Stripe,
  * creado una sola vez (id determinístico) y reutilizado. Stripe aplica
