@@ -113,11 +113,65 @@ const PLANS = [
   },
 ];
 
+// Misma estructura que PLANS (mismos id/Icon/color) — solo texto en inglés,
+// se usa cuando isUS. Mantenerla en sync manualmente si se edita PLANS.
+const PLANS_EN = [
+  {
+    id: "free", name: "Free", subtitle: "7-day free trial", price: null,
+    priceLabel: "Free", label: "No credit card required",
+    Icon: RocketLaunchRoundedIcon, color: "#0B5E55", bg: "#E6F5F3",
+    border: "rgba(11,94,85,0.25)", highlight: false, badge: "Start today", badgeBg: "#0B5E55",
+    features: [
+      feat(SearchRoundedIcon, "Unlimited food analysis"),
+      feat(RestaurantRoundedIcon, "Unlimited AI-generated recipes"),
+      feat(FitnessCenterRoundedIcon, "Personalized training plan"),
+      feat(BoltRoundedIcon, "Daily calorie tracking by voice"),
+      feat(BarChartRoundedIcon, "Dashboard + health score"),
+      feat(SportsEsportsRoundedIcon, "Avatar and global ranking"),
+    ],
+    cta: "Start free trial", ctaAction: "start_free",
+  },
+  {
+    id: "silver", name: "Silver", subtitle: "For everyday use", label: "Per month · auto-renews",
+    Icon: DiamondOutlinedIcon, color: "#71879C", bg: "#EEF2F5",
+    border: "rgba(113,135,156,0.25)", highlight: false,
+    features: [
+      feat(SearchRoundedIcon, "1 product analysis per day"),
+      feat(RestaurantRoundedIcon, "Unlimited AI recipes"),
+      feat(FitnessCenterRoundedIcon, "1 active training plan"),
+      feat(BoltRoundedIcon, "Daily energy balance by voice"),
+      feat(BarChartRoundedIcon, "Analysis history (30 days)"),
+      feat(StraightenRoundedIcon, "Dashboard + metrics + BMI"),
+      feat(EmailRoundedIcon, "Email support"),
+    ],
+    cta: "Choose Silver",
+  },
+  {
+    id: "gold", name: "Gold", subtitle: "No limits, no compromises", label: "Per month · auto-renews",
+    Icon: WorkspacePremiumOutlinedIcon, color: "#C9952A",
+    bg: "linear-gradient(135deg, #FDF6E3 0%, #FEF9EC 100%)",
+    border: "rgba(201,149,42,0.35)", highlight: true, badge: "Most popular", badgeBg: "#C9952A",
+    features: [
+      feat(SearchRoundedIcon, "Unlimited food analysis"),
+      feat(RestaurantRoundedIcon, "Unlimited AI recipes + save favorites"),
+      feat(FitnessCenterRoundedIcon, "Up to 2 active training plans"),
+      feat(BoltRoundedIcon, "Daily energy balance by voice"),
+      feat(CalendarMonthRoundedIcon, "Monthly balance history (daily table)"),
+      feat(BarChartRoundedIcon, "Unlimited full history"),
+      feat(StarRoundedIcon, "Premium dashboard + detailed stats"),
+      feat(RocketLaunchRoundedIcon, "Early access to new features"),
+      feat(TrackChangesRoundedIcon, "Priority support"),
+    ],
+    cta: "Choose Gold",
+  },
+];
+
 const formatARS = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 
-const formatUSD = (n) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+// "US$" en vez de solo "$" — el símbolo pelado es ambiguo (en Argentina "$"
+// es pesos), y esta página puede verse desde cualquier lado del mundo.
+const formatUSD = (n) => `US$${n.toFixed(2)}`;
 
 /* ── Modal de checkout ───────────────────────────────────────── */
 const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
@@ -146,10 +200,10 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
         body: JSON.stringify({ code, plan: plan.id }),
       });
       const data = await res.json();
-      if (!res.ok) { setCouponError(data.error || "Código inválido."); }
+      if (!res.ok) { setCouponError(data.error || (isUS ? "Invalid code." : "Código inválido.")); }
       else         { setCouponData(data); }
     } catch {
-      setCouponError("Error al validar el código.");
+      setCouponError(isUS ? "Error validating the code." : "Error al validar el código.");
     } finally {
       setValidating(false);
     }
@@ -177,10 +231,10 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
           </Box>
           <Box>
             <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-              Confirmar plan
+              {isUS ? "Confirm plan" : "Confirmar plan"}
             </Typography>
             <Typography sx={{ fontSize: 20, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.4px" }}>
-              Plan {plan.name}
+              {isUS ? `${plan.name} Plan` : `Plan ${plan.name}`}
             </Typography>
           </Box>
           <Box sx={{ ml: "auto !important", textAlign: "right" }}>
@@ -192,7 +246,7 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
             <Typography sx={{ fontSize: 26, fontWeight: 900, color: plan.color, lineHeight: 1.1 }}>
               {fmt(finalPrice)}
             </Typography>
-            <Typography sx={{ fontSize: 11, color: C.textMuted }}>por mes</Typography>
+            <Typography sx={{ fontSize: 11, color: C.textMuted }}>{isUS ? "per month" : "por mes"}</Typography>
           </Box>
         </Stack>
 
@@ -200,13 +254,13 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
 
         {/* Cupón */}
         <Typography sx={{ fontSize: 12, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.06em", mb: 1.2 }}>
-          ¿Tenés un código de descuento?
+          {isUS ? "Have a discount code?" : "¿Tenés un código de descuento?"}
         </Typography>
 
         {!couponData ? (
           <Stack direction="row" spacing={1} mb={couponError ? 0 : 2.5}>
             <TextField
-              placeholder="Ej: PABLONUI"
+              placeholder={isUS ? "e.g. PABLONUI" : "Ej: PABLONUI"}
               value={couponInput}
               onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(""); }}
               onKeyDown={(e) => e.key === "Enter" && validateCoupon()}
@@ -239,7 +293,7 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
                 px: 2.5, whiteSpace: "nowrap", borderColor: C.brand, color: C.brand,
                 "&:hover": { bgcolor: C.brandSurface } }}
             >
-              {validating ? <CircularProgress size={14} sx={{ color: C.brand }} /> : "Aplicar"}
+              {validating ? <CircularProgress size={14} sx={{ color: C.brand }} /> : isUS ? "Apply" : "Aplicar"}
             </Button>
           </Stack>
         ) : (
@@ -253,7 +307,9 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
                   -{couponData.discountPct}% · {couponData.code}
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: "#4A6B67" }}>
-                  Válido {couponData.monthsLeft} mes{couponData.monthsLeft !== 1 ? "es" : ""} · de {couponData.creatorName}
+                  {isUS
+                    ? `Valid for ${couponData.monthsLeft} month${couponData.monthsLeft !== 1 ? "s" : ""} · from ${couponData.creatorName}`
+                    : `Válido ${couponData.monthsLeft} mes${couponData.monthsLeft !== 1 ? "es" : ""} · de ${couponData.creatorName}`}
                 </Typography>
               </Box>
             </Stack>
@@ -279,17 +335,19 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
             "&:hover": { bgcolor: plan.highlight ? "#b8841f" : C.brandLight },
           }}
         >
-          {paying ? "Redirigiendo…" : isUS ? `Pagar con Stripe · ${fmt(finalPrice)}` : `Ir a Mercado Pago · ${fmt(finalPrice)}`}
+          {paying
+            ? (isUS ? "Redirecting…" : "Redirigiendo…")
+            : isUS ? `Pay with Stripe · ${fmt(finalPrice)}` : `Ir a Mercado Pago · ${fmt(finalPrice)}`}
         </Button>
 
         <Button fullWidth onClick={onClose}
           sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 13.5,
             color: C.textSecondary, "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}>
-          Cancelar
+          {isUS ? "Cancel" : "Cancelar"}
         </Button>
 
         <Typography sx={{ textAlign: "center", fontSize: 11, color: C.textMuted, mt: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-          <LockRoundedIcon sx={{ fontSize: 13 }} /> Pago seguro procesado por {isUS ? "Stripe" : "Mercado Pago"}
+          <LockRoundedIcon sx={{ fontSize: 13 }} /> {isUS ? "Secure payment processed by Stripe" : "Pago seguro procesado por Mercado Pago"}
         </Typography>
       </DialogContent>
     </Dialog>
@@ -401,7 +459,7 @@ const PricingPage = () => {
         <Box textAlign="center" sx={{ mb: 8, animation: "fadeUp 0.6s ease both" }}>
           <Chip
             icon={<BoltRoundedIcon sx={{ fontSize: "14px !important", color: `${C.brand} !important` }} />}
-            label="Planes y precios"
+            label={isUS ? "Plans & pricing" : "Planes y precios"}
             sx={{ mb: 3, bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}`, px: 0.5 }}
           />
           <Typography variant="h3" component="h1" fontWeight={900} sx={{
@@ -410,17 +468,18 @@ const PricingPage = () => {
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
             fontSize: { xs: 28, sm: 40 },
           }}>
-            Una semana gratis,<br />después elegís vos
+            {isUS ? <>One week free,<br />then you choose</> : <>Una semana gratis,<br />después elegís vos</>}
           </Typography>
           <Typography sx={{ fontSize: { xs: 14.5, sm: 16 }, color: C.textSecondary, maxWidth: 520, mx: "auto", lineHeight: 1.8 }}>
-            Probá todos los módulos sin límites durante 7 días. Sin tarjeta. Sin sorpresas.
-            Cuando termina tu prueba, elegís el plan que mejor se adapta a tu estilo.
+            {isUS
+              ? "Try every module with no limits for 7 days. No card required, no surprises. When your trial ends, pick the plan that fits you best."
+              : "Probá todos los módulos sin límites durante 7 días. Sin tarjeta. Sin sorpresas. Cuando termina tu prueba, elegís el plan que mejor se adapta a tu estilo."}
           </Typography>
         </Box>
 
         {/* Cards */}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" }, gap: 3, alignItems: "stretch" }}>
-          {PLANS.map((plan, i) => {
+          {(isUS ? PLANS_EN : PLANS).map((plan, i) => {
             const state = getPlanState(plan.id);
             const price = priceFor(plan.id);
 
@@ -474,7 +533,7 @@ const PricingPage = () => {
                           {isUS ? formatUSD(price) : formatARS(price)}
                         </Typography>
                         <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>
-                          {isUS ? plan.label.replace("renovación manual", "renovación automática") : plan.label}
+                          {plan.label}
                         </Typography>
                       </>
                     ) : (
@@ -501,17 +560,21 @@ const PricingPage = () => {
                       <Box sx={{ width: "100%", py: 1.4, borderRadius: 2.5, border: `2px solid ${plan.color}`, bgcolor: `${plan.color}10`, display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
                         <AccessTimeRoundedIcon sx={{ fontSize: 17, color: plan.color }} />
                         <Typography sx={{ fontWeight: 700, fontSize: 14, color: plan.color }}>
-                          {trialDaysLeft === 0 ? "Vence hoy" : `${trialDaysLeft} día${trialDaysLeft !== 1 ? "s" : ""} restante${trialDaysLeft !== 1 ? "s" : ""}`}
+                          {trialDaysLeft === 0
+                            ? (isUS ? "Ends today" : "Vence hoy")
+                            : isUS
+                              ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? "s" : ""} left`
+                              : `${trialDaysLeft} día${trialDaysLeft !== 1 ? "s" : ""} restante${trialDaysLeft !== 1 ? "s" : ""}`}
                         </Typography>
                       </Box>
                     ) : state === "trial_expired" && plan.id === "free" ? (
                       <Box sx={{ width: "100%", py: 1.4, borderRadius: 2.5, border: "2px solid rgba(226,75,74,0.4)", bgcolor: "rgba(226,75,74,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#E24B4A" }}>Prueba expirada</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#E24B4A" }}>{isUS ? "Trial expired" : "Prueba expirada"}</Typography>
                       </Box>
                     ) : state === "current" ? (
                       <Box sx={{ width: "100%", py: 1.4, borderRadius: 2.5, border: `2px solid ${plan.color}`, bgcolor: `${plan.color}10`, display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
                         <CheckRoundedIcon sx={{ fontSize: 17, color: plan.color }} />
-                        <Typography sx={{ fontWeight: 700, fontSize: 14, color: plan.color }}>Tu plan actual</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: 14, color: plan.color }}>{isUS ? "Your current plan" : "Tu plan actual"}</Typography>
                       </Box>
                     ) : plan.id === "free" ? null : (
                       <Button variant="contained" fullWidth onClick={() => handleAction(plan)}
@@ -532,10 +595,9 @@ const PricingPage = () => {
         </Box>
 
         <Typography sx={{ textAlign: "center", fontSize: 12.5, color: C.textMuted, mt: 5, lineHeight: 1.8 }}>
-          El pago se procesa de forma segura a través de {isUS ? "Stripe" : "Mercado Pago"}.<br />
           {isUS
-            ? "Se renueva automáticamente cada mes — cancelá cuando quieras, sin compromiso."
-            : "Te avisamos por mail antes del vencimiento para que puedas renovar cuando quieras."}
+            ? <>Payments are processed securely through Stripe.<br />Renews automatically every month — cancel anytime, no commitment.</>
+            : <>El pago se procesa de forma segura a través de Mercado Pago.<br />Te avisamos por mail antes del vencimiento para que puedas renovar cuando quieras.</>}
         </Typography>
       </Box>
 

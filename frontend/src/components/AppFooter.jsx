@@ -124,9 +124,27 @@ export default function AppFooter() {
         </Typography>
       </Stack>
 
+      {/* ── CONFIANZA: pagos seguros + disponibilidad global ── */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        flexWrap="wrap"
+        spacing={1.5}
+        sx={{ mt: 2.5, pt: 2.5, borderTop: "1px solid rgba(255,255,255,0.10)", rowGap: 1 }}
+      >
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 0.6 }}>
+          🔒 Pagos seguros con Mercado Pago y Stripe
+        </Typography>
+        <SmallDot />
+        <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 0.6 }}>
+          🌎 Disponible en cualquier parte del mundo
+        </Typography>
+      </Stack>
+
       {/* ── CUMPLIMIENTO NORMATIVO ── */}
       <Box sx={{
-        mt: 2.5,
+        mt: 1,
         pt: 2,
         borderTop: "1px solid rgba(255,255,255,0.10)",
       }}>

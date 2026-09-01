@@ -39,8 +39,7 @@ const PLAN_META = {
 const formatARS = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 
-const formatUSD = (n) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+const formatUSD = (n) => `US$${n.toFixed(2)}`;
 
 const formatAmount = (n, currency) => (currency === "USD" ? formatUSD(n) : formatARS(n));
 
