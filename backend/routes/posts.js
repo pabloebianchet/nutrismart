@@ -44,7 +44,7 @@ const TOPICS = [
 ];
 
 // Devuelve el tema del día según la fecha específica (YYYY-MM-DD)
-const topicForDate = (dateStr) => {
+export const topicForDate = (dateStr) => {
   const d = new Date(dateStr);
   const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
   return TOPICS[dayOfYear % TOPICS.length];
@@ -100,15 +100,23 @@ Solo JSON:
   // Imagen en background — se genera en base64 y se sube a Cloudinary
   // (nunca guardar el data URI en Mongo: infla cada documento a varios MB
   // y ese peso termina horneado en el HTML prerenderizado de la home).
-  generateImage(openai, {
-    prompt: `Professional editorial illustration for a health article about "${topic}". Clean, modern wellness aesthetic, pastel green tones, no text, no watermarks.`,
-    size:   "1024x1024",
-  })
-    .then(async ({ imageUrl: dataUrl }) => {
+  // Un reintento + logging real: esto corre después de responder la
+  // request (fire-and-forget), así que un catch silencioso deja el post
+  // sin imagen para siempre sin ninguna pista de por qué.
+  const generateAndUploadImage = async (attempt = 1) => {
+    try {
+      const { imageUrl: dataUrl } = await generateImage(openai, {
+        prompt: `Professional editorial illustration for a health article about "${topic}". Clean, modern wellness aesthetic, pastel green tones, no text, no watermarks.`,
+        size:   "1024x1024",
+      });
       const imageUrl = await uploadImage(dataUrl, "daily-posts", `post-${date}`);
       await DailyPost.findByIdAndUpdate(post._id, { $set: { imageUrl } });
-    })
-    .catch(() => {});
+    } catch (err) {
+      console.error(`[generateDailyPost] Imagen falló (intento ${attempt}) para ${date}: ${err.message}`);
+      if (attempt < 2) return generateAndUploadImage(attempt + 1);
+    }
+  };
+  generateAndUploadImage();
 
   return post;
 };
