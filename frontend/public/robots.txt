@@ -10,6 +10,11 @@ Allow: /privacidad
 Allow: /terminos
 Allow: /legal
 Allow: /blog/
+Allow: /en
+Allow: /en/pricing
+Allow: /en/about
+Allow: /en/how-it-works
+Allow: /en/contact
 
 # App privada — no indexar
 Disallow: /login

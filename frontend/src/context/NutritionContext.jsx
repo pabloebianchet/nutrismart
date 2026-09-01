@@ -44,6 +44,13 @@ export const NutritionProvider = ({ children }) => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // /en/* es una URL explícita en inglés (indexable aparte de las rutas
+    // en español) — el idioma lo decide el path, no la geolocalización ni
+    // el override de testing. Máxima prioridad, incluso sobre ?region=ar.
+    const path = window.location.pathname;
+    if (path === "/en" || path.startsWith("/en/")) { setIsUS(true); return; }
+
     const forced = new URLSearchParams(window.location.search).get("region");
     if (forced === "us") { setIsUS(true); return; }
     if (forced === "ar") { setIsUS(false); return; }
@@ -53,6 +60,14 @@ export const NutritionProvider = ({ children }) => {
       .then((d) => setIsUS(d.country === "US"))
       .catch(() => {}); // sin poder determinar la región, se queda en AR/es
   }, []);
+
+  // <html lang="..."> tiene que reflejar isUS en TODA la app (no solo en
+  // las páginas que llaman usePageMeta) — punto único de control acá, ya
+  // que isUS mismo vive acá.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.lang = isUS ? "en" : "es";
+  }, [isUS]);
 
   /* ======================
      AUTH BOOTSTRAP
@@ -239,6 +254,7 @@ export const NutritionProvider = ({ children }) => {
       value={{
         // región (idioma + proveedor de pago)
         isUS,
+        setIsUS,
 
         // auth
         authLoading,

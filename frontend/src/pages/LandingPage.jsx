@@ -6,6 +6,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
+import usePageMeta from "../hooks/usePageMeta";
 import {
   Box,
   Typography,
@@ -3943,6 +3944,38 @@ const LandingFooter = () => {
 
 /* ─── MAIN ────────────────────────────────────────────────────────────────── */
 const LandingPage = () => {
+  const { isUS } = useNutrition();
+  // La versión español replica EXACTO lo que ya trae index.html estático
+  // (título/descripción/OG originales) — no cambia nada del comportamiento
+  // por defecto. La versión inglés es la única con contenido/canonical
+  // realmente propios, para /en como URL indexable en inglés.
+  usePageMeta(
+    isUS
+      ? {
+          title:         "Nui — Your AI Health Assistant | Nutrition, Recipes & Training",
+          description:   "Nui is your AI health assistant. Scan food labels for instant analysis, generate personalized healthy recipes, get a training plan and track your daily energy balance by voice. Free for 7 days.",
+          ogTitle:       "Nui — Your AI Health Assistant",
+          ogDescription: "Analyze food, generate healthy recipes, train with AI and track your daily calorie balance by voice. All in one app. Free 7 days.",
+          canonical:     "/en",
+          alternates: [
+            { hreflang: "es-AR",    href: "/" },
+            { hreflang: "en",       href: "/en" },
+            { hreflang: "x-default", href: "/" },
+          ],
+        }
+      : {
+          title:         "Nui — Tu asistente de salud con IA | Nutrición, Recetas y Entrenamiento",
+          description:   "Nui es tu asistente de salud con IA. Analizá alimentos escaneando etiquetas, generá recetas saludables personalizadas, entrenamiento y seguí tu balance energético diario por voz. Gratis por 7 días.",
+          ogTitle:       "Nui — Tu asistente de salud con IA",
+          ogDescription: "Analizá alimentos, generá recetas saludables, entrená con IA y controlá tu balance calórico diario por voz. Todo en una sola app. Gratis 7 días.",
+          canonical:     "/",
+          alternates: [
+            { hreflang: "es-AR",    href: "/" },
+            { hreflang: "en",       href: "/en" },
+            { hreflang: "x-default", href: "/" },
+          ],
+        }
+  );
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 

@@ -35,12 +35,30 @@ const fieldSx = {
 };
 
 const ContactPage = () => {
-  usePageMeta({
-    title:       "Contacto — Nui App",
-    description: "¿Tenés dudas sobre Nui? Escribinos y te respondemos a la brevedad — soporte sobre la app, suscripciones y funcionalidades.",
-    canonical:   "/contact",
-  });
   const { isUS } = useNutrition();
+  usePageMeta(
+    isUS
+      ? {
+          title:       "Contact — Nui App",
+          description: "Questions about Nui? Reach out and we'll get back to you shortly — support for the app, subscriptions and features.",
+          canonical:   "/en/contact",
+          alternates: [
+            { hreflang: "es-AR",    href: "/contact" },
+            { hreflang: "en",       href: "/en/contact" },
+            { hreflang: "x-default", href: "/contact" },
+          ],
+        }
+      : {
+          title:       "Contacto — Nui App",
+          description: "¿Tenés dudas sobre Nui? Escribinos y te respondemos a la brevedad — soporte sobre la app, suscripciones y funcionalidades.",
+          canonical:   "/contact",
+          alternates: [
+            { hreflang: "es-AR",    href: "/contact" },
+            { hreflang: "en",       href: "/en/contact" },
+            { hreflang: "x-default", href: "/contact" },
+          ],
+        }
+  );
   const [sent,     setSent]     = useState(false);
   const [sending,  setSending]  = useState(false);
   const [apiError, setApiError] = useState("");

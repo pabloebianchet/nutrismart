@@ -185,14 +185,32 @@ const getModules = (isUS) => [
 
 /* ── Componente principal ─────────────────────────────────────────────────── */
 const HowItWorksPage = () => {
-  usePageMeta({
-    title:
-      "Cómo funciona Nui — Análisis nutricional, recetas, entrenamiento y balance calórico con IA",
-    description:
-      "Registrate gratis, completá tu perfil y empezá a analizar alimentos con IA, generar recetas saludables, seguir tu plan de entrenamiento y registrar tu balance calórico diario.",
-    canonical: "/how-it-works",
-  });
   const { isUS } = useNutrition();
+  usePageMeta(
+    isUS
+      ? {
+          title: "How Nui Works — AI Food Analysis, Recipes, Training & Calorie Tracking",
+          description: "Sign up free, complete your profile and start analyzing food with AI, generating healthy recipes, following your training plan and tracking your daily calorie balance.",
+          canonical: "/en/how-it-works",
+          alternates: [
+            { hreflang: "es-AR",    href: "/how-it-works" },
+            { hreflang: "en",       href: "/en/how-it-works" },
+            { hreflang: "x-default", href: "/how-it-works" },
+          ],
+        }
+      : {
+          title:
+            "Cómo funciona Nui — Análisis nutricional, recetas, entrenamiento y balance calórico con IA",
+          description:
+            "Registrate gratis, completá tu perfil y empezá a analizar alimentos con IA, generar recetas saludables, seguir tu plan de entrenamiento y registrar tu balance calórico diario.",
+          canonical: "/how-it-works",
+          alternates: [
+            { hreflang: "es-AR",    href: "/how-it-works" },
+            { hreflang: "en",       href: "/en/how-it-works" },
+            { hreflang: "x-default", href: "/how-it-works" },
+          ],
+        }
+  );
   const NOVA = getNova(isUS);
   const STEPS = getSteps(isUS);
   const MODULES = getModules(isUS);

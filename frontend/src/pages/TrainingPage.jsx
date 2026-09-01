@@ -165,8 +165,16 @@ const WeightChart = ({ weights }) => {
 
 // ─── main component ───────────────────────────────────────────────────────────
 
+// Traducción a inglés todavía incompleta en este archivo — hasta que esté
+// terminada, isUS se fuerza a false acá abajo para que ni el texto de la UI
+// ni el `lang` mandado a los endpoints de IA muestren mezcla de idiomas en
+// producción. Cuando se termine de traducir todo el archivo, cambiar a
+// `true` — el resto del código no necesita tocarse.
+const TRANSLATION_COMPLETE = false;
+
 const TrainingPage = () => {
-  const { user, userData, updateUserData, subPlan, isSubscriptionExpired, isUS } = useNutrition();
+  const { user, userData, updateUserData, subPlan, isSubscriptionExpired, isUS: isUSReal } = useNutrition();
+  const isUS = TRANSLATION_COMPLETE && isUSReal;
   const location = useLocation();
 
   // Free activo y Gold pueden tener 2 planes simultáneos; Silver solo 1

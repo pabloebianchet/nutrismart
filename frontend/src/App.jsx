@@ -30,7 +30,7 @@ import BiometricGate     from "./components/BiometricGate.jsx";
 import PWAInstallPrompt  from "./components/PWAInstallPrompt.jsx";
 import { isBiometricRegistered } from "./utils/biometric.js";
 import PWAUpdatePrompt   from "./components/PWAUpdatePrompt.jsx";
-import { useState }      from "react";
+import { useState, useEffect } from "react";
 import { useNutrition }  from "./context/NutritionContext.jsx";
 
 /* ── Gate: perfil no completado ─────────────────────────────── */
@@ -41,7 +41,7 @@ import { useNutrition }  from "./context/NutritionContext.jsx";
 const PROFILE_FREE_PATHS = [
   "/profile", "/pricing", "/about", "/how-it-works", "/contact",
   "/privacidad", "/terminos", "/legal", "/admin", "/blog",
-  "/forgot-password", "/reset-password", "/",
+  "/forgot-password", "/reset-password", "/", "/en",
 ];
 
 const ProfileGate = () => {
@@ -69,6 +69,9 @@ const TrialBanner = () => {
 
   if (!user) return null;
   if (subPlan !== "free" || subStatus !== "active") return null;
+  // "/en" usa match exacto/con barra — un simple startsWith("/en") también
+  // taparía "/energy" por accidente.
+  if (location.pathname === "/en" || location.pathname.startsWith("/en/")) return null;
   if (BANNER_HIDDEN_PATHS.some((p) => location.pathname.startsWith(p))) return null;
 
   const urgente = trialDaysLeft <= 2;
@@ -119,7 +122,7 @@ const HomeRoute = () => {
 const AppChrome = () => {
   const { user } = useNutrition();
   const location = useLocation();
-  const isLanding = !user && (location.pathname === "/" || location.pathname === "");
+  const isLanding = !user && (location.pathname === "/" || location.pathname === "" || location.pathname === "/en");
   if (isLanding) return null;
   return (
     <>
@@ -137,9 +140,26 @@ const AppChrome = () => {
 const AppFooterConditional = () => {
   const { user } = useNutrition();
   const location = useLocation();
-  const isLanding = !user && (location.pathname === "/" || location.pathname === "");
+  const isLanding = !user && (location.pathname === "/" || location.pathname === "" || location.pathname === "/en");
   if (isLanding) return null;
   return <AppFooter />;
+};
+
+/* ── RegionPathSync — /en/* fuerza isUS=true también en navegación SPA ──
+ * NutritionContext ya resuelve esto al montar (mount-only effect, lee
+ * window.location.pathname directo). Este componente cubre el caso de
+ * navegar a /en/* con <Link> sin recargar la página, donde ese efecto de
+ * montaje no vuelve a correr.
+ */
+const RegionPathSync = () => {
+  const location = useLocation();
+  const { setIsUS } = useNutrition();
+  useEffect(() => {
+    if (location.pathname === "/en" || location.pathname.startsWith("/en/")) {
+      setIsUS(true);
+    }
+  }, [location.pathname, setIsUS]);
+  return null;
 };
 
 /* ── BiometricGateWrapper — aplica globalmente cuando hay sesión ── */
@@ -164,6 +184,7 @@ const App = () => {
   return (
     <Router>
       <BiometricGateWrapper>
+      <RegionPathSync />
       <AppChrome />
       <Routes>
         <Route path="/"                       element={<HomeRoute />} />
@@ -187,6 +208,12 @@ const App = () => {
         <Route path="/privacidad"             element={<PrivacyPage />} />
         <Route path="/terminos"               element={<TermsPage />} />
         <Route path="/legal"                  element={<LegalPage />} />
+        {/* Versión en inglés — mismas páginas, URL propia indexable */}
+        <Route path="/en"                     element={<HomeRoute />} />
+        <Route path="/en/about"               element={<AboutPage />} />
+        <Route path="/en/how-it-works"        element={<HowItWorksPage />} />
+        <Route path="/en/contact"             element={<ContactPage />} />
+        <Route path="/en/pricing"             element={<PricingPage />} />
       </Routes>
       <AppFooterConditional />
       </BiometricGateWrapper>

@@ -304,8 +304,16 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
 
 // ─── main page ───────────────────────────────────────────────────────────────
 
+// Traducción a inglés todavía incompleta en este archivo — hasta que esté
+// terminada, isUS se fuerza a false acá abajo para que ni el texto de la UI
+// ni el `lang` mandado a los endpoints de IA muestren mezcla de idiomas en
+// producción. Cuando se termine de traducir todo el archivo, cambiar a
+// `true` — el resto del código no necesita tocarse.
+const TRANSLATION_COMPLETE = false;
+
 const RecipesPage = () => {
-  const { userData, isUS } = useNutrition();
+  const { userData, isUS: isUSReal } = useNutrition();
+  const isUS = TRANSLATION_COMPLETE && isUSReal;
   const location     = useLocation();
 
   const preselected = location.state?.modalidad ?? null;

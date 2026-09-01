@@ -173,12 +173,30 @@ const PRINCIPIOS_EN = [
 
 /* ── Componente ──────────────────────────────────────────────────────────── */
 const AboutPage = () => {
-  usePageMeta({
-    title:       "Quiénes somos — Nui App",
-    description: "Nui es un asistente de salud con IA para Argentina. Conocé los módulos: análisis de alimentos, recetas personalizadas, entrenamiento y balance energético diario.",
-    canonical:   "/about",
-  });
   const { isUS } = useNutrition();
+  usePageMeta(
+    isUS
+      ? {
+          title:       "About Us — Nui App",
+          description: "Nui is an AI health assistant. Learn about our modules: food analysis, personalized recipes, training plans and daily energy tracking.",
+          canonical:   "/en/about",
+          alternates: [
+            { hreflang: "es-AR",    href: "/about" },
+            { hreflang: "en",       href: "/en/about" },
+            { hreflang: "x-default", href: "/about" },
+          ],
+        }
+      : {
+          title:       "Quiénes somos — Nui App",
+          description: "Nui es un asistente de salud con IA para Argentina. Conocé los módulos: análisis de alimentos, recetas personalizadas, entrenamiento y balance energético diario.",
+          canonical:   "/about",
+          alternates: [
+            { hreflang: "es-AR",    href: "/about" },
+            { hreflang: "en",       href: "/en/about" },
+            { hreflang: "x-default", href: "/about" },
+          ],
+        }
+  );
   return (
   <Box sx={{
     minHeight: "100vh",

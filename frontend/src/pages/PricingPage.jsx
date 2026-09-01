@@ -356,12 +356,30 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
 
 /* ── PricingPage ─────────────────────────────────────────────── */
 const PricingPage = () => {
-  usePageMeta({
-    title:       "Planes y precios — Nui App | Silver $6.890 · Gold $8.980",
-    description: "Elegí el plan de salud que mejor te quede. 7 días gratis sin tarjeta. Plan Silver $6.890/mes o Gold $8.980/mes con análisis ilimitados, recetas, entrenamiento y balance energético.",
-    canonical:   "/pricing",
-  });
   const { user, subPlan, subStatus, trialDaysLeft, isTrialExpired, refreshSubscription, isUS } = useNutrition();
+  usePageMeta(
+    isUS
+      ? {
+          title:       "Pricing — Nui App | Silver & Gold Plans",
+          description: "Pick the health plan that fits you. 7 days free, no card required. Silver and Gold plans with unlimited food analysis, recipes, training and daily energy tracking.",
+          canonical:   "/en/pricing",
+          alternates: [
+            { hreflang: "es-AR",    href: "/pricing" },
+            { hreflang: "en",       href: "/en/pricing" },
+            { hreflang: "x-default", href: "/pricing" },
+          ],
+        }
+      : {
+          title:       "Planes y precios — Nui App",
+          description: "Elegí el plan de salud que mejor te quede. 7 días gratis sin tarjeta. Planes Silver y Gold con análisis ilimitados, recetas, entrenamiento y balance energético.",
+          canonical:   "/pricing",
+          alternates: [
+            { hreflang: "es-AR",    href: "/pricing" },
+            { hreflang: "en",       href: "/en/pricing" },
+            { hreflang: "x-default", href: "/pricing" },
+          ],
+        }
+  );
   const navigate = useNavigate();
   const [planPrices,    setPlanPrices]    = useState({ silver: 2990, gold: 5990 });
   const [usdPrices,     setUsdPrices]     = useState({ silver: 6.99, gold: 12.99 });

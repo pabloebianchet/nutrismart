@@ -54,6 +54,13 @@ import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel 
 import useRealtimeSync           from "../hooks/useRealtimeSync";
 import { getSocket, getSocketId } from "../config/socket";
 
+// Traducción a inglés todavía incompleta en este archivo — hasta que esté
+// terminada, forzamos español siempre (isUS real solo se usa para lo que
+// no es texto, ej. lang enviado a endpoints de IA) para no mostrar mezcla
+// de idiomas en producción. Cuando se termine de traducir todo el archivo,
+// cambiar a `true` y usar `isUS` normalmente en los ternarios de texto.
+const TRANSLATION_COMPLETE = false;
+
 /* ────────────────────────────────────────────
    Paleta y tokens de diseño
 ──────────────────────────────────────────── */
@@ -151,7 +158,7 @@ const StatPill = ({ label, value, icon: Icon, accent }) => (
 const ScoreBadge = ({ score }) => {
   const { isUS } = useNutrition();
   const color = score >= 75 ? C.success : score >= 50 ? C.accentWarm : C.danger;
-  const label = isUS
+  const label = (isUS && TRANSLATION_COMPLETE)
     ? (score >= 75 ? "Great" : score >= 50 ? "Fair" : "Needs work")
     : (score >= 75 ? "Excelente" : score >= 50 ? "Regular" : "Mejorar");
   return (

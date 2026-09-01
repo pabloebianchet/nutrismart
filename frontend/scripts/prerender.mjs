@@ -73,6 +73,16 @@ const ROUTES = [
   "/privacidad",
   "/terminos",
   "/legal",
+  // Versión en inglés — mismas páginas, URL propia indexable, para que
+  // Google pueda rankear el sitio en búsquedas en inglés (antes solo
+  // existía como mejora client-side, nunca indexada). El idioma lo decide
+  // el path (ver NutritionContext), así que el "?region=ar" de abajo se
+  // ignora automáticamente en estas rutas.
+  "/en",
+  "/en/about",
+  "/en/how-it-works",
+  "/en/pricing",
+  "/en/contact",
 ];
 
 // Prioridad/frecuencia de las rutas estáticas en el sitemap (se preservan
@@ -86,6 +96,11 @@ const STATIC_SITEMAP_META = {
   "/privacidad":    { changefreq: "yearly",  priority: "0.3" },
   "/terminos":      { changefreq: "yearly",  priority: "0.3" },
   "/legal":         { changefreq: "yearly",  priority: "0.3" },
+  "/en":            { changefreq: "weekly",  priority: "1.0" },
+  "/en/pricing":    { changefreq: "monthly", priority: "0.9" },
+  "/en/about":      { changefreq: "monthly", priority: "0.8" },
+  "/en/how-it-works": { changefreq: "monthly", priority: "0.8" },
+  "/en/contact":    { changefreq: "monthly", priority: "0.6" },
 };
 
 // Backend real — en Vercel viene de VITE_API_URL (mismo valor que usa el
@@ -108,14 +123,17 @@ async function fetchAllPosts() {
 const escapeAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 const escapeHtml = (s) => escapeAttr(s).replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-/* ─── Reemplaza title/description/canonical/OG/Twitter en el <head> ──
- * Cada regex apunta al tag exacto tal como lo emite Vite en el build
- * (mismo formato que frontend/index.html). Si algún valor no vino
- * (por ejemplo home, que no llama a usePageMeta), el regex simplemente
- * no matchea nada distinto y el tag original queda igual.
+/* ─── Reemplaza title/description/canonical/OG/Twitter/hreflang en el
+ * <head> ── Cada regex apunta al tag exacto tal como lo emite Vite en el
+ * build (mismo formato que frontend/index.html). Si algún valor no vino,
+ * el regex simplemente no matchea nada distinto y el tag original queda
+ * igual.
  */
 const applyPageMeta = (html, meta) => {
   let out = html;
+  if (meta.htmlLang) {
+    out = out.replace(/<html lang="[^"]*"/, `<html lang="${escapeAttr(meta.htmlLang)}"`);
+  }
   if (meta.title) {
     out = out.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`);
   }
@@ -144,14 +162,37 @@ const applyPageMeta = (html, meta) => {
     );
   }
   if (meta.title) {
+    const ogTitle = meta.ogTitle || meta.title;
     out = out.replace(
       /(<meta property="og:title" content=")[^"]*("\s*\/>)/,
-      `$1${escapeAttr(meta.title)}$2`
+      `$1${escapeAttr(ogTitle)}$2`
     );
     out = out.replace(
       /(<meta name="twitter:title" content=")[^"]*("\s*\/>)/,
-      `$1${escapeAttr(meta.title)}$2`
+      `$1${escapeAttr(ogTitle)}$2`
     );
+  }
+  if (meta.ogDescription) {
+    out = out.replace(
+      /(<meta property="og:description" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.ogDescription)}$2`
+    );
+    out = out.replace(
+      /(<meta name="twitter:description" content=")[^"]*("\s*\/>)/,
+      `$1${escapeAttr(meta.ogDescription)}$2`
+    );
+  }
+  // hreflang — solo para páginas que SÍ son la misma página en dos idiomas
+  // (home, pricing, about, how-it-works, contact). Se sacan primero los que
+  // ya estuvieran (idempotente — permite re-correr el script sobre un dist/
+  // ya prerenderizado sin ir acumulando tags de vueltas anteriores) y se
+  // insertan los nuevos antes de </head>.
+  out = out.replace(/\s*<link rel="alternate" hreflang="[^"]*" href="[^"]*"\s*\/>\n?/g, "");
+  if (meta.alternates?.length) {
+    const tags = meta.alternates
+      .map(({ hreflang, href }) => `    <link rel="alternate" hreflang="${escapeAttr(hreflang)}" href="${escapeAttr(href)}" />`)
+      .join("\n");
+    out = out.replace("</head>", `${tags}\n  </head>`);
   }
   return out;
 };
@@ -292,9 +333,14 @@ async function main() {
 
       const rootHtml = await page.evaluate(() => document.getElementById("root")?.innerHTML || "");
       const pageMeta = await page.evaluate(() => ({
-        title:       document.title || "",
-        description: document.querySelector('meta[name="description"]')?.content || "",
-        canonical:   document.querySelector('link[rel="canonical"]')?.href || "",
+        title:         document.title || "",
+        description:   document.querySelector('meta[name="description"]')?.content || "",
+        canonical:     document.querySelector('link[rel="canonical"]')?.href || "",
+        ogTitle:       document.querySelector('meta[property="og:title"]')?.content || "",
+        ogDescription: document.querySelector('meta[property="og:description"]')?.content || "",
+        alternates:    Array.from(document.querySelectorAll('link[rel="alternate"][hreflang]'))
+                             .map((el) => ({ hreflang: el.getAttribute("hreflang"), href: el.getAttribute("href") })),
+        htmlLang:      document.documentElement.lang || "",
       }));
       log(`snapshot tomado — ${rootHtml.length} caracteres — title: "${pageMeta.title}"`);
       await page.close();
@@ -308,12 +354,12 @@ async function main() {
         '<div id="root"></div>',
         `<div id="root">${rootHtml}</div>`
       );
-      // La home no llama a usePageMeta (su OG es deliberadamente más corto
-      // que el title/description principal) — no tocar su <head> en absoluto.
-      // Leer y reaplicar el canonical vía `.href` lo normaliza agregando
-      // una barra final ("nuiapp.com" -> "nuiapp.com/"), un cambio no
-      // pedido — más simple y seguro: para "/" ni se intenta.
-      if (route !== "/") finalHtml = applyPageMeta(finalHtml, pageMeta);
+      // La home ahora también llama a usePageMeta (antes no, quedaba con el
+      // <head> estático de index.html sin más) — su versión español está
+      // escrita para coincidir con ese contenido original, así que aplicar
+      // el meta acá es seguro y además agrega el hreflang recíproco hacia
+      // /en, que antes faltaba.
+      finalHtml = applyPageMeta(finalHtml, pageMeta);
 
       const outPath = route === "/"
         ? path.join(distDir, "index.html")
