@@ -270,7 +270,16 @@ async function main() {
       // networkidle0 ese fetch lento bloquea la navegación ENTERA hasta
       // los 30s de timeout — con domcontentloaded seguimos apenas el DOM
       // inicial está listo y esperamos el contenido real por selector.
-      await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "domcontentloaded", timeout: 30000 });
+      //
+      // ?region=ar fuerza el idioma/moneda por defecto (español/ARS) durante
+      // el prerender — sin esto, NutritionContext geolocaliza la IP del
+      // propio contenedor de build de Vercel (no la de un visitante real),
+      // que suele resolver como EE.UU., y el HTML estático que indexa Google
+      // quedaría en inglés aunque el <head> (title/canonical) siga en
+      // español — un mismatch real. El contenido en inglés para visitantes
+      // reales de EE.UU. lo sigue resolviendo el cliente normalmente, esto
+      // solo fija qué versión queda "horneada" en el HTML crudo.
+      await page.goto(`http://127.0.0.1:${port}${route}?region=ar`, { waitUntil: "domcontentloaded", timeout: 30000 });
       log("domcontentloaded");
 
       const h1Found = await page.waitForSelector("h1", { timeout: 15000 }).then(() => true).catch(() => false);
