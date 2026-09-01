@@ -165,12 +165,7 @@ const WeightChart = ({ weights }) => {
 
 // ─── main component ───────────────────────────────────────────────────────────
 
-// Traducción a inglés todavía incompleta en este archivo — hasta que esté
-// terminada, isUS se fuerza a false acá abajo para que ni el texto de la UI
-// ni el `lang` mandado a los endpoints de IA muestren mezcla de idiomas en
-// producción. Cuando se termine de traducir todo el archivo, cambiar a
-// `true` — el resto del código no necesita tocarse.
-const TRANSLATION_COMPLETE = false;
+const TRANSLATION_COMPLETE = true;
 
 const TrainingPage = () => {
   const { user, userData, updateUserData, subPlan, isSubscriptionExpired, isUS: isUSReal } = useNutrition();
@@ -370,7 +365,9 @@ const TrainingPage = () => {
     const freq     = isQuick ? 1 : frecuencia;
 
     if (isSubscriptionExpired) {
-      setError("Tu suscripción venció. Renovar para generar nuevos planes de entrenamiento.");
+      setError(isUS
+        ? "Your subscription has expired. Renew to generate new training plans."
+        : "Tu suscripción venció. Renovar para generar nuevos planes de entrenamiento.");
       return;
     }
 
@@ -426,7 +423,7 @@ const TrainingPage = () => {
       if (!res.ok) throw new Error(data.error);
       setTipsData(data.tips || []);
     } catch {
-      setSnackMsg("No se pudieron cargar los tips.");
+      setSnackMsg(isUS ? "Couldn't load tips." : "No se pudieron cargar los tips.");
     } finally {
       setLoadingTips(false);
     }
@@ -533,7 +530,11 @@ const TrainingPage = () => {
     }, 350);
   };
 
-  const MUSCLE_LABEL = {
+  const MUSCLE_LABEL = isUS ? {
+    pecho: "Chest", espalda: "Back", piernas: "Legs", hombros: "Shoulders",
+    biceps: "Biceps", triceps: "Triceps", core: "Core", cardio: "Cardio",
+    gluteos: "Glutes", cuerpo_completo: "Full body",
+  } : {
     pecho: "Pecho", espalda: "Espalda", piernas: "Piernas", hombros: "Hombros",
     biceps: "Bíceps", triceps: "Tríceps", core: "Core", cardio: "Cardio",
     gluteos: "Glúteos", cuerpo_completo: "Cuerpo completo",
@@ -717,7 +718,7 @@ const TrainingPage = () => {
   const registerSession = async () => {
     setConfirmRegister(false);
     const hasData = Object.values(sessionLog).some(v => v.weight || v.reps);
-    if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de registrar."); return; }
+    if (!hasData) { setSnackMsg(isUS ? "Enter at least one value before logging." : "Ingresá al menos un dato antes de registrar."); return; }
 
     // Usar nombre capturado al abrir la sesión (evita estado obsoleto).
     // Fallback: leer de planCache directo para mayor seguridad.
@@ -770,7 +771,7 @@ const TrainingPage = () => {
     } catch { /* silencioso */ }
 
     // fallback si el API falla
-    setSnackMsg("¡Sesión guardada!");
+    setSnackMsg(isUS ? "Session saved!" : "¡Sesión guardada!");
     if (totalDays === 1 || elapsed >= totalDays) setTimeout(() => setPhase("summary"), 800);
   };
 
@@ -1245,7 +1246,9 @@ const TrainingPage = () => {
                             "&:hover": { transform: isSubscriptionExpired ? "none" : "translateY(-2px)" },
                             transition: "all 0.25s ease",
                           }}>
-                          {isSubscriptionExpired ? "Renovar suscripción para generar" : "Generar mi plan con IA"}
+                          {isUS
+                            ? (isSubscriptionExpired ? "Renew subscription to generate" : "Generate my plan with AI")
+                            : (isSubscriptionExpired ? "Renovar suscripción para generar" : "Generar mi plan con IA")}
                         </Button>
                       </motion.div>
                     )}
@@ -1259,7 +1262,9 @@ const TrainingPage = () => {
           {(phase === "loading" || phase === "db-loading") && (
             <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
               <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                <PlanLoader message={phase === "db-loading" ? "Cargando tu plan…" : "Creando tu plan personalizado…"} />
+                <PlanLoader message={phase === "db-loading"
+                  ? (isUS ? "Loading your plan…" : "Cargando tu plan…")
+                  : (isUS ? "Creating your personalized plan…" : "Creando tu plan personalizado…")} />
               </Paper>
             </motion.div>
           )}
@@ -1281,9 +1286,9 @@ const TrainingPage = () => {
                         {plan.planTitle}
                       </Typography>
                       <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
-                        {activeTipo && <Chip icon={<activeTipo.Icon sx={{ fontSize: "14px !important" }} />} label={config?.tipo} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo.bg, color: activeTipo.color, border: `1px solid ${activeTipo.border}` }} />}
-                        {config?.lugar && <Chip label={config.lugar} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
-                        {config?.duracion !== "1 día" && <Chip label={`${config?.frecuencia} días/sem`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
+                        {activeTipo && <Chip icon={<activeTipo.Icon sx={{ fontSize: "14px !important" }} />} label={tipoLabel(config?.tipo, isUS)} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: activeTipo.bg, color: activeTipo.color, border: `1px solid ${activeTipo.border}` }} />}
+                        {config?.lugar && <Chip label={lugarLabel(config.lugar, isUS)} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
+                        {config?.duracion !== "1 día" && <Chip label={isUS ? `${config?.frecuencia} days/wk` : `${config?.frecuencia} días/sem`} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />}
                         {activePlanType === "quick" && hasMainPlan && <Chip label="Plan 2" size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: "rgba(11,94,85,0.08)", color: "#0B5E55" }} />}
                         {activePlanType === "main"  && hasQuickPlan && <Chip label="Plan 1" size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: "rgba(11,94,85,0.08)", color: "#0B5E55" }} />}
                       </Stack>
@@ -1293,7 +1298,7 @@ const TrainingPage = () => {
                         <Typography sx={{ fontSize: 22, fontWeight: 900, color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>
                           {Math.min(elapsed, totalDays)}
                         </Typography>
-                        <Typography sx={{ fontSize: 10.5, color: "#8AADAA", fontWeight: 600 }}>de {totalDays}d</Typography>
+                        <Typography sx={{ fontSize: 10.5, color: "#8AADAA", fontWeight: 600 }}>{isUS ? `of ${totalDays}d` : `de ${totalDays}d`}</Typography>
                       </Box>
                     )}
                   </Stack>
@@ -1301,9 +1306,11 @@ const TrainingPage = () => {
                 {totalDays > 1 && (
                   <Box sx={{ px: 3, py: 1.5 }}>
                     <Stack direction="row" justifyContent="space-between" mb={0.8}>
-                      <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#4A6B67" }}>Semana {currentWeek}</Typography>
+                      <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#4A6B67" }}>{isUS ? `Week ${currentWeek}` : `Semana ${currentWeek}`}</Typography>
                       <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>
-                        {sessions.length} sesión{sessions.length !== 1 ? "es" : ""} · {progressPct}% completado
+                        {isUS
+                          ? `${sessions.length} session${sessions.length !== 1 ? "s" : ""} · ${progressPct}% complete`
+                          : `${sessions.length} sesión${sessions.length !== 1 ? "es" : ""} · ${progressPct}% completado`}
                       </Typography>
                     </Stack>
                     <ProgBar value={progressPct} color={activeTipo?.color} />
@@ -1315,8 +1322,10 @@ const TrainingPage = () => {
               <Box sx={{ mb: 3 }}>
                 <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex" }}>
                   {[
-                    { id: "semana",   label: totalDays === 1 ? "Sesión" : "Mi semana" },
-                    { id: "progreso", label: sessions.length ? `Progreso (${sessions.length})` : "Progreso" },
+                    { id: "semana",   label: isUS ? (totalDays === 1 ? "Session" : "My week") : (totalDays === 1 ? "Sesión" : "Mi semana") },
+                    { id: "progreso", label: isUS
+                        ? (sessions.length ? `Progress (${sessions.length})` : "Progress")
+                        : (sessions.length ? `Progreso (${sessions.length})` : "Progreso") },
                     { id: "tips",     label: "Tips" },
                   ].map((tab) => (
                     <Box key={tab.id} onClick={() => setActiveTab(tab.id)} sx={{
@@ -1358,14 +1367,14 @@ const TrainingPage = () => {
                                     {doneToday && <CheckRoundedIcon sx={{ fontSize: 15, color: activeTipo?.color || "#0B5E55" }} />}
                                     <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", letterSpacing: "-0.3px" }}>{day.name}</Typography>
                                     {isDraft && (
-                                      <Chip label="Borrador" size="small" sx={{ height: 18, fontSize: 10, fontWeight: 800, bgcolor: "rgba(180,120,0,0.12)", color: "#92400E", letterSpacing: "0.02em" }} />
+                                      <Chip label={isUS ? "Draft" : "Borrador"} size="small" sx={{ height: 18, fontSize: 10, fontWeight: 800, bgcolor: "rgba(180,120,0,0.12)", color: "#92400E", letterSpacing: "0.02em" }} />
                                     )}
                                   </Stack>
                                   <Typography sx={{ fontSize: 12, color: "#4A6B67" }}>{day.focus}</Typography>
                                 </Box>
                                 <Box sx={{ textAlign: "right", flexShrink: 0, ml: 1 }}>
-                                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{exs.length} ejercicios</Typography>
-                                  {sessCount > 0 && <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>{sessCount} sesión{sessCount > 1 ? "es" : ""}</Typography>}
+                                  <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{isUS ? `${exs.length} exercises` : `${exs.length} ejercicios`}</Typography>
+                                  {sessCount > 0 && <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>{isUS ? `${sessCount} session${sessCount > 1 ? "s" : ""}` : `${sessCount} sesión${sessCount > 1 ? "es" : ""}`}</Typography>}
                                 </Box>
                               </Stack>
                               <Stack spacing={0.5} mb={1.5}>
@@ -1380,7 +1389,7 @@ const TrainingPage = () => {
                                 </Typography>
                                   </Stack>
                                 ))}
-                                {exs.length > 3 && <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>+{exs.length - 3} más…</Typography>}
+                                {exs.length > 3 && <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{isUS ? `+${exs.length - 3} more…` : `+${exs.length - 3} más…`}</Typography>}
                               </Stack>
                             </Box>
                             <Box sx={{ px: 2.5, pb: 2 }}>
@@ -1399,7 +1408,9 @@ const TrainingPage = () => {
                                       }),
                                 }}
                               >
-                                {isDraft ? "Retomar borrador" : doneToday ? "Registrar otra sesión" : "Registrar sesión"}
+                                {isUS
+                                  ? (isDraft ? "Resume draft" : doneToday ? "Log another session" : "Log session")
+                                  : (isDraft ? "Retomar borrador" : doneToday ? "Registrar otra sesión" : "Registrar sesión")}
                               </Button>
                             </Box>
                           </Paper>
@@ -1411,7 +1422,7 @@ const TrainingPage = () => {
                   {plan.equipment?.length > 0 && (
                     <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5, mt: 3 }}>
                       <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1 }}>
-                        Equipamiento necesario
+                        {isUS ? "Equipment needed" : "Equipamiento necesario"}
                       </Typography>
                       <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
                         {plan.equipment.map((e, i) => (
@@ -1429,16 +1440,16 @@ const TrainingPage = () => {
                   {sessions.length === 0 ? (
                     <Box sx={{ textAlign: "center", py: 8 }}>
                       <AssignmentRoundedIcon sx={{ fontSize: 44, mb: 2, color: "#8AADAA" }} />
-                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 1 }}>Sin sesiones aún</Typography>
-                      <Typography sx={{ fontSize: 13.5, color: "#4A6B67" }}>Registrá tu primera sesión desde "Mi semana"</Typography>
+                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 1 }}>{isUS ? "No sessions yet" : "Sin sesiones aún"}</Typography>
+                      <Typography sx={{ fontSize: 13.5, color: "#4A6B67" }}>{isUS ? 'Log your first session from "My week"' : 'Registrá tu primera sesión desde "Mi semana"'}</Typography>
                     </Box>
                   ) : (
                     <>
                       <Stack direction="row" spacing={1.5} mb={3}>
                         {[
-                          { label: "Sesiones",  value: sessions.length,  Icon: FitnessCenterRoundedIcon },
-                          { label: "Días",       value: elapsed,          Icon: EventRoundedIcon },
-                          { label: "Ejercicios", value: loggedExs.length, Icon: AdjustRoundedIcon },
+                          { label: isUS ? "Sessions"  : "Sesiones",  value: sessions.length,  Icon: FitnessCenterRoundedIcon },
+                          { label: isUS ? "Days"       : "Días",       value: elapsed,          Icon: EventRoundedIcon },
+                          { label: isUS ? "Exercises" : "Ejercicios", value: loggedExs.length, Icon: AdjustRoundedIcon },
                         ].map((stat) => (
                           <Paper key={stat.label} elevation={0} sx={{ flex: 1, p: 1.8, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", textAlign: "center" }}>
                             <stat.Icon sx={{ fontSize: 20, mb: 0.3, color: activeTipo?.color || "#0B5E55" }} />
@@ -1451,7 +1462,7 @@ const TrainingPage = () => {
                       {loggedExs.length > 0 && (
                         <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5, mb: 3 }}>
                           <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 2 }}>
-                            Progresión por ejercicio
+                            {isUS ? "Progression by exercise" : "Progresión por ejercicio"}
                           </Typography>
                           <Stack spacing={2.5}>
                             {loggedExs.slice(0, 6).map((ex) => {
@@ -1463,7 +1474,7 @@ const TrainingPage = () => {
                                   <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={0.8}>
                                     <Box flex={1} minWidth={0}>
                                       <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#0F2420", mb: 0.2 }}>{ex}</Typography>
-                                      <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{hist.length} sesión{hist.length > 1 ? "es" : ""}</Typography>
+                                      <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{isUS ? `${hist.length} session${hist.length > 1 ? "s" : ""}` : `${hist.length} sesión${hist.length > 1 ? "es" : ""}`}</Typography>
                                     </Box>
                                     {weights.length >= 2 && (
                                       <Typography sx={{ fontSize: 13, fontWeight: 800, color: weights[weights.length-1] >= weights[0] ? "#2E7D32" : "#4A6B67", flexShrink: 0, ml: 1 }}>
@@ -1474,7 +1485,7 @@ const TrainingPage = () => {
                                   {weights.length >= 2 && <WeightChart weights={weights} />}
                                   {last && (
                                     <Typography sx={{ fontSize: 12, color: "#4A6B67", mt: 0.6 }}>
-                                      Último: {[last.weight, last.reps].filter(Boolean).join(" · ")} · {last.date}
+                                      {isUS ? "Last: " : "Último: "}{[last.weight, last.reps].filter(Boolean).join(" · ")} · {last.date}
                                     </Typography>
                                   )}
                                 </Box>
@@ -1485,7 +1496,7 @@ const TrainingPage = () => {
                       )}
 
                       <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
-                        Historial de sesiones
+                        {isUS ? "Session history" : "Historial de sesiones"}
                       </Typography>
                       <Stack spacing={1.5}>
                         {[...sessions].reverse().map((sess, i) => {
@@ -1500,7 +1511,7 @@ const TrainingPage = () => {
                                 </Box>
                                 <Box flex={1} minWidth={0}>
                                   <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#0F2420" }}>{sess.dayName}</Typography>
-                                  <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{sess.date} · {Object.keys(sess.exercises).length} ejercicios</Typography>
+                                  <Typography sx={{ fontSize: 11.5, color: "#8AADAA" }}>{sess.date} · {isUS ? `${Object.keys(sess.exercises).length} exercises` : `${Object.keys(sess.exercises).length} ejercicios`}</Typography>
                                 </Box>
                                 <Typography sx={{ fontSize: 13, color: "#8AADAA" }}>{isOpen ? "▲" : "▼"}</Typography>
                               </Box>
@@ -1543,11 +1554,13 @@ const TrainingPage = () => {
                       <Stack direction="row" spacing={1} alignItems="center" mb={1}>
                         <EventRoundedIcon sx={{ fontSize: 16, color: activeTipo?.color || "#0B5E55" }} />
                         <Typography sx={{ fontSize: 11, fontWeight: 800, color: activeTipo?.color || "#0B5E55", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                          {totalDays === 1 ? "Tips para hoy" : `Semana ${currentWeek}`}
+                          {isUS
+                            ? (totalDays === 1 ? "Tips for today" : `Week ${currentWeek}`)
+                            : (totalDays === 1 ? "Tips para hoy" : `Semana ${currentWeek}`)}
                         </Typography>
                       </Stack>
                       <Typography sx={{ fontSize: 14, color: "#3D5A57", lineHeight: 1.7 }}>
-                        {plan.weeklyTips[String(currentWeek)] || plan.weeklyTips["1"] || "¡Seguí con tu plan, estás haciendo un gran trabajo!"}
+                        {plan.weeklyTips[String(currentWeek)] || plan.weeklyTips["1"] || (isUS ? "Keep going with your plan, you're doing great!" : "¡Seguí con tu plan, estás haciendo un gran trabajo!")}
                       </Typography>
                     </Paper>
                   )}
@@ -1555,7 +1568,7 @@ const TrainingPage = () => {
                   {plan.progression?.length > 0 && (
                     <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5, mb: 3 }}>
                       <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
-                        Fases de progresión
+                        {isUS ? "Progression phases" : "Fases de progresión"}
                       </Typography>
                       <Stack spacing={1.5}>
                         {plan.progression.map((ph, i) => (
@@ -1579,7 +1592,9 @@ const TrainingPage = () => {
                         border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
                         "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
                       }}>
-                      {loadingTips ? "Generando tips…" : "Cargar tips personalizados con IA"}
+                      {isUS
+                        ? (loadingTips ? "Generating tips…" : "Load AI-personalized tips")
+                        : (loadingTips ? "Generando tips…" : "Cargar tips personalizados con IA")}
                     </Button>
                   ) : (
                     <Stack spacing={1.5} mb={3}>
@@ -1603,7 +1618,9 @@ const TrainingPage = () => {
                     <Stack direction="row" spacing={1.2} alignItems="flex-start">
                       <WarningAmberRoundedIcon sx={{ fontSize: 16, lineHeight: 1, flexShrink: 0, color: "#BF360C" }} />
                       <Typography sx={{ fontSize: 12, color: "#BF360C", lineHeight: 1.65 }}>
-                        {plan.disclaimer || "Este plan es orientativo y no reemplaza la guía de un entrenador o profesional de la salud."}
+                        {plan.disclaimer || (isUS
+                          ? "This plan is a general guideline and doesn't replace guidance from a trainer or health professional."
+                          : "Este plan es orientativo y no reemplaza la guía de un entrenador o profesional de la salud.")}
                       </Typography>
                     </Stack>
                   </Paper>
@@ -1621,14 +1638,14 @@ const TrainingPage = () => {
                 startIcon={<ArrowBackRoundedIcon />} size="small"
                 sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}
               >
-                Volver al plan
+                {isUS ? "Back to plan" : "Volver al plan"}
               </Button>
 
               <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", mb: 0.4 }}>
                 {plan.weekStructure[activeDay]?.name}
               </Typography>
               <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
-                {plan.weekStructure[activeDay]?.focus} · Registrá tu sesión de hoy
+                {plan.weekStructure[activeDay]?.focus} · {isUS ? "Log today's session" : "Registrá tu sesión de hoy"}
               </Typography>
 
               <Stack spacing={2} mb={3}>
@@ -1662,10 +1679,10 @@ const TrainingPage = () => {
                                     animation: "pulse 1.4s ease-in-out infinite" }} />
                                   <Box sx={{ textAlign: "center" }}>
                                     <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: activeTipo?.color || "#0B5E55" }}>
-                                      Generando imagen
+                                      {isUS ? "Generating image" : "Generando imagen"}
                                     </Typography>
                                     <Typography sx={{ fontSize: 10.5, color: "#8AADAA", mt: 0.3 }}>
-                                      Esto puede tardar unos segundos
+                                      {isUS ? "This can take a few seconds" : "Esto puede tardar unos segundos"}
                                     </Typography>
                                     <Stack direction="row" spacing={0.5} justifyContent="center" mt={0.5}>
                                       {[0, 1, 2].map((i) => (
@@ -1712,7 +1729,7 @@ const TrainingPage = () => {
                                       }}>
                                       <AssignmentRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />
                                       <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>
-                                        Ver guía
+                                        {isUS ? "View guide" : "Ver guía"}
                                       </Typography>
                                     </Box>
                                   </Box>
@@ -1739,7 +1756,7 @@ const TrainingPage = () => {
                                   borderTopColor: "transparent",
                                   animation: "spin 0.7s linear infinite",
                                   "@keyframes spin": { to: { transform: "rotate(360deg)" } } }} />
-                                <Typography sx={{ fontSize: 11, color: activeTipo?.color || "#0B5E55" }}>Buscando…</Typography>
+                                <Typography sx={{ fontSize: 11, color: activeTipo?.color || "#0B5E55" }}>{isUS ? "Searching…" : "Buscando…"}</Typography>
                               </Box>
                             ) : (
                               <IconButton size="small"
@@ -1758,28 +1775,28 @@ const TrainingPage = () => {
                             PaperProps={{ sx: { borderRadius: 3, boxShadow: "0 8px 24px rgba(11,94,85,0.15)", minWidth: 220, maxHeight: 320, overflowY: "auto" } }}>
                             <MenuItem dense onClick={() => openSimilarOptions(activeDay, i)}>
                               <ListItemIcon><AutoFixHighRoundedIcon fontSize="small" sx={{ color: "#0B5E55" }} /></ListItemIcon>
-                              <ListItemText primary="Reemplazar ejercicio" />
+                              <ListItemText primary={isUS ? "Replace exercise" : "Reemplazar ejercicio"} />
                             </MenuItem>
                             <MenuItem dense onClick={() => { setExMenuOpen(null); openAddDialog(activeDay, null); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#2E7D32" }} /></ListItemIcon>
-                              <ListItemText primary="Agregar ejercicio nuevo" />
+                              <ListItemText primary={isUS ? "Add new exercise" : "Agregar ejercicio nuevo"} />
                             </MenuItem>
                             <MenuItem dense onClick={() => { setExMenuOpen(null); openAddDialog(activeDay, i, { name: ex.name, sets: String(ex.sets), reps: ex.reps, rest: ex.rest, notes: ex.notes || "" }); }}>
                               <ListItemIcon><AddRoundedIcon fontSize="small" sx={{ color: "#1565C0" }} /></ListItemIcon>
-                              <ListItemText primary="Reemplazar este ejercicio" />
+                              <ListItemText primary={isUS ? "Replace this exercise" : "Reemplazar este ejercicio"} />
                             </MenuItem>
                             <MenuItem dense
                               onClick={() => { setExMenuOpen(null); setConfirmDelete({ dayKey: activeDay, index: i, name: ex.name }); }}
                               sx={{ color: "#E24B4A" }}>
                               <ListItemIcon><DeleteOutlineRoundedIcon fontSize="small" sx={{ color: "#E24B4A" }} /></ListItemIcon>
-                              <ListItemText primary="Eliminar ejercicio" />
+                              <ListItemText primary={isUS ? "Delete exercise" : "Eliminar ejercicio"} />
                             </MenuItem>
                           </Menu>
 
                           <Stack direction="row" spacing={0.8} mb={1.2} flexWrap="wrap" useFlexGap>
-                            <Chip label={exIsRunning ? `${ex.sets} km` : `${ex.sets} series`} size="small"
+                            <Chip label={exIsRunning ? `${ex.sets} km` : (isUS ? `${ex.sets} sets` : `${ex.sets} series`)} size="small"
                               sx={{ height: 22, fontSize: 11.5, fontWeight: 700, bgcolor: activeTipo?.bg || "#E6F5F3", color: activeTipo?.color || "#0B5E55" }} />
-                            <Chip label={exIsRunning ? `Ritmo: ${ex.reps}` : ex.reps} size="small"
+                            <Chip label={exIsRunning ? (isUS ? `Pace: ${ex.reps}` : `Ritmo: ${ex.reps}`) : ex.reps} size="small"
                               sx={{ height: 22, fontSize: 11.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
                             <Chip label={ex.rest} size="small"
                               sx={{ height: 22, fontSize: 11.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
@@ -1796,8 +1813,12 @@ const TrainingPage = () => {
                           )}
                           <Stack direction="row" spacing={1.5}>
                             <TextField size="small"
-                              label={exIsRunning ? "Distancia (km)" : "Peso / Carga (kg)"}
-                              placeholder={exIsRunning ? "ej: 5.2" : "ej: 60"}
+                              label={isUS
+                                ? (exIsRunning ? "Distance (km)" : "Weight / Load (kg)")
+                                : (exIsRunning ? "Distancia (km)" : "Peso / Carga (kg)")}
+                              placeholder={isUS
+                                ? (exIsRunning ? "e.g. 5.2" : "e.g. 60")
+                                : (exIsRunning ? "ej: 5.2" : "ej: 60")}
                               value={sessionLog[ex.name]?.weight || ""}
                               onChange={(e) => {
                                 let val = e.target.value.replace(/[^0-9.]/g, "");
@@ -1810,8 +1831,12 @@ const TrainingPage = () => {
                               sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2.5 } }}
                             />
                             <TextField size="small"
-                              label={exIsRunning ? "Tiempo (min)" : "Repeticiones"}
-                              placeholder={exIsRunning ? "ej: 28" : "ej: 12"}
+                              label={isUS
+                                ? (exIsRunning ? "Time (min)" : "Reps")
+                                : (exIsRunning ? "Tiempo (min)" : "Repeticiones")}
+                              placeholder={isUS
+                                ? (exIsRunning ? "e.g. 28" : "e.g. 12")
+                                : (exIsRunning ? "ej: 28" : "ej: 12")}
                               value={sessionLog[ex.name]?.reps || ""}
                               onChange={(e) => {
                                 let val = e.target.value.replace(/[^0-9]/g, "");
@@ -1838,7 +1863,7 @@ const TrainingPage = () => {
                 sx={{ mb: 2, borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13,
                   borderColor: activeTipo?.color || "#0B5E55", color: activeTipo?.color || "#0B5E55",
                   "&:hover": { bgcolor: activeTipo?.bg || "#E6F5F3" } }}>
-                Agregar ejercicio
+                {isUS ? "Add exercise" : "Agregar ejercicio"}
               </Button>
 
               {/* ── Botones de sesión ── */}
@@ -1847,7 +1872,7 @@ const TrainingPage = () => {
                   fullWidth variant="contained"
                   onClick={() => {
                     const hasData = Object.values(sessionLog).some(v => v.weight || v.reps);
-                    if (!hasData) { setSnackMsg("Ingresá al menos un dato antes de registrar."); return; }
+                    if (!hasData) { setSnackMsg(isUS ? "Enter at least one value before logging." : "Ingresá al menos un dato antes de registrar."); return; }
                     setConfirmRegister(true);
                   }}
                   startIcon={<FitnessCenterRoundedIcon />}
@@ -1858,26 +1883,26 @@ const TrainingPage = () => {
                     "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
                   }}
                 >
-                  Registrar sesión
+                  {isUS ? "Log session" : "Registrar sesión"}
                 </Button>
                 <Button
                   fullWidth
-                  onClick={() => { saveDraft(); setActiveDay(null); setPendingSession(null); setSnackMsg("Borrador guardado"); }}
+                  onClick={() => { saveDraft(); setActiveDay(null); setPendingSession(null); setSnackMsg(isUS ? "Draft saved" : "Borrador guardado"); }}
                   sx={{
                     py: 1.4, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
                     border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
                     "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
                   }}
                 >
-                  Guardar borrador
+                  {isUS ? "Save draft" : "Guardar borrador"}
                 </Button>
                 {hasDraft(activeDay) && (
                   <Button
                     fullWidth size="small"
-                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setActiveDay(null); setPendingSession(null); setSnackMsg("Borrador eliminado"); }}
+                    onClick={() => { deleteDraft(activeDay); setSessionLog({}); setActiveDay(null); setPendingSession(null); setSnackMsg(isUS ? "Draft deleted" : "Borrador eliminado"); }}
                     sx={{ textTransform: "none", fontWeight: 600, fontSize: 13, color: "#B0C4C0", "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.06)" } }}
                   >
-                    Eliminar borrador
+                    {isUS ? "Delete draft" : "Eliminar borrador"}
                   </Button>
                 )}
               </Stack>
@@ -1894,16 +1919,16 @@ const TrainingPage = () => {
                   animation: "trophy 2.2s ease-in-out infinite",
                 }} />
                 <Typography sx={{ fontSize: 26, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.7px", mb: 0.5 }}>
-                  ¡Plan completado!
+                  {isUS ? "Plan completed!" : "¡Plan completado!"}
                 </Typography>
-                <Typography sx={{ fontSize: 14, color: "#4A6B67" }}>{plan?.planTitle} · {config?.duracion}</Typography>
+                <Typography sx={{ fontSize: 14, color: "#4A6B67" }}>{plan?.planTitle} · {duracionLabel(config?.duracion, isUS)}</Typography>
               </Box>
 
               <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1.5, mb: 3 }}>
                 {[
-                  { Icon: FitnessCenterRoundedIcon, label: "Sesiones",  value: sessions.length },
-                  { Icon: EventRoundedIcon, label: "Días",      value: elapsed },
-                  { Icon: AdjustRoundedIcon, label: "Ejercicios",value: loggedExs.length },
+                  { Icon: FitnessCenterRoundedIcon, label: isUS ? "Sessions"  : "Sesiones",  value: sessions.length },
+                  { Icon: EventRoundedIcon, label: isUS ? "Days"      : "Días",      value: elapsed },
+                  { Icon: AdjustRoundedIcon, label: isUS ? "Exercises" : "Ejercicios",value: loggedExs.length },
                 ].map((stat) => (
                   <Paper key={stat.label} elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", textAlign: "center" }}>
                     <stat.Icon sx={{ fontSize: 24, mb: 0.5, color: activeTipo?.color || "#0B5E55" }} />
@@ -1916,7 +1941,7 @@ const TrainingPage = () => {
               {loggedExs.length > 0 && (
                 <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.5, mb: 3 }}>
                   <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 2 }}>
-                    Tu progresión
+                    {isUS ? "Your progression" : "Tu progresión"}
                   </Typography>
                   <Stack spacing={2.5}>
                     {loggedExs.slice(0, 4).map((ex) => {
@@ -1952,14 +1977,14 @@ const TrainingPage = () => {
                   boxShadow: "0 8px 28px rgba(11,94,85,0.30)",
                   "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
                 }}>
-                  Iniciar nuevo plan
+                  {isUS ? "Start new plan" : "Iniciar nuevo plan"}
                 </Button>
                 <Button fullWidth onClick={() => resetPlan(true)} sx={{
                   py: 1.5, borderRadius: 3, textTransform: "none", fontWeight: 700, fontSize: 14.5,
                   border: "1.5px solid rgba(11,94,85,0.20)", color: "#0B5E55",
                   "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
                 }}>
-                  Continuar con progresividad (mismo tipo)
+                  {isUS ? "Continue with progression (same type)" : "Continuar con progresividad (mismo tipo)"}
                 </Button>
                 {/* Si había plan principal, volver a él */}
                 {activePlanType === "quick" && hasMainPlan && (
@@ -1968,7 +1993,7 @@ const TrainingPage = () => {
                     border: "1.5px solid rgba(11,94,85,0.20)", color: "#4A6B67",
                     "&:hover": { bgcolor: "rgba(11,94,85,0.04)" },
                   }}>
-                    ← Volver a mi plan principal
+                    {isUS ? "← Back to my main plan" : "← Volver a mi plan principal"}
                   </Button>
                 )}
               </Stack>
@@ -1996,25 +2021,32 @@ const TrainingPage = () => {
                 </Box>
                 <Box>
                   <Typography sx={{ fontSize: 17, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.3px" }}>
-                    ¿Borrar este plan?
+                    {isUS ? "Delete this plan?" : "¿Borrar este plan?"}
                   </Typography>
                   <Typography sx={{ fontSize: 12.5, color: "#8AADAA" }}>
-                    {plan?.planTitle || "Plan de entrenamiento"}
+                    {plan?.planTitle || (isUS ? "Training plan" : "Plan de entrenamiento")}
                   </Typography>
                 </Box>
               </Stack>
 
               <Box sx={{ p: 2, borderRadius: 3, bgcolor: "#FFF5F5", border: "1px solid rgba(226,75,74,0.18)", mb: 3 }}>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.7 }}>
-                  Se va a eliminar el plan y <strong>todo el progreso registrado</strong>:
+                  {isUS
+                    ? <>This will delete the plan and <strong>all logged progress</strong>:</>
+                    : <>Se va a eliminar el plan y <strong>todo el progreso registrado</strong>:</>}
                 </Typography>
                 <Stack spacing={0.5} mt={1}>
-                  {[
+                  {(isUS ? [
+                    `${sessions.length} session${sessions.length !== 1 ? "s" : ""} logged`,
+                    `${elapsed} day${elapsed !== 1 ? "s" : ""} of tracking`,
+                    config?.tipo ? `Type: ${tipoLabel(config.tipo, isUS)}` : null,
+                    config?.duracion ? `Duration: ${duracionLabel(config.duracion, isUS)}` : null,
+                  ] : [
                     `${sessions.length} sesión${sessions.length !== 1 ? "es" : ""} registrada${sessions.length !== 1 ? "s" : ""}`,
                     `${elapsed} día${elapsed !== 1 ? "s" : ""} de seguimiento`,
                     config?.tipo ? `Tipo: ${config.tipo}` : null,
                     config?.duracion ? `Duración: ${config.duracion}` : null,
-                  ].filter(Boolean).map((item, i) => (
+                  ]).filter(Boolean).map((item, i) => (
                     <Stack key={i} direction="row" spacing={1} alignItems="center">
                       <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: "#E24B4A", flexShrink: 0 }} />
                       <Typography sx={{ fontSize: 13, color: "#4A6B67" }}>{item}</Typography>
@@ -2034,14 +2066,14 @@ const TrainingPage = () => {
                     "&:hover": { bgcolor: "rgba(226,75,74,0.14)" },
                   }}
                 >
-                  Sí, quiero borrarlo
+                  {isUS ? "Yes, delete it" : "Sí, quiero borrarlo"}
                 </Button>
                 <Button
                   fullWidth
                   onClick={() => setDeleteStep(0)}
                   sx={{ py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14, color: "#4A6B67", "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
                 >
-                  Cancelar
+                  {isUS ? "Cancel" : "Cancelar"}
                 </Button>
               </Stack>
             </>
@@ -2055,10 +2087,12 @@ const TrainingPage = () => {
                   <WarningAmberRoundedIcon sx={{ color: "#E24B4A", fontSize: 28 }} />
                 </Box>
                 <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
-                  ¿Confirmás el borrado?
+                  {isUS ? "Confirm deletion?" : "¿Confirmás el borrado?"}
                 </Typography>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.65 }}>
-                  Esta acción <strong>no se puede deshacer</strong>. El plan y todo su progreso se eliminarán permanentemente.
+                  {isUS
+                    ? <>This action <strong>cannot be undone</strong>. The plan and all its progress will be permanently deleted.</>
+                    : <>Esta acción <strong>no se puede deshacer</strong>. El plan y todo su progreso se eliminarán permanentemente.</>}
                 </Typography>
               </Box>
 
@@ -2073,14 +2107,14 @@ const TrainingPage = () => {
                     "&:hover": { bgcolor: "#c73e3d" },
                   }}
                 >
-                  Sí, borrar definitivamente
+                  {isUS ? "Yes, delete permanently" : "Sí, borrar definitivamente"}
                 </Button>
                 <Button
                   fullWidth
                   onClick={() => setDeleteStep(1)}
                   sx={{ py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14, color: "#4A6B67", "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
                 >
-                  ← Volver
+                  {isUS ? "← Back" : "← Volver"}
                 </Button>
               </Stack>
             </>
@@ -2097,10 +2131,10 @@ const TrainingPage = () => {
       >
         <DialogContent sx={{ p: 3 }}>
           <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
-            ¿Qué querés hacer?
+            {isUS ? "What would you like to do?" : "¿Qué querés hacer?"}
           </Typography>
           <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3, lineHeight: 1.6 }}>
-            Ya tenés un plan activo. Podés agregar uno nuevo o reemplazarlo.
+            {isUS ? "You already have an active plan. You can add a new one or replace it." : "Ya tenés un plan activo. Podés agregar uno nuevo o reemplazarlo."}
           </Typography>
 
           <Stack spacing={1.5}>
@@ -2108,9 +2142,13 @@ const TrainingPage = () => {
             {(() => {
               const bothFull   = hasMainPlan && hasQuickPlan;
               const canKeep    = canHaveMultiplePlans && !bothFull;
-              const disabledMsg = !canHaveMultiplePlans
-                ? "Disponible en plan Gold · tu plan Silver permite 1 plan activo"
-                : "Límite alcanzado — ya tenés 2 planes activos";
+              const disabledMsg = isUS
+                ? (!canHaveMultiplePlans
+                    ? "Available on the Gold plan · your Silver plan allows 1 active plan"
+                    : "Limit reached — you already have 2 active plans")
+                : (!canHaveMultiplePlans
+                    ? "Disponible en plan Gold · tu plan Silver permite 1 plan activo"
+                    : "Límite alcanzado — ya tenés 2 planes activos");
 
               return canKeep ? (
                 <Box
@@ -2127,10 +2165,10 @@ const TrainingPage = () => {
                     <AssignmentRoundedIcon sx={{ fontSize: 22, lineHeight: 1, mt: 0.2, color: "#0B5E55" }} />
                     <Box>
                       <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#0B5E55", mb: 0.3 }}>
-                        Mantener el actual + crear uno nuevo
+                        {isUS ? "Keep the current one + create a new one" : "Mantener el actual + crear uno nuevo"}
                       </Typography>
                       <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.5 }}>
-                        Tu progreso actual se conserva. Vas a tener dos planes activos en simultáneo.
+                        {isUS ? "Your current progress stays intact. You'll have two active plans at once." : "Tu progreso actual se conserva. Vas a tener dos planes activos en simultáneo."}
                       </Typography>
                     </Box>
                   </Stack>
@@ -2141,7 +2179,7 @@ const TrainingPage = () => {
                     <AssignmentRoundedIcon sx={{ fontSize: 22, lineHeight: 1, mt: 0.2, color: "#888" }} />
                     <Box>
                       <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#888", mb: 0.3 }}>
-                        Mantener el actual + crear uno nuevo
+                        {isUS ? "Keep the current one + create a new one" : "Mantener el actual + crear uno nuevo"}
                       </Typography>
                       <Typography sx={{ fontSize: 12.5, color: "#999", lineHeight: 1.5 }}>
                         {disabledMsg}
@@ -2150,7 +2188,7 @@ const TrainingPage = () => {
                         <Stack direction="row" spacing={0.4} alignItems="center" mt={0.5}>
                           <StarRoundedIcon sx={{ fontSize: 14, color: "#C9952A" }} />
                           <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: "#C9952A" }}>
-                            Disponible en Gold
+                            {isUS ? "Available on Gold" : "Disponible en Gold"}
                           </Typography>
                         </Stack>
                       )}
@@ -2175,10 +2213,10 @@ const TrainingPage = () => {
                 <LoopRoundedIcon sx={{ fontSize: 22, lineHeight: 1, mt: 0.2, color: "#E24B4A" }} />
                 <Box>
                   <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#E24B4A", mb: 0.3 }}>
-                    Generar uno nuevo y borrar el actual
+                    {isUS ? "Generate a new one and delete the current one" : "Generar uno nuevo y borrar el actual"}
                   </Typography>
                   <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.5 }}>
-                    Se pierde el progreso del plan actual. No se puede deshacer.
+                    {isUS ? "You'll lose the current plan's progress. This can't be undone." : "Se pierde el progreso del plan actual. No se puede deshacer."}
                   </Typography>
                 </Box>
               </Stack>
@@ -2188,7 +2226,7 @@ const TrainingPage = () => {
               onClick={() => setShowNewPlanDialog(false)}
               sx={{ textTransform: "none", color: "#8AADAA", fontWeight: 600, fontSize: 13.5, py: 0.8, borderRadius: 2 }}
             >
-              Cancelar
+              {isUS ? "Cancel" : "Cancelar"}
             </Button>
           </Stack>
         </DialogContent>
@@ -2209,10 +2247,12 @@ const TrainingPage = () => {
               })()}
             </Box>
             <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
-              ¿Registrar esta sesión?
+              {isUS ? "Log this session?" : "¿Registrar esta sesión?"}
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.65 }}>
-              Una vez registrada <strong>no podrás editarla</strong>. Se guardarán tus datos, sumarás puntos y recibirás un email de seguimiento.
+              {isUS
+                ? <>Once logged <strong>you won't be able to edit it</strong>. Your data will be saved, you'll earn points, and you'll get a follow-up email.</>
+                : <>Una vez registrada <strong>no podrás editarla</strong>. Se guardarán tus datos, sumarás puntos y recibirás un email de seguimiento.</>}
             </Typography>
           </Box>
           <Stack spacing={1}>
@@ -2226,20 +2266,20 @@ const TrainingPage = () => {
                 "&:hover": { transform: "translateY(-1px)" }, transition: "all 0.2s",
               }}
             >
-              Sí, registrar sesión
+              {isUS ? "Yes, log session" : "Sí, registrar sesión"}
             </Button>
             <Button
               fullWidth onClick={() => setConfirmRegister(false)}
               sx={{ py: 1.2, borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 14, color: "#4A6B67", "&:hover": { bgcolor: "rgba(0,0,0,0.04)" } }}
             >
-              Cancelar
+              {isUS ? "Cancel" : "Cancelar"}
             </Button>
           </Stack>
         </DialogContent>
       </Dialog>
 
       <Snackbar open={!!snackMsg} autoHideDuration={2800} onClose={() => setSnackMsg("")} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert onClose={() => setSnackMsg("")} severity={snackMsg.includes("pudo") || snackMsg.includes("ingresá") ? "warning" : "success"} variant="filled" sx={{ borderRadius: 3, fontWeight: 700 }}>
+        <Alert onClose={() => setSnackMsg("")} severity={snackMsg.includes("pudo") || snackMsg.includes("ingresá") || snackMsg.includes("Couldn't") || snackMsg.includes("Enter at least") ? "warning" : "success"} variant="filled" sx={{ borderRadius: 3, fontWeight: 700 }}>
           {snackMsg}
         </Alert>
       </Snackbar>
@@ -2300,7 +2340,7 @@ const TrainingPage = () => {
                     </Typography>
                   </Stack>
                   <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px" }}>
-                    ¡Sesión completada!
+                    {isUS ? "Session completed!" : "¡Sesión completada!"}
                   </Typography>
                 </Box>
 
@@ -2320,7 +2360,7 @@ const TrainingPage = () => {
                       +{sessionSuccess.earned}
                     </Typography>
                     <Typography sx={{ fontSize: 15, fontWeight: 800, color: sessionSuccess.tipoColor, mt: -0.5, letterSpacing: "-0.2px" }}>
-                      puntos saludables
+                      {isUS ? "healthy points" : "puntos saludables"}
                     </Typography>
                   </Box>
 
@@ -2332,14 +2372,14 @@ const TrainingPage = () => {
                     border:  `1px solid ${sessionSuccess.tipoColor}25`,
                     display: "inline-flex", alignItems: "center", gap: 1,
                   }}>
-                    <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#4A6B67" }}>Total:</Typography>
+                    <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#4A6B67" }}>{isUS ? "Total:" : "Total:"}</Typography>
                     <Typography sx={{ fontSize: 16, fontWeight: 900, color: sessionSuccess.tipoColor }}>
                       {sessionSuccess.total} pts
                     </Typography>
                   </Box>
 
                   <Typography sx={{ fontSize: 12, color: "#B0CECA", mt: 3 }}>
-                    Tocá para continuar
+                    {isUS ? "Tap to continue" : "Tocá para continuar"}
                   </Typography>
                 </Box>
               </Paper>
@@ -2355,16 +2395,20 @@ const TrainingPage = () => {
           <Box sx={{ textAlign: "center", mb: 2 }}>
             <DeleteOutlineRoundedIcon sx={{ fontSize: 28, mb: 1, color: "#E24B4A" }} />
             <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1 }}>
-              ¿Eliminar este ejercicio?
+              {isUS ? "Delete this exercise?" : "¿Eliminar este ejercicio?"}
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6, mb: 1.5 }}>
-              Vas a quitar <strong>"{confirmDelete?.name}"</strong> de tu plan.
+              {isUS
+                ? <>You'll remove <strong>"{confirmDelete?.name}"</strong> from your plan.</>
+                : <>Vas a quitar <strong>"{confirmDelete?.name}"</strong> de tu plan.</>}
             </Typography>
             <Box sx={{ px: 2, py: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1px solid #B2DDD9" }}>
               <Stack direction="row" spacing={0.7} alignItems="flex-start">
                 <LightbulbRoundedIcon sx={{ fontSize: 14, mt: 0.2, flexShrink: 0, color: "#0B5E55" }} />
                 <Typography sx={{ fontSize: 12.5, color: "#0B5E55", lineHeight: 1.6 }}>
-                  Podés volver a agregarlo cuando quieras con el botón <strong>"Agregar ejercicio"</strong>. Se generará una nueva imagen y guía automáticamente.
+                  {isUS
+                    ? <>You can add it back anytime with the <strong>"Add exercise"</strong> button. A new image and guide will be generated automatically.</>
+                    : <>Podés volver a agregarlo cuando quieras con el botón <strong>"Agregar ejercicio"</strong>. Se generará una nueva imagen y guía automáticamente.</>}
                 </Typography>
               </Stack>
             </Box>
@@ -2373,14 +2417,14 @@ const TrainingPage = () => {
             <Button onClick={() => setConfirmDelete(null)} fullWidth
               sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67",
                 border: "1px solid rgba(11,94,85,0.20)" }}>
-              Cancelar
+              {isUS ? "Cancel" : "Cancelar"}
             </Button>
             <Button
               onClick={() => { deleteExercise(confirmDelete.dayKey, confirmDelete.index); setConfirmDelete(null); }}
               variant="contained" fullWidth
               sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700,
                 bgcolor: "#E24B4A", "&:hover": { bgcolor: "#C0392B" } }}>
-              Sí, eliminar
+              {isUS ? "Yes, delete" : "Sí, eliminar"}
             </Button>
           </Stack>
         </DialogContent>
@@ -2395,11 +2439,13 @@ const TrainingPage = () => {
           {addStep === "browse" && (
             <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
               <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1.5 }}>
-                {addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio"}
+                {isUS
+                  ? (addManualOpen?.index !== null ? "Replace exercise" : "Add exercise")
+                  : (addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio")}
               </Typography>
 
               {/* Buscador (filtra cliente) */}
-              <TextField fullWidth size="small" placeholder="Buscar en el catálogo..."
+              <TextField fullWidth size="small" placeholder={isUS ? "Search the catalog..." : "Buscar en el catálogo..."}
                 value={exSearchQuery}
                 onChange={(e) => setExSearchQuery(e.target.value)}
                 InputProps={{ startAdornment: <SearchRoundedIcon sx={{ fontSize: 18, color: "#8AADAA", mr: 0.5 }} /> }}
@@ -2419,7 +2465,9 @@ const TrainingPage = () => {
                     : addCatalogExercises;
                   if (!list.length) return (
                     <Typography sx={{ fontSize: 13, color: "#8AADAA", textAlign: "center", py: 4 }}>
-                      {q ? "Sin resultados" : "No hay ejercicios disponibles"}
+                      {isUS
+                        ? (q ? "No results" : "No exercises available")
+                        : (q ? "Sin resultados" : "No hay ejercicios disponibles")}
                     </Typography>
                   );
                   return list.map((ex, idx) => (
@@ -2444,7 +2492,7 @@ const TrainingPage = () => {
 
               <Button onClick={() => { setAddManualOpen(null); setExSearchQuery(""); setAddStep("browse"); }} fullWidth
                 sx={{ mt: 1.5, borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
-                Cancelar
+                {isUS ? "Cancel" : "Cancelar"}
               </Button>
             </Box>
           )}
@@ -2468,17 +2516,17 @@ const TrainingPage = () => {
 
               <Stack spacing={1.5}>
                 <Stack direction="row" spacing={1.5}>
-                  <TextField label="Series" value={manualForm.sets} size="small" type="number"
+                  <TextField label={isUS ? "Sets" : "Series"} value={manualForm.sets} size="small" type="number"
                     onChange={(e) => setManualForm(p => ({ ...p, sets: e.target.value }))}
                     sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
                   <TextField label="Reps" value={manualForm.reps} size="small"
                     onChange={(e) => setManualForm(p => ({ ...p, reps: e.target.value }))}
                     sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
-                  <TextField label="Descanso" value={manualForm.rest} size="small"
+                  <TextField label={isUS ? "Rest" : "Descanso"} value={manualForm.rest} size="small"
                     onChange={(e) => setManualForm(p => ({ ...p, rest: e.target.value }))}
                     sx={{ flex: 1.5, "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
                 </Stack>
-                <TextField label="Notas (opcional)" value={manualForm.notes} fullWidth size="small" multiline rows={2}
+                <TextField label={isUS ? "Notes (optional)" : "Notas (opcional)"} value={manualForm.notes} fullWidth size="small" multiline rows={2}
                   onChange={(e) => setManualForm(p => ({ ...p, notes: e.target.value }))}
                   sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }} />
               </Stack>
@@ -2486,7 +2534,7 @@ const TrainingPage = () => {
               <Stack direction="row" spacing={1.5} mt={2.5}>
                 <Button onClick={() => setAddStep("browse")} fullWidth
                   sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, color: "#4A6B67", border: "1px solid rgba(11,94,85,0.20)" }}>
-                  ← Volver
+                  {isUS ? "← Back" : "← Volver"}
                 </Button>
                 <Button
                   onClick={() => {
@@ -2495,7 +2543,7 @@ const TrainingPage = () => {
                   }}
                   disabled={!manualForm.name.trim()} variant="contained" fullWidth
                   sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 700, bgcolor: activeTipo?.color || "#0B5E55", "&:hover": { filter: "brightness(0.9)" } }}>
-                  Guardar
+                  {isUS ? "Save" : "Guardar"}
                 </Button>
               </Stack>
             </Box>
@@ -2509,8 +2557,8 @@ const TrainingPage = () => {
         <DialogContent sx={{ p: 3 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Box>
-              <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#0F2420" }}>Elegí un reemplazo</Typography>
-              <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>para "{similarOpen?.exerciseName}"</Typography>
+              <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#0F2420" }}>{isUS ? "Choose a replacement" : "Elegí un reemplazo"}</Typography>
+              <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{isUS ? `for "${similarOpen?.exerciseName}"` : `para "${similarOpen?.exerciseName}"`}</Typography>
             </Box>
             <IconButton size="small" onClick={() => { setSimilarOpen(null); setSimilarOptions([]); }}>
               <CloseRoundedIcon fontSize="small" sx={{ color: "#8AADAA" }} />
@@ -2520,13 +2568,13 @@ const TrainingPage = () => {
           {similarLoading && (
             <Box sx={{ py: 4, textAlign: "center" }}>
               <CircularProgress size={28} sx={{ color: "#0B5E55" }} />
-              <Typography sx={{ fontSize: 12, color: "#8AADAA", mt: 1 }}>Buscando ejercicios similares...</Typography>
+              <Typography sx={{ fontSize: 12, color: "#8AADAA", mt: 1 }}>{isUS ? "Searching for similar exercises..." : "Buscando ejercicios similares..."}</Typography>
             </Box>
           )}
 
           {!similarLoading && similarOptions.length === 0 && (
             <Typography sx={{ fontSize: 13, color: "#8AADAA", textAlign: "center", py: 3 }}>
-              No se encontraron ejercicios similares en la base de datos.
+              {isUS ? "No similar exercises found in the database." : "No se encontraron ejercicios similares en la base de datos."}
             </Typography>
           )}
 
@@ -2597,8 +2645,8 @@ const TrainingPage = () => {
                   const esSegmentoCarrera = fullscreenEx.isRunning &&
                     RITMOS.some(r => String(fullscreenEx.reps).toLowerCase().includes(r));
                   return [
-                    { label: esSegmentoCarrera ? `${fullscreenEx.sets} km` : `${fullscreenEx.sets} series`, Icon: LoopRoundedIcon },
-                    { label: esSegmentoCarrera ? `Ritmo: ${fullscreenEx.reps}` : fullscreenEx.reps, Icon: FitnessCenterRoundedIcon },
+                    { label: esSegmentoCarrera ? `${fullscreenEx.sets} km` : (isUS ? `${fullscreenEx.sets} sets` : `${fullscreenEx.sets} series`), Icon: LoopRoundedIcon },
+                    { label: esSegmentoCarrera ? (isUS ? `Pace: ${fullscreenEx.reps}` : `Ritmo: ${fullscreenEx.reps}`) : fullscreenEx.reps, Icon: FitnessCenterRoundedIcon },
                     { label: fullscreenEx.rest, Icon: AccessTimeRoundedIcon },
                   ];
                 })().map(({ label, Icon }, i) => (
@@ -2623,7 +2671,7 @@ const TrainingPage = () => {
                       animation: "spin 0.8s linear infinite",
                       "@keyframes spin": { to: { transform: "rotate(360deg)" } } }} />
                     <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.4)" }}>
-                      Generando descripción…
+                      {isUS ? "Generating description…" : "Generando descripción…"}
                     </Typography>
                   </Box>
                 );
@@ -2633,7 +2681,7 @@ const TrainingPage = () => {
                     <Box>
                       <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "rgba(255,255,255,0.35)",
                         textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.5 }}>
-                        Músculos
+                        {isUS ? "Muscles" : "Músculos"}
                       </Typography>
                       <Typography sx={{ fontSize: 13.5, color: "#C8E6E3", lineHeight: 1.5 }}>
                         {desc.muscles}
@@ -2643,7 +2691,7 @@ const TrainingPage = () => {
                       bgcolor: "rgba(11,94,85,0.20)", border: "1px solid rgba(11,94,85,0.35)" }}>
                       <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "rgba(255,255,255,0.35)",
                         textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.6 }}>
-                        Cómo hacerlo
+                        {isUS ? "How to do it" : "Cómo hacerlo"}
                       </Typography>
                       <Typography sx={{ fontSize: 13.5, color: "#A8D5CE", lineHeight: 1.65 }}>
                         {desc.execution}

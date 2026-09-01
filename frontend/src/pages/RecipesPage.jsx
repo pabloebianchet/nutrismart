@@ -309,7 +309,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
 // ni el `lang` mandado a los endpoints de IA muestren mezcla de idiomas en
 // producción. Cuando se termine de traducir todo el archivo, cambiar a
 // `true` — el resto del código no necesita tocarse.
-const TRANSLATION_COMPLETE = false;
+const TRANSLATION_COMPLETE = true;
 
 const RecipesPage = () => {
   const { userData, isUS: isUSReal } = useNutrition();
@@ -846,7 +846,7 @@ const RecipesPage = () => {
                           { Icon: AccessTimeRoundedIcon, label: detail.time },
                           { Icon: BarChartRoundedIcon, label: detail.difficulty },
                           { Icon: LocalFireDepartmentRoundedIcon, label: detail.calories },
-                          { Icon: RestaurantRoundedIcon, label: `${detail.servings} porción${detail.servings > 1 ? "es" : ""}` },
+                          { Icon: RestaurantRoundedIcon, label: isUS ? `${detail.servings} serving${detail.servings > 1 ? "s" : ""}` : `${detail.servings} porción${detail.servings > 1 ? "es" : ""}` },
                         ].map((c) => (
                           <Chip key={c.label} icon={<c.Icon sx={{ fontSize: "15px !important" }} />} label={c.label} size="small"
                             sx={{ bgcolor: "#fff", border: "1px solid rgba(11,94,85,0.14)", fontWeight: 600, fontSize: 12.5, color: "#4A6B67" }} />
@@ -874,7 +874,7 @@ const RecipesPage = () => {
                                 animation: "pulse 1.4s ease-in-out infinite" }} />
                               <Box sx={{ textAlign: "center" }}>
                                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#0B5E55" }}>
-                                  Generando imagen del plato
+                                  {isUS ? "Generating the dish's image" : "Generando imagen del plato"}
                                 </Typography>
                                 <Stack direction="row" spacing={0.5} justifyContent="center" mt={0.5}>
                                   {[0,1,2].map((i) => (
@@ -903,7 +903,7 @@ const RecipesPage = () => {
                     {/* Ingredients */}
                     <Box sx={{ px: 3, py: 2.5 }}>
                       <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
-                        Ingredientes
+                        {isUS ? "Ingredients" : "Ingredientes"}
                       </Typography>
                       <Stack spacing={0.9}>
                         {detail.ingredients?.map((ing, i) => (
@@ -940,7 +940,9 @@ const RecipesPage = () => {
                       transition: "all 0.3s ease",
                     }}
                   >
-                    {addedToList ? "✓ Ingredientes agregados a tu lista" : "Agregar ingredientes a mi lista"}
+                    {addedToList
+                      ? (isUS ? "✓ Ingredients added to your list" : "✓ Ingredientes agregados a tu lista")
+                      : (isUS ? "Add ingredients to my list" : "Agregar ingredientes a mi lista")}
                   </Button>
                 </motion.div>
 
@@ -975,11 +977,13 @@ const RecipesPage = () => {
                         transition: "all 0.2s ease",
                       }}
                     >
-                      {isSaved ? "Guardada ✓" : "Guardar"}
+                      {isSaved
+                        ? (isUS ? "Saved ✓" : "Guardada ✓")
+                        : (isUS ? "Save" : "Guardar")}
                     </Button>
 
                     {/* Share icons */}
-                    <ShareIcons recipe={detail} onCopy={() => handleCopy(detail)} onInstagram={() => handleInstagram(detail)} />
+                    <ShareIcons recipe={detail} onCopy={() => handleCopy(detail)} onInstagram={() => handleInstagram(detail)} isUS={isUS} />
                   </Stack>
                 </motion.div>
 
@@ -1002,7 +1006,7 @@ const RecipesPage = () => {
                           transition: "all 0.25s ease",
                         }}
                       >
-                        ¡Vamos!
+                        {isUS ? "Let's go!" : "¡Vamos!"}
                       </Button>
                     </motion.div>
                   ) : (
@@ -1013,7 +1017,7 @@ const RecipesPage = () => {
                       }}>
                         <Box sx={{ px: 3, py: 2, bgcolor: "#f7fcfa", borderBottom: "1px solid rgba(11,94,85,0.08)" }}>
                           <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#0B5E55", textTransform: "uppercase", letterSpacing: "0.09em" }}>
-                            Preparación paso a paso
+                            {isUS ? "Step-by-step instructions" : "Preparación paso a paso"}
                           </Typography>
                         </Box>
                         <Box sx={{ px: 3, py: 2.5 }}>
@@ -1071,7 +1075,7 @@ const RecipesPage = () => {
                           "&:hover": { bgcolor: "rgba(11,94,85,0.05)", borderColor: "#0B5E55" },
                         }}
                       >
-                        Nueva receta
+                        {isUS ? "New recipe" : "Nueva receta"}
                       </Button>
                     </motion.div>
                   )}
@@ -1093,10 +1097,10 @@ const RecipesPage = () => {
               <Box sx={{ textAlign: "center", py: 10 }}>
                 <BookmarkBorderRoundedIcon sx={{ fontSize: 48, mb: 2, color: "#B2DDD9" }} />
                 <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#0F2420", mb: 1 }}>
-                  Aún no guardaste ninguna receta
+                  {isUS ? "You haven't saved any recipes yet" : "Aún no guardaste ninguna receta"}
                 </Typography>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
-                  Generá una y tocá "Guardar" para verla acá
+                  {isUS ? `Generate one and tap "Save" to see it here` : `Generá una y tocá "Guardar" para verla acá`}
                 </Typography>
                 <Button
                   onClick={() => setActiveTab("create")}
@@ -1107,7 +1111,7 @@ const RecipesPage = () => {
                     boxShadow: "0 6px 20px rgba(11,94,85,0.28)",
                   }}
                 >
-                  Crear receta
+                  {isUS ? "Create recipe" : "Crear receta"}
                 </Button>
               </Box>
             ) : (
@@ -1127,6 +1131,7 @@ const RecipesPage = () => {
                       onCopy={() => handleCopy(recipe)}
                       onInstagram={() => handleInstagram(recipe)}
                       deleting={deletingId === recipe._id}
+                      isUS={isUS}
                     />
                   </motion.div>
                 ))}

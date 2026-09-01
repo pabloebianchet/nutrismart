@@ -7,11 +7,11 @@ const getMood = (points) => {
 };
 
 export const MOOD_META = {
-  ecstatic: { label: "¡Increíble!",  color: "#F5B800" },
-  happy:    { label: "¡Muy bien!",   color: "#2ECC71" },
-  neutral:  { label: "Bien",         color: "#7ECEC4" },
-  sad:      { label: "Mejorable",    color: "#F39C12" },
-  exhausted:{ label: "¡A moverse!",  color: "#E24B4A" },
+  ecstatic: { label: "¡Increíble!",  labelEn: "Amazing!",     color: "#F5B800" },
+  happy:    { label: "¡Muy bien!",   labelEn: "Doing great!", color: "#2ECC71" },
+  neutral:  { label: "Bien",         labelEn: "Good",         color: "#7ECEC4" },
+  sad:      { label: "Mejorable",    labelEn: "Room to grow", color: "#F39C12" },
+  exhausted:{ label: "¡A moverse!",  labelEn: "Let's move!",  color: "#E24B4A" },
 };
 
 /* ── Brazos — se renderizan ANTES del cuerpo para que el cuerpo tape la unión ── */

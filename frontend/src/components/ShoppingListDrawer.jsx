@@ -22,9 +22,15 @@ import DeleteSweepRoundedIcon   from "@mui/icons-material/DeleteSweepRounded";
 import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatItemLabel, parseIngredient, mergeIngredients, fetchListFromServer, saveList } from "../utils/shoppingList";
+import { useNutrition } from "../context/NutritionContext";
+
+const TRANSLATION_COMPLETE = true;
 
 /* ─── FAB flotante ──────────────────────────────────────────────────────────── */
-export const ShoppingFab = ({ count, onClick }) => (
+export const ShoppingFab = ({ count, onClick }) => {
+  const { isUS: isUSReal } = useNutrition();
+  const isUS = TRANSLATION_COMPLETE && isUSReal;
+  return (
   <Box
     onClick={onClick}
     sx={{
@@ -69,16 +75,17 @@ export const ShoppingFab = ({ count, onClick }) => (
         >
           <ShoppingCartRoundedIcon sx={{ fontSize: 20 }} />
           <Typography sx={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.2px" }}>
-            Mi lista
+            {isUS ? "My list" : "Mi lista"}
           </Typography>
         </Box>
       </Badge>
     </motion.div>
   </Box>
-);
+  );
+};
 
 /* ─── Ítem individual (orden estable, sin saltos) ───────────────────────────── */
-const ListItem = ({ item, onChange, onRemove }) => (
+const ListItem = ({ item, onChange, onRemove, isUS }) => (
   <motion.div
     layout="position"
     initial={{ opacity: 0, y: -6 }}
@@ -128,7 +135,7 @@ const ListItem = ({ item, onChange, onRemove }) => (
           </Typography>
         )}
       </Box>
-      <Tooltip title="Quitar">
+      <Tooltip title={isUS ? "Remove" : "Quitar"}>
         <IconButton
           size="small"
           onClick={() => onRemove(item._id)}
@@ -148,6 +155,8 @@ const ListItem = ({ item, onChange, onRemove }) => (
 
 /* ─── Drawer principal ──────────────────────────────────────────────────────── */
 const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
+  const { isUS: isUSReal } = useNutrition();
+  const isUS = TRANSLATION_COMPLETE && isUSReal;
   const [confirmClear, setConfirmClear] = useState(false);
   const [newItem,      setNewItem]      = useState("");
   const inputRef = useRef(null);
@@ -227,15 +236,17 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
             <Stack direction="row" spacing={1} alignItems="center" mb={0.3}>
               <ShoppingCartRoundedIcon sx={{ fontSize: 21 }} />
               <Typography sx={{ fontSize: 19, fontWeight: 900, letterSpacing: "-0.4px" }}>
-                Mi lista de compras
+                {isUS ? "My shopping list" : "Mi lista de compras"}
               </Typography>
             </Stack>
             <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.68)" }}>
               {items.length === 0
-                ? "Agregá ingredientes desde tus recetas o manualmente"
+                ? (isUS ? "Add ingredients from your recipes or manually" : "Agregá ingredientes desde tus recetas o manualmente")
                 : pending > 0
-                  ? `${pending} pendiente${pending > 1 ? "s" : ""} · ${completed} comprado${completed !== 1 ? "s" : ""}`
-                  : "¡Todo listo! ✓"}
+                  ? (isUS
+                      ? `${pending} pending · ${completed} bought`
+                      : `${pending} pendiente${pending > 1 ? "s" : ""} · ${completed} comprado${completed !== 1 ? "s" : ""}`)
+                  : (isUS ? "All done! ✓" : "¡Todo listo! ✓")}
             </Typography>
           </Box>
           <IconButton
@@ -284,7 +295,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
           inputRef={inputRef}
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
-          placeholder="Agregar item (ej: 3 huevos, leche…)"
+          placeholder={isUS ? "Add item (e.g. 3 eggs, milk…)" : "Agregar item (ej: 3 huevos, leche…)"}
           size="small"
           fullWidth
           InputProps={{
@@ -325,11 +336,16 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
           <Box sx={{ textAlign: "center", py: 6 }}>
             <Typography sx={{ fontSize: 48, mb: 1.5 }}>🛒</Typography>
             <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#0F2420", mb: 0.5 }}>
-              La lista está vacía
+              {isUS ? "Your list is empty" : "La lista está vacía"}
             </Typography>
             <Typography sx={{ fontSize: 13, color: "#6B8C88", lineHeight: 1.6 }}>
-              Escribí un item arriba o generá una receta<br />
-              y tocá <strong>"Agregar a mi lista"</strong>
+              {isUS ? (
+                <>Type an item above or generate a recipe<br />
+                and tap <strong>"Add to my list"</strong></>
+              ) : (
+                <>Escribí un item arriba o generá una receta<br />
+                y tocá <strong>"Agregar a mi lista"</strong></>
+              )}
             </Typography>
           </Box>
         ) : (
@@ -340,6 +356,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
                 item={item}
                 onChange={handleToggle}
                 onRemove={handleRemove}
+                isUS={isUS}
               />
             ))}
           </AnimatePresence>
@@ -376,7 +393,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
                   "&:hover": { bgcolor: "rgba(11,94,85,0.12)" },
                 }}
               >
-                Quitar comprados ({completed})
+                {isUS ? `Remove bought (${completed})` : `Quitar comprados (${completed})`}
               </Button>
             )}
 
@@ -394,7 +411,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
                   "&:hover": { color: "#E57373", bgcolor: "rgba(229,115,115,0.06)" },
                 }}
               >
-                Vaciar lista
+                {isUS ? "Clear list" : "Vaciar lista"}
               </Button>
             ) : (
               <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
@@ -408,7 +425,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
                       mb: 1,
                     }}
                   >
-                    ¿Vaciar toda la lista?
+                    {isUS ? "Clear the entire list?" : "¿Vaciar toda la lista?"}
                   </Typography>
                   <Stack direction="row" spacing={1}>
                     <Button
@@ -424,7 +441,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
                         "&:hover": { bgcolor: "rgba(11,94,85,0.10)" },
                       }}
                     >
-                      Cancelar
+                      {isUS ? "Cancel" : "Cancelar"}
                     </Button>
                     <Button
                       fullWidth
@@ -439,7 +456,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
                         "&:hover": { bgcolor: "#C0392B" },
                       }}
                     >
-                      Sí, vaciar
+                      {isUS ? "Yes, clear it" : "Sí, vaciar"}
                     </Button>
                   </Stack>
                 </Box>

@@ -54,12 +54,7 @@ import { loadList, saveList, parseIngredient, mergeIngredients, formatItemLabel 
 import useRealtimeSync           from "../hooks/useRealtimeSync";
 import { getSocket, getSocketId } from "../config/socket";
 
-// Traducción a inglés todavía incompleta en este archivo — hasta que esté
-// terminada, forzamos español siempre (isUS real solo se usa para lo que
-// no es texto, ej. lang enviado a endpoints de IA) para no mostrar mezcla
-// de idiomas en producción. Cuando se termine de traducir todo el archivo,
-// cambiar a `true` y usar `isUS` normalmente en los ternarios de texto.
-const TRANSLATION_COMPLETE = false;
+const TRANSLATION_COMPLETE = true;
 
 /* ────────────────────────────────────────────
    Paleta y tokens de diseño
@@ -158,7 +153,7 @@ const StatPill = ({ label, value, icon: Icon, accent }) => (
 const ScoreBadge = ({ score }) => {
   const { isUS } = useNutrition();
   const color = score >= 75 ? C.success : score >= 50 ? C.accentWarm : C.danger;
-  const label = (isUS && TRANSLATION_COMPLETE)
+  const label = isUS
     ? (score >= 75 ? "Great" : score >= 50 ? "Fair" : "Needs work")
     : (score >= 75 ? "Excelente" : score >= 50 ? "Regular" : "Mejorar");
   return (
@@ -174,17 +169,23 @@ const ScoreBadge = ({ score }) => {
 const getScoreColor = (s) =>
   s >= 75 ? C.success : s >= 50 ? C.accentWarm : C.danger;
 
-const getScoreLabel = (s) =>
+const getScoreLabel = (s, isUS) => isUS ? (
+  s >= 90 ? "Excellent" :
+  s >= 75 ? "Healthy" :
+  s >= 60 ? "Acceptable" :
+  s >= 45 ? "Could improve" : "Avoid"
+) : (
   s >= 90 ? "Excelente" :
   s >= 75 ? "Saludable" :
   s >= 60 ? "Aceptable" :
-  s >= 45 ? "Mejorable" : "A evitar";
+  s >= 45 ? "Mejorable" : "A evitar"
+);
 
-const getProcessingBadge = (text) => {
+const getProcessingBadge = (text, isUS) => {
   const l = (text || "").toLowerCase();
-  if (l.includes("ultraprocesado")) return { label: "Ultraprocesado", color: "#B71C1C" };
-  if (l.includes("no procesado"))   return { label: "No procesado",   color: C.success   };
-  if (l.includes("procesado"))      return { label: "Procesado",      color: "#E65100"   };
+  if (l.includes("ultraprocesado")) return { label: isUS ? "Ultra-processed" : "Ultraprocesado", color: "#B71C1C" };
+  if (l.includes("no procesado"))   return { label: isUS ? "Unprocessed" : "No procesado",   color: C.success   };
+  if (l.includes("procesado"))      return { label: isUS ? "Processed" : "Procesado",      color: "#E65100"   };
   return null;
 };
 
@@ -200,14 +201,20 @@ const parseAnalysisText = (text) => {
   return { classification, explanation: parts[0] || after, guidance: parts.slice(1).join(" ") };
 };
 
-const getPreview = (text) => {
-  if (!text) return "Sin descripción";
+const sexoLabel = (v, isUS) =>
+  isUS ? ({ Femenino: "Female", Masculino: "Male", Otro: "Other" }[v] || v) : v;
+
+const actividadLabel = (v, isUS) =>
+  isUS ? ({ Nula: "None", Moderada: "Moderate", Intensa: "Intense", Profesional: "Professional" }[v] || v) : v;
+
+const getPreview = (text, isUS) => {
+  if (!text) return isUS ? "No description" : "Sin descripción";
   const scoreIdx = text.toLowerCase().indexOf("puntaje global");
   const raw = scoreIdx > 0 ? text.slice(0, scoreIdx).trim() : text.split("\n")[0].trim();
   return raw.length > 90 ? raw.slice(0, 90) + "…" : raw || text.slice(0, 90);
 };
 
-const groupByDate = (items) => {
+const groupByDate = (items, isUS) => {
   const now   = new Date();
   const today = new Date(now); today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
@@ -219,10 +226,10 @@ const groupByDate = (items) => {
     return its.length ? { label, items: its } : null;
   };
   return [
-    make("Hoy",          (i) => new Date(i.createdAt) >= today),
-    make("Ayer",         (i) => { const d = new Date(i.createdAt); return d >= yesterday && d < today; }),
-    make("Esta semana",  (i) => { const d = new Date(i.createdAt); return d >= weekAgo && d < yesterday; }),
-    make("Anteriores",   (i) => !used.has(i._id)),
+    make(isUS ? "Today" : "Hoy",           (i) => new Date(i.createdAt) >= today),
+    make(isUS ? "Yesterday" : "Ayer",      (i) => { const d = new Date(i.createdAt); return d >= yesterday && d < today; }),
+    make(isUS ? "This week" : "Esta semana", (i) => { const d = new Date(i.createdAt); return d >= weekAgo && d < yesterday; }),
+    make(isUS ? "Earlier" : "Anteriores",  (i) => !used.has(i._id)),
   ].filter(Boolean);
 };
 
@@ -231,12 +238,13 @@ const groupByDate = (items) => {
 const PAGE = 5;
 
 const HistoryList = ({ history, onDelete, formatDateTime }) => {
+  const { isUS } = useNutrition();
   const [expandedId,   setExpandedId]   = useState(null);
   const [visibleCount, setVisibleCount] = useState(PAGE);
 
   const visible = history.slice(0, visibleCount);
   const remaining = history.length - visibleCount;
-  const groups = groupByDate(visible);
+  const groups = groupByDate(visible, isUS);
 
   return (
     <Paper
@@ -260,14 +268,16 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
       >
         <Box>
           <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
-            Historial de análisis
+            {isUS ? "Analysis history" : "Historial de análisis"}
           </Typography>
           <Typography sx={{ fontSize: 12, color: C.textMuted, mt: 0.2 }}>
-            {history.length} análisis · últimos 30 días
+            {isUS
+              ? `${history.length} analyses · last 30 days`
+              : `${history.length} análisis · últimos 30 días`}
           </Typography>
         </Box>
         <Chip
-          label={`Promedio ${Math.round(history.reduce((s, i) => s + (i.score ?? 0), 0) / history.length)}/100`}
+          label={`${isUS ? "Average" : "Promedio"} ${Math.round(history.reduce((s, i) => s + (i.score ?? 0), 0) / history.length)}/100`}
           size="small"
           sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
         />
@@ -289,7 +299,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
             const sc = getScoreColor(score);
             const isExpanded = expandedId === item._id;
             const parsed = isExpanded ? parseAnalysisText(item.analysisText) : null;
-            const badge = isExpanded ? getProcessingBadge(item.analysisText) : null;
+            const badge = isExpanded ? getProcessingBadge(item.analysisText, isUS) : null;
             const isLast = idx === group.items.length - 1 && gi === groups.length - 1;
 
             return (
@@ -337,7 +347,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                         lineHeight: 1.3,
                       }}
                     >
-                      {getPreview(item.analysisText)}
+                      {getPreview(item.analysisText, isUS)}
                     </Typography>
                   </Box>
 
@@ -375,7 +385,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                     {/* Score label + processing badge */}
                     <Stack direction="row" spacing={1} mb={2} flexWrap="wrap">
                       <Chip
-                        label={getScoreLabel(score)}
+                        label={getScoreLabel(score, isUS)}
                         size="small"
                         sx={{ bgcolor: `${sc}15`, color: sc, fontWeight: 700, fontSize: 11.5, border: `1px solid ${sc}30` }}
                       />
@@ -392,7 +402,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                     {parsed?.classification && (
                       <Box mb={1.5}>
                         <Typography sx={{ fontSize: 10, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
-                          Clasificación
+                          {isUS ? "Classification" : "Clasificación"}
                         </Typography>
                         <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
                           {parsed.classification}
@@ -402,7 +412,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                     {parsed?.explanation && (
                       <Box mb={1.5}>
                         <Typography sx={{ fontSize: 10, fontWeight: 800, color: "#1565C0", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
-                          Motivo del puntaje
+                          {isUS ? "Why this score" : "Motivo del puntaje"}
                         </Typography>
                         <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
                           {parsed.explanation}
@@ -412,7 +422,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                     {parsed?.guidance && (
                       <Box>
                         <Typography sx={{ fontSize: 10, fontWeight: 800, color: "#6A1B9A", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.5 }}>
-                          Consejo
+                          {isUS ? "Advice" : "Consejo"}
                         </Typography>
                         <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
                           {parsed.guidance}
@@ -456,9 +466,11 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
               "&:hover": { bgcolor: C.brandSurface },
             }}
           >
-            Ver {Math.min(remaining, PAGE)} análisis más
+            {isUS
+              ? `See ${Math.min(remaining, PAGE)} more analyses`
+              : `Ver ${Math.min(remaining, PAGE)} análisis más`}
             <Typography component="span" sx={{ fontSize: 12, color: C.textMuted, ml: 0.8, fontWeight: 500 }}>
-              ({remaining} restantes)
+              {isUS ? `(${remaining} remaining)` : `(${remaining} restantes)`}
             </Typography>
           </Button>
         </Box>
@@ -471,6 +483,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
    Nudge cruzado entrenamiento ↔ análisis
 ──────────────────────────────────────────── */
 const CrossModuleNudge = ({ historyCount, loading }) => {
+  const { isUS } = useNutrition();
   const navigate = useNavigate();
   const [totalSessions, setTotalSessions] = useState(null); // null = todavía cargando
   const token = localStorage.getItem("nutrismartToken");
@@ -512,10 +525,14 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
             </Box>
             <Box flex={1} minWidth={0}>
               <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
-                ¡Empezá a entrenar para sumar más puntos!
+                {isUS ? "Start training to earn more points!" : "¡Empezá a entrenar para sumar más puntos!"}
               </Typography>
               <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
-                Analizás bien tu alimentación. Cada sesión registrada suma <strong>+5 pts saludables</strong>.
+                {isUS ? (
+                  <>You're doing great with nutrition. Every logged session earns <strong>+5 healthy pts</strong>.</>
+                ) : (
+                  <>Analizás bien tu alimentación. Cada sesión registrada suma <strong>+5 pts saludables</strong>.</>
+                )}
               </Typography>
             </Box>
           </Stack>
@@ -530,7 +547,7 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
               "&:hover": { bgcolor: "rgba(191,54,12,0.06)", borderColor: "#BF360C" },
             }}
           >
-            Ver planes de entrenamiento →
+            {isUS ? "View training plans →" : "Ver planes de entrenamiento →"}
           </Button>
         </Box>
       </Paper>
@@ -559,10 +576,14 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
             </Box>
             <Box flex={1} minWidth={0}>
               <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: "#0F2420", mb: 0.2, lineHeight: 1.3 }}>
-                ¡Analizá tus alimentos para potenciar tus resultados!
+                {isUS ? "Analyze your food to boost your results!" : "¡Analizá tus alimentos para potenciar tus resultados!"}
               </Typography>
               <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.45 }}>
-                Estás entrenando bien. Cada análisis con puntaje ≥ 50/100 suma <strong>+5 pts saludables</strong>.
+                {isUS ? (
+                  <>You're training well. Every analysis scoring ≥ 50/100 earns <strong>+5 healthy pts</strong>.</>
+                ) : (
+                  <>Estás entrenando bien. Cada análisis con puntaje ≥ 50/100 suma <strong>+5 pts saludables</strong>.</>
+                )}
               </Typography>
             </Box>
           </Stack>
@@ -577,7 +598,7 @@ const CrossModuleNudge = ({ historyCount, loading }) => {
               "&:hover": { bgcolor: "rgba(11,94,85,0.06)", borderColor: "#0B5E55" },
             }}
           >
-            Analizar un producto ahora →
+            {isUS ? "Analyze a product now →" : "Analizar un producto ahora →"}
           </Button>
         </Box>
       </Paper>
@@ -599,6 +620,7 @@ const TIPO_META = {
 
 /* ── Sub-card de un plan individual ── */
 const PlanCard = ({ data, planType = "main", navigate }) => {
+  const { isUS } = useNutrition();
   const cfg       = data.config || {};
   const plan      = data.plan   || {};
   const elapsed   = Math.floor((Date.now() - new Date(data.startDate)) / 86400000);
@@ -648,11 +670,11 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
             sx={{ height: 18, fontSize: 10.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
         )}
         {total > 1 && (
-          <Chip label={`Sem. ${week}`} size="small"
+          <Chip label={isUS ? `Wk ${week}` : `Sem. ${week}`} size="small"
             sx={{ height: 18, fontSize: 10.5, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
         )}
         {sessCount > 0 && (
-          <Chip label={`${sessCount} sesión${sessCount > 1 ? "es" : ""}`} size="small"
+          <Chip label={isUS ? `${sessCount} session${sessCount > 1 ? "s" : ""}` : `${sessCount} sesión${sessCount > 1 ? "es" : ""}`} size="small"
             sx={{ height: 18, fontSize: 10.5, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
         )}
       </Stack>
@@ -662,9 +684,13 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
         <Box>
           <Stack direction="row" justifyContent="space-between" mb={0.5}>
             <Typography sx={{ fontSize: 11, color: "#4A6B67", fontWeight: 600 }}>
-              {sessCount > 0
-                ? `${sessCount} sesión${sessCount > 1 ? "es" : ""} · día ${Math.min(elapsed, total)} de ${total}`
-                : `${Math.min(elapsed, total)} / ${total} días`}
+              {isUS
+                ? (sessCount > 0
+                    ? `${sessCount} session${sessCount > 1 ? "s" : ""} · day ${Math.min(elapsed, total)} of ${total}`
+                    : `${Math.min(elapsed, total)} / ${total} days`)
+                : (sessCount > 0
+                    ? `${sessCount} sesión${sessCount > 1 ? "es" : ""} · día ${Math.min(elapsed, total)} de ${total}`
+                    : `${Math.min(elapsed, total)} / ${total} días`)}
             </Typography>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color }}>
               {pct}%
@@ -695,13 +721,14 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
           transition: "all 0.2s ease",
         }}
       >
-        Continuar →
+        {isUS ? "Continue →" : "Continuar →"}
       </Button>
     </Box>
   );
 };
 
 const EntrenamientoWidget = () => {
+  const { isUS } = useNutrition();
   const navigate = useNavigate();
   const [mainData,      setMainData]      = useState(null);
   const [quickData,     setQuickData]     = useState(null);
@@ -748,20 +775,24 @@ const EntrenamientoWidget = () => {
               <FitnessCenterRoundedIcon sx={{ fontSize: 30, color: "#fff" }} />
               <Box>
                 <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1 }}>
-                  Entrenamiento
+                  {isUS ? "Training" : "Entrenamiento"}
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.55)", mt: 0.2 }}>
-                  Plan personalizado con IA
+                  {isUS ? "AI-personalized plan" : "Plan personalizado con IA"}
                 </Typography>
               </Box>
             </Stack>
 
             <Stack spacing={1.2} mb={3.5}>
-              {[
+              {(isUS ? [
+                "Hypertrophy, Fit and Calisthenics — Gym or Home",
+                "Session tracking with progression",
+                "Weekly AI-personalized tips",
+              ] : [
                 "Hipertrofia, Fit y Calistenia — Gym o Casa",
                 "Seguimiento de sesiones con progresión",
                 "Tips semanales personalizados con IA",
-              ].map((f) => (
+              ]).map((f) => (
                 <Stack key={f} direction="row" spacing={1.2} alignItems="center">
                   <Box sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: "rgba(46,204,113,0.25)", border: "1px solid rgba(46,204,113,0.5)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Typography sx={{ fontSize: 10, color: "#2ECC71" }}>✓</Typography>
@@ -778,7 +809,7 @@ const EntrenamientoWidget = () => {
               "&:hover": { bgcolor: "#edf8f5", boxShadow: "0 8px 28px rgba(0,0,0,0.22)", transform: "translateY(-1px)" },
               transition: "all 0.2s ease",
             }}>
-              Comenzar con un plan de entrenamiento →
+              {isUS ? "Start a training plan →" : "Comenzar con un plan de entrenamiento →"}
             </Button>
           </Box>
         </Box>
@@ -804,15 +835,15 @@ const EntrenamientoWidget = () => {
             <FitnessCenterRoundedIcon sx={{ fontSize: 20, color: C.textPrimary }} />
             <Box>
               <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
-                Planes de entrenamiento
+                {isUS ? "Training plans" : "Planes de entrenamiento"}
               </Typography>
               <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-                Tenés 2 planes activos en simultáneo
+                {isUS ? "You have 2 active plans at once" : "Tenés 2 planes activos en simultáneo"}
               </Typography>
             </Box>
           </Stack>
           <Chip
-            label="2 activos"
+            label={isUS ? "2 active" : "2 activos"}
             size="small"
             sx={{ bgcolor: C.brandSurface, color: C.brand, fontWeight: 700, fontSize: 12, border: `1px solid ${C.brandMuted}` }}
           />
@@ -864,7 +895,7 @@ const EntrenamientoWidget = () => {
               <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
               <FitnessCenterRoundedIcon sx={{ fontSize: 13, color: meta.color }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                Entrenamiento activo
+                {isUS ? "Active training" : "Entrenamiento activo"}
               </Typography>
             </Box>
 
@@ -880,11 +911,13 @@ const EntrenamientoWidget = () => {
                   sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
               )}
               {total > 1 && (
-                <Chip label={`Semana ${week}`} size="small"
+                <Chip label={isUS ? `Week ${week}` : `Semana ${week}`} size="small"
                   sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
               )}
               {sessCount > 0 && (
-                <Chip label={`${sessCount} sesión${sessCount > 1 ? "es" : ""} registrada${sessCount > 1 ? "s" : ""}`} size="small"
+                <Chip label={isUS
+                  ? `${sessCount} session${sessCount > 1 ? "s" : ""} logged`
+                  : `${sessCount} sesión${sessCount > 1 ? "es" : ""} registrada${sessCount > 1 ? "s" : ""}`} size="small"
                   sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
               )}
             </Stack>
@@ -893,10 +926,12 @@ const EntrenamientoWidget = () => {
               <Box>
                 <Stack direction="row" justifyContent="space-between" mb={0.6}>
                   <Typography sx={{ fontSize: 11.5, color: "#4A6B67", fontWeight: 600 }}>
-                    {Math.min(elapsed, total)} de {total} días
+                    {isUS
+                      ? `${Math.min(elapsed, total)} of ${total} days`
+                      : `${Math.min(elapsed, total)} de ${total} días`}
                   </Typography>
                   <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: meta.color }}>
-                    {pct}% completado
+                    {isUS ? `${pct}% complete` : `${pct}% completado`}
                   </Typography>
                 </Stack>
                 <Box sx={{ height: 7, borderRadius: 3.5, bgcolor: `${meta.color}14`, overflow: "hidden" }}>
@@ -924,7 +959,7 @@ const EntrenamientoWidget = () => {
               transition: "all 0.22s ease",
             }}
           >
-            Continuar entrenamiento →
+            {isUS ? "Continue training →" : "Continuar entrenamiento →"}
           </Button>
         </Stack>
       </Box>
@@ -936,12 +971,13 @@ const EntrenamientoWidget = () => {
    Recetas YA Banner
 ──────────────────────────────────────────── */
 const MODALIDADES_PREVIEW = [
-  { id: "Fit",         Icon: AutoAwesomeRoundedIcon,    label: "Fit",         color: "#2E7D32", bg: "#E8F5E9" },
-  { id: "Hipertrofia", Icon: FitnessCenterRoundedIcon,  label: "Hipertrofia", color: "#BF360C", bg: "#FBE9E7" },
-  { id: "Rápidas",     Icon: BoltRoundedIcon,           label: "Rápidas",     color: "#1565C0", bg: "#E3F2FD" },
+  { id: "Fit",         Icon: AutoAwesomeRoundedIcon,    label: "Fit",         labelEn: "Fit",         color: "#2E7D32", bg: "#E8F5E9" },
+  { id: "Hipertrofia", Icon: FitnessCenterRoundedIcon,  label: "Hipertrofia", labelEn: "Hypertrophy", color: "#BF360C", bg: "#FBE9E7" },
+  { id: "Rápidas",     Icon: BoltRoundedIcon,           label: "Rápidas",     labelEn: "Quick",       color: "#1565C0", bg: "#E3F2FD" },
 ];
 
 const RecetasYABanner = () => {
+  const { isUS } = useNutrition();
   const navigate = useNavigate();
   return (
     <Paper
@@ -974,7 +1010,7 @@ const RecetasYABanner = () => {
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8, px: 1.5, py: 0.5, borderRadius: 999, bgcolor: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.20)", mb: 2 }}>
             <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#2ECC71" }} />
             <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Nuevo módulo
+              {isUS ? "New module" : "Nuevo módulo"}
             </Typography>
           </Box>
 
@@ -982,21 +1018,27 @@ const RecetasYABanner = () => {
           <Stack direction="row" spacing={1.2} alignItems="center" mb={1}>
             <RestaurantRoundedIcon sx={{ fontSize: 32, color: "#fff" }} />
             <Typography sx={{ fontSize: { xs: 24, md: 28 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.8px", lineHeight: 1 }}>
-              Recetas YA
+              {isUS ? "Instant Recipes" : "Recetas YA"}
             </Typography>
           </Stack>
 
           <Typography sx={{ fontSize: 14.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.65, mb: 3, maxWidth: 320 }}>
-            La IA que cocina para vos. Elegís el tipo de plato y el momento del día, y te da tres opciones con ingredientes y pasos al instante.
+            {isUS
+              ? "The AI that cooks for you. Pick the type of dish and time of day, and get three options with ingredients and steps instantly."
+              : "La IA que cocina para vos. Elegís el tipo de plato y el momento del día, y te da tres opciones con ingredientes y pasos al instante."}
           </Typography>
 
           {/* Feature list */}
           <Stack spacing={1.2} mb={3.5}>
-            {[
+            {(isUS ? [
+              "Fit, Hypertrophy, Quick or Breakfasts",
+              "Breakfast, Lunch, Afternoon Snack, Dinner or Snacks",
+              "Ingredients + detailed AI steps",
+            ] : [
               "Fit, Hipertrofia, Rápidas o Desayunos",
               "Desayuno, Almuerzo, Merienda, Cena o Snack",
               "Ingredientes + pasos detallados con IA",
-            ].map((f) => (
+            ]).map((f) => (
               <Stack key={f} direction="row" spacing={1.2} alignItems="center">
                 <Box sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: "rgba(46,204,113,0.25)", border: "1px solid rgba(46,204,113,0.5)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Typography sx={{ fontSize: 10, color: "#2ECC71" }}>✓</Typography>
@@ -1022,7 +1064,7 @@ const RecetasYABanner = () => {
               transition: "all 0.2s ease",
             }}
           >
-            Descubrir recetas →
+            {isUS ? "Discover recipes →" : "Descubrir recetas →"}
           </Button>
         </Box>
       </Box>
@@ -1039,7 +1081,7 @@ const RecetasYABanner = () => {
         }}
       >
         <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.5 }}>
-          Modalidades disponibles
+          {isUS ? "Available modes" : "Modalidades disponibles"}
         </Typography>
 
         {/* Modalidad cards */}
@@ -1057,7 +1099,7 @@ const RecetasYABanner = () => {
               }}
             >
               <m.Icon sx={{ fontSize: 22, mb: 0.6, color: m.color }} />
-              <Typography sx={{ fontSize: 13, fontWeight: 800, color: m.color, letterSpacing: "-0.2px" }}>{m.label}</Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 800, color: m.color, letterSpacing: "-0.2px" }}>{isUS ? m.labelEn : m.label}</Typography>
             </Box>
           ))}
         </Box>
@@ -1065,10 +1107,13 @@ const RecetasYABanner = () => {
         {/* Momentos chips */}
         <Box>
           <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.07em", mb: 1 }}>
-            Para cada momento
+            {isUS ? "For every time of day" : "Para cada momento"}
           </Typography>
           <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
-            {["Desayuno", "Almuerzo", "Merienda", "Cena", "Snack"].map((m) => (
+            {(isUS
+              ? ["Breakfast", "Lunch", "Afternoon Snack", "Dinner", "Snack"]
+              : ["Desayuno", "Almuerzo", "Merienda", "Cena", "Snack"]
+            ).map((m) => (
               <Chip
                 key={m}
                 label={m}
@@ -1088,7 +1133,7 @@ const RecetasYABanner = () => {
    Panel preferencias de notificaciones
 ──────────────────────────────────────────── */
 const NotifPrefsPanel = () => {
-  const { user } = useNutrition();
+  const { user, isUS } = useNutrition();
   const token = typeof window !== "undefined" ? localStorage.getItem("nutrismartToken") : null;
 
   const [prefs, setPrefs] = useState(null);
@@ -1144,7 +1189,7 @@ const NotifPrefsPanel = () => {
             </Typography>
             {active && isPaused && (
               <Typography sx={{ fontSize: 10.5, color: C.textMuted, lineHeight: 1.3 }}>
-                Guardado · inactivo por pausa global
+                {isUS ? "Saved · inactive due to global pause" : "Guardado · inactivo por pausa global"}
               </Typography>
             )}
           </Box>
@@ -1199,11 +1244,13 @@ const NotifPrefsPanel = () => {
           <NotificationsRoundedIcon sx={{ fontSize: 18, color: C.textPrimary }} />
           <Box>
             <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
-              Notificaciones por email
+              {isUS ? "Email notifications" : "Notificaciones por email"}
             </Typography>
             {prefs && (
               <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 0.2 }}>
-                {prefs.paused ? "Pausadas" : "Activas"}
+                {isUS
+                  ? (prefs.paused ? "Paused" : "Active")
+                  : (prefs.paused ? "Pausadas" : "Activas")}
               </Typography>
             )}
           </Box>
@@ -1216,7 +1263,7 @@ const NotifPrefsPanel = () => {
       {open && (
         <Box sx={{ px: 3, pb: 2.5, pt: 1 }}>
           {!prefs ? (
-            <Typography sx={{ fontSize: 13, color: C.textMuted, py: 1.5 }}>Cargando preferencias…</Typography>
+            <Typography sx={{ fontSize: 13, color: C.textMuted, py: 1.5 }}>{isUS ? "Loading preferences…" : "Cargando preferencias…"}</Typography>
           ) : (
             <>
               {/* Master pause */}
@@ -1226,10 +1273,10 @@ const NotifPrefsPanel = () => {
                   <PauseRoundedIcon sx={{ fontSize: 18, color: C.textPrimary }} />
                   <Box>
                     <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textPrimary }}>
-                      Pausar todos los emails
+                      {isUS ? "Pause all emails" : "Pausar todos los emails"}
                     </Typography>
                     <Typography sx={{ fontSize: 11, color: C.textMuted }}>
-                      Ninguna notificación llegará mientras esté activado
+                      {isUS ? "No notifications will arrive while this is on" : "Ninguna notificación llegará mientras esté activado"}
                     </Typography>
                   </Box>
                 </Stack>
@@ -1267,17 +1314,21 @@ const NotifPrefsPanel = () => {
                 }}>
                   <PauseRoundedIcon sx={{ fontSize: 15, flexShrink: 0, mt: 0.1, color: "#C0392B" }} />
                   <Typography sx={{ fontSize: 11.5, color: "#C0392B", lineHeight: 1.5 }}>
-                    Emails pausados globalmente. Podés configurar tus preferencias; se activarán cuando desactives la pausa.
+                    {isUS
+                      ? "Emails are paused globally. You can still set your preferences; they'll activate once you turn the pause off."
+                      : "Emails pausados globalmente. Podés configurar tus preferencias; se activarán cuando desactives la pausa."}
                   </Typography>
                 </Box>
               )}
 
-              <Row label="Resultado de cada análisis" Icon={SearchRoundedIcon} fieldKey="analysis" />
-              <Row label="Sesión de entrenamiento"    Icon={FitnessCenterRoundedIcon} fieldKey="training" />
-              <Row label="Renovación de plan"         Icon={RefreshRoundedIcon} fieldKey="renewal"  />
+              <Row label={isUS ? "Result of each analysis" : "Resultado de cada análisis"} Icon={SearchRoundedIcon} fieldKey="analysis" />
+              <Row label={isUS ? "Training session" : "Sesión de entrenamiento"}    Icon={FitnessCenterRoundedIcon} fieldKey="training" />
+              <Row label={isUS ? "Plan renewal" : "Renovación de plan"}         Icon={RefreshRoundedIcon} fieldKey="renewal"  />
 
               <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 1.5, lineHeight: 1.6 }}>
-                Los emails se envían solo si la notificación correspondiente está activa y la pausa global está desactivada.
+                {isUS
+                  ? "Emails are sent only if the matching notification is on and the global pause is off."
+                  : "Los emails se envían solo si la notificación correspondiente está activa y la pausa global está desactivada."}
               </Typography>
             </>
           )}
@@ -1291,6 +1342,7 @@ const NotifPrefsPanel = () => {
    Shopping List Widget
 ──────────────────────────────────────────── */
 const ShoppingListWidget = () => {
+  const { isUS } = useNutrition();
   const navigate = useNavigate();
   const token = localStorage.getItem("nutrismartToken");
   const [items,       setItems]       = useState([]); // siempre desde servidor, no localStorage
@@ -1383,17 +1435,21 @@ const ShoppingListWidget = () => {
             }}>
               <ShoppingCartRoundedIcon sx={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }} />
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                Lista de compras
+                {isUS ? "Shopping list" : "Lista de compras"}
               </Typography>
             </Box>
 
             <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1.1, mb: 0.6 }}>
-              Mi lista
+              {isUS ? "My list" : "Mi lista"}
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55, mb: 2.5 }}>
               {items.length === 0
-                ? "Agregá ingredientes desde tus recetas o escribilos manualmente."
-                : `${pending} item${pending !== 1 ? "s" : ""} pendiente${pending !== 1 ? "s" : ""}${completed > 0 ? ` · ${completed} comprado${completed !== 1 ? "s" : ""}` : ""}`}
+                ? (isUS
+                    ? "Add ingredients from your recipes or type them in manually."
+                    : "Agregá ingredientes desde tus recetas o escribilos manualmente.")
+                : (isUS
+                    ? `${pending} item${pending !== 1 ? "s" : ""} pending${completed > 0 ? ` · ${completed} bought` : ""}`
+                    : `${pending} item${pending !== 1 ? "s" : ""} pendiente${pending !== 1 ? "s" : ""}${completed > 0 ? ` · ${completed} comprado${completed !== 1 ? "s" : ""}` : ""}`)}
             </Typography>
 
             {/* Input manual */}
@@ -1402,7 +1458,7 @@ const ShoppingListWidget = () => {
                 <TextField
                   value={newItem}
                   onChange={(e) => setNewItem(e.target.value)}
-                  placeholder="Ej: 3 huevos, 200g pollo, leche…"
+                  placeholder={isUS ? "E.g: 3 eggs, 200g chicken, milk…" : "Ej: 3 huevos, 200g pollo, leche…"}
                   size="small"
                   fullWidth
                   InputProps={{
@@ -1448,7 +1504,9 @@ const ShoppingListWidget = () => {
                 transition: "all 0.2s ease",
               }}
             >
-              {items.length > 0 ? "Ver lista completa →" : "Abrir mi lista →"}
+              {isUS
+                ? (items.length > 0 ? "See full list →" : "Open my list →")
+                : (items.length > 0 ? "Ver lista completa →" : "Abrir mi lista →")}
             </Button>
           </Box>
         </Box>
@@ -1467,10 +1525,12 @@ const ShoppingListWidget = () => {
             <Box sx={{ textAlign: "center", py: { xs: 2, md: 0 } }}>
               <ShoppingCartRoundedIcon sx={{ fontSize: 40, mb: 1, color: C.textMuted }} />
               <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary, mb: 0.5 }}>
-                La lista está vacía
+                {isUS ? "Your list is empty" : "La lista está vacía"}
               </Typography>
               <Typography sx={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55 }}>
-                Generá una receta y tocá<br /><strong>"Agregar a mi lista"</strong>
+                {isUS
+                  ? <>Generate a recipe and tap<br /><strong>"Add to my list"</strong></>
+                  : <>Generá una receta y tocá<br /><strong>"Agregar a mi lista"</strong></>}
               </Typography>
               <Button
                 onClick={() => navigate("/recipes")}
@@ -1481,13 +1541,15 @@ const ShoppingListWidget = () => {
                   "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
                 }}
               >
-                Ir a Recetas YA →
+                {isUS ? "Go to Instant Recipes →" : "Ir a Recetas YA →"}
               </Button>
             </Box>
           ) : (
             <>
               <Typography sx={{ fontSize: 10.5, fontWeight: 800, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.09em", mb: 1.5 }}>
-                {pending > 0 ? "Pendientes" : "Todos comprados ✓"}
+                {isUS
+                  ? (pending > 0 ? "Pending" : "All bought ✓")
+                  : (pending > 0 ? "Pendientes" : "Todos comprados ✓")}
               </Typography>
 
               {/* Progress bar */}
@@ -1556,7 +1618,9 @@ const ShoppingListWidget = () => {
                     "&:hover": { bgcolor: C.brandSurface, borderColor: C.brand },
                   }}
                 >
-                  + {items.length - 4} item{items.length - 4 !== 1 ? "s" : ""} más →
+                  {isUS
+                    ? `+ ${items.length - 4} more item${items.length - 4 !== 1 ? "s" : ""} →`
+                    : `+ ${items.length - 4} item${items.length - 4 !== 1 ? "s" : ""} más →`}
                 </Button>
               )}
             </>
@@ -1579,7 +1643,7 @@ const ShoppingListWidget = () => {
    Dashboard principal
 ──────────────────────────────────────────── */
 const Dashboard = () => {
-  const { user, userData, updateUserData, loadingUserData } = useNutrition();
+  const { user, userData, updateUserData, loadingUserData, isUS } = useNutrition();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -1612,12 +1676,13 @@ const Dashboard = () => {
   const formatDateTime = (value) => {
     if (!value) return "";
     const date = new Date(value);
-    const datePart = date.toLocaleDateString("es-AR", {
+    const locale = isUS ? "en-US" : "es-AR";
+    const datePart = date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-    const timePart = date.toLocaleTimeString("es-AR", {
+    const timePart = date.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -1745,6 +1810,11 @@ const Dashboard = () => {
 
   const greeting = () => {
     const h = now.getHours();
+    if (isUS) {
+      if (h < 12) return "Good morning";
+      if (h < 18) return "Good afternoon";
+      return "Good evening";
+    }
     if (h < 12) return "Buenos días";
     if (h < 18) return "Buenas tardes";
     return "Buenas noches";
@@ -1774,7 +1844,7 @@ const Dashboard = () => {
           }}
         />
         <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
-          Cargando tu perfil…
+          {isUS ? "Loading your profile…" : "Cargando tu perfil…"}
         </Typography>
       </Box>
     );
@@ -1833,7 +1903,7 @@ const Dashboard = () => {
                 lineHeight: 1.2,
               }}
             >
-              {firstName || "Usuario"}
+              {firstName || (isUS ? "User" : "Usuario")}
             </Typography>
           </Box>
         </Stack>
@@ -1848,11 +1918,11 @@ const Dashboard = () => {
             icon={
               <AccessTimeRoundedIcon sx={{ fontSize: "14px !important" }} />
             }
-            label={`${now.toLocaleDateString("es-AR", {
+            label={`${now.toLocaleDateString(isUS ? "en-US" : "es-AR", {
               weekday: "long",
               day: "2-digit",
               month: "long",
-            })} · ${now.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}`}
+            })} · ${now.toLocaleTimeString(isUS ? "en-US" : "es-AR", { hour: "2-digit", minute: "2-digit" })}`}
             size="small"
             sx={{
               bgcolor: C.surface,
@@ -1890,10 +1960,15 @@ const Dashboard = () => {
         const pts   = displayPoints ?? 0;
         const mood  = getMood(pts);
         const meta  = MOOD_META[mood];
-        const level = pts < 50 ? { Icon: EcoRoundedIcon, name: "Inicio"    }
-                    : pts < 150? { Icon: RestaurantRoundedIcon, name: "Saludable" }
-                    : pts < 300? { Icon: FitnessCenterRoundedIcon, name: "Activo"    }
-                    :            { Icon: EmojiEventsRoundedIcon, name: "Experto"   };
+        const level = isUS
+          ? (pts < 50 ? { Icon: EcoRoundedIcon, name: "Starting"   }
+            : pts < 150? { Icon: RestaurantRoundedIcon, name: "Healthy" }
+            : pts < 300? { Icon: FitnessCenterRoundedIcon, name: "Active"    }
+            :            { Icon: EmojiEventsRoundedIcon, name: "Expert"   })
+          : (pts < 50 ? { Icon: EcoRoundedIcon, name: "Inicio"    }
+            : pts < 150? { Icon: RestaurantRoundedIcon, name: "Saludable" }
+            : pts < 300? { Icon: FitnessCenterRoundedIcon, name: "Activo"    }
+            :            { Icon: EmojiEventsRoundedIcon, name: "Experto"   });
         return (
           <Paper
             elevation={0}
@@ -1926,7 +2001,7 @@ const Dashboard = () => {
               {/* Info izquierda */}
               <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.3 }}>
-                  Puntos saludables
+                  {isUS ? "Healthy points" : "Puntos saludables"}
                 </Typography>
                 <Typography sx={{ fontSize: 44, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
                   {pts}
@@ -1934,7 +2009,7 @@ const Dashboard = () => {
 
                 <Box sx={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 0.8, mt: 0.8, px: 1.5, py: 0.4, borderRadius: 999, bgcolor: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.18)" }}>
                   <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{meta.label}</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>{isUS ? meta.labelEn : meta.label}</Typography>
                 </Box>
 
                 <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.50)", mt: 1 }}>
@@ -1944,7 +2019,7 @@ const Dashboard = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
                   <level.Icon sx={{ fontSize: 18, color: "rgba(255,255,255,0.85)" }} />
                   <Box>
-                    <Typography sx={{ fontSize: 10, color: "rgba(255,255,255,0.50)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", lineHeight: 1 }}>Nivel</Typography>
+                    <Typography sx={{ fontSize: 10, color: "rgba(255,255,255,0.50)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", lineHeight: 1 }}>{isUS ? "Level" : "Nivel"}</Typography>
                     <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>{level.name}</Typography>
                   </Box>
                 </Box>
@@ -2012,7 +2087,7 @@ const Dashboard = () => {
                 letterSpacing: "0.06em",
               }}
             >
-              Puntaje promedio
+              {isUS ? "Average score" : "Puntaje promedio"}
             </Typography>
             <Typography
               sx={{
@@ -2055,7 +2130,7 @@ const Dashboard = () => {
                 letterSpacing: "0.06em",
               }}
             >
-              Análisis realizados
+              {isUS ? "Analyses done" : "Análisis realizados"}
             </Typography>
             <Typography
               sx={{
@@ -2068,7 +2143,7 @@ const Dashboard = () => {
               {history.length}
             </Typography>
             <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-              en total
+              {isUS ? "total" : "en total"}
             </Typography>
           </Paper>
 
@@ -2095,7 +2170,7 @@ const Dashboard = () => {
                 letterSpacing: "0.06em",
               }}
             >
-              Mejor puntaje
+              {isUS ? "Best score" : "Mejor puntaje"}
             </Typography>
             <Typography
               sx={{
@@ -2114,7 +2189,7 @@ const Dashboard = () => {
               </Typography>
             </Typography>
             <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-              récord personal
+              {isUS ? "personal record" : "récord personal"}
             </Typography>
           </Paper>
         </Box>
@@ -2175,10 +2250,10 @@ const Dashboard = () => {
               <Typography
                 sx={{ fontSize: 15, fontWeight: 700, color: C.textPrimary }}
               >
-                Perfil personal
+                {isUS ? "Personal profile" : "Perfil personal"}
               </Typography>
               <Typography sx={{ fontSize: 12, color: C.textMuted }}>
-                Tus datos físicos
+                {isUS ? "Your physical stats" : "Tus datos físicos"}
               </Typography>
             </Box>
           </Stack>
@@ -2198,7 +2273,7 @@ const Dashboard = () => {
                 "&:hover": { bgcolor: C.brandSurface },
               }}
             >
-              Editar
+              {isUS ? "Edit" : "Editar"}
             </Button>
           )}
         </Box>
@@ -2218,28 +2293,28 @@ const Dashboard = () => {
             >
               <StatPill
                 icon={PersonOutlineRoundedIcon}
-                label="Género"
-                value={profileForm.sexo}
+                label={isUS ? "Gender" : "Género"}
+                value={sexoLabel(profileForm.sexo, isUS)}
               />
               <StatPill
                 icon={CakeOutlinedIcon}
-                label="Edad"
-                value={profileForm.edad ? `${profileForm.edad} años` : null}
+                label={isUS ? "Age" : "Edad"}
+                value={profileForm.edad ? (isUS ? `${profileForm.edad} yrs` : `${profileForm.edad} años`) : null}
               />
               <StatPill
                 icon={FlashOnOutlinedIcon}
-                label="Actividad"
-                value={profileForm.actividad}
+                label={isUS ? "Activity" : "Actividad"}
+                value={actividadLabel(profileForm.actividad, isUS)}
                 accent
               />
               <StatPill
                 icon={MonitorWeightOutlinedIcon}
-                label="Peso"
+                label={isUS ? "Weight" : "Peso"}
                 value={profileForm.peso ? `${profileForm.peso} kg` : null}
               />
               <StatPill
                 icon={HeightOutlinedIcon}
-                label="Altura"
+                label={isUS ? "Height" : "Altura"}
                 value={profileForm.altura ? `${profileForm.altura} cm` : null}
               />
             </Box>
@@ -2256,7 +2331,7 @@ const Dashboard = () => {
                 <TextField
                   select
                   name="sexo"
-                  label="Género"
+                  label={isUS ? "Gender" : "Género"}
                   value={profileForm.sexo}
                   onChange={handleChange}
                   size="small"
@@ -2265,14 +2340,14 @@ const Dashboard = () => {
                 >
                   {["Femenino", "Masculino", "Otro"].map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {sexoLabel(opt, isUS)}
                     </MenuItem>
                   ))}
                 </TextField>
 
                 <TextField
                   name="edad"
-                  label="Edad"
+                  label={isUS ? "Age" : "Edad"}
                   type="number"
                   value={profileForm.edad}
                   onChange={handleChange}
@@ -2284,7 +2359,7 @@ const Dashboard = () => {
                 <TextField
                   select
                   name="actividad"
-                  label="Actividad física"
+                  label={isUS ? "Physical activity" : "Actividad física"}
                   value={profileForm.actividad}
                   onChange={handleChange}
                   size="small"
@@ -2293,14 +2368,14 @@ const Dashboard = () => {
                 >
                   {["Nula", "Moderada", "Intensa", "Profesional"].map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {actividadLabel(opt, isUS)}
                     </MenuItem>
                   ))}
                 </TextField>
 
                 <TextField
                   name="peso"
-                  label="Peso (kg)"
+                  label={isUS ? "Weight (kg)" : "Peso (kg)"}
                   type="number"
                   value={profileForm.peso}
                   onChange={handleChange}
@@ -2311,7 +2386,7 @@ const Dashboard = () => {
 
                 <TextField
                   name="altura"
-                  label="Altura (cm)"
+                  label={isUS ? "Height (cm)" : "Altura (cm)"}
                   type="number"
                   value={profileForm.altura}
                   onChange={handleChange}
@@ -2336,7 +2411,9 @@ const Dashboard = () => {
                     "&:hover": { bgcolor: C.brandLight, boxShadow: "none" },
                   }}
                 >
-                  {savingProfile ? "Guardando…" : "Guardar"}
+                  {isUS
+                    ? (savingProfile ? "Saving…" : "Save")
+                    : (savingProfile ? "Guardando…" : "Guardar")}
                 </Button>
 
                 <Button
@@ -2351,7 +2428,7 @@ const Dashboard = () => {
                     "&:hover": { bgcolor: C.surfaceAlt },
                   }}
                 >
-                  Cancelar
+                  {isUS ? "Cancel" : "Cancelar"}
                 </Button>
               </Stack>
             </Box>
@@ -2442,10 +2519,10 @@ const Dashboard = () => {
             <Typography
               sx={{ fontSize: 20, fontWeight: 800, color: "#fff", mb: 0.5 }}
             >
-              Analizá tu próximo producto
+              {isUS ? "Analyze your next product" : "Analizá tu próximo producto"}
             </Typography>
             <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.75)" }}>
-              Escaneá el código o la etiqueta nutricional
+              {isUS ? "Scan the barcode or the nutrition label" : "Escaneá el código o la etiqueta nutricional"}
             </Typography>
           </Box>
 
@@ -2470,7 +2547,7 @@ const Dashboard = () => {
               },
             }}
           >
-            Nuevo análisis
+            {isUS ? "New analysis" : "Nuevo análisis"}
           </Button>
         </Stack>
       </Paper>
@@ -2493,7 +2570,7 @@ const Dashboard = () => {
             }}
           />
           <Typography sx={{ color: C.textMuted, fontSize: 14 }}>
-            Cargando historial…
+            {isUS ? "Loading history…" : "Cargando historial…"}
           </Typography>
         </Box>
       ) : history.length === 0 ? (
@@ -2530,10 +2607,10 @@ const Dashboard = () => {
               mb: 0.5,
             }}
           >
-            Todavía no realizaste análisis
+            {isUS ? "You haven't run any analyses yet" : "Todavía no realizaste análisis"}
           </Typography>
           <Typography sx={{ fontSize: 14, color: C.textMuted, mb: 3 }}>
-            Comenzá escaneando el primer producto
+            {isUS ? "Start by scanning your first product" : "Comenzá escaneando el primer producto"}
           </Typography>
           <Button
             variant="contained"
@@ -2548,7 +2625,7 @@ const Dashboard = () => {
               "&:hover": { bgcolor: C.brandLight, boxShadow: "none" },
             }}
           >
-            Empezar ahora
+            {isUS ? "Get started" : "Empezar ahora"}
           </Button>
         </Paper>
       ) : (
