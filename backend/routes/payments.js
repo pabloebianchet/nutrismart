@@ -41,24 +41,6 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
-/* ─── TEMP DIAGNÓSTICO — desactivar el preapproval_plan de prueba — BORRAR DESPUÉS DE USAR ─── */
-router.get("/__debug-preapproval-cleanup", async (req, res) => {
-  try {
-    const token = process.env.MP_ACCESS_TOKEN;
-    const planId = req.query.id;
-    if (!planId) return res.status(400).json({ error: "falta ?id=" });
-    const mpRes = await fetch(`https://api.mercadopago.com/preapproval_plan/${planId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ status: "inactive" }),
-    });
-    const data = await mpRes.json();
-    return res.status(200).json({ mpStatus: mpRes.status, data });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
