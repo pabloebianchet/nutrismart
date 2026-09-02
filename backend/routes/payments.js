@@ -41,31 +41,6 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
-/* ─── TEMP DIAGNÓSTICO — inspeccionar authorized_payment + preapproval reales — BORRAR DESPUÉS DE USAR ─── */
-router.get("/__debug-payment-raw2", async (req, res) => {
-  try {
-    const token = process.env.MP_ACCESS_TOKEN;
-    const authPayId = req.query.authPayId;
-    const preapprovalId = req.query.preapprovalId;
-    const results = {};
-    if (authPayId) {
-      const r = await fetch(`https://api.mercadopago.com/authorized_payments/${authPayId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      results.authorizedPayment = await r.json();
-    }
-    if (preapprovalId) {
-      const r2 = await fetch(`https://api.mercadopago.com/preapproval/${preapprovalId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      results.preapproval = await r2.json();
-    }
-    return res.status(200).json(results);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
@@ -404,17 +379,53 @@ router.post("/webhook", async (req, res) => {
       }
     }
 
-    /* ── 3. Compatibilidad con pagos únicos anteriores (Checkout Pro) ── */
+    /* ── 3. Compatibilidad con pagos únicos anteriores (Checkout Pro) + reembolsos/contracargos ── */
     if (type === "payment" && data?.id) {
       const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
       const paymentClient = new Payment(client);
       const mp = await paymentClient.get({ id: data.id });
 
+      // point_of_interaction.type "SUBSCRIPTIONS" identifica un pago que
+      // pertenece a un Preapproval real — OJO: operation_type NO sirve para
+      // esto, el primer cobro de una suscripción nueva viene marcado
+      // "regular_payment", no "recurring_payment" (visto en vivo: causó que
+      // el primer pago de una suscripción real se procesara welcome DOS
+      // VECES, acá y en el handler de subscription_authorized_payment de
+      // arriba, duplicando el historial de pago).
+      const isSubscriptionPayment = mp.point_of_interaction?.type === "SUBSCRIPTIONS";
+
+      // Reembolso o contracargo sobre un cobro de suscripción — el alta ya
+      // la procesó subscription_authorized_payment, pero el estado cambia
+      // DESPUÉS y este es el único lugar donde nos enteramos. Sin esto, el
+      // usuario se queda con acceso pago aunque el dinero haya vuelto.
+      if (isSubscriptionPayment && ["refunded", "charged_back", "cancelled"].includes(mp.status)) {
+        const [userId, plan] = (mp.external_reference || "").split("|");
+        if (userId) {
+          await Subscription.findOneAndUpdate(
+            { user: userId },
+            { $set: { status: "cancelled", autoRenew: false } }
+          );
+          const user = await User.findById(userId);
+          if (user) {
+            const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
+            sendNotificationEmail("cancellation", {
+              name: user.name, email: user.email,
+              planName: PLAN_NAMES[plan] || plan, endDate: new Date(), lang: user.lang,
+            }).catch(() => {});
+          }
+          logError("payment", "subscription.refunded",
+            `Pago reembolsado/contracargado (${mp.status}) — suscripción cancelada — ${user?.email || userId}`,
+            { userId, userName: user?.name, userEmail: user?.email,
+              meta: { mpPaymentId: mp.id, status: mp.status, plan } });
+        }
+        return res.sendStatus(200);
+      }
+
       // Un cobro recurrente real (Preapproval) ya lo procesa el handler de
       // arriba (subscription_authorized_payment) — si este webhook viejo de
       // "pago único" también lo agarrara, duplicaría el historial de pago
       // y el mail de confirmación para cada cobro mensual.
-      if (mp.operation_type === "recurring_payment") return res.sendStatus(200);
+      if (isSubscriptionPayment) return res.sendStatus(200);
 
       if (mp.status === "approved") {
         const [userId, plan] = (mp.external_reference || "").split("|");
