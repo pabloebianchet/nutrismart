@@ -6,7 +6,10 @@
  * Reglas:
  *  - Sin suscripción → 403
  *  - Plan vencido (endDate < ahora) → auto-expira + 403
- *  - status !== "active" (expired, cancelled) → 403
+ *  - status === "cancelled" pero endDate todavía no llegó → pasa (grace
+ *    period: /cancel promete "seguís teniendo acceso hasta el fin del
+ *    período", este middleware tiene que respetar esa promesa)
+ *  - status !== "active"/"cancelled-con-acceso" (expired) → 403
  *  - status === "active" → pasa
  *
  * Requiere que authMiddleware haya corrido antes (req.user disponible).
@@ -25,13 +28,20 @@ export const requireActiveSub = async (req, res, next) => {
       });
     }
 
-    // Auto-expirar si la fecha de fin ya pasó (paid o free)
-    if (sub.status === "active" && sub.endDate && sub.endDate < new Date()) {
+    const now = new Date();
+
+    // Auto-expirar si la fecha de fin ya pasó (activa o cancelada con
+    // período ya vencido)
+    if ((sub.status === "active" || sub.status === "cancelled") && sub.endDate && sub.endDate < now) {
       sub.status = "expired";
       await sub.save();
     }
 
-    if (sub.status !== "active") {
+    // Cancelada pero todavía dentro del período pagado — sigue teniendo
+    // acceso, tal como se le prometió al cancelar.
+    const hasGraceAccess = sub.status === "cancelled" && sub.endDate && sub.endDate >= now;
+
+    if (sub.status !== "active" && !hasGraceAccess) {
       return res.status(403).json({
         error:     "Tu suscripción venció. Renovar para continuar.",
         code:      "SUBSCRIPTION_REQUIRED",
