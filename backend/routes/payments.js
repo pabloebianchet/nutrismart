@@ -41,27 +41,6 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
-/* ─── TEMP DIAGNÓSTICO — confirmar preapproval real en MP — BORRAR DESPUÉS DE USAR ─── */
-router.get("/__debug-preapproval-status", async (req, res) => {
-  try {
-    const token = process.env.MP_ACCESS_TOKEN;
-    const id = req.query.id;
-    const r = await fetch(`https://api.mercadopago.com/preapproval/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await r.json();
-    // Buscar también en el listado de preapprovals del collector, por si el
-    // dashboard filtra distinto que un GET directo por id.
-    const rList = await fetch(`https://api.mercadopago.com/preapproval/search?collector_id=${data.collector_id || ""}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const listData = await rList.json();
-    return res.status(200).json({ direct: data, listTotal: listData.paging?.total, listSample: listData.results?.slice(0, 3) });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
