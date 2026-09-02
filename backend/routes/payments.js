@@ -41,27 +41,6 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
-/* ─── TEMP DIAGNÓSTICO — cancelar los preapproval de prueba — BORRAR DESPUÉS DE USAR ─── */
-router.get("/__debug-preapproval-cancel", async (req, res) => {
-  try {
-    const token = process.env.MP_ACCESS_TOKEN;
-    const ids = ["651802c91bcd44c49b6e9ab7a3a6e45c", "8d239820e7b34c1e81f77a643abb656a", "a9469c127eb84e7bbc1d16cc2fe34da5", "75c9de9b8dea40c68ba079d3b1be52b2"];
-    const results = [];
-    for (const id of ids) {
-      const mpRes = await fetch(`https://api.mercadopago.com/preapproval/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ status: "cancelled" }),
-      });
-      const data = await mpRes.json();
-      results.push({ id, mpStatus: mpRes.status, status: data.status || data.message });
-    }
-    return res.status(200).json(results);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
