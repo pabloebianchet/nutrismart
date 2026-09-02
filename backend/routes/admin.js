@@ -456,7 +456,7 @@ router.put("/plan-prices/:plan", authMiddleware, isAdmin, async (req, res) => {
 
     setImmediate(async () => {
       try {
-        const users = await User.find().select("name email").lean();
+        const users = await User.find().select("name email lang").lean();
         // Obtener suscripciones con cupón activo para este plan
         const subs  = await Subscription.find({
           plan, status: "active",
@@ -493,6 +493,7 @@ router.put("/plan-prices/:plan", authMiddleware, isAdmin, async (req, res) => {
               couponPct,
               couponMonthsLeft: monthsLeft || null,
               discountedAmount,
+              lang: u.lang,
             });
           } catch (emailErr) {
             console.error(`Error email price-change a ${u.email}:`, emailErr.message);

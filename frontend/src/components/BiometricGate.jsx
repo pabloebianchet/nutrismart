@@ -4,6 +4,7 @@ import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import { verifyBiometric, clearBiometric } from "../utils/biometric";
+import { useNutrition } from "../context/NutritionContext";
 
 /**
  * Pantalla de bloqueo biométrico.
@@ -12,6 +13,7 @@ import { verifyBiometric, clearBiometric } from "../utils/biometric";
  * onFallback() → limpia biometría y va al login
  */
 const BiometricGate = ({ onUnlock, onFallback, userName }) => {
+  const { isUS } = useNutrition();
   const [loading,  setLoading]  = useState(false);
   const [success,  setSuccess]  = useState(false);
   const [error,    setError]    = useState("");
@@ -21,21 +23,21 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
     setLoading(true);
     setError("");
     try {
-      const result = await verifyBiometric();
+      const result = await verifyBiometric(isUS ? "en" : "es");
       if (result.ok) {
         setLoading(false);
         setSuccess(true);
         setTimeout(onUnlock, 500);
         return;
       } else if (result.error === "cancelled") {
-        setError("Verificación cancelada.");
+        setError(isUS ? "Verification cancelled." : "Verificación cancelada.");
       } else if (result.error === "no_registered") {
         onFallback(); // credential eliminada del dispositivo
       } else {
-        setError("No se pudo verificar. Intentá de nuevo.");
+        setError(isUS ? "Couldn't verify. Try again." : "No se pudo verificar. Intentá de nuevo.");
       }
     } catch {
-      setError("Error al verificar. Usá otro método.");
+      setError(isUS ? "Verification error. Use another method." : "Error al verificar. Usá otro método.");
     } finally {
       setLoading(false);
     }
@@ -78,10 +80,10 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
 
       {/* Saludo */}
       <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#fff", mb: 0.5, textAlign: "center" }}>
-        Bienvenido de nuevo{userName ? `, ${userName.split(" ")[0]}` : ""}
+        {isUS ? "Welcome back" : "Bienvenido de nuevo"}{userName ? `, ${userName.split(" ")[0]}` : ""}
       </Typography>
       <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.5)", mb: 5, textAlign: "center" }}>
-        Verificá tu identidad para continuar
+        {isUS ? "Verify your identity to continue" : "Verificá tu identidad para continuar"}
       </Typography>
 
       {/* Botón biométrico */}
@@ -126,7 +128,7 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
         sx={{ textTransform: "none", color: "rgba(255,255,255,0.4)", fontSize: 13,
           "&:hover": { color: "rgba(255,255,255,0.7)" } }}
       >
-        Usar otra cuenta
+        {isUS ? "Use another account" : "Usar otra cuenta"}
       </Button>
     </Box>
   );

@@ -40,14 +40,16 @@ export const clearBiometric = () =>
 
 /**
  * Registra la credencial biométrica contra el backend.
+ * @param {"es"|"en"} lang
  * @returns {Promise<{ok: boolean, error?: string}>}
  */
-export const registerBiometric = async () => {
+export const registerBiometric = async (lang = "es") => {
+  const isEN = lang === "en";
   try {
-    const optionsRes = await fetch(`${API_URL}/api/webauthn/register-options`, {
+    const optionsRes = await fetch(`${API_URL}/api/webauthn/register-options?lang=${lang}`, {
       headers: authHeaders(),
     });
-    if (!optionsRes.ok) return { ok: false, error: "No se pudieron generar las opciones" };
+    if (!optionsRes.ok) return { ok: false, error: isEN ? "Couldn't generate the options" : "No se pudieron generar las opciones" };
     const options = await optionsRes.json();
 
     let attResp;
@@ -61,32 +63,34 @@ export const registerBiometric = async () => {
     const verifyRes = await fetch(`${API_URL}/api/webauthn/register-verify`, {
       method: "POST",
       headers: authHeaders(),
-      body: JSON.stringify({ response: attResp }),
+      body: JSON.stringify({ response: attResp, lang }),
     });
     const data = await verifyRes.json();
-    if (!verifyRes.ok || !data.ok) return { ok: false, error: data.error || "Error desconocido" };
+    if (!verifyRes.ok || !data.ok) return { ok: false, error: data.error || (isEN ? "Unknown error" : "Error desconocido") };
 
     localStorage.setItem(REGISTERED_FLAG, "1");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e.message || "Error desconocido" };
+    return { ok: false, error: e.message || (isEN ? "Unknown error" : "Error desconocido") };
   }
 };
 
 /**
  * Verifica la identidad con Face ID / huella contra el backend.
+ * @param {"es"|"en"} lang
  * @returns {Promise<{ok: boolean, error?: string}>}
  */
-export const verifyBiometric = async () => {
+export const verifyBiometric = async (lang = "es") => {
+  const isEN = lang === "en";
   try {
-    const optionsRes = await fetch(`${API_URL}/api/webauthn/auth-options`, {
+    const optionsRes = await fetch(`${API_URL}/api/webauthn/auth-options?lang=${lang}`, {
       headers: authHeaders(),
     });
     if (optionsRes.status === 404) {
       clearBiometric();
       return { ok: false, error: "no_registered" };
     }
-    if (!optionsRes.ok) return { ok: false, error: "No se pudieron generar las opciones" };
+    if (!optionsRes.ok) return { ok: false, error: isEN ? "Couldn't generate the options" : "No se pudieron generar las opciones" };
     const options = await optionsRes.json();
 
     let authResp;
@@ -100,13 +104,13 @@ export const verifyBiometric = async () => {
     const verifyRes = await fetch(`${API_URL}/api/webauthn/auth-verify`, {
       method: "POST",
       headers: authHeaders(),
-      body: JSON.stringify({ response: authResp }),
+      body: JSON.stringify({ response: authResp, lang }),
     });
     const data = await verifyRes.json();
-    if (!verifyRes.ok || !data.ok) return { ok: false, error: data.error || "Error desconocido" };
+    if (!verifyRes.ok || !data.ok) return { ok: false, error: data.error || (isEN ? "Unknown error" : "Error desconocido") };
 
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e.message || "Error desconocido" };
+    return { ok: false, error: e.message || (isEN ? "Unknown error" : "Error desconocido") };
   }
 };

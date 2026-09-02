@@ -317,6 +317,7 @@ router.post("/webhook", async (req, res) => {
             currency: planInfo.currency,
             endDate:  end,
             isRenewal,
+            lang:     user.lang,
           });
 
           // Email al admin con info del nuevo suscriptor
@@ -338,6 +339,7 @@ router.post("/webhook", async (req, res) => {
               email:    user.email,
               planName: PLAN_NAMES[plan] || plan,
               endDate:  end,
+              lang:     user.lang,
             }).catch(() => {});
           }
 
@@ -430,6 +432,7 @@ router.post("/webhook", async (req, res) => {
             currency: mp.currency_id,
             endDate:  end,
             isRenewal,
+            lang:     user.lang,
           });
 
           sendNotificationEmail("admin-new-sub", {
@@ -557,6 +560,7 @@ router.post("/cancel", authMiddleware, async (req, res) => {
         email:    cancelUser.email,
         planName,
         endDate:  sub.endDate,
+        lang:     cancelUser.lang,
       }).catch((err) => console.error("❌ Email cancelación usuario:", err.message));
 
       // Al admin

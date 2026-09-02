@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema(
     picture:   { type: String },
     provider:  { type: String, enum: ["google", "email"], default: "google" },
 
+    // Idioma preferido para mails y contenido de IA — el frontend calcula
+    // isUS (geo + ?region= + cuenta Stripe) y lo manda al registrarse; no
+    // hay forma de derivarlo de forma confiable desde el backend en
+    // contextos async (webhooks) sin guardarlo.
+    lang: { type: String, enum: ["es", "en"], default: "es" },
+
     // Email/password auth
     password:           { type: String },
     resetPasswordToken: { type: String },

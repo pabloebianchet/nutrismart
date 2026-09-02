@@ -332,6 +332,7 @@ router.post("/session", authMiddleware, async (req, res) => {
         dayName:     safeDayName,
         tipoLabel:   safeTipoLabel,
         totalPoints: updated.healthyPoints,
+        lang:        updated.lang,
       }).catch(() => {});
     }
 

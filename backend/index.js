@@ -499,7 +499,7 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
     }
 
     // Email de notificación (async, no bloquea respuesta)
-    const freshUser = await User.findById(authUser._id).select("notifPrefs email name");
+    const freshUser = await User.findById(authUser._id).select("notifPrefs email name lang");
     if (
       freshUser &&
       !freshUser.notifPrefs?.paused &&
@@ -510,6 +510,7 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
         email:       freshUser.email,
         score,
         totalPoints,
+        lang:        freshUser.lang,
       }).catch(() => {});
     }
 
@@ -531,6 +532,7 @@ Natural, claro, humano y directo, como una nota breve dentro de una app de nutri
 // =====================
 app.post("/api/auth/google", async (req, res) => {
   const { credential } = req.body;
+  const lang = req.body?.lang === "en" ? "en" : "es";
 
   if (!credential) {
     return res.status(400).json({ error: "Missing Google credential" });
@@ -574,6 +576,7 @@ app.post("/api/auth/google", async (req, res) => {
           name,
           picture,
           provider: "google",
+          lang,
         });
         // Activar período de prueba gratuito (7 días)
         const trial = await activateFreeTrial(user._id).catch((e) => {
@@ -581,7 +584,7 @@ app.post("/api/auth/google", async (req, res) => {
           return null;
         });
         const trialEnd = trial?.endDate || null;
-        sendWelcomeEmail({ name, email, trialEnd }).catch((e) => console.error("Welcome email failed:", e.message));
+        sendWelcomeEmail({ name, email, trialEnd, lang }).catch((e) => console.error("Welcome email failed:", e.message));
         logInfo("auth", "user.register.google", `Registro Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
       }
     }

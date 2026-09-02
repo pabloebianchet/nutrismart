@@ -209,9 +209,10 @@ router.post("/cancel", authMiddleware, async (req, res) => {
         meta: { plan: sub.plan, amount: sub.amount, provider: "stripe" } });
 
     if (req.user?.email) {
+      // Stripe es exclusivamente para usuarios US — siempre en inglés.
       sendNotificationEmail("cancellation", {
         name: req.user.name, email: req.user.email,
-        planName: PLAN_NAMES[sub.plan] || sub.plan, endDate: sub.endDate,
+        planName: PLAN_NAMES[sub.plan] || sub.plan, endDate: sub.endDate, lang: "en",
       }).catch((err) => console.error("❌ Email cancelación usuario:", err.message));
     }
 
@@ -314,8 +315,11 @@ export const stripeWebhookHandler = async (req, res) => {
 
       const user = await User.findById(userId);
       if (user) {
+        // Stripe es exclusivamente para usuarios US — dejamos la cuenta
+        // marcada en inglés para el resto de los mails (trial, etc.).
+        if (user.lang !== "en") { user.lang = "en"; await user.save().catch(() => {}); }
         const isRenewal = sub.paymentHistory.length > 1 && sub.paymentHistory[1]?.plan === plan;
-        sendPaymentEmail({ name: user.name, email: user.email, plan, amount, currency, endDate: end, isRenewal }).catch(() => {});
+        sendPaymentEmail({ name: user.name, email: user.email, plan, amount, currency, endDate: end, isRenewal, lang: "en" }).catch(() => {});
         sendNotificationEmail("admin-new-sub", {
           userName: user.name, userEmail: user.email, plan, amount, currency,
           startDate: now, endDate: end, isRenewal,
@@ -378,11 +382,11 @@ export const stripeWebhookHandler = async (req, res) => {
 
       const user = await User.findById(sub.user);
       if (user) {
-        sendPaymentEmail({ name: user.name, email: user.email, plan: sub.plan, amount, currency, endDate: end, isRenewal: true }).catch(() => {});
+        sendPaymentEmail({ name: user.name, email: user.email, plan: sub.plan, amount, currency, endDate: end, isRenewal: true, lang: "en" }).catch(() => {});
         if (!user.notifPrefs?.paused && user.notifPrefs?.renewal !== false) {
           sendNotificationEmail("renewal", {
             name: user.name, email: user.email,
-            planName: PLAN_NAMES[sub.plan] || sub.plan, endDate: end,
+            planName: PLAN_NAMES[sub.plan] || sub.plan, endDate: end, lang: "en",
           }).catch(() => {});
         }
         logInfo("payment", "subscription.renewed",

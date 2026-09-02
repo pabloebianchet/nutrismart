@@ -30,7 +30,7 @@ export const checkTrialExpiryEmails = async () => {
       status:               "active",
       endDate:              { $gte: tomorrowStart, $lte: tomorrowEnd },
       trialExpiryEmailSent: { $ne: true },
-    }).populate("user", "name email");
+    }).populate("user", "name email lang");
 
     if (expiringSubs.length === 0) {
       console.log("⏰ Trial expiry check: sin envíos pendientes.");
@@ -45,6 +45,7 @@ export const checkTrialExpiryEmails = async () => {
         name:         user.name,
         email:        user.email,
         trialEndDate: sub.endDate,
+        lang:         user.lang,
       });
 
       // Marcar como enviado para evitar duplicados

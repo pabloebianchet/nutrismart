@@ -76,7 +76,7 @@ const UserDataPage = () => {
       const res = await fetch(`${API_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential }),
+        body: JSON.stringify({ credential, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -106,7 +106,7 @@ const UserDataPage = () => {
   const handleActivateBiometric = async () => {
     setBiometricLoading(true);
     setBiometricError("");
-    const result = await registerBiometric();
+    const result = await registerBiometric(isUS ? "en" : "es");
     setBiometricLoading(false);
     if (result.error === "cancelled") {
       setBiometricError(isUS ? "Cancelled. You can activate it later from your profile." : "Cancelado. Podés activarlo más tarde desde tu perfil.");
@@ -146,7 +146,7 @@ const UserDataPage = () => {
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
       const body = mode === "login"
         ? { email: form.email, password: form.password }
-        : { name: form.name, email: form.email, password: form.password };
+        : { name: form.name, email: form.email, password: form.password, lang: isUS ? "en" : "es" };
 
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",

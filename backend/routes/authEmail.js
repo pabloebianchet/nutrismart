@@ -54,6 +54,7 @@ const forgotLimiter = rateLimit({
 /* ─── REGISTER ────────────────────────────────────────────── */
 router.post("/register", authLimiter, async (req, res) => {
   const { name, email, password } = req.body;
+  const lang = req.body?.lang === "en" ? "en" : "es";
 
   if (!name || !email || !password)
     return res.status(400).json({ error: "Todos los campos son obligatorios" });
@@ -74,6 +75,7 @@ router.post("/register", authLimiter, async (req, res) => {
       password: hashed,
       provider: "email",
       profileCompleted: false,
+      lang,
     });
 
     // Activar período de prueba gratuito (7 días)
@@ -85,7 +87,7 @@ router.post("/register", authLimiter, async (req, res) => {
     const token = signToken(user._id);
     const trialEnd = trial?.endDate || null;
 
-    sendWelcomeEmail({ name: user.name, email: user.email, trialEnd }).catch((e) =>
+    sendWelcomeEmail({ name: user.name, email: user.email, trialEnd, lang }).catch((e) =>
       console.error("Welcome email failed:", e.message)
     );
 
