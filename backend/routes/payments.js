@@ -46,19 +46,19 @@ router.get("/__debug-preapproval-test", async (req, res) => {
   try {
     const token = process.env.MP_ACCESS_TOKEN;
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const body = {
+      reason: "Nui Silver test",
+      payer_email: req.query.email || "raccoonitweb@gmail.com",
+      back_url: `${frontendUrl}/subscription/success`,
+      auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 2990, currency_id: "ARS" },
+    };
     const mpRes = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        reason: "Nui · Silver (test /subscribe real, borrar)",
-        payer_email: req.query.email || "raccoonitweb@gmail.com",
-        external_reference: "TEST_USER_ID|silver",
-        back_url: `${frontendUrl}/subscription/success`,
-        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 2990, currency_id: "ARS" },
-      }),
+      body: JSON.stringify(body),
     });
-    const data = await mpRes.json();
-    return res.status(200).json({ mpStatus: mpRes.status, data });
+    const rawText = await mpRes.text();
+    return res.status(200).json({ mpStatus: mpRes.status, sentBody: body, rawResponse: rawText });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
