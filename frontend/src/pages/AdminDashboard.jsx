@@ -65,6 +65,13 @@ const shadow = {
 const fmtARS = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 
+// Pagos de Stripe vienen en USD (usuarios de EE.UU.) — mostrarlos como pesos
+// argentinos con fmtARS los aplasta a un monto sin sentido (ej. US$6.99 → "$7").
+const fmtMoney = (n, currency) =>
+  (currency || "ARS").toUpperCase() === "USD"
+    ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(n)
+    : fmtARS(n);
+
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
@@ -317,7 +324,7 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
                 <Box>
                   <Typography sx={{ fontSize: 16, fontWeight: 900, color: C.text }}>Plan {plan.label}</Typography>
                   <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
-                    {sub.amount > 0 ? fmtARS(sub.amount) + "/mes" : "Prueba gratuita"}
+                    {sub.amount > 0 ? fmtMoney(sub.amount, sub.currency) + "/mes" : "Prueba gratuita"}
                   </Typography>
                 </Box>
               </Stack>
@@ -398,7 +405,7 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
                   </Stack>
                   <Stack alignItems="flex-end" sx={{ flexShrink: 0 }}>
                     <Typography sx={{ fontSize: 14, fontWeight: 800, color: pmeta.color }}>
-                      {p.mpPaymentId?.startsWith("admin_") ? "Sin cargo" : fmtARS(p.amount)}
+                      {p.mpPaymentId?.startsWith("admin_") ? "Sin cargo" : fmtMoney(p.amount, p.currency)}
                     </Typography>
                     <Stack direction="row" spacing={0.5}>
                       {p.mpPaymentId?.startsWith("admin_") && (
