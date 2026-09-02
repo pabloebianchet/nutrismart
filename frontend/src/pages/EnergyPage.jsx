@@ -963,7 +963,7 @@ const EnergyPage = () => {
                   gap: 0.5,
                 }}
               >
-                <DirectionsRunRoundedIcon sx={{ fontSize: 13 }} /> {isUS ? "Activity (Weights, Sleep, Desk work, etc.)" : "Actividad (Pesas, Dormir, Trabajar en PC, etc.)"}
+                <DirectionsRunRoundedIcon sx={{ fontSize: 13 }} /> {isUS ? "Activity (Weights, Running, Fast walking, etc.)" : "Actividad (Pesas, Correr, Caminar rápido, etc.)"}
               </Typography>
               <Typography
                 sx={{
@@ -1039,9 +1039,13 @@ const EnergyPage = () => {
                   </Typography>
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: C.textSec, mt: 0.5 }}>
-                  {isUS
-                    ? `Target ${fmt(dailyGoal, isUS)} kcal · ate ${fmt(consumed, isUS)} kcal`
-                    : `Objetivo ${fmt(dailyGoal, isUS)} kcal · comiste ${fmt(consumed, isUS)} kcal`}
+                  {burnedExtra > 0
+                    ? isUS
+                      ? `Target ${fmt(dailyGoal, isUS)} + Activity ${fmt(burnedExtra, isUS)} − Ate ${fmt(consumed, isUS)} kcal`
+                      : `Objetivo ${fmt(dailyGoal, isUS)} + Actividad ${fmt(burnedExtra, isUS)} − Comiste ${fmt(consumed, isUS)} kcal`
+                    : isUS
+                      ? `Target ${fmt(dailyGoal, isUS)} kcal · ate ${fmt(consumed, isUS)} kcal`
+                      : `Objetivo ${fmt(dailyGoal, isUS)} kcal · comiste ${fmt(consumed, isUS)} kcal`}
                 </Typography>
               </Box>
             </Stack>

@@ -257,7 +257,7 @@ IMPORTANT RULES:
 - If no quantity is mentioned, use a standard US portion
 - If it says "a little" or "some", use the minimum portion
 - ALWAYS underestimate when in doubt (better for the user to correct upward)
-- For activities, use standard MET values and the user's weight
+- For activities, only assign real burned calories (standard MET values × the user's weight) to purposeful physical activity ABOVE a normal sedentary daily baseline — walking, running, weight training, sports, cycling, physical/manual labor, active chores, etc. Passive or baseline daily-living activities (sleeping, sitting, desk/computer work, driving, watching TV, standing around) MUST be logged with "kcal":0 in every item and in "totales" — those are already included in the user's daily activity-level estimate, so counting them again would double-count calories. Still log them as an "actividad" entry (so the user's journal is accurate), just with 0 kcal.
 - JSON only, no extra text` : `El usuario (${peso}kg, ${sexo === "M" || sexo === "masculino" ? "hombre" : "mujer"}, ${edad} años) registró:
 "${texto}"
 
@@ -277,7 +277,7 @@ REGLAS IMPORTANTES:
 - Si no se menciona cantidad, usar porción estándar argentina
 - Si dice "un poco" o "algo", usar porción mínima
 - SIEMPRE subestimar ante la duda (mejor que el usuario corrija hacia arriba)
-- Para actividades, usar MET estándar y el peso del usuario
+- Para actividades, asigná kcal quemadas reales (MET estándar × peso del usuario) SOLO a actividad física con propósito, por encima de un día sedentario normal — caminar, correr, pesas, deportes, andar en bici, trabajo físico/changas, tareas activas, etc. Las actividades pasivas o de vida diaria (dormir, estar sentado, trabajar en la compu/escritorio, manejar, ver tele, estar parado) DEBEN quedar con "kcal":0 en cada item y en "totales" — ya están incluidas en el nivel de actividad del perfil del usuario, así que sumarlas de nuevo duplicaría calorías. Igual registralas como entrada "actividad" (para que el registro del usuario sea preciso), pero con 0 kcal.
 - Solo JSON, sin texto adicional`,
       }],
       max_tokens: 700,
