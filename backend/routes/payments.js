@@ -41,6 +41,26 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
+/* ─── TEMP DIAGNÓSTICO — probar permiso de Preapproval en la cuenta MP real de producción — BORRAR DESPUÉS DE USAR ─── */
+router.get("/__debug-preapproval-check", async (req, res) => {
+  try {
+    const token = process.env.MP_ACCESS_TOKEN;
+    const mpRes = await fetch("https://api.mercadopago.com/preapproval_plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        reason: "Nui — test permiso preapproval (borrar)",
+        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 100, currency_id: "ARS" },
+        back_url: "https://nuiapp.com/pricing",
+      }),
+    });
+    const data = await mpRes.json();
+    return res.status(200).json({ mpStatus: mpRes.status, tokenPrefix: token?.slice(0, 12), data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
