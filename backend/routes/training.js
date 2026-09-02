@@ -636,23 +636,33 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
   }
 });
 
+// Un plan/catálogo en inglés maneja nombres nameEn — proyectar "name" como
+// nameEn (con fallback a name) para que el catálogo/búsqueda no le muestre
+// nombres en español a un usuario US. La imagen se resuelve igual en
+// cualquier idioma (exercise-image chequea nameNorm y nameNormEn).
+const withLangName = (doc, isEN) => {
+  const { nameEn, nameNormEn, ...rest } = doc;
+  return { ...rest, name: isEN ? (nameEn || doc.name) : doc.name };
+};
+
 /* ── GET /exercises/search — autocomplete por nombre ────────────── */
 router.get("/exercises/search", authMiddleware, async (req, res) => {
   try {
     const { q = "", tipo, lugar } = req.query;
+    const isEN = getLang(req) === "en";
     const norm = q.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
 
     const filter = { seeded: true };
-    if (norm) filter.nameNorm = { $regex: norm, $options: "i" };
+    if (norm) filter.$or = [{ nameNorm: { $regex: norm, $options: "i" } }, { nameNormEn: { $regex: norm, $options: "i" } }];
     if (tipo)  filter.tipos   = tipo;
     if (lugar) filter.lugares = lugar;
 
     const results = await Exercise.find(filter)
-      .select("name muscleGroup imageUrl tipos lugares equipment")
+      .select("name nameEn muscleGroup imageUrl tipos lugares equipment")
       .limit(20)
       .lean();
 
-    return res.json(results);
+    return res.json(results.map((r) => withLangName(r, isEN)));
   } catch (err) {
     return res.status(500).json({ error: "Error en búsqueda." });
   }
@@ -663,25 +673,29 @@ router.get("/exercises/similar", authMiddleware, async (req, res) => {
   try {
     const { muscleGroup, exclude, tipo, lugar } = req.query;
     if (!muscleGroup) return res.status(400).json({ error: "muscleGroup requerido." });
+    const isEN = getLang(req) === "en";
 
-    // exclude puede ser un nombre o una lista separada por comas
+    // exclude puede ser un nombre o una lista separada por comas — un plan en
+    // inglés manda nombres en inglés, así que hay que excluir por el campo
+    // que corresponda (name o nameEn), no siempre "name".
     const excludeList = exclude ? exclude.split(",").map(n => n.trim()).filter(Boolean) : [];
+    const excludeField = isEN ? "nameEn" : "name";
 
     const filter = { seeded: true, muscleGroup };
-    if (excludeList.length) filter.name = { $nin: excludeList };
+    if (excludeList.length) filter[excludeField] = { $nin: excludeList };
     if (tipo)    filter.tipos   = tipo;
     if (lugar)   filter.lugares = lugar;
 
-    let results = await Exercise.find(filter).select("name muscleGroup imageUrl equipment description").lean();
+    let results = await Exercise.find(filter).select("name nameEn muscleGroup imageUrl equipment description").lean();
 
     if (results.length < 3) {
-      const fallback = { seeded: true, muscleGroup, ...(excludeList.length && { name: { $nin: excludeList } }) };
-      results = await Exercise.find(fallback).select("name muscleGroup imageUrl equipment description").lean();
+      const fallback = { seeded: true, muscleGroup, ...(excludeList.length && { [excludeField]: { $nin: excludeList } }) };
+      results = await Exercise.find(fallback).select("name nameEn muscleGroup imageUrl equipment description").lean();
     }
 
     // Shuffle y devolver 3
     const shuffled = results.sort(() => Math.random() - 0.5).slice(0, 3);
-    return res.json(shuffled);
+    return res.json(shuffled.map((r) => withLangName(r, isEN)));
   } catch (err) {
     return res.status(500).json({ error: "Error al buscar similares." });
   }

@@ -493,6 +493,7 @@ const TrainingPage = () => {
       const params = new URLSearchParams();
       if (config?.tipo)  params.set("tipo",  config.tipo);
       if (config?.lugar) params.set("lugar", config.lugar);
+      params.set("lang", isUS ? "en" : "es");
       const res  = await fetch(`${API_URL}/api/training/exercises/search?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -520,6 +521,7 @@ const TrainingPage = () => {
         const params = new URLSearchParams({ q });
         if (config?.tipo)  params.set("tipo",  config.tipo);
         if (config?.lugar) params.set("lugar", config.lugar);
+        params.set("lang", isUS ? "en" : "es");
         const res  = await fetch(`${API_URL}/api/training/exercises/search?${params}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -571,6 +573,7 @@ const TrainingPage = () => {
       if (muscleGroup)   params.set("muscleGroup", muscleGroup);
       if (config?.tipo)  params.set("tipo",  config.tipo);
       if (config?.lugar) params.set("lugar", config.lugar);
+      params.set("lang", isUS ? "en" : "es");
       const res  = await fetch(`${API_URL}/api/training/exercises/similar?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
