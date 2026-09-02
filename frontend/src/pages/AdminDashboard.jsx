@@ -1003,6 +1003,46 @@ const AdminDashboard = () => {
         ))}
       </Paper>
 
+      {/* Tabla resumen de cancelaciones por período */}
+      <Paper elevation={0} sx={{ borderRadius: 4, border: `1px solid ${C.border}`,
+        boxShadow: shadow.sm, overflow: "hidden", mb: 5 }}>
+        <Box sx={{ px: 3, py: 2, bgcolor: C.surfaceAlt, borderBottom: `1px solid ${C.border}` }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.text }}>Cancelaciones por período</Typography>
+        </Box>
+        <Box sx={{ display: "grid", gridTemplateColumns: "1fr repeat(3,100px)", px: 3, py: 1.2,
+          bgcolor: C.surfaceAlt, borderBottom: `1px solid ${C.border}` }}>
+          {["Plan", "Hoy", "Esta semana", "Este año"].map((h) => (
+            <Typography key={h} sx={{ fontSize: 10.5, fontWeight: 700, color: C.textMuted,
+              textTransform: "uppercase", letterSpacing: "0.07em", textAlign: h !== "Plan" ? "center" : "left" }}>
+              {h}
+            </Typography>
+          ))}
+        </Box>
+        {[
+          { label: "Silver", color: C.silver, today: s.cancelledSilverToday, week: s.cancelledSilverWeek, year: s.cancelledSilverYear },
+          { label: "Gold",   color: C.gold,   today: s.cancelledGoldToday,   week: s.cancelledGoldWeek,   year: s.cancelledGoldYear   },
+          { label: "Total",  color: C.danger,
+            today: (s.cancelledSilverToday ?? 0) + (s.cancelledGoldToday ?? 0),
+            week:  (s.cancelledSilverWeek  ?? 0) + (s.cancelledGoldWeek  ?? 0),
+            year:  (s.cancelledSilverYear  ?? 0) + (s.cancelledGoldYear  ?? 0),
+          },
+        ].map((row, i) => (
+          <Box key={row.label} sx={{
+            display: "grid", gridTemplateColumns: "1fr repeat(3,100px)",
+            px: 3, py: 1.4,
+            bgcolor: i === 2 ? `${C.danger}06` : "transparent",
+            borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
+          }}>
+            <Typography sx={{ fontSize: 13.5, fontWeight: i === 2 ? 800 : 600, color: row.color }}>{row.label}</Typography>
+            {[row.today, row.week, row.year].map((v, j) => (
+              <Typography key={j} sx={{ fontSize: 15, fontWeight: 800, color: row.color, textAlign: "center" }}>
+                {v ?? 0}
+              </Typography>
+            ))}
+          </Box>
+        ))}
+      </Paper>
+
       {/* ── SECCIÓN: DEMOGRAFÍA ──────────────────────── */}
       <SectionHeader title="Demografía de usuarios"
         subtitle={`${d.profileCount ?? 0} usuario${d.profileCount !== 1 ? "s" : ""} con perfil completo`} />

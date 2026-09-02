@@ -40,7 +40,7 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
       Analysis.countDocuments(),
     ]);
 
-    /* ── Suscripciones (aggregation) ────────────────── */
+    /* ── Suscripciones activas ahora mismo (snapshot) ── */
     const [subStats] = await Subscription.aggregate([
       {
         $facet: {
@@ -52,25 +52,45 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
           // Accesos manuales asignados por admin (activos)
           activeAdmin: [{ $match: { status: "active", source: "admin" } }, { $count: "n" }],
 
-          // Nuevas Silver por período — solo pagos reales
-          silverToday: [{ $match: { plan: "silver", source: { $ne: "admin" }, startDate: { $gte: todayStart } } }, { $count: "n" }],
-          silverWeek:  [{ $match: { plan: "silver", source: { $ne: "admin" }, startDate: { $gte: weekStart  } } }, { $count: "n" }],
-          silverYear:  [{ $match: { plan: "silver", source: { $ne: "admin" }, startDate: { $gte: yearStart  } } }, { $count: "n" }],
-
-          // Nuevas Gold por período — solo pagos reales
-          goldToday: [{ $match: { plan: "gold", source: { $ne: "admin" }, startDate: { $gte: todayStart } } }, { $count: "n" }],
-          goldWeek:  [{ $match: { plan: "gold", source: { $ne: "admin" }, startDate: { $gte: weekStart  } } }, { $count: "n" }],
-          goldYear:  [{ $match: { plan: "gold", source: { $ne: "admin" }, startDate: { $gte: yearStart  } } }, { $count: "n" }],
-
-          // Total canceladas
-          cancelled: [{ $match: { status: "cancelled" } }, { $count: "n" }],
-          expired:   [{ $match: { status: "expired"   } }, { $count: "n" }],
+          // Expiradas ahora mismo — es un estado, no un evento, tiene sentido como snapshot
+          expired: [{ $match: { status: "expired" } }, { $count: "n" }],
 
           // MRR estimado (subs pagadas activas)
           mrr: [
             { $match: { status: "active", plan: { $in: ["silver", "gold"] }, amount: { $gt: 0 } } },
             { $group: { _id: null, total: { $sum: "$amount" } } },
           ],
+        },
+      },
+    ]);
+
+    /* ── Altas y cancelaciones por período (eventos permanentes en Log,
+       no el snapshot de Subscription — un documento de Subscription se
+       pisa en cada cambio, así que una alta o cancelación real desaparece
+       de un snapshot si después se reasigna el plan por admin) ── */
+    const [logStats] = await Log.aggregate([
+      { $match: { category: "payment", action: { $in: ["subscription.created", "subscription.cancelled"] } } },
+      {
+        $facet: {
+          silverToday: [{ $match: { action: "subscription.created", "meta.plan": "silver", createdAt: { $gte: todayStart } } }, { $count: "n" }],
+          silverWeek:  [{ $match: { action: "subscription.created", "meta.plan": "silver", createdAt: { $gte: weekStart  } } }, { $count: "n" }],
+          silverYear:  [{ $match: { action: "subscription.created", "meta.plan": "silver", createdAt: { $gte: yearStart  } } }, { $count: "n" }],
+
+          goldToday: [{ $match: { action: "subscription.created", "meta.plan": "gold", createdAt: { $gte: todayStart } } }, { $count: "n" }],
+          goldWeek:  [{ $match: { action: "subscription.created", "meta.plan": "gold", createdAt: { $gte: weekStart  } } }, { $count: "n" }],
+          goldYear:  [{ $match: { action: "subscription.created", "meta.plan": "gold", createdAt: { $gte: yearStart  } } }, { $count: "n" }],
+
+          cancelledSilverToday: [{ $match: { action: "subscription.cancelled", "meta.plan": "silver", createdAt: { $gte: todayStart } } }, { $count: "n" }],
+          cancelledSilverWeek:  [{ $match: { action: "subscription.cancelled", "meta.plan": "silver", createdAt: { $gte: weekStart  } } }, { $count: "n" }],
+          cancelledSilverYear:  [{ $match: { action: "subscription.cancelled", "meta.plan": "silver", createdAt: { $gte: yearStart  } } }, { $count: "n" }],
+
+          cancelledGoldToday: [{ $match: { action: "subscription.cancelled", "meta.plan": "gold", createdAt: { $gte: todayStart } } }, { $count: "n" }],
+          cancelledGoldWeek:  [{ $match: { action: "subscription.cancelled", "meta.plan": "gold", createdAt: { $gte: weekStart  } } }, { $count: "n" }],
+          cancelledGoldYear:  [{ $match: { action: "subscription.cancelled", "meta.plan": "gold", createdAt: { $gte: yearStart  } } }, { $count: "n" }],
+
+          // Total histórico de cancelaciones (cualquier plan) — reemplaza el
+          // viejo conteo "cancelled" basado en el estado actual del doc.
+          cancelledTotal: [{ $match: { action: "subscription.cancelled" } }, { $count: "n" }],
         },
       },
     ]);
@@ -115,15 +135,25 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
         activeSilver: n(subStats?.activeSilver),
         activeGold:   n(subStats?.activeGold),
         activeAdmin:  n(subStats?.activeAdmin),
-        silverToday:  n(subStats?.silverToday),
-        silverWeek:   n(subStats?.silverWeek),
-        silverYear:   n(subStats?.silverYear),
-        goldToday:    n(subStats?.goldToday),
-        goldWeek:     n(subStats?.goldWeek),
-        goldYear:     n(subStats?.goldYear),
-        cancelled:    n(subStats?.cancelled),
         expired:      n(subStats?.expired),
         mrr:          subStats?.mrr?.[0]?.total ?? 0,
+
+        // Altas por período (eventos, no snapshot — ver comentario arriba)
+        silverToday:  n(logStats?.silverToday),
+        silverWeek:   n(logStats?.silverWeek),
+        silverYear:   n(logStats?.silverYear),
+        goldToday:    n(logStats?.goldToday),
+        goldWeek:     n(logStats?.goldWeek),
+        goldYear:     n(logStats?.goldYear),
+
+        // Cancelaciones por período (eventos)
+        cancelledSilverToday: n(logStats?.cancelledSilverToday),
+        cancelledSilverWeek:  n(logStats?.cancelledSilverWeek),
+        cancelledSilverYear:  n(logStats?.cancelledSilverYear),
+        cancelledGoldToday:   n(logStats?.cancelledGoldToday),
+        cancelledGoldWeek:    n(logStats?.cancelledGoldWeek),
+        cancelledGoldYear:    n(logStats?.cancelledGoldYear),
+        cancelled:            n(logStats?.cancelledTotal), // total histórico, reemplaza el snapshot viejo
       },
 
       /* Demografía */
