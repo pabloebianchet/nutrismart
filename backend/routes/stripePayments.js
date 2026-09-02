@@ -21,6 +21,18 @@ const STRIPE_PLANS = {
 
 const PLAN_NAMES = { silver: "Silver", gold: "Gold" };
 
+// Según la versión de la API, current_period_end a veces no viene en el
+// nivel superior del objeto subscription y solo está anidado en
+// items.data[0].current_period_end — visto en vivo (webhook.error:
+// "Cast to date failed for value \"Invalid Date\"" porque el top-level
+// venía undefined). Si ninguno de los dos está, usamos +30 días en vez de
+// dejar endDate en null, para no romper la lógica que depende de esa fecha.
+const getPeriodEnd = (stripeSub) => {
+  const ts = stripeSub.current_period_end ?? stripeSub.items?.data?.[0]?.current_period_end;
+  if (ts) return new Date(ts * 1000);
+  return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+};
+
 const router = express.Router();
 
 /* ─── Cupones — mismo sistema/códigos que Mercado Pago ───────────
@@ -241,7 +253,7 @@ export const stripeWebhookHandler = async (req, res) => {
 
       const stripeSub = await stripe.subscriptions.retrieve(session.subscription);
       const now = new Date();
-      const end = new Date(stripeSub.current_period_end * 1000);
+      const end = getPeriodEnd(stripeSub);
       // amount_total ya refleja el descuento del cupón si se aplicó uno —
       // el unit_amount del Price siempre es el precio de lista, sin descuento.
       const amount = (session.amount_total ?? stripeSub.items.data[0]?.price?.unit_amount ?? 0) / 100;
@@ -312,7 +324,7 @@ export const stripeWebhookHandler = async (req, res) => {
       if (!sub) return res.sendStatus(200);
 
       const stripeSub = await stripe.subscriptions.retrieve(invoice.subscription);
-      const end = new Date(stripeSub.current_period_end * 1000);
+      const end = getPeriodEnd(stripeSub);
       const amount = (invoice.amount_paid || 0) / 100;
       const currency = (invoice.currency || "usd").toUpperCase();
 
