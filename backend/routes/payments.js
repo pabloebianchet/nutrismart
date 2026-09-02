@@ -262,13 +262,22 @@ router.post("/webhook", async (req, res) => {
         const planInfo  = PLANS_WH1[plan];
         if (!planInfo) return res.sendStatus(200);
 
+        // Idempotencia real: MP puede reenviar la misma notificación (visto
+        // en vivo, dos entregas del mismo authorized_payment separadas por
+        // varios segundos) — comparar timestamps no alcanza para esto, hay
+        // que chequear si ESTE pago puntual ya está en el historial antes
+        // de volver a pushear/cobrar puntos/mandar mail.
+        const existingSub = await Subscription.findOne({ user: userId }).lean();
+        if (existingSub?.paymentHistory?.some((p) => p.mpPaymentId === String(payment.id))) {
+          return res.sendStatus(200);
+        }
+
         // Mismo caso que con Stripe: un webhook reintentado por MP no debe
         // pisar un cambio más nuevo (usuario canceló, admin reasignó el
         // plan, etc. mientras el webhook seguía reintentando).
-        if (req.body?.date_created) {
-          const eventTime  = new Date(req.body.date_created);
-          const existingSub = await Subscription.findOne({ user: userId }).select("updatedAt").lean();
-          if (existingSub?.updatedAt && existingSub.updatedAt > eventTime) {
+        if (req.body?.date_created && existingSub?.updatedAt) {
+          const eventTime = new Date(req.body.date_created);
+          if (existingSub.updatedAt > eventTime) {
             return res.sendStatus(200);
           }
         }
@@ -435,10 +444,14 @@ router.post("/webhook", async (req, res) => {
         const planInfo  = PLANS_WH2[plan];
         if (!planInfo) return res.sendStatus(200);
 
-        if (req.body?.date_created) {
-          const eventTime  = new Date(req.body.date_created);
-          const existingSub = await Subscription.findOne({ user: userId }).select("updatedAt").lean();
-          if (existingSub?.updatedAt && existingSub.updatedAt > eventTime) {
+        const existingSub = await Subscription.findOne({ user: userId }).lean();
+        if (existingSub?.paymentHistory?.some((p) => p.mpPaymentId === mp.id.toString())) {
+          return res.sendStatus(200);
+        }
+
+        if (req.body?.date_created && existingSub?.updatedAt) {
+          const eventTime = new Date(req.body.date_created);
+          if (existingSub.updatedAt > eventTime) {
             return res.sendStatus(200);
           }
         }
