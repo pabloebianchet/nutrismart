@@ -452,7 +452,7 @@ const EnergyPage = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setPreview(data);
+      setPreview(Array.isArray(data) ? data : [data]);
       setInterim("");
     } catch (err) {
       alert(
@@ -560,58 +560,66 @@ const EnergyPage = () => {
     return { ...prev, daily: newDaily };
   };
 
-  /* ─── Confirmar entrada ── */
+  /* ─── Confirmar entrada(s) ── */
   const handleConfirm = async () => {
-    if (!preview) return;
+    if (!preview?.length) return;
     setSaving(true);
     const previewSnapshot = preview;
 
-    const tempEntry = {
-      _id: `temp_${Date.now()}`,
-      tipo: preview.tipo,
-      resumen: preview.resumen,
-      kcal: preview.totales?.kcal || 0,
-      proteinas: preview.totales?.proteinas || 0,
-      carbos: preview.totales?.carbos || 0,
-      grasas: preview.totales?.grasas || 0,
-      agua_ml: preview.agua_ml || 0,
-    };
+    const tempEntries = previewSnapshot.map((p, idx) => ({
+      _id: `temp_${Date.now()}_${idx}`,
+      tipo: p.tipo,
+      resumen: p.resumen,
+      kcal: p.totales?.kcal || 0,
+      proteinas: p.totales?.proteinas || 0,
+      carbos: p.totales?.carbos || 0,
+      grasas: p.totales?.grasas || 0,
+      agua_ml: p.agua_ml || 0,
+    }));
 
     // Actualización optimista inmediata
     setLog((prev) => {
-      const updated = applyEntryToLog(prev, tempEntry, +1);
-      updated.entries = [...(prev?.entries || []), tempEntry];
+      let updated = prev;
+      for (const tempEntry of tempEntries) updated = applyEntryToLog(updated, tempEntry, +1);
+      updated.entries = [...(prev?.entries || []), ...tempEntries];
       return updated;
     });
-    setMonthly((prev) => applyEntryToMonthly(prev, tempEntry, +1));
+    setMonthly((prev) => {
+      let updated = prev;
+      for (const tempEntry of tempEntries) updated = applyEntryToMonthly(updated, tempEntry, +1);
+      return updated;
+    });
     setPreview(null);
     setInputText("");
     setSaving(false);
 
     try {
-      const res = await fetch(`${API_URL}/api/energy/log`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ parsed: previewSnapshot }),
-      });
-      if (!res.ok) throw new Error();
+      const results = await Promise.all(
+        previewSnapshot.map((p) =>
+          fetch(`${API_URL}/api/energy/log`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ parsed: p }),
+          }),
+        ),
+      );
+      const anyFailed = results.some((res) => !res.ok);
       setTimeout(() => {
         fetchLog();
         fetchMonthly();
       }, 800);
+      if (anyFailed) {
+        alert(isUS ? "Some entries failed to save. Please check your log." : "Algunas entradas no se pudieron guardar. Revisá tu registro.");
+      }
     } catch {
-      // Revertir si falla
-      setLog((prev) => {
-        const reverted = applyEntryToLog(prev, tempEntry, -1);
-        reverted.entries = (prev?.entries || []).filter(
-          (e) => e._id !== tempEntry._id,
-        );
-        return reverted;
-      });
-      setMonthly((prev) => applyEntryToMonthly(prev, tempEntry, -1));
+      // Ante un fallo de red no sabemos cuáles llegaron a guardarse — resincronizamos
+      // con el server en vez de revertir a ciegas (podría dejar la UI desincronizada
+      // si alguna sí se guardó).
+      fetchLog();
+      fetchMonthly();
       alert(isUS ? "Error saving. Please try again." : "Error al guardar. Intentá de nuevo.");
     }
   };
@@ -1299,15 +1307,15 @@ const EnergyPage = () => {
         </Paper>
 
         {/* ── Preview: confirmación ── */}
-        {preview && (
+        {preview?.length > 0 && (
           <Paper
             elevation={0}
             sx={{
               p: 3,
               borderRadius: 4,
               mb: 3,
-              border: `1.5px solid ${typeColor(preview.tipo)}40`,
-              bgcolor: `${typeColor(preview.tipo)}06`,
+              border: `1.5px solid ${typeColor(preview[0].tipo)}40`,
+              bgcolor: `${typeColor(preview[0].tipo)}06`,
             }}
           >
             <Stack
@@ -1317,7 +1325,9 @@ const EnergyPage = () => {
               mb={2}
             >
               <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>
-                {isUS ? "Log this?" : "¿Registrar esto?"}
+                {isUS
+                  ? (preview.length > 1 ? "Log these?" : "Log this?")
+                  : "¿Registrar esto?"}
               </Typography>
               <IconButton
                 size="small"
@@ -1331,71 +1341,75 @@ const EnergyPage = () => {
               </IconButton>
             </Stack>
 
-            <Box
-              sx={{
-                px: 2,
-                py: 1.8,
-                borderRadius: 2.5,
-                bgcolor: C.surface,
-                mb: 2,
-                border: `1px solid ${C.border}`,
-              }}
-            >
-              <Typography
-                sx={{ fontSize: 14, color: C.text, fontWeight: 600, mb: 1 }}
-              >
-                {preview.resumen}
-              </Typography>
-              {preview.tipo === "comida" && (
-                <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
-                  {[
-                    {
-                      label: "Kcal",
-                      val: preview.totales?.kcal,
-                      color: C.gold,
-                    },
-                    {
-                      label: isUS ? "Protein" : "Proteína",
-                      val: preview.totales?.proteinas,
-                      color: C.blue,
-                    },
-                    {
-                      label: isUS ? "Carbs" : "Carbos",
-                      val: preview.totales?.carbos,
-                      color: C.brand,
-                    },
-                    {
-                      label: isUS ? "Fat" : "Grasas",
-                      val: preview.totales?.grasas,
-                      color: C.danger,
-                    },
-                  ].map(({ label, val, color }) => (
-                    <Box key={label}>
-                      <Typography sx={{ fontSize: 18, fontWeight: 900, color }}>
-                        {Math.round(val || 0)}
-                      </Typography>
-                      <Typography sx={{ fontSize: 11, color: C.textMuted }}>
-                        {label}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              )}
-              {preview.tipo === "actividad" && (
-                <Typography
-                  sx={{ fontSize: 16, fontWeight: 900, color: C.brand, display: "flex", alignItems: "center", gap: 0.6 }}
+            <Stack spacing={1.5} mb={2}>
+              {preview.map((p, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    px: 2,
+                    py: 1.8,
+                    borderRadius: 2.5,
+                    bgcolor: C.surface,
+                    border: `1px solid ${C.border}`,
+                  }}
                 >
-                  <LocalFireDepartmentRoundedIcon sx={{ fontSize: 19 }} /> {Math.round(preview.totales?.kcal || 0)} {isUS ? "kcal burned" : "kcal quemadas"}
-                </Typography>
-              )}
-              {preview.tipo === "agua" && (
-                <Typography
-                  sx={{ fontSize: 16, fontWeight: 900, color: C.blue, display: "flex", alignItems: "center", gap: 0.6 }}
-                >
-                  <OpacityRoundedIcon sx={{ fontSize: 19 }} /> {((preview.agua_ml || 0) / 1000).toFixed(2)} {isUS ? "liters" : "litros"}
-                </Typography>
-              )}
-            </Box>
+                  <Typography
+                    sx={{ fontSize: 14, color: C.text, fontWeight: 600, mb: 1 }}
+                  >
+                    {p.resumen}
+                  </Typography>
+                  {p.tipo === "comida" && (
+                    <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+                      {[
+                        {
+                          label: "Kcal",
+                          val: p.totales?.kcal,
+                          color: C.gold,
+                        },
+                        {
+                          label: isUS ? "Protein" : "Proteína",
+                          val: p.totales?.proteinas,
+                          color: C.blue,
+                        },
+                        {
+                          label: isUS ? "Carbs" : "Carbos",
+                          val: p.totales?.carbos,
+                          color: C.brand,
+                        },
+                        {
+                          label: isUS ? "Fat" : "Grasas",
+                          val: p.totales?.grasas,
+                          color: C.danger,
+                        },
+                      ].map(({ label, val, color }) => (
+                        <Box key={label}>
+                          <Typography sx={{ fontSize: 18, fontWeight: 900, color }}>
+                            {Math.round(val || 0)}
+                          </Typography>
+                          <Typography sx={{ fontSize: 11, color: C.textMuted }}>
+                            {label}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+                  {p.tipo === "actividad" && (
+                    <Typography
+                      sx={{ fontSize: 16, fontWeight: 900, color: C.brand, display: "flex", alignItems: "center", gap: 0.6 }}
+                    >
+                      <LocalFireDepartmentRoundedIcon sx={{ fontSize: 19 }} /> {Math.round(p.totales?.kcal || 0)} {isUS ? "kcal burned" : "kcal quemadas"}
+                    </Typography>
+                  )}
+                  {p.tipo === "agua" && (
+                    <Typography
+                      sx={{ fontSize: 16, fontWeight: 900, color: C.blue, display: "flex", alignItems: "center", gap: 0.6 }}
+                    >
+                      <OpacityRoundedIcon sx={{ fontSize: 19 }} /> {((p.agua_ml || 0) / 1000).toFixed(2)} {isUS ? "liters" : "litros"}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Stack>
 
             <Stack direction="row" spacing={1.5}>
               <Button
@@ -1427,11 +1441,13 @@ const EnergyPage = () => {
                   borderRadius: 2.5,
                   textTransform: "none",
                   fontWeight: 700,
-                  bgcolor: typeColor(preview.tipo),
+                  bgcolor: typeColor(preview[0].tipo),
                   "&:hover": { filter: "brightness(0.9)" },
                 }}
               >
-                {isUS ? (saving ? "Saving…" : "Confirm") : (saving ? "Guardando…" : "Confirmar")}
+                {isUS
+                  ? (saving ? "Saving…" : preview.length > 1 ? "Confirm all" : "Confirm")
+                  : (saving ? "Guardando…" : preview.length > 1 ? "Confirmar todo" : "Confirmar")}
               </Button>
             </Stack>
           </Paper>

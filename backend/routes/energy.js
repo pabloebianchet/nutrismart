@@ -241,7 +241,7 @@ router.post("/parse", authMiddleware, parseLimiter, async (req, res) => {
         content: isEN ? `The user (${peso}kg, ${sexo === "M" || sexo === "masculino" ? "male" : "female"}, ${edad} years old) logged:
 "${texto}"
 
-Determine whether it's FOOD, PHYSICAL ACTIVITY, or WATER and respond with one of these formats. Write all text values (resumen, nombre, etc.) in English. The "tipo" field must be exactly the literal value "comida", "actividad", or "agua" (do not translate this field, it's an internal code):
+The text may describe just ONE thing, or SEVERAL distinct things (e.g. a meal AND a workout AND water, all in the same message). Identify EVERY distinct FOOD, PHYSICAL ACTIVITY, or WATER entry mentioned — do not discard any of them — and respond with a JSON ARRAY containing one object per entry, using the formats below. Write all text values (resumen, nombre, etc.) in English. The "tipo" field must be exactly the literal value "comida", "actividad", or "agua" (do not translate this field, it's an internal code):
 
 FOOD:
 {"tipo":"comida","resumen":"brief description","items":[{"nombre":"...","cantidad":"...","kcal":0,"proteinas":0,"carbos":0,"grasas":0}],"totales":{"kcal":0,"proteinas":0,"carbos":0,"grasas":0}}
@@ -253,6 +253,7 @@ WATER:
 {"tipo":"agua","resumen":"...","agua_ml":0}
 
 IMPORTANT RULES:
+- ALWAYS respond with a JSON array, even if there's only one entry: [{...}]
 - If no quantity is mentioned, use a standard US portion
 - If it says "a little" or "some", use the minimum portion
 - ALWAYS underestimate when in doubt (better for the user to correct upward)
@@ -260,7 +261,7 @@ IMPORTANT RULES:
 - JSON only, no extra text` : `El usuario (${peso}kg, ${sexo === "M" || sexo === "masculino" ? "hombre" : "mujer"}, ${edad} años) registró:
 "${texto}"
 
-Determiná si es COMIDA, ACTIVIDAD FÍSICA o AGUA y respondé con uno de estos formatos:
+El texto puede describir UNA sola cosa, o VARIAS cosas distintas (ej: una comida Y un entrenamiento Y agua, todo en el mismo mensaje). Identificá TODAS las entradas distintas de COMIDA, ACTIVIDAD FÍSICA o AGUA mencionadas — no descartes ninguna — y respondé con un ARRAY JSON con un objeto por cada entrada, usando estos formatos:
 
 COMIDA:
 {"tipo":"comida","resumen":"descripción breve","items":[{"nombre":"...","cantidad":"...","kcal":0,"proteinas":0,"carbos":0,"grasas":0}],"totales":{"kcal":0,"proteinas":0,"carbos":0,"grasas":0}}
@@ -272,19 +273,21 @@ AGUA:
 {"tipo":"agua","resumen":"...","agua_ml":0}
 
 REGLAS IMPORTANTES:
+- Respondé SIEMPRE con un array JSON, incluso si hay una sola entrada: [{...}]
 - Si no se menciona cantidad, usar porción estándar argentina
 - Si dice "un poco" o "algo", usar porción mínima
 - SIEMPRE subestimar ante la duda (mejor que el usuario corrija hacia arriba)
 - Para actividades, usar MET estándar y el peso del usuario
 - Solo JSON, sin texto adicional`,
       }],
-      max_tokens: 400,
+      max_tokens: 700,
       temperature: 0.3,
     });
 
     const raw  = gpt.choices[0].message.content.replace(/```json\n?/gi, "").replace(/```\n?/g, "").trim();
-    const data = JSON.parse(raw);
-    return res.json(data);
+    const parsedRaw = JSON.parse(raw);
+    const list = Array.isArray(parsedRaw) ? parsedRaw : [parsedRaw];
+    return res.json(list);
   } catch (err) {
     console.error("Energy parse error:", err.message);
     return res.status(500).json({ error: isEN ? "Error interpreting the text." : "Error al interpretar el texto." });
