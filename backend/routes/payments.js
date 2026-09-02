@@ -41,6 +41,29 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
+/* ─── TEMP DIAGNÓSTICO — probar creación real de /preapproval — BORRAR DESPUÉS DE USAR ─── */
+router.get("/__debug-preapproval-test", async (req, res) => {
+  try {
+    const token = process.env.MP_ACCESS_TOKEN;
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const mpRes = await fetch("https://api.mercadopago.com/preapproval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        reason: "Nui · Silver (test /subscribe real, borrar)",
+        payer_email: "test_user_1918979610@testuser.com",
+        external_reference: "TEST_USER_ID|silver",
+        back_url: `${frontendUrl}/subscription/success`,
+        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 100, currency_id: "ARS" },
+      }),
+    });
+    const data = await mpRes.json();
+    return res.status(200).json({ mpStatus: mpRes.status, data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
@@ -140,7 +163,7 @@ router.post("/validate-coupon", authMiddleware, async (req, res) => {
   }
 });
 
-/* ─── CREAR PAGO (Checkout Pro — pago único mensual) ─────────── */
+/* ─── CREAR SUSCRIPCIÓN (Preapproval — cobro recurrente automático) ─── */
 router.post("/subscribe", authMiddleware, async (req, res) => {
   const { plan, couponCode } = req.body;
 
@@ -182,39 +205,34 @@ router.post("/subscribe", authMiddleware, async (req, res) => {
       }
     }
 
-    const preferenceBody = {
-      items: [{
-        title:       `Nui · ${planInfo.name}${pendingCoupon ? ` (${pendingCoupon.discountPct}% off)` : ""}`,
-        description: planInfo.description,
-        quantity:    1,
-        unit_price:  finalAmount,
-        currency_id: planInfo.currency,
-      }],
-      payer: { email: user.email },
+    const preapprovalBody = {
+      reason:             `Nui · ${planInfo.name}${pendingCoupon ? ` (${pendingCoupon.discountPct}% off)` : ""}`,
+      payer_email:        user.email,
       external_reference: `${user._id}|${plan}`,
-      back_urls: {
-        success: `${frontendUrl}/subscription/success`,
-        failure: `${frontendUrl}/pricing`,
-        pending: `${frontendUrl}/pricing`,
+      back_url:           `${frontendUrl}/subscription/success`,
+      auto_recurring: {
+        frequency:          1,
+        frequency_type:     "months",
+        transaction_amount: finalAmount,
+        currency_id:        planInfo.currency,
       },
-      auto_return: "approved",
     };
 
     // notification_url solo si está configurada
     if (process.env.MP_WEBHOOK_URL) {
-      preferenceBody.notification_url = process.env.MP_WEBHOOK_URL;
+      preapprovalBody.notification_url = process.env.MP_WEBHOOK_URL;
     }
 
-    const mpRes = await mpFetch("/checkout/preferences", {
+    const mpRes = await mpFetch("/preapproval", {
       method: "POST",
-      body: JSON.stringify(preferenceBody),
+      body: JSON.stringify(preapprovalBody),
     });
 
     if (!mpRes.ok) {
       const errBody = await mpRes.json().catch(() => ({}));
-      console.error("MP Preference error:", JSON.stringify(errBody));
+      console.error("MP Preapproval error:", JSON.stringify(errBody));
       const mpMessage = errBody?.message || errBody?.cause?.[0]?.description || "Error en Mercado Pago";
-      return res.status(502).json({ error: `Error al crear el pago: ${mpMessage}` });
+      return res.status(502).json({ error: `Error al crear la suscripción: ${mpMessage}` });
     }
 
     const mpData = await mpRes.json();
