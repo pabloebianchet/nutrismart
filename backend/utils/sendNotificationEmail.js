@@ -33,7 +33,7 @@ const tipCard = (tip) => `
 const buildAnalysisHtml = ({ firstName, score, productText, productName, totalPoints, appUrl, year, lang = "es" }) => {
   const isEN = lang === "en";
   const productName_ = productName || (productText ? productText.slice(0, 60) : null);
-  const tip   = getRandomTip("food");
+  const tip   = getRandomTip("food", lang);
   const emoji = score >= 75 ? "🌟" : score >= 50 ? "👍" : "🔍";
   const scoreColor = score >= 75 ? "#2E7D32" : score >= 50 ? "#F57C00" : "#C62828";
 
@@ -132,7 +132,6 @@ const buildAnalysisHtml = ({ firstName, score, productText, productName, totalPo
             </table>
 
             <!-- Tip -->
-            <!-- TODO: getRandomTip no tiene versión en inglés todavía -->
             ${tipCard(tip)}
 
           </td>
@@ -170,7 +169,7 @@ const buildAnalysisHtml = ({ firstName, score, productText, productName, totalPo
 
 const buildTrainingHtml = ({ firstName, dayName, tipoLabel, totalPoints, appUrl, year, lang = "es" }) => {
   const isEN = lang === "en";
-  const tip = getRandomTip("training");
+  const tip = getRandomTip("training", lang);
 
   const t = isEN ? {
     htmlLang: "en", title: "Session completed — Nui", tagline: "AI-POWERED PERSONALIZED TRAINING",
@@ -257,7 +256,6 @@ const buildTrainingHtml = ({ firstName, dayName, tipoLabel, totalPoints, appUrl,
             </table>
 
             <!-- Tip -->
-            <!-- TODO: getRandomTip no tiene versión en inglés todavía -->
             ${tipCard(tip)}
 
           </td>
@@ -559,7 +557,7 @@ const buildCancellationHtml = ({ firstName, planName, endDate, appUrl, supportEm
 
 const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year, lang = "es" }) => {
   const isEN = lang === "en";
-  const tip = getRandomTip("food");
+  const tip = getRandomTip("food", lang);
   const fechaFin = new Date(endDate).toLocaleDateString(isEN ? "en-US" : "es-AR", {
     day: "2-digit", month: "long", year: "numeric",
   });
@@ -641,7 +639,6 @@ const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year, lang = "
             </table>
 
             <!-- Tip -->
-            <!-- TODO: getRandomTip no tiene versión en inglés todavía -->
             ${tipCard(tip)}
           </td>
         </tr>
