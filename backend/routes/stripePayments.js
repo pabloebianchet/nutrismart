@@ -252,6 +252,16 @@ export const stripeWebhookHandler = async (req, res) => {
       if (!userId || !STRIPE_PLANS[plan]) return res.sendStatus(200);
 
       const stripeSub = await stripe.subscriptions.retrieve(session.subscription);
+
+      // Stripe reintenta un webhook fallido por horas/días. Si para cuando
+      // este reintento finalmente procesa, la suscripción ya fue cancelada
+      // (o el usuario canceló y volvió a suscribirse con otra), no la
+      // resucitamos como activa — evita que un reintento viejo pise un
+      // estado más nuevo (ej. un admin reasignó el plan mientras tanto).
+      if (!["active", "trialing"].includes(stripeSub.status)) {
+        return res.sendStatus(200);
+      }
+
       const now = new Date();
       const end = getPeriodEnd(stripeSub);
       // amount_total ya refleja el descuento del cupón si se aplicó uno —
