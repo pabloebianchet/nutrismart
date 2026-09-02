@@ -66,7 +66,10 @@ const ProfileGate = () => {
 };
 
 /* ── Banner de prueba activa ────────────────────────────────── */
-const BANNER_HIDDEN_PATHS = ["/", "/pricing", "/privacidad", "/terminos", "/legal", "/contact", "/forgot-password", "/reset-password"];
+// OJO: "/" acá con startsWith apagaría el banner en TODAS las rutas (toda
+// ruta empieza con "/") — el landing de usuarios sin sesión ya se filtra
+// aparte en AppChrome (isLanding), no hace falta repetirlo acá.
+const BANNER_HIDDEN_PATHS = ["/pricing", "/privacidad", "/terminos", "/legal", "/contact", "/forgot-password", "/reset-password"];
 
 const TrialBanner = () => {
   const { user, subPlan, subStatus, trialDaysLeft } = useNutrition();

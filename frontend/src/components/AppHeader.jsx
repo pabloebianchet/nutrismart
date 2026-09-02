@@ -506,11 +506,20 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout, isUS }) => {
 /* ─────────────────────────────────────────────────────────
    EXPORT
 ───────────────────────────────────────────────────────── */
+// Mismas rutas donde App.jsx/TrialGate.jsx no muestran el banner de prueba
+// ni el de modo lectura — tienen que estar sincronizadas con esas, si no el
+// spacer suma altura de más (o de menos) en esas rutas.
+const BANNER_FREE_PATHS = ["/pricing", "/privacidad", "/terminos", "/legal", "/contact", "/forgot-password", "/reset-password"];
+const BANNER_HEIGHT = 36; // alto aprox. del banner fijo (TrialBanner / ReadOnlyBanner)
+
 const AppHeader = () => {
-  const { user, logout, authLoading, isUS } = useNutrition();
+  const { user, logout, authLoading, isUS, subPlan, subStatus, isSubscriptionExpired } = useNutrition();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [readOnly, setReadOnly] = useState(
+    () => typeof window !== "undefined" && sessionStorage.getItem("nui-readonly") === "1",
+  );
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 24);
@@ -518,15 +527,30 @@ const AppHeader = () => {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  // El estado de "modo lectura" vive en sessionStorage, no en el contexto —
+  // re-chequear en cada cambio de ruta para que el spacer no quede desfasado.
+  useEffect(() => {
+    setReadOnly(sessionStorage.getItem("nui-readonly") === "1");
+  }, [pathname]);
+
   if (authLoading) return null;
 
   const handleLogout = () => { logout(); navigate("/"); };
+
+  // Debajo del header puede aparecer un banner fijo (prueba activa/vencida
+  // o modo lectura) — si está visible, el spacer tiene que sumar su alto
+  // o el contenido de la página arranca tapado/pegado contra él.
+  const isEnPath = pathname === "/en" || pathname.startsWith("/en/");
+  const isBannerFreePath = isEnPath || BANNER_FREE_PATHS.some((p) => pathname.startsWith(p));
+  const showsTrialBanner    = !!user && subPlan === "free" && subStatus === "active" && !isBannerFreePath;
+  const showsReadOnlyBanner = !!user && isSubscriptionExpired && !isBannerFreePath && readOnly;
+  const extraHeight = (showsTrialBanner || showsReadOnlyBanner) ? BANNER_HEIGHT : 0;
 
   return (
     <>
       <DesktopHeader user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} isUS={isUS} />
       <MobileHeader  user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} isUS={isUS} />
-      <Box sx={{ height: { xs: 68, md: 64 } }} />
+      <Box sx={{ height: { xs: 68 + extraHeight, md: 64 + extraHeight } }} />
     </>
   );
 };
