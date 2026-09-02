@@ -199,18 +199,27 @@ export const NutritionProvider = ({ children }) => {
     fetchSubscription();
   }, [user?._id]);
 
-  // Una cuenta con suscripción activa de Stripe (pagada en USD) se queda
-  // en inglés aunque la IP real geolocalice como Argentina — encontrado
-  // en vivo: un usuario contrató Silver con Stripe usando ?region=us para
+  // Una cuenta con suscripción de Stripe (pagada en USD) se queda en
+  // inglés aunque la IP real geolocalice como Argentina — encontrado en
+  // vivo: un usuario contrató Silver con Stripe usando ?region=us para
   // probar, y al abrir la app después desde una IP real de Argentina veía
   // todo en español, lo cual no tiene sentido para una cuenta que pagó en
   // dólares. El override explícito ?region=ar sigue ganando (para poder
   // seguir probando el flujo en español a propósito).
+  //
+  // Incluye el período de gracia post-cancelación (cancelled + endDate
+  // futuro) — mismo criterio que requireActiveSub en el backend: cancelar
+  // no debe tirar abajo el idioma de la cuenta de inmediato, sigue siendo
+  // una cuenta en dólares hasta que el período realmente termine.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const forced = new URLSearchParams(window.location.search).get("region");
     if (forced === "ar") return; // override explícito de testing, no lo pisamos
-    if (subscription?.provider === "stripe" && subscription?.status === "active") {
+    const hasGraceAccess =
+      subscription?.status === "cancelled" &&
+      subscription?.endDate &&
+      new Date(subscription.endDate) > new Date();
+    if (subscription?.provider === "stripe" && (subscription?.status === "active" || hasGraceAccess)) {
       stripeOverrideRef.current = true;
       setIsUS(true);
     }
