@@ -69,7 +69,7 @@ const PLANS = [
     id:        "silver",
     name:      "Silver",
     subtitle:  "Para uso diario",
-    label:     "Por mes · renovación manual",
+    label:     "Por mes · se renueva automáticamente",
     Icon:      DiamondOutlinedIcon,
     color:     "#71879C",
     bg:        "#EEF2F5",
@@ -90,7 +90,7 @@ const PLANS = [
     id:        "gold",
     name:      "Gold",
     subtitle:  "Sin límites, sin compromisos",
-    label:     "Por mes · renovación manual",
+    label:     "Por mes · se renueva automáticamente",
     Icon:      WorkspacePremiumOutlinedIcon,
     color:     "#C9952A",
     bg:        "linear-gradient(135deg, #FDF6E3 0%, #FEF9EC 100%)",
@@ -601,7 +601,7 @@ const PricingPage = () => {
         <Typography sx={{ textAlign: "center", fontSize: 12.5, color: C.textMuted, mt: 5, lineHeight: 1.8 }}>
           {isUS
             ? <>Payments are processed securely through Stripe.<br />Renews automatically every month — cancel anytime, no commitment.</>
-            : <>El pago se procesa de forma segura a través de Mercado Pago.<br />Te avisamos por mail antes del vencimiento para que puedas renovar cuando quieras.</>}
+            : <>El pago se procesa de forma segura a través de Mercado Pago.<br />Se renueva automáticamente cada mes — cancelá cuando quieras, sin compromiso.</>}
         </Typography>
       </Box>
 

@@ -289,7 +289,7 @@ const SubscriptionPage = () => {
               </Paper>
             )}
 
-            {/* ── Renovación manual (info) ── */}
+            {/* ── Renovación (info) ── */}
             {isActive && (
               <Paper elevation={0} sx={{ p: 3.5, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md, animation: "fadeUp 0.5s 0.1s ease both" }}>
                 <Stack direction="row" spacing={1.5} alignItems="center">
@@ -298,12 +298,12 @@ const SubscriptionPage = () => {
                   </Box>
                   <Box>
                     <Typography sx={{ fontWeight: 700, fontSize: 14.5, color: C.textPrimary }}>
-                      {sub.provider === "stripe"
+                      {sub.autoRenew
                         ? (isUS ? "Automatic renewal" : "Renovación automática")
                         : (isUS ? "Manual renewal" : "Renovación manual")}
                     </Typography>
                     <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>
-                      {sub.provider === "stripe"
+                      {sub.autoRenew
                         ? (isUS
                             ? `You'll be charged automatically every month until ${formatDate(sub.endDate, isUS)}, unless you cancel before then.`
                             : `Se cobra automáticamente cada mes hasta el ${formatDate(sub.endDate, isUS)}, salvo que canceles antes.`)

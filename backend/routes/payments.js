@@ -262,6 +262,17 @@ router.post("/webhook", async (req, res) => {
         const planInfo  = PLANS_WH1[plan];
         if (!planInfo) return res.sendStatus(200);
 
+        // Mismo caso que con Stripe: un webhook reintentado por MP no debe
+        // pisar un cambio más nuevo (usuario canceló, admin reasignó el
+        // plan, etc. mientras el webhook seguía reintentando).
+        if (req.body?.date_created) {
+          const eventTime  = new Date(req.body.date_created);
+          const existingSub = await Subscription.findOne({ user: userId }).select("updatedAt").lean();
+          if (existingSub?.updatedAt && existingSub.updatedAt > eventTime) {
+            return res.sendStatus(200);
+          }
+        }
+
         const now = new Date();
         const end = new Date(now);
         end.setMonth(end.getMonth() + 1);
@@ -374,6 +385,12 @@ router.post("/webhook", async (req, res) => {
       const paymentClient = new Payment(client);
       const mp = await paymentClient.get({ id: data.id });
 
+      // Un cobro recurrente real (Preapproval) ya lo procesa el handler de
+      // arriba (subscription_authorized_payment) — si este webhook viejo de
+      // "pago único" también lo agarrara, duplicaría el historial de pago
+      // y el mail de confirmación para cada cobro mensual.
+      if (mp.operation_type === "recurring_payment") return res.sendStatus(200);
+
       if (mp.status === "approved") {
         const [userId, plan] = (mp.external_reference || "").split("|");
         if (!userId) return res.sendStatus(200);
@@ -381,6 +398,14 @@ router.post("/webhook", async (req, res) => {
         const PLANS_WH2 = await getPlans();
         const planInfo  = PLANS_WH2[plan];
         if (!planInfo) return res.sendStatus(200);
+
+        if (req.body?.date_created) {
+          const eventTime  = new Date(req.body.date_created);
+          const existingSub = await Subscription.findOne({ user: userId }).select("updatedAt").lean();
+          if (existingSub?.updatedAt && existingSub.updatedAt > eventTime) {
+            return res.sendStatus(200);
+          }
+        }
 
         const now = new Date();
         const end = new Date(now);
@@ -397,6 +422,9 @@ router.post("/webhook", async (req, res) => {
               endDate:   end,
               amount:    mp.transaction_amount,
               currency:  mp.currency_id,
+              // Pago único de Checkout Pro — no hay nada que vaya a cobrar
+              // de nuevo el próximo mes sin que el usuario vuelva a pagar.
+              autoRenew: false,
             },
             $push: {
               paymentHistory: {

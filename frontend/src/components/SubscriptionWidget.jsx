@@ -281,7 +281,9 @@ const SubscriptionWidget = () => {
         <Typography sx={{ fontSize: 11.5, color: C.textMuted, mt: 1 }}>
           {isFree
             ? (isUS ? "When your trial ends, choose the plan that fits you best." : "Al vencer tu prueba, elegí el plan que mejor te quede.")
-            : (isUS ? `Expires on ${formatDate(sub.endDate, isUS)} · manual renewal` : `Vence el ${formatDate(sub.endDate, isUS)} · renovación manual`)}
+            : sub.autoRenew
+              ? (isUS ? `Renews automatically on ${formatDate(sub.endDate, isUS)}` : `Se renueva automáticamente el ${formatDate(sub.endDate, isUS)}`)
+              : (isUS ? `Expires on ${formatDate(sub.endDate, isUS)} · no auto-renewal` : `Vence el ${formatDate(sub.endDate, isUS)} · sin renovación automática`)}
         </Typography>
 
         {isFree && (
