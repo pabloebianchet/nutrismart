@@ -41,6 +41,24 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
+/* ─── TEMP DIAGNÓSTICO — inspeccionar pagos reales de MP — BORRAR DESPUÉS DE USAR ─── */
+router.get("/__debug-payment-raw", async (req, res) => {
+  try {
+    const token = process.env.MP_ACCESS_TOKEN;
+    const ids = (req.query.ids || "").split(",").filter(Boolean);
+    const results = {};
+    for (const id of ids) {
+      const r = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      results[id] = await r.json();
+    }
+    return res.status(200).json(results);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Precios base (fallback si la DB no tiene configuración aún)
 const PLANS_DEFAULT = {
   silver: { name: "Plan Silver", amount: 6890, currency: "ARS", description: "1 análisis por día · renovación mensual", dailyLimit: 1 },
