@@ -550,8 +550,12 @@ router.get("/models-available", authMiddleware, async (req, res) => {
 router.post("/exercise-image", authMiddleware, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "Nombre requerido." });
+  const isEN = getLang(req) === "en";
 
-  const cacheKey = name.toLowerCase().trim();
+  // Las infografías seeded tienen texto (Claves técnicas, Errores comunes,
+  // etc.) baked-in en los píxeles — imageUrl y imageUrlEn son imágenes
+  // DISTINTAS, así que el caché tiene que ser por idioma, no solo por nombre.
+  const cacheKey = `${isEN ? "en" : "es"}:${name.toLowerCase().trim()}`;
 
   // 1. Caché en memoria
   if (exerciseImageCache.has(cacheKey)) {
@@ -560,7 +564,7 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
 
   // 2. Base de ejercicios seeded con Cloudinary — solo match exacto o muy cercano
   try {
-    const normKey = cacheKey.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
+    const normKey = name.toLowerCase().trim().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s]/g, "").trim();
 
     // Primero: match exacto por nameNorm (español) o nameNormEn (inglés) —
     // un plan en inglés manda nombres en inglés acá, uno en español manda
@@ -570,7 +574,7 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
       $or: [{ nameNorm: normKey }, { nameNormEn: normKey }],
       seeded: true,
       imageUrl: { $ne: null },
-    }).select("imageUrl").lean();
+    }).select("imageUrl imageUrlEn").lean();
 
     // Segundo: todas las palabras significativas deben estar presentes
     if (!seeded) {
@@ -584,12 +588,15 @@ router.post("/exercise-image", authMiddleware, async (req, res) => {
           ],
           seeded: true,
           imageUrl: { $ne: null },
-        }).select("imageUrl").lean();
+        }).select("imageUrl imageUrlEn").lean();
       }
     }
 
-    if (seeded?.imageUrl) {
-      const result = { imageUrl: seeded.imageUrl };
+    // imageUrlEn puede no estar listo todavía (lote corriendo) — fallback a
+    // la infografía en español antes que no mostrar nada.
+    const resolvedUrl = isEN ? (seeded?.imageUrlEn || seeded?.imageUrl) : seeded?.imageUrl;
+    if (resolvedUrl) {
+      const result = { imageUrl: resolvedUrl };
       exerciseImageCache.set(cacheKey, result);
       return res.json({ ...result, fromCache: "exercise-db" });
     }

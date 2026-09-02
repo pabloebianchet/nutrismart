@@ -688,7 +688,7 @@ const TrainingPage = () => {
       fetch(`${API_URL}/api/training/exercise-image`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ name: ex.name }),
+        body: JSON.stringify({ name: ex.name, lang: isUS ? "en" : "es" }),
       })
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {

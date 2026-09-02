@@ -21,7 +21,8 @@ const exerciseSchema = new mongoose.Schema(
     commonMistakes:[{ type: String }],
     contraindications: { type: String, default: null },
     imagePrompt:  { type: String, default: null },        // prompt para generar la imagen
-    imageUrl:     { type: String, default: null },        // URL de Cloudinary
+    imageUrl:     { type: String, default: null },        // URL de Cloudinary (infografía en español)
+    imageUrlEn:   { type: String, default: null },        // URL de Cloudinary (infografía en inglés) — misma imagen no sirve, el texto queda baked-in en los pixels
     videoUrl:     { type: String, default: null },
     active:       { type: Boolean, default: true },
     seeded:       { type: Boolean, default: false },      // imagen ya generada
