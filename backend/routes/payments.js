@@ -41,17 +41,24 @@ const verifyMPSignature = (req) => {
 
 const router = express.Router();
 
-/* ─── TEMP DIAGNÓSTICO — inspeccionar pagos reales de MP — BORRAR DESPUÉS DE USAR ─── */
-router.get("/__debug-payment-raw", async (req, res) => {
+/* ─── TEMP DIAGNÓSTICO — inspeccionar authorized_payment + preapproval reales — BORRAR DESPUÉS DE USAR ─── */
+router.get("/__debug-payment-raw2", async (req, res) => {
   try {
     const token = process.env.MP_ACCESS_TOKEN;
-    const ids = (req.query.ids || "").split(",").filter(Boolean);
+    const authPayId = req.query.authPayId;
+    const preapprovalId = req.query.preapprovalId;
     const results = {};
-    for (const id of ids) {
-      const r = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
+    if (authPayId) {
+      const r = await fetch(`https://api.mercadopago.com/authorized_payments/${authPayId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      results[id] = await r.json();
+      results.authorizedPayment = await r.json();
+    }
+    if (preapprovalId) {
+      const r2 = await fetch(`https://api.mercadopago.com/preapproval/${preapprovalId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      results.preapproval = await r2.json();
     }
     return res.status(200).json(results);
   } catch (err) {
