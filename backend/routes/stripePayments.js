@@ -258,7 +258,21 @@ export const stripeWebhookHandler = async (req, res) => {
       // (o el usuario canceló y volvió a suscribirse con otra), no la
       // resucitamos como activa — evita que un reintento viejo pise un
       // estado más nuevo (ej. un admin reasignó el plan mientras tanto).
+      // OJO: cancelar "al fin del período" (lo que hace nuestro /cancel) deja
+      // el status de Stripe en "active" hasta que el período realmente
+      // termina — este chequeo por status solo NO alcanza para detectarlo.
       if (!["active", "trialing"].includes(stripeSub.status)) {
+        return res.sendStatus(200);
+      }
+
+      // Chequeo más general: si el documento actual se actualizó DESPUÉS de
+      // que este evento realmente ocurrió en Stripe, algo más nuevo ya lo
+      // superó (cancelación, reasignación por admin, etc.) — un reintento
+      // tardío no debe pisarlo. Visto en vivo: un reintento de +18hs pisó
+      // una reasignación de plan hecha por admin ese mismo día.
+      const eventTime = new Date(event.created * 1000);
+      const existingSub = await Subscription.findOne({ user: userId }).select("updatedAt").lean();
+      if (existingSub?.updatedAt && existingSub.updatedAt > eventTime) {
         return res.sendStatus(200);
       }
 
@@ -275,7 +289,11 @@ export const stripeWebhookHandler = async (req, res) => {
           $set: {
             user: userId, plan, status: "active", provider: "stripe",
             startDate: now, endDate: end,
-            amount, currency, autoRenew: true,
+            amount, currency,
+            // autoRenew tiene que reflejar la intención real en Stripe, no
+            // asumir siempre true — si ya se pidió cancelar al fin del
+            // período, cancel_at_period_end viene true acá.
+            autoRenew: !stripeSub.cancel_at_period_end,
             stripeCustomerId:     session.customer,
             stripeSubscriptionId: session.subscription,
             ...(couponCode ? { couponCode } : {}),
@@ -333,6 +351,14 @@ export const stripeWebhookHandler = async (req, res) => {
       const sub = await Subscription.findOne({ stripeSubscriptionId: invoice.subscription });
       if (!sub) return res.sendStatus(200);
 
+      // Mismo caso que en checkout.session.completed: un reintento tardío
+      // no debe pisar un cambio más nuevo (ej. admin reasignó el plan
+      // mientras el evento seguía reintentando).
+      const eventTime = new Date(event.created * 1000);
+      if (sub.updatedAt && sub.updatedAt > eventTime) {
+        return res.sendStatus(200);
+      }
+
       const stripeSub = await stripe.subscriptions.retrieve(invoice.subscription);
       const end = getPeriodEnd(stripeSub);
       const amount = (invoice.amount_paid || 0) / 100;
@@ -342,6 +368,7 @@ export const stripeWebhookHandler = async (req, res) => {
       sub.endDate = end;
       sub.amount = amount;
       sub.currency = currency;
+      sub.autoRenew = !stripeSub.cancel_at_period_end;
       sub.paymentHistory.unshift({
         stripePaymentId: invoice.id, provider: "stripe",
         amount, currency, status: "approved", plan: sub.plan,
