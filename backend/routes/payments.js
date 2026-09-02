@@ -51,10 +51,10 @@ router.get("/__debug-preapproval-test", async (req, res) => {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({
         reason: "Nui · Silver (test /subscribe real, borrar)",
-        payer_email: "test_user_1918979610@testuser.com",
+        payer_email: req.query.email || "raccoonitweb@gmail.com",
         external_reference: "TEST_USER_ID|silver",
         back_url: `${frontendUrl}/subscription/success`,
-        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 100, currency_id: "ARS" },
+        auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 2990, currency_id: "ARS" },
       }),
     });
     const data = await mpRes.json();
