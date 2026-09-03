@@ -37,10 +37,12 @@ import webauthnRouter from "./routes/webauthn.js";
 import { initSocket } from "./socket.js";
 import { activateFreeTrial } from "./utils/activateFreeTrial.js";
 import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
+import { startRetryMissingPostImagesJob } from "./utils/retryMissingPostImages.js";
 import { logInfo, logWarn, logError } from "./utils/logger.js";
 
 connectDB();
 startTrialExpiryJob();
+startRetryMissingPostImagesJob();
 
 function cleanText(text) {
   if (!text) return "";
