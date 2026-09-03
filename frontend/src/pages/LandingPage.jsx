@@ -463,97 +463,6 @@ const HeroSection = ({ onCTA }) => {
   );
 };
 
-/* ─── TICKER ──────────────────────────────────────────────────────────────── */
-const MarqueeTicker = () => {
-  const { isUS } = useNutrition();
-  const items = isUS
-    ? [
-        "NUTRITION ANALYSIS",
-        "ULTRA-PROCESSED FOODS",
-        "NOVA CLASSIFICATION",
-        "HYPERTROPHY ROUTINE",
-        "RUNNING TRAINING",
-        "CALISTHENICS PLAN",
-        "AI SHOPPING LIST",
-        "AI-GENERATED RECIPES",
-        "AI NUTRITIONIST",
-        "NUTRITION FACTS",
-        "NUI",
-        "GUT MICROBIOME",
-        "PERSONAL TRAINER",
-        "SMART NUTRITION",
-      ]
-    : [
-        "ANÁLISIS NUTRICIONAL",
-        "ALIMENTOS ULTRAPROCESADOS",
-        "CLASIFICACIÓN NOVA",
-        "RUTINA DE HIPERTROFIA",
-        "ENTRENAMIENTO RUNNING",
-        "PLAN DE CALISTENIA",
-        "LISTA DE COMPRAS IA",
-        "RECETAS CON IA",
-        "NUTRICIONISTA IA",
-        "TABLA NUTRICIONAL",
-        "NUI",
-        "MICROBIOTA",
-        "PERSONAL TRAINER",
-        "NUTRICIÓN INTELIGENTE",
-      ];
-  const repeated = [...items, ...items];
-  return (
-    <Box
-      sx={{
-        py: 3.5,
-        overflow: "hidden",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          gap: 5,
-          width: "max-content",
-          animation: "marquee 30s linear infinite",
-          "@keyframes marquee": {
-            from: { transform: "translateX(0)" },
-            to: { transform: "translateX(-50%)" },
-          },
-        }}
-      >
-        {repeated.map((item, i) => (
-          <Stack
-            key={i}
-            direction="row"
-            alignItems="center"
-            spacing={3}
-            sx={{ flexShrink: 0 }}
-          >
-            <Typography
-              sx={{
-                fontSize: 22,
-                fontWeight: 800,
-                color: "rgba(120,140,137,0.4)",
-                letterSpacing: "0.14em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {item}
-            </Typography>
-            <Box
-              sx={{
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                bgcolor: C.emerald,
-                opacity: 0.35,
-              }}
-            />
-          </Stack>
-        ))}
-      </Box>
-    </Box>
-  );
-};
-
 /* ─── POR QUÉ IMPORTA — SECCIÓN CLARA ────────────────────────────────────── */
 const getFacts = (isUS) =>
   isUS
@@ -4027,7 +3936,6 @@ const LandingPage = () => {
     <Box sx={{ overflowX: "hidden" }}>
       <LandingNav scrolled={scrolled} />
       <HeroSection onCTA={() => goToApp("hero")} />
-      <MarqueeTicker />
       <WhyMattersSection onCTA={() => goToApp("why_matters")} />
       <ModulesSection />
       <ShoppingListFeatureSection onCTA={() => goToApp("shopping_list_feature")} />
