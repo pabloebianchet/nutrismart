@@ -7,6 +7,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import usePageMeta from "../hooks/usePageMeta";
+import { trackCTAClick } from "../utils/analytics.js";
 import {
   Box,
   Typography,
@@ -153,7 +154,7 @@ const LandingNav = ({ scrolled }) => {
 
       <Stack direction="row" spacing={1.5} alignItems="center">
         <Button
-          onClick={() => navigate("/login")}
+          onClick={() => { trackCTAClick("nav_login"); navigate("/login"); }}
           sx={{
             fontSize: 13,
             fontWeight: 600,
@@ -168,7 +169,7 @@ const LandingNav = ({ scrolled }) => {
           {isUS ? "Log in" : "Iniciar sesión"}
         </Button>
         <Button
-          onClick={() => navigate("/login")}
+          onClick={() => { trackCTAClick("nav_start_free"); navigate("/login"); }}
           sx={{
             fontSize: 13,
             fontWeight: 800,
@@ -3002,7 +3003,7 @@ const PricingSection = ({ onCTA }) => {
                   ...getCardStyle(i),
                 }}
               >
-                <PricingCard p={p} onCTA={onCTA} isActive={getPos(i) === 0} />
+                <PricingCard p={p} onCTA={() => onCTA(`pricing_${p.id}`)} isActive={getPos(i) === 0} />
               </Box>
             ))}
           </Box>
@@ -3038,7 +3039,7 @@ const PricingSection = ({ onCTA }) => {
           }}
         >
           {PRICING_PLANS.map((p) => (
-            <PricingCard key={p.id} p={p} onCTA={onCTA} isActive />
+            <PricingCard key={p.id} p={p} onCTA={() => onCTA(`pricing_${p.id}`)} isActive />
           ))}
         </Box>
 
@@ -4044,20 +4045,23 @@ const LandingPage = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const goToApp = () => navigate("/login");
+  const goToApp = (location) => {
+    trackCTAClick(location);
+    navigate("/login");
+  };
 
   return (
     <Box sx={{ overflowX: "hidden" }}>
       <LandingNav scrolled={scrolled} />
-      <HeroSection onCTA={goToApp} />
+      <HeroSection onCTA={() => goToApp("hero")} />
       <MarqueeTicker />
-      <WhyMattersSection onCTA={goToApp} />
+      <WhyMattersSection onCTA={() => goToApp("why_matters")} />
       <ModulesSection />
-      <ShoppingListFeatureSection onCTA={goToApp} />
-      <CostComparisonSection onCTA={goToApp} />
+      <ShoppingListFeatureSection onCTA={() => goToApp("shopping_list_feature")} />
+      <CostComparisonSection onCTA={() => goToApp("cost_comparison")} />
       <HowItWorksSection />
       <PricingSection onCTA={goToApp} />
-      <FinalCTA onCTA={goToApp} />
+      <FinalCTA onCTA={() => goToApp("final_cta")} />
       <LandingPostsSection />
       <LandingFooter />
     </Box>
