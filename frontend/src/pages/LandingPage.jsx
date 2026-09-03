@@ -18,7 +18,6 @@ import {
   Divider,
 } from "@mui/material";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
-import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
@@ -428,94 +427,36 @@ const HeroSection = ({ onCTA }) => {
           </Stack>
         </Box>
 
-        {/* ── Columna visual — demo del resultado real del análisis ──
-             Cada bloque aparece con delay creciente, simulando el análisis
-             en tiempo real (foto → clasificación → métricas). ── */}
+        {/* ── Columna visual — captura real de la app ── */}
         <Box
           sx={{
             flex: 1,
             width: "100%",
-            maxWidth: 420,
-            mx: { xs: "auto", md: 0 },
+            display: "flex",
+            justifyContent: "center",
+            animation: "fadeUp 0.7s 0.25s ease both",
           }}
         >
-          {/* Placeholder de foto */}
           <Box
+            component="img"
+            src="https://res.cloudinary.com/dtougldc7/image/upload/f_auto,q_auto,w_840/v1788450481/landing/landing/hero-app-screenshot.png"
+            alt={
+              isUS
+                ? "Nui app screenshot — food analysis and training plan"
+                : "Captura de la app Nui — análisis de alimentos y plan de entrenamiento"
+            }
+            // eslint-disable-next-line react/no-unknown-property
+            fetchpriority="high"
+            width={420}
+            height={525}
             sx={{
-              height: { xs: 190, sm: 220 },
-              borderRadius: 4,
-              background: "linear-gradient(135deg, #3d2a0a 0%, #1a1206 100%)",
-              border: "1px solid rgba(245,166,35,0.25)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mb: 2,
-              animation: "fadeUp 0.5s 0.3s ease both",
+              width: "100%",
+              maxWidth: { xs: 300, sm: 380, md: 420 },
+              height: "auto",
+              display: "block",
+              filter: "drop-shadow(0 30px 70px rgba(0,0,0,0.5))",
             }}
-          >
-            <PhotoCameraRoundedIcon sx={{ fontSize: 40, color: "#F5A623" }} />
-          </Box>
-
-          {/* Clasificación NOVA */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              bgcolor: "rgba(198,40,40,0.18)",
-              border: "1px solid rgba(198,40,40,0.35)",
-              borderRadius: 2.5,
-              px: 2.5,
-              animation: "fadeUp 0.5s 0.65s ease both",
-              py: 1.6,
-              mb: 1.5,
-            }}
-          >
-            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#FF8A80" }}>
-              {isUS ? "NOVA Classification" : "Clasificación NOVA"}
-            </Typography>
-            <Box
-              sx={{
-                bgcolor: "rgba(198,40,40,0.55)",
-                color: "#fff",
-                fontSize: 12.5,
-                fontWeight: 800,
-                px: 1.6,
-                py: 0.4,
-                borderRadius: 999,
-              }}
-            >
-              {isUS ? "Group 4" : "Grupo 4"}
-            </Box>
-          </Box>
-
-          {/* Stats rápidos */}
-          <Stack direction="row" spacing={1.5} sx={{ animation: "fadeUp 0.5s 1s ease both" }}>
-            {[
-              ["210", "kcal"],
-              ["6", isUS ? "additives" : "aditivos"],
-              ["18g", isUS ? "sugar" : "azúcar"],
-            ].map(([val, label]) => (
-              <Box
-                key={label}
-                sx={{
-                  flex: 1,
-                  textAlign: "center",
-                  bgcolor: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.09)",
-                  borderRadius: 2.5,
-                  py: 1.6,
-                }}
-              >
-                <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff" }}>
-                  {val}
-                </Typography>
-                <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.4)", mt: 0.3 }}>
-                  {label}
-                </Typography>
-              </Box>
-            ))}
-          </Stack>
+          />
         </Box>
       </Box>
     </Box>
