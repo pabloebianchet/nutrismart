@@ -3933,7 +3933,7 @@ const LandingPage = () => {
   };
 
   return (
-    <Box sx={{ overflowX: "hidden" }}>
+    <Box sx={{ overflowX: "clip" }}>
       <LandingNav scrolled={scrolled} />
       <HeroSection onCTA={() => goToApp("hero")} />
       <WhyMattersSection onCTA={() => goToApp("why_matters")} />
