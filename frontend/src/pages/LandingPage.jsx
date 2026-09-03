@@ -203,64 +203,64 @@ const HeroSection = ({ onCTA }) => {
         flexDirection: "column",
         justifyContent: "center",
         position: "relative",
-        overflow: "hidden",
         px: { xs: 3, sm: 5, md: 8 },
         pt: { xs: 14, md: 14 },
         pb: { xs: 8, md: 6 },
       }}
     >
-      {/* Dot grid texture */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          backgroundImage:
-            "radial-gradient(rgba(16,185,129,0.07) 1px, transparent 1px)",
-          backgroundSize: "36px 36px",
-        }}
-      />
-      {/* Central glow */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "48%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 1000,
-          height: 1000,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(16,185,129,0.09) 0%, rgba(11,94,85,0.04) 40%, transparent 68%)",
-          pointerEvents: "none",
-        }}
-      />
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: "-8%",
-          right: "-4%",
-          width: 420,
-          height: 420,
-          borderRadius: "50%",
-          pointerEvents: "none",
-          background:
-            "radial-gradient(circle, rgba(11,94,85,0.10) 0%, transparent 65%)",
-        }}
-      />
-      <Box
-        sx={{
-          position: "absolute",
-          top: "15%",
-          left: "-4%",
-          width: 340,
-          height: 340,
-          borderRadius: "50%",
-          pointerEvents: "none",
-          background:
-            "radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 65%)",
-        }}
-      />
+      {/* Fondos decorativos — overflow:hidden acá adentro, no en el Hero
+          entero, para que el drop-shadow de la imagen de más abajo pueda
+          desvanecerse libremente en vez de cortarse en un borde recto. */}
+      <Box sx={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+        {/* Dot grid texture */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "radial-gradient(rgba(16,185,129,0.07) 1px, transparent 1px)",
+            backgroundSize: "36px 36px",
+          }}
+        />
+        {/* Central glow */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "48%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 1000,
+            height: 1000,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(16,185,129,0.09) 0%, rgba(11,94,85,0.04) 40%, transparent 68%)",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-8%",
+            right: "-4%",
+            width: 420,
+            height: 420,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(11,94,85,0.10) 0%, transparent 65%)",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: "15%",
+            left: "-4%",
+            width: 340,
+            height: 340,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 65%)",
+          }}
+        />
+      </Box>
 
       <Box
         sx={{
