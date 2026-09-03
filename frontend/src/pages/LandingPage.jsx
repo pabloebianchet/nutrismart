@@ -503,17 +503,14 @@ const MarqueeTicker = () => {
   return (
     <Box
       sx={{
-        background: C.heroBg,
-        borderTop: "1px solid rgba(16,185,129,0.12)",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-        py: 2,
+        py: 3.5,
         overflow: "hidden",
       }}
     >
       <Box
         sx={{
           display: "flex",
-          gap: 4,
+          gap: 5,
           width: "max-content",
           animation: "marquee 30s linear infinite",
           "@keyframes marquee": {
@@ -527,14 +524,14 @@ const MarqueeTicker = () => {
             key={i}
             direction="row"
             alignItems="center"
-            spacing={2}
+            spacing={3}
             sx={{ flexShrink: 0 }}
           >
             <Typography
               sx={{
-                fontSize: 11,
+                fontSize: 22,
                 fontWeight: 800,
-                color: "rgba(255,255,255,0.22)",
+                color: "rgba(120,140,137,0.4)",
                 letterSpacing: "0.14em",
                 whiteSpace: "nowrap",
               }}
@@ -543,11 +540,11 @@ const MarqueeTicker = () => {
             </Typography>
             <Box
               sx={{
-                width: 3,
-                height: 3,
+                width: 5,
+                height: 5,
                 borderRadius: "50%",
                 bgcolor: C.emerald,
-                opacity: 0.5,
+                opacity: 0.35,
               }}
             />
           </Stack>
