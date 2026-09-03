@@ -215,7 +215,14 @@ app.post("/api/analyze", authMiddleware, async (req, res) => {
 
     if (authUser) {
       const now = new Date();
-      const sub = await Subscription.findOne({ user: authUser._id, status: "active" });
+      // Cancelada pero todavía dentro del período pagado sigue teniendo
+      // acceso (mismo criterio que requireActiveSub) — si esto solo mirara
+      // status:"active", cualquier usuario que canceló pero todavía no
+      // llegó a su endDate se quedaba bloqueado de analizar, contradiciendo
+      // la promesa "seguís teniendo acceso hasta el fin del período".
+      const rawSub = await Subscription.findOne({ user: authUser._id });
+      const hasGraceAccess = rawSub?.status === "cancelled" && rawSub?.endDate && rawSub.endDate > now;
+      const sub = (rawSub?.status === "active" || hasGraceAccess) ? rawSub : null;
 
       // ── Plan Free: verificar que el trial no venció ──────────
       if (sub?.plan === "free" && sub.endDate < now) {
