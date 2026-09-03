@@ -18,6 +18,8 @@ import {
   Divider,
 } from "@mui/material";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -200,7 +202,6 @@ const HeroSection = ({ onCTA }) => {
         minHeight: { xs: "100svh", md: "100vh" },
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         justifyContent: "center",
         position: "relative",
         overflow: "hidden",
@@ -264,224 +265,258 @@ const HeroSection = ({ onCTA }) => {
 
       <Box
         sx={{
-          maxWidth: 860,
+          maxWidth: 1180,
           mx: "auto",
-          textAlign: "center",
+          width: "100%",
           position: "relative",
           zIndex: 1,
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "center",
+          gap: { xs: 6, md: 8 },
         }}
       >
-        {/* Badge */}
-        <Box
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 1,
-            border: "1px solid rgba(16,185,129,0.28)",
-            borderRadius: 999,
-            px: 2.5,
-            py: 0.7,
-            mb: 4,
-            background: "rgba(16,185,129,0.07)",
-            animation: "fadeUp 0.5s ease both",
-            "@keyframes fadeUp": {
-              from: { opacity: 0, transform: "translateY(20px)" },
-              to: { opacity: 1, transform: "translateY(0)" },
-            },
-          }}
-        >
+        {/* ── Columna texto ── */}
+        <Box sx={{ flex: 1, textAlign: { xs: "center", md: "left" }, minWidth: 0 }}>
+          {/* Badge — dato shockeante, no la promesa genérica */}
           <Box
             sx={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              bgcolor: C.emerald,
-              animation: "pulse 2s ease infinite",
-              "@keyframes pulse": {
-                "0%,100%": { opacity: 1 },
-                "50%": { opacity: 0.35 },
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              border: "1px solid rgba(226,75,74,0.35)",
+              borderRadius: 999,
+              px: 2.5,
+              py: 0.7,
+              mb: 4,
+              background: "rgba(226,75,74,0.12)",
+              animation: "fadeUp 0.5s ease both",
+              "@keyframes fadeUp": {
+                from: { opacity: 0, transform: "translateY(20px)" },
+                to: { opacity: 1, transform: "translateY(0)" },
               },
             }}
-          />
+          >
+            <WarningRoundedIcon sx={{ fontSize: 15, color: "#FF6B6B" }} />
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#FF8A80",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {isUS
+                ? "70% of what you buy is ultra-processed"
+                : "70% de lo que comprás es ultraprocesado"}
+            </Typography>
+          </Box>
+
+          {/* H1 — demostrable: qué hace y cómo, no una promesa genérica */}
+          <Typography
+            component="h1"
+            sx={{
+              fontSize: { xs: 40, sm: 54, md: 62, lg: 68 },
+              fontWeight: 900,
+              color: "#fff",
+              lineHeight: 1.05,
+              letterSpacing: { xs: "-1.5px", md: "-2.5px" },
+              mb: 3,
+              animation: "fadeUp 0.6s 0.1s ease both",
+            }}
+          >
+            {isUS ? (
+              <>
+                Snap a photo of your food.
+                <br />
+                <Box
+                  component="span"
+                  sx={{
+                    background: `linear-gradient(130deg, ${C.emerald} 0%, ${C.mint} 100%)`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  Nui tells you if it's worth it.
+                </Box>
+              </>
+            ) : (
+              <>
+                Sacale una foto a tu comida.
+                <br />
+                <Box
+                  component="span"
+                  sx={{
+                    background: `linear-gradient(130deg, ${C.emerald} 0%, ${C.mint} 100%)`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  Nui te dice si te conviene.
+                </Box>
+              </>
+            )}
+          </Typography>
+
+          {/* Subtitle — mecanismo concreto + fricción baja (sin tarjeta) arriba */}
           <Typography
             sx={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: C.emerald,
-              letterSpacing: "0.03em",
+              fontSize: { xs: 16, sm: 18 },
+              color: "rgba(255,255,255,0.55)",
+              lineHeight: 1.8,
+              maxWidth: 480,
+              mx: { xs: "auto", md: 0 },
+              mb: 5,
+              animation: "fadeUp 0.6s 0.2s ease both",
             }}
           >
             {isUS
-              ? "AI-powered nutrition analysis · Free for 7 days"
-              : "Análisis nutricional con IA · Gratis 7 días"}
+              ? "Instant AI-powered nutrition analysis: NOVA classification, macros, and additives. No credit card, free for 7 days."
+              : "Análisis nutricional al instante con IA: clasificación NOVA, macros y aditivos. Sin tarjeta de crédito, gratis 7 días."}
           </Typography>
+
+          {/* CTA único — sin competir con un segundo botón del mismo peso */}
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={3}
+            justifyContent={{ xs: "center", md: "flex-start" }}
+            sx={{ animation: "fadeUp 0.6s 0.3s ease both" }}
+          >
+            <Button
+              onClick={onCTA}
+              endIcon={<ArrowForwardRoundedIcon />}
+              sx={{
+                bgcolor: C.emerald,
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 16,
+                textTransform: "none",
+                px: 4.5,
+                py: 1.7,
+                borderRadius: 999,
+                boxShadow: "none",
+                "&:hover": {
+                  bgcolor: C.emeraldDark,
+                  boxShadow: "none",
+                  transform: "translateY(-2px)",
+                },
+                transition: "all 0.25s",
+              }}
+            >
+              {isUS ? "Try free for 7 days" : "Probar gratis 7 días"}
+            </Button>
+            <Box
+              component="button"
+              onClick={onCTA}
+              sx={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.55)",
+                "&:hover": { color: "#fff" },
+                transition: "color 0.2s",
+              }}
+            >
+              {isUS ? "Log in" : "Iniciar sesión"}
+            </Box>
+          </Stack>
         </Box>
 
-        {/* H1 */}
-        <Typography
-          component="h1"
+        {/* ── Columna visual — demo del resultado real del análisis ──
+             Cada bloque aparece con delay creciente, simulando el análisis
+             en tiempo real (foto → clasificación → métricas). ── */}
+        <Box
           sx={{
-            fontSize: { xs: 46, sm: 64, md: 80, lg: 92 },
-            fontWeight: 900,
-            color: "#fff",
-            lineHeight: 1.0,
-            letterSpacing: { xs: "-2px", md: "-3.5px" },
-            mb: 3.5,
-            animation: "fadeUp 0.6s 0.1s ease both",
+            flex: 1,
+            width: "100%",
+            maxWidth: 420,
+            mx: { xs: "auto", md: 0 },
           }}
         >
-          {isUS ? (
-            <>
-              Eat better.
-              <br />
-              Train better.
-              <br />
-            </>
-          ) : (
-            <>
-              Comé mejor.
-              <br />
-              Entrenás mejor.
-              <br />
-            </>
-          )}
+          {/* Placeholder de foto */}
           <Box
-            component="span"
             sx={{
-              background: `linear-gradient(130deg, ${C.emerald} 0%, ${C.mint} 100%)`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              height: { xs: 190, sm: 220 },
+              borderRadius: 4,
+              background: "linear-gradient(135deg, #3d2a0a 0%, #1a1206 100%)",
+              border: "1px solid rgba(245,166,35,0.25)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 2,
+              animation: "fadeUp 0.5s 0.3s ease both",
             }}
           >
-            {isUS ? "Live better." : "Vivís mejor."}
+            <PhotoCameraRoundedIcon sx={{ fontSize: 40, color: "#F5A623" }} />
           </Box>
-        </Typography>
 
-        {/* Subtitle */}
-        <Typography
-          sx={{
-            fontSize: { xs: 16, sm: 18 },
-            color: "rgba(255,255,255,0.48)",
-            lineHeight: 1.85,
-            maxWidth: 540,
-            mx: "auto",
-            mb: 5.5,
-            animation: "fadeUp 0.6s 0.2s ease both",
-          }}
-        >
-          {isUS
-            ? "Nui analyzes your food with artificial intelligence, generates healthy recipes, and builds your training plan — all tailored to you."
-            : "Nui analiza tus alimentos con inteligencia artificial, genera recetas saludables y crea tu plan de entrenamiento — todo adaptado a vos."}
-        </Typography>
-
-        {/* CTAs */}
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={2}
-          justifyContent="center"
-          sx={{ mb: 8, animation: "fadeUp 0.6s 0.3s ease both" }}
-        >
-          <Button
-            onClick={onCTA}
-            endIcon={<ArrowForwardRoundedIcon />}
+          {/* Clasificación NOVA */}
+          <Box
             sx={{
-              bgcolor: C.emerald,
-              color: "#fff",
-              fontWeight: 800,
-              fontSize: 16,
-              textTransform: "none",
-              px: 4.5,
-              py: 1.7,
-              borderRadius: 999,
-              boxShadow: "none",
-              "&:hover": {
-                bgcolor: C.emeraldDark,
-                boxShadow: "none",
-                transform: "translateY(-2px)",
-              },
-              transition: "all 0.25s",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              bgcolor: "rgba(198,40,40,0.18)",
+              border: "1px solid rgba(198,40,40,0.35)",
+              borderRadius: 2.5,
+              px: 2.5,
+              animation: "fadeUp 0.5s 0.65s ease both",
+              py: 1.6,
+              mb: 1.5,
             }}
           >
-            {isUS ? "Start free — 7 days" : "Empezar gratis — 7 días"}
-          </Button>
-          <Button
-            onClick={onCTA}
-            sx={{
-              color: "rgba(255,255,255,0.65)",
-              fontWeight: 600,
-              fontSize: 15,
-              textTransform: "none",
-              px: 4,
-              py: 1.7,
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.12)",
-              "&:hover": {
-                bgcolor: "rgba(255,255,255,0.05)",
-                color: "#fff",
-                borderColor: "rgba(255,255,255,0.22)",
-              },
-              transition: "all 0.2s",
-            }}
-          >
-            {isUS ? "Log in" : "Iniciar sesión"}
-          </Button>
-        </Stack>
-
-        {/* Stats */}
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-          divider={
+            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#FF8A80" }}>
+              {isUS ? "NOVA Classification" : "Clasificación NOVA"}
+            </Typography>
             <Box
               sx={{
-                width: "1px",
-                height: "28px",
-                bgcolor: "rgba(255,255,255,0.10)",
-                flexShrink: 0,
+                bgcolor: "rgba(198,40,40,0.55)",
+                color: "#fff",
+                fontSize: 12.5,
+                fontWeight: 800,
+                px: 1.6,
+                py: 0.4,
+                borderRadius: 999,
               }}
-            />
-          }
-          spacing={{ xs: 3, sm: 5 }}
-          sx={{ animation: "fadeUp 0.6s 0.4s ease both" }}
-        >
-          {(isUS
-            ? [
-                ["3", "AI modules"],
-                ["7 days", "free trial"],
-                ["100%", "personalized"],
-              ]
-            : [
-                ["3", "módulos IA"],
-                ["7 días", "prueba gratis"],
-                ["100%", "personalizado"],
-              ]
-          ).map(([val, label]) => (
-            <Box key={label} textAlign="center">
-              <Typography
-                sx={{
-                  fontSize: { xs: 24, sm: 30 },
-                  fontWeight: 900,
-                  color: "#fff",
-                  lineHeight: 1,
-                }}
-              >
-                {val}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 11.5,
-                  color: "rgba(255,255,255,0.32)",
-                  fontWeight: 600,
-                  mt: 0.5,
-                }}
-              >
-                {label}
-              </Typography>
+            >
+              {isUS ? "Group 4" : "Grupo 4"}
             </Box>
-          ))}
-        </Stack>
+          </Box>
+
+          {/* Stats rápidos */}
+          <Stack direction="row" spacing={1.5} sx={{ animation: "fadeUp 0.5s 1s ease both" }}>
+            {[
+              ["210", "kcal"],
+              ["6", isUS ? "additives" : "aditivos"],
+              ["18g", isUS ? "sugar" : "azúcar"],
+            ].map(([val, label]) => (
+              <Box
+                key={label}
+                sx={{
+                  flex: 1,
+                  textAlign: "center",
+                  bgcolor: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.09)",
+                  borderRadius: 2.5,
+                  py: 1.6,
+                }}
+              >
+                <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff" }}>
+                  {val}
+                </Typography>
+                <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.4)", mt: 0.3 }}>
+                  {label}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       </Box>
     </Box>
   );
