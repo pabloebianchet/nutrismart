@@ -12,6 +12,7 @@ import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import { API_URL } from "../config/api";
 import { isPlatformAuthenticatorAvailable, isBiometricRegistered, registerBiometric } from "../utils/biometric.js";
+import { trackSignUp } from "../utils/analytics.js";
 import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
@@ -87,6 +88,8 @@ const UserDataPage = () => {
       if (!data.user) throw new Error("Respuesta inválida del servidor");
       // Guardar el JWT propio (7 días) en lugar del credential de Google (1 hora)
       localStorage.setItem("nutrismartToken", data.token || credential);
+      // Conversión GA4 — solo en alta de cuenta nueva, no en cada login
+      if (data.isNewUser) trackSignUp("google");
       // Ofrecer Face ID solo si el dispositivo tiene biometría real y no está registrado
       if (!isBiometricRegistered()) {
         const hasBiometric = await isPlatformAuthenticatorAvailable();
@@ -158,6 +161,8 @@ const UserDataPage = () => {
       if (!res.ok) return setError(data.error || (isUS ? "Error processing the request." : "Error al procesar la solicitud."));
 
       localStorage.setItem("nutrismartToken", data.token);
+      // Conversión GA4 — solo en alta de cuenta nueva, no en cada login
+      if (mode === "register") trackSignUp("email");
 
       // Ofrecer Face ID solo si el dispositivo tiene biometría real y no está registrado
       if (!isBiometricRegistered()) {

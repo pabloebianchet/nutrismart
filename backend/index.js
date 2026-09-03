@@ -549,6 +549,7 @@ app.post("/api/auth/google", async (req, res) => {
 
     // 1. Buscar usuario por googleId (ya logueó con Google antes)
     let user = await User.findOne({ googleId });
+    let isNewUser = false;
 
     if (!user) {
       // 2. Verificar si el email ya tiene una cuenta con email/contraseña
@@ -578,6 +579,7 @@ app.post("/api/auth/google", async (req, res) => {
           provider: "google",
           lang,
         });
+        isNewUser = true;
         // Activar período de prueba gratuito (7 días)
         const trial = await activateFreeTrial(user._id).catch((e) => {
           console.error("Free trial activation failed:", e.message);
@@ -591,7 +593,7 @@ app.post("/api/auth/google", async (req, res) => {
 
     logInfo("auth", "user.login.google", `Login Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-    return res.json({ user, token });
+    return res.json({ user, token, isNewUser });
   } catch (err) {
     console.error("Google auth error details:", {
       message: err?.message,
