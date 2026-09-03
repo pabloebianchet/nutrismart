@@ -454,7 +454,7 @@ const HeroSection = ({ onCTA }) => {
               maxWidth: { xs: 360, sm: 480, md: 560 },
               height: "auto",
               display: "block",
-              filter: "drop-shadow(0 30px 70px rgba(0,0,0,0.5))",
+              filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.3))",
             }}
           />
         </Box>
