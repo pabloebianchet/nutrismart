@@ -142,9 +142,9 @@ const LandingNav = ({ scrolled }) => {
             sx={{
               fontSize: 14,
               fontWeight: 600,
-              color: "rgba(255,255,255,0.60)",
+              color: scrolled ? "rgba(255,255,255,0.60)" : C.textSec,
               textDecoration: "none",
-              "&:hover": { color: "#fff" },
+              "&:hover": { color: scrolled ? "#fff" : C.ink },
               transition: "color 0.2s",
             }}
           >
@@ -159,12 +159,15 @@ const LandingNav = ({ scrolled }) => {
           sx={{
             fontSize: 13,
             fontWeight: 600,
-            color: "rgba(255,255,255,0.60)",
+            color: scrolled ? "rgba(255,255,255,0.60)" : C.textSec,
             textTransform: "none",
             px: 2,
             py: 0.9,
             borderRadius: 2,
-            "&:hover": { bgcolor: "rgba(255,255,255,0.07)", color: "#fff" },
+            "&:hover": {
+              bgcolor: scrolled ? "rgba(255,255,255,0.07)" : "rgba(10,26,24,0.05)",
+              color: scrolled ? "#fff" : C.ink,
+            },
           }}
         >
           {isUS ? "Log in" : "Iniciar sesión"}
@@ -197,7 +200,7 @@ const HeroSection = ({ onCTA }) => {
   return (
     <Box
       sx={{
-        background: C.heroBg,
+        background: C.white,
         minHeight: { xs: "100svh", md: "100vh" },
         display: "flex",
         flexDirection: "column",
@@ -283,12 +286,12 @@ const HeroSection = ({ onCTA }) => {
               display: "inline-flex",
               alignItems: "center",
               gap: 1,
-              border: "1px solid rgba(226,75,74,0.35)",
+              border: "1px solid rgba(239,68,68,0.18)",
               borderRadius: 999,
               px: 2.5,
               py: 0.7,
               mb: 4,
-              background: "rgba(226,75,74,0.12)",
+              background: "#FFF1F1",
               animation: "fadeUp 0.5s ease both",
               "@keyframes fadeUp": {
                 from: { opacity: 0, transform: "translateY(20px)" },
@@ -296,12 +299,12 @@ const HeroSection = ({ onCTA }) => {
               },
             }}
           >
-            <WarningRoundedIcon sx={{ fontSize: 15, color: "#FF6B6B" }} />
+            <WarningRoundedIcon sx={{ fontSize: 15, color: C.danger }} />
             <Typography
               sx={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: "#FF8A80",
+                color: C.danger,
                 letterSpacing: "0.02em",
               }}
             >
@@ -317,7 +320,7 @@ const HeroSection = ({ onCTA }) => {
             sx={{
               fontSize: { xs: 40, sm: 54, md: 62, lg: 68 },
               fontWeight: 900,
-              color: "#fff",
+              color: C.ink,
               lineHeight: 1.05,
               letterSpacing: { xs: "-1.5px", md: "-2.5px" },
               mb: 3,
@@ -363,7 +366,7 @@ const HeroSection = ({ onCTA }) => {
           <Typography
             sx={{
               fontSize: { xs: 16, sm: 18 },
-              color: "rgba(255,255,255,0.55)",
+              color: C.muted,
               lineHeight: 1.8,
               maxWidth: 480,
               mx: { xs: "auto", md: 0 },
@@ -417,8 +420,8 @@ const HeroSection = ({ onCTA }) => {
                 fontFamily: "inherit",
                 fontSize: 14,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.55)",
-                "&:hover": { color: "#fff" },
+                color: C.muted,
+                "&:hover": { color: C.ink },
                 transition: "color 0.2s",
               }}
             >
@@ -427,7 +430,7 @@ const HeroSection = ({ onCTA }) => {
           </Stack>
         </Box>
 
-        {/* ── Columna visual — captura real de la app ── */}
+        {/* ── Columna visual — video real de la app ── */}
         <Box
           sx={{
             flex: 1,
@@ -438,23 +441,26 @@ const HeroSection = ({ onCTA }) => {
           }}
         >
           <Box
-            component="img"
-            src="https://res.cloudinary.com/dtougldc7/image/upload/f_auto,q_auto,w_840/v1788450481/landing/landing/hero-app-screenshot.png"
-            alt={
+            component="video"
+            src="https://res.cloudinary.com/dtougldc7/video/upload/f_auto,q_auto,w_900/v1788451754/landing/hero-video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-label={
               isUS
-                ? "Nui app screenshot — food analysis and training plan"
-                : "Captura de la app Nui — análisis de alimentos y plan de entrenamiento"
+                ? "Nui app demo — food analysis and training plan"
+                : "Demo de la app Nui — análisis de alimentos y plan de entrenamiento"
             }
-            // eslint-disable-next-line react/no-unknown-property
-            fetchpriority="high"
-            width={420}
-            height={525}
+            width={480}
+            height={600}
             sx={{
               width: "100%",
-              maxWidth: { xs: 300, sm: 380, md: 420 },
+              maxWidth: { xs: 340, sm: 460, md: 540 },
               height: "auto",
               display: "block",
-              filter: "drop-shadow(0 30px 70px rgba(0,0,0,0.5))",
+              borderRadius: 4,
+              filter: "drop-shadow(0 24px 60px rgba(10,26,24,0.18))",
             }}
           />
         </Box>
