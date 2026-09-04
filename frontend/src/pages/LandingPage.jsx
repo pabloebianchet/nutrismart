@@ -443,6 +443,8 @@ const HeroSection = ({ onCTA }) => {
             autoPlay
             muted
             playsInline
+            preload="auto"
+            poster="https://res.cloudinary.com/dtougldc7/video/upload/so_0,w_1100,q_auto/landing/hero-video-1.jpg"
             disablePictureInPicture
             // eslint-disable-next-line react/no-unknown-property
             controlsList="nodownload noplaybackrate nofullscreen"
@@ -458,6 +460,7 @@ const HeroSection = ({ onCTA }) => {
               maxWidth: { xs: 819, sm: 1053, md: 760 },
               height: "auto",
               display: "block",
+              backgroundColor: "#fff",
               // multiply es un no-op sobre fondo blanco puro para píxeles
               // opacos (blanco × color = color) — así que no altera en nada
               // el WebM con transparencia real, y de paso resuelve el
