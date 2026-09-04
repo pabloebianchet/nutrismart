@@ -439,56 +439,47 @@ const HeroSection = ({ onCTA }) => {
           }}
         >
           <Box
+            component="video"
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            poster="https://res.cloudinary.com/dtougldc7/video/upload/so_0,w_1100,q_auto/landing/hero-video-1.jpg"
+            onTimeUpdate={(e) => {
+              if (e.currentTarget.currentTime >= 3) e.currentTarget.pause();
+            }}
+            disablePictureInPicture
+            // eslint-disable-next-line react/no-unknown-property
+            controlsList="nodownload noplaybackrate nofullscreen"
+            aria-label={
+              isUS
+                ? "Nui app demo — food analysis and training plan"
+                : "Demo de la app Nui — análisis de alimentos y plan de entrenamiento"
+            }
+            width={560}
+            height={420}
             sx={{
               width: { xs: "100%", sm: "100%", md: "clamp(560px, 44vw, 760px)" },
               maxWidth: { xs: 819, sm: 1053, md: 760 },
-              aspectRatio: "560 / 420",
-              overflow: "hidden",
+              height: "auto",
               display: "block",
               backgroundColor: "#fff",
+              // multiply es un no-op sobre fondo blanco puro para píxeles
+              // opacos (blanco × color = color) — así que no altera en nada
+              // el WebM con transparencia real, y de paso resuelve el
+              // fallback MP4 (fondo blanco sólido, sin alfa) para navegadores
+              // que no soporten WebM con canal alfa.
+              mixBlendMode: "multiply",
             }}
           >
-            <Box
-              component="video"
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              poster="https://res.cloudinary.com/dtougldc7/video/upload/so_0,w_1100,q_auto/landing/hero-video-1.jpg"
-              disablePictureInPicture
-              // eslint-disable-next-line react/no-unknown-property
-              controlsList="nodownload noplaybackrate nofullscreen"
-              aria-label={
-                isUS
-                  ? "Nui app demo — food analysis and training plan"
-                  : "Demo de la app Nui — análisis de alimentos y plan de entrenamiento"
-              }
-              width={560}
-              height={420}
-              sx={{
-                width: "100%",
-                height: "100%",
-                display: "block",
-                objectFit: "cover",
-                // zoom para recortar el fondo oscuro grabado en los bordes del video
-                transform: "scale(1.55)",
-                // multiply es un no-op sobre fondo blanco puro para píxeles
-                // opacos (blanco × color = color) — así que no altera en nada
-                // el WebM con transparencia real, y de paso resuelve el
-                // fallback MP4 (fondo blanco sólido, sin alfa) para navegadores
-                // que no soporten WebM con canal alfa.
-                mixBlendMode: "multiply",
-              }}
-            >
-              <source
-                src="https://res.cloudinary.com/dtougldc7/video/upload/q_auto,w_1100/v1788520807/landing/hero-video-1.webm"
-                type="video/webm"
-              />
-              <source
-                src="https://res.cloudinary.com/dtougldc7/video/upload/f_auto,q_auto,w_1100/v1788520807/landing/hero-video-1.mp4"
-                type="video/mp4"
-              />
-            </Box>
+            <source
+              src="https://res.cloudinary.com/dtougldc7/video/upload/q_auto,w_1100/v1788520807/landing/hero-video-1.webm"
+              type="video/webm"
+            />
+            <source
+              src="https://res.cloudinary.com/dtougldc7/video/upload/f_auto,q_auto,w_1100/v1788520807/landing/hero-video-1.mp4"
+              type="video/mp4"
+            />
           </Box>
         </Box>
       </Box>
