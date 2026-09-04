@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Box, Typography } from "@mui/material";
 import { Leaf } from "@phosphor-icons/react";
 import PeanutMascot from "./PeanutMascot";
+import { useNutrition } from "../context/NutritionContext";
 
 const CELEB_COLORS = ["#2ECC71", "#F5B800", "#0B5E55", "#7ABFE0", "#E87A5D", "#9B59B6"];
 
@@ -30,6 +31,7 @@ const Particle = ({ color, style }) => (
 );
 
 const PointsCelebration = ({ points, totalPoints, onDone }) => {
+  const { isUS } = useNutrition();
   const [phase, setPhase] = useState("enter"); // enter → hold → exit
   const [displayCount, setDisplayCount] = useState(totalPoints - points);
   const timerRef = useRef(null);
@@ -156,7 +158,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
               mb: 0.5,
             }}
           >
-            ¡Excelente elección!
+            {isUS ? "Excellent choice!" : "¡Excelente elección!"}
           </Typography>
           <Typography
             sx={{
@@ -166,7 +168,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
               fontWeight: 500,
             }}
           >
-            Seguís cuidando tu salud
+            {isUS ? "Keep taking care of your health" : "Seguís cuidando tu salud"}
           </Typography>
         </Box>
 
@@ -182,7 +184,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
               mb: 0.5,
             }}
           >
-            Puntos ganados
+            {isUS ? "Points earned" : "Puntos ganados"}
           </Typography>
           <Typography
             sx={{

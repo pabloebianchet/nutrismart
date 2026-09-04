@@ -205,7 +205,7 @@ const HeroSection = ({ onCTA }) => {
         position: "relative",
         px: { xs: 3, sm: 5, md: 8 },
         pt: { xs: 14, md: 14 },
-        pb: { xs: 8, md: 6 },
+        pb: { xs: 2, md: 6 },
       }}
     >
       {/* Fondos decorativos — overflow:hidden acá adentro, no en el Hero
@@ -431,32 +431,50 @@ const HeroSection = ({ onCTA }) => {
         <Box
           sx={{
             flex: 1,
-            width: "100%",
+            width: { xs: "calc(100% + 112px)", sm: "100%" },
             display: "flex",
-            justifyContent: "center",
+            justifyContent: { xs: "center", md: "flex-start" },
             animation: "fadeUp 0.7s 0.25s ease both",
+            mx: { xs: -7, sm: 0 },
           }}
         >
           <Box
-            component="img"
-            src="https://res.cloudinary.com/dtougldc7/image/upload/f_auto,q_auto,w_1100/v1788453265/landing/hero-final.png"
-            alt={
-              isUS
-                ? "Nui app screenshot — food analysis and training plan"
-                : "Captura de la app Nui — análisis de alimentos y plan de entrenamiento"
-            }
+            component="video"
+            autoPlay
+            muted
+            playsInline
+            disablePictureInPicture
             // eslint-disable-next-line react/no-unknown-property
-            fetchpriority="high"
-            width={550}
-            height={688}
+            controlsList="nodownload noplaybackrate nofullscreen"
+            aria-label={
+              isUS
+                ? "Nui app demo — food analysis and training plan"
+                : "Demo de la app Nui — análisis de alimentos y plan de entrenamiento"
+            }
+            width={560}
+            height={420}
             sx={{
-              width: "100%",
-              maxWidth: { xs: 360, sm: 480, md: 560 },
+              width: { xs: "100%", sm: "100%", md: "clamp(560px, 44vw, 760px)" },
+              maxWidth: { xs: 819, sm: 1053, md: 760 },
               height: "auto",
               display: "block",
-              filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.3))",
+              // multiply es un no-op sobre fondo blanco puro para píxeles
+              // opacos (blanco × color = color) — así que no altera en nada
+              // el WebM con transparencia real, y de paso resuelve el
+              // fallback MP4 (fondo blanco sólido, sin alfa) para navegadores
+              // que no soporten WebM con canal alfa.
+              mixBlendMode: "multiply",
             }}
-          />
+          >
+            <source
+              src="https://res.cloudinary.com/dtougldc7/video/upload/q_auto,w_1100/v1788520807/landing/hero-video-1.webm"
+              type="video/webm"
+            />
+            <source
+              src="https://res.cloudinary.com/dtougldc7/video/upload/f_auto,q_auto,w_1100/v1788520807/landing/hero-video-1.mp4"
+              type="video/mp4"
+            />
+          </Box>
         </Box>
       </Box>
     </Box>

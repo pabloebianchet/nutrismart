@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { useNutrition } from "../context/NutritionContext";
 
-const MESSAGES = [
+const MESSAGES_ES = [
   "Escaneando los ingredientes...",
   "Evaluando valores nutricionales...",
   "Consultando guías europeas de salud...",
@@ -10,7 +11,18 @@ const MESSAGES = [
   "Preparando el análisis...",
 ];
 
+const MESSAGES_EN = [
+  "Scanning the ingredients...",
+  "Evaluating nutritional values...",
+  "Checking European health guidelines...",
+  "Measuring the processing level...",
+  "Calculating your personalized score...",
+  "Preparing the analysis...",
+];
+
 const AnalyzingLoader = ({ message }) => {
+  const { isUS } = useNutrition();
+  const MESSAGES = isUS ? MESSAGES_EN : MESSAGES_ES;
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -119,7 +131,7 @@ const AnalyzingLoader = ({ message }) => {
           {text}
         </Typography>
         <Typography sx={{ fontSize: 13, color: "#8AADAA", fontWeight: 500 }}>
-          Esto puede tardar unos segundos
+          {isUS ? "This can take a few seconds" : "Esto puede tardar unos segundos"}
         </Typography>
       </Box>
 

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Box, Typography } from "@mui/material";
 import { Leaf } from "@phosphor-icons/react";
 import PeanutMascot from "./PeanutMascot";
+import { useNutrition } from "../context/NutritionContext";
 
 const SAD_COLORS = ["#E24B4A", "#7ABFE0", "#F39C12", "#B0BEC5", "#9E9E9E"];
 
@@ -32,6 +33,7 @@ const SadParticle = ({ color, style }) => (
 
 /* ── Componente principal ────────────────────── */
 const PointsPenalty = ({ points, totalPoints, onDone }) => {
+  const { isUS } = useNutrition();
   const [phase, setPhase]             = useState("enter");
   const [displayCount, setDisplayCount] = useState(totalPoints + points); // empieza alto y baja
   const timerRef = useRef(null);
@@ -189,7 +191,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
               mb: 0.5,
             }}
           >
-            ¡Ay, qué pena!
+            {isUS ? "Aw, too bad!" : "¡Ay, qué pena!"}
           </Typography>
           <Typography
             sx={{
@@ -199,7 +201,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
               fontWeight: 500,
             }}
           >
-            Ese producto no es muy saludable
+            {isUS ? "That product isn't very healthy" : "Ese producto no es muy saludable"}
           </Typography>
         </Box>
 
@@ -229,7 +231,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
                 lineHeight: 1,
               }}
             >
-              Puntos saludables
+              {isUS ? "Healthy points" : "Puntos saludables"}
             </Typography>
             <Typography
               sx={{
@@ -256,7 +258,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
             fontStyle: "italic",
           }}
         >
-          Elegí opciones más naturales para sumar puntos
+          {isUS ? "Pick more natural options to earn points" : "Elegí opciones más naturales para sumar puntos"}
         </Typography>
       </Box>
     </Box>
