@@ -35,6 +35,7 @@ import BiometricGate     from "./components/BiometricGate.jsx";
 import PWAInstallPrompt  from "./components/PWAInstallPrompt.jsx";
 import { isBiometricRegistered } from "./utils/biometric.js";
 import PWAUpdatePrompt   from "./components/PWAUpdatePrompt.jsx";
+import InAppBrowserGate  from "./components/InAppBrowserGate.jsx";
 import { useState, useEffect } from "react";
 import { useNutrition }  from "./context/NutritionContext.jsx";
 
@@ -198,6 +199,7 @@ const BiometricGateWrapper = ({ children }) => {
 /* ── App ──────────────────────────────────────────────────────── */
 const App = () => {
   return (
+    <InAppBrowserGate>
     <Router>
       <BiometricGateWrapper>
       <RegionPathSync />
@@ -245,6 +247,7 @@ const App = () => {
       <CookieConsentBanner />
       </BiometricGateWrapper>
     </Router>
+    </InAppBrowserGate>
   );
 };
 

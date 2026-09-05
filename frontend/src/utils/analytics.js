@@ -25,3 +25,17 @@ export const trackSignUp = (method) => track("sign_up", { method });
  */
 export const trackCTAClick = (location) =>
   track("select_content", { content_type: "cta", item_id: location });
+
+/**
+ * Se dispara UNA vez cuando se detecta que el sitio se abrió dentro del
+ * navegador embebido de Instagram/Facebook y se muestra el aviso para salir
+ * al navegador del sistema — mide cuánto tráfico pago cae en ese caso.
+ */
+export const trackInAppBrowserDetected = () => track("inapp_browser_detected");
+
+/**
+ * Click en el botón "Abrir en el navegador" del aviso de in-app browser —
+ * permite separar "vio el aviso" de "efectivamente intentó salir", para
+ * saber si el aviso en sí genera abandono o si la gente lo usa.
+ */
+export const trackInAppBrowserExitClick = () => track("inapp_browser_exit_click");
