@@ -121,7 +121,10 @@ router.post("/login", authLimiter, async (req, res) => {
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    if (!user || user.provider !== "email")
+    // provider "email" no alcanza para saber si tiene contraseña real —
+    // las cuentas creadas por magic link también quedan con provider
+    // "email" pero sin password (bcrypt.compare explota con undefined).
+    if (!user || user.provider !== "email" || !user.password)
       return res.status(401).json({ error: "Email o contraseña incorrectos" });
 
     const valid = await bcrypt.compare(password, user.password);

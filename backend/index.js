@@ -565,15 +565,20 @@ app.post("/api/auth/google", async (req, res) => {
       const existingByEmail = await User.findOne({ email: email.toLowerCase() });
 
       if (existingByEmail) {
-        if (existingByEmail.provider === "email") {
-          // Cuenta de email/contraseña — bloquear el acceso con Google
+        if (existingByEmail.provider === "email" && existingByEmail.password) {
+          // Cuenta con contraseña de verdad (registro o reset-password) —
+          // bloquear el acceso con Google. OJO: provider "email" por sí solo
+          // no alcanza para este chequeo — las cuentas creadas por magic
+          // link también quedan con provider "email" pero sin password, y
+          // deben poder engancharse a Google sin fricción (más abajo).
           return res.status(409).json({
             error: "Este email ya tiene una cuenta con contraseña. Ingresá con email y contraseña.",
             provider: "email",
           });
         }
-        // Cuenta Google con email coincidente pero distinto googleId (edge case)
-        // → vincular el googleId al usuario existente
+        // Cuenta sin contraseña real con el mismo email — Google (edge case
+        // de distinto googleId) o magic link — se vincula el googleId sin
+        // fricción, es la misma persona probando otra forma de entrar.
         existingByEmail.googleId = googleId;
         existingByEmail.picture  = picture || existingByEmail.picture;
         await existingByEmail.save();
