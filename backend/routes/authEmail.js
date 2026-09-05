@@ -282,18 +282,65 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const loginUrl = `${frontendUrl}/magic-login/${rawToken}`;
+    const avatarUrl = `${frontendUrl}/avatars/email-avatar.png`;
 
     const isEN = lang === "en";
     const subject = isNewUser
       ? (isEN ? "Welcome to Nui — tap to get started" : "Bienvenido a Nui — tocá para entrar")
       : (isEN ? "Your Nui access link" : "Tu link de acceso a Nui");
+
+    const heading = isNewUser
+      ? (isEN ? "Your account is ready" : "Tu cuenta está lista")
+      : (isEN ? "Your access link" : "Tu link de acceso");
+
     const bodyText = isNewUser
       ? (isEN
-          ? "Tap the button below to activate your free 7-day trial and start using Nui."
-          : "Tocá el botón de abajo para activar tu prueba gratuita de 7 días y empezar a usar Nui.")
+          ? "Tap the button below to activate your account and start your free trial."
+          : "Tocá el botón de abajo para activar tu cuenta y empezar tu prueba gratuita.")
       : (isEN
           ? "Tap the button below to log into your Nui account."
           : "Tocá el botón de abajo para ingresar a tu cuenta de Nui.");
+
+    const bubbleText = isEN
+      ? "Hey! 👋 You get full access to every feature, free for 7 days — no card, nothing to fill in."
+      : "¡Hola! 👋 Tenés acceso a todas las funciones, gratis por 7 días — sin tarjeta, sin llenar nada.";
+
+    const trialLabel = isEN ? "Your free 7-day trial includes" : "Tu prueba gratuita de 7 días incluye";
+    const trialBullets = isEN
+      ? "✓ Every feature, with no limits<br/>✓ No credit card or payment info required<br/>✓ Cancel anytime, no strings attached"
+      : "✓ Todas las funciones, sin limitaciones<br/>✓ Sin ingresar tarjeta ni ningún dato de pago<br/>✓ Cancelás cuando quieras, sin compromiso";
+
+    const avatarBlock = isNewUser ? `
+          <tr>
+            <td style="background:#ffffff;padding:32px 40px 4px;">
+              <table cellpadding="0" cellspacing="0"><tr>
+                <td valign="bottom" style="width:96px;">
+                  <img src="${avatarUrl}" width="88" alt="" style="display:block;" />
+                </td>
+                <td valign="middle" style="padding-left:14px;">
+                  <div style="background:#E6F5F3;border:1.5px solid #B2DDD9;border-radius:18px 18px 18px 4px;padding:14px 18px;">
+                    <div style="font-size:13.5px;color:#0B5E55;font-weight:700;line-height:1.55;">
+                      ${bubbleText}
+                    </div>
+                  </div>
+                </td>
+              </tr></table>
+            </td>
+          </tr>` : "";
+
+    const trialBlock = isNewUser ? `
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 32px;">
+              <div style="background:#f7faf9;border-radius:14px;padding:18px 22px;">
+                <div style="font-size:12px;font-weight:700;color:#8AADAA;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">
+                  ${trialLabel}
+                </div>
+                <div style="font-size:13.5px;color:#4A6B67;line-height:1.8;">
+                  ${trialBullets}
+                </div>
+              </div>
+            </td>
+          </tr>` : "";
 
     const transporter = createTransporter();
     await transporter.sendMail({
@@ -301,31 +348,59 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
       to: user.email,
       subject,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f7faf9; border-radius: 16px;">
-          <div style="text-align: center; margin-bottom: 28px;">
-            <h1 style="color: #0B5E55; font-size: 22px; margin: 0;">Nui</h1>
-          </div>
-          <h2 style="color: #0F2420; font-size: 20px; margin-bottom: 12px;">${isEN ? "Your access link" : "Tu link de acceso"}</h2>
-          <p style="color: #4A6B67; line-height: 1.6; margin-bottom: 24px;">
-            ${bodyText}
-          </p>
-          <div style="text-align: center; margin-bottom: 28px;">
-            <a href="${loginUrl}"
-               style="display: inline-block; background: #0B5E55; color: #fff; text-decoration: none;
-                      padding: 14px 32px; border-radius: 999px; font-weight: 700; font-size: 15px;">
-              ${isEN ? "Enter Nui" : "Entrar a Nui"}
-            </a>
-          </div>
-          <p style="color: #8AADAA; font-size: 13px; line-height: 1.5;">
-            ${isEN
-              ? "This link is valid for <strong>30 minutes</strong> and works only once."
-              : "Este enlace es válido por <strong>30 minutos</strong> y funciona una sola vez."}
-          </p>
-          <hr style="border: none; border-top: 1px solid #e0eeec; margin: 24px 0;" />
-          <p style="color: #B2DDD9; font-size: 12px; text-align: center; margin: 0;">
-            © ${new Date().getFullYear()} Nui
-          </p>
-        </div>
+<!DOCTYPE html>
+<html lang="${isEN ? "en" : "es"}">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>${subject}</title></head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+          <tr>
+            <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
+              <div style="font-size:28px;font-weight:900;color:#ffffff;letter-spacing:-1px;">Nui</div>
+            </td>
+          </tr>
+${avatarBlock}
+          <tr>
+            <td style="background:#ffffff;padding:${isNewUser ? "20px" : "40px"} 40px 28px;">
+              <h2 style="color:#0F2420;font-size:20px;margin:0 0 12px;">${heading}</h2>
+              <p style="color:#4A6B67;line-height:1.6;margin:0 0 24px;">${bodyText}</p>
+              <div style="text-align:center;">
+                <a href="${loginUrl}"
+                   style="display:inline-block;background:#0B5E55;color:#ffffff;text-decoration:none;
+                          padding:14px 36px;border-radius:999px;font-weight:700;font-size:15px;">
+                  ${isEN ? "Enter Nui" : "Entrar a Nui"}
+                </a>
+              </div>
+            </td>
+          </tr>
+${trialBlock}
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 28px;">
+              <p style="color:#8AADAA;font-size:12.5px;line-height:1.5;margin:0;">
+                ${isEN
+                  ? "This link is valid for <strong>30 minutes</strong> and works only once."
+                  : "Este enlace es válido por <strong>30 minutos</strong> y funciona una sola vez."}
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background:#0B5E55;border-radius:0 0 16px 16px;padding:20px 40px;text-align:center;">
+              <div style="font-size:11px;color:rgba(255,255,255,0.55);">
+                © ${new Date().getFullYear()} Nui
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
       `,
     });
 
