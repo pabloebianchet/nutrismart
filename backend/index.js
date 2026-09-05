@@ -576,6 +576,9 @@ app.post("/api/auth/google", async (req, res) => {
           // no alcanza para este chequeo — las cuentas creadas por magic
           // link también quedan con provider "email" pero sin password, y
           // deben poder engancharse a Google sin fricción (más abajo).
+          logWarn("auth", "user.login.google.blocked", `Login Google bloqueado (cuenta con contraseña): ${email}`, {
+            userId: existingByEmail._id, userName: existingByEmail.name, userEmail: email, ip: req.ip,
+          });
           return res.status(409).json({
             error: "Este email ya tiene una cuenta con contraseña. Ingresá con email y contraseña.",
             provider: "email",
