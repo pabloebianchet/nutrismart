@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
 import { API_URL } from "../config/api";
 import { useNutrition } from "../context/NutritionContext";
+import { trackMagicLinkLoginSuccess } from "../utils/analytics.js";
 
 const C = {
   brand: "#0B5E55",
@@ -29,6 +30,7 @@ const MagicLoginPage = () => {
           return;
         }
         localStorage.setItem("nutrismartToken", data.token);
+        trackMagicLinkLoginSuccess();
         setUser(data.user);
         navigate("/", { replace: true });
       } catch {

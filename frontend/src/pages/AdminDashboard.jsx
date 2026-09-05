@@ -34,6 +34,9 @@ import HistoryRoundedIcon             from "@mui/icons-material/HistoryRounded";
 import ReceiptLongOutlinedIcon        from "@mui/icons-material/ReceiptLongOutlined";
 import CardGiftcardRoundedIcon        from "@mui/icons-material/CardGiftcardRounded";
 import CheckRoundedIcon               from "@mui/icons-material/CheckRounded";
+import MailOutlineRoundedIcon         from "@mui/icons-material/MailOutlineRounded";
+import DraftsOutlinedIcon             from "@mui/icons-material/DraftsOutlined";
+import AdsClickOutlinedIcon           from "@mui/icons-material/AdsClickOutlined";
 
 /* ─── Tokens ──────────────────────────────────────────────── */
 const C = {
@@ -841,8 +844,9 @@ const AdminDashboard = () => {
     </Box>
   );
 
-  const s = stats?.subs ?? {};
-  const d = stats?.demo ?? {};
+  const s  = stats?.subs ?? {};
+  const d  = stats?.demo ?? {};
+  const ml = stats?.magicLink ?? {};
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: C.surfaceAlt }}>
@@ -1042,6 +1046,18 @@ const AdminDashboard = () => {
           </Box>
         ))}
       </Paper>
+
+      {/* ── SECCIÓN: MAGIC LINK (Instagram/Facebook) ──── */}
+      <SectionHeader title="Magic link (Instagram/Facebook)"
+        subtitle="Registro/login por mail para tráfico que entra desde el navegador embebido — el 'abierto' viene de un pixel y en iPhone queda inflado por Apple Mail Privacy Protection" />
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3,1fr)" }, gap: 2, mb: 5 }}>
+        <KpiCard label="Enviados esta semana" value={ml.sentWeek ?? 0} sub={`${ml.sentTotal ?? 0} en total`}
+          icon={MailOutlineRoundedIcon} color={C.brand} />
+        <KpiCard label="Abiertos esta semana" value={ml.openedWeek ?? 0} sub={`${ml.openedTotal ?? 0} en total`}
+          icon={DraftsOutlinedIcon} color="#3B9E6A" />
+        <KpiCard label="Clickeados esta semana" value={ml.clickedWeek ?? 0} sub={`${ml.clickedTotal ?? 0} en total`}
+          icon={AdsClickOutlinedIcon} color="#7C3AED" />
+      </Box>
 
       {/* ── SECCIÓN: DEMOGRAFÍA ──────────────────────── */}
       <SectionHeader title="Demografía de usuarios"

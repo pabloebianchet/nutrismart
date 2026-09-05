@@ -95,6 +95,24 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
       },
     ]);
 
+    /* ── Embudo de magic link (registro/login desde el navegador
+       embebido de Instagram/Facebook) — el "abierto" viene del pixel del
+       mail y en iPhone queda inflado por Apple Mail Privacy Protection,
+       que precarga la imagen aunque nadie haya abierto el mail. ── */
+    const [magicLinkStats] = await Log.aggregate([
+      { $match: { category: "auth", action: { $in: ["user.magic_link.sent", "user.magic_link.opened", "user.login.magic_link"] } } },
+      {
+        $facet: {
+          sentWeek:    [{ $match: { action: "user.magic_link.sent",   createdAt: { $gte: weekStart } } }, { $count: "n" }],
+          sentTotal:   [{ $match: { action: "user.magic_link.sent" } }, { $count: "n" }],
+          openedWeek:  [{ $match: { action: "user.magic_link.opened", createdAt: { $gte: weekStart } } }, { $count: "n" }],
+          openedTotal: [{ $match: { action: "user.magic_link.opened" } }, { $count: "n" }],
+          clickedWeek: [{ $match: { action: "user.login.magic_link",  createdAt: { $gte: weekStart } } }, { $count: "n" }],
+          clickedTotal:[{ $match: { action: "user.login.magic_link" } }, { $count: "n" }],
+        },
+      },
+    ]);
+
     /* ── Demografía (usuarios con perfil completo) ──── */
     const [demo] = await User.aggregate([
       { $match: { profileCompleted: true } },
@@ -154,6 +172,16 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
         cancelledGoldWeek:    n(logStats?.cancelledGoldWeek),
         cancelledGoldYear:    n(logStats?.cancelledGoldYear),
         cancelled:            n(logStats?.cancelledTotal), // total histórico, reemplaza el snapshot viejo
+      },
+
+      /* Embudo de magic link (ver comentario arriba) */
+      magicLink: {
+        sentWeek:     n(magicLinkStats?.sentWeek),
+        sentTotal:    n(magicLinkStats?.sentTotal),
+        openedWeek:   n(magicLinkStats?.openedWeek),
+        openedTotal:  n(magicLinkStats?.openedTotal),
+        clickedWeek:  n(magicLinkStats?.clickedWeek),
+        clickedTotal: n(magicLinkStats?.clickedTotal),
       },
 
       /* Demografía */

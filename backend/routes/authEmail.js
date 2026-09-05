@@ -8,6 +8,7 @@ import User from "../models/User.js";
 import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
 import { activateFreeTrial } from "../utils/activateFreeTrial.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
+import { sendGA4Event } from "../utils/ga4.js";
 
 const router = express.Router();
 
@@ -281,8 +282,10 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
     await user.save();
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const backendUrl = process.env.BACKEND_URL || "https://nutrismart-backend.onrender.com";
     const loginUrl = `${frontendUrl}/magic-login/${rawToken}`;
     const avatarUrl = `${frontendUrl}/avatars/email-avatar.png`;
+    const pixelUrl = `${backendUrl}/api/auth/magic-link/pixel/${rawToken}`;
 
     const isEN = lang === "en";
     const subject = isNewUser
@@ -399,6 +402,7 @@ ${trialBlock}
       </td>
     </tr>
   </table>
+  <img src="${pixelUrl}" width="1" height="1" alt="" style="display:none;" />
 </body>
 </html>
       `,
@@ -441,6 +445,35 @@ router.post("/magic-login/:token", async (req, res) => {
   } catch (err) {
     console.error("Magic login error:", err.message);
     return res.status(500).json({ error: "Error al iniciar sesión." });
+  }
+});
+
+/* ─── MAGIC LINK — pixel de apertura ───────────────────────────
+ * 1x1 transparente embebido en el mail. Nunca falla de cara al cliente
+ * de mail (siempre devuelve la imagen); solo registra el "abierto" en
+ * nuestros logs (panel de admin) y como conteo aparte en GA4 — en iPhone
+ * este número queda inflado porque Apple Mail Privacy Protection precarga
+ * esta imagen para todos los mails, los abra la persona o no. No depende
+ * de que el link siga vigente: se loguea aunque el token ya se haya usado
+ * o vencido, porque solo mide si el mail se renderizó. */
+const TRANSPARENT_PIXEL_GIF = Buffer.from(
+  "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+  "base64"
+);
+
+router.get("/magic-link/pixel/:token", (req, res) => {
+  const { token } = req.params;
+
+  res.set("Content-Type", "image/gif");
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.send(TRANSPARENT_PIXEL_GIF);
+
+  try {
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    logInfo("auth", "user.magic_link.opened", "Mail de magic link abierto", { ip: req.ip, meta: { tokenHash } });
+    sendGA4Event("magic_link_email_opened", { clientId: tokenHash });
+  } catch (err) {
+    console.error("Magic link pixel error:", err.message);
   }
 });
 

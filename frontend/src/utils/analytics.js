@@ -40,3 +40,10 @@ export const trackInAppBrowserDetected = () => track("inapp_browser_detected");
  * fricción/abandono o si la gente lo usa.
  */
 export const trackInAppBrowserMagicLinkSubmit = () => track("inapp_browser_magic_link_submit");
+
+/**
+ * Login completado al tocar el link del mail (MagicLoginPage) — cierra el
+ * embudo del magic link: enviado (submit) → abierto (pixel, server-side,
+ * ver backend/utils/ga4.js) → clickeado/logueado (esto).
+ */
+export const trackMagicLinkLoginSuccess = () => track("magic_link_login_success");
