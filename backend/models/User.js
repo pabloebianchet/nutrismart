@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
 
+    // Magic link (login/registro passwordless por mail) — usado sobre todo
+    // para tráfico que entra desde el navegador embebido de Instagram/
+    // Facebook, donde Google OAuth no puede completarse en un toque.
+    magicLoginToken:   { type: String },
+    magicLoginExpires: { type: Date },
+
     sexo:     { type: String },
     edad:     { type: Number },
     actividad:{ type: String },

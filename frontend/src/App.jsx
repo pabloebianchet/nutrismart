@@ -14,6 +14,7 @@ import ProfilePage       from "./pages/ProfilePage.jsx";
 import AdminDashboard    from "./pages/AdminDashboard";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage  from "./pages/ResetPasswordPage.jsx";
+import MagicLoginPage     from "./pages/MagicLoginPage.jsx";
 import PricingPage       from "./pages/PricingPage.jsx";
 import SubscriptionPage  from "./pages/SubscriptionPage.jsx";
 import RecipesPage       from "./pages/RecipesPage.jsx";
@@ -224,6 +225,7 @@ const App = () => {
         <Route path="/admin"                  element={<AdminDashboard />} />
         <Route path="/forgot-password"        element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token"  element={<ResetPasswordPage />} />
+        <Route path="/magic-login/:token"     element={<MagicLoginPage />} />
         <Route path="/pricing"                element={<PricingPage />} />
         <Route path="/subscription"           element={<SubscriptionPage />} />
         <Route path="/subscription/success"   element={<SubscriptionPage />} />

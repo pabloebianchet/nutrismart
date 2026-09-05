@@ -20,6 +20,8 @@ const safeUser = (user) => {
   delete obj.password;
   delete obj.resetPasswordToken;
   delete obj.resetPasswordExpires;
+  delete obj.magicLoginToken;
+  delete obj.magicLoginExpires;
   return obj;
 };
 
@@ -47,6 +49,14 @@ const forgotLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
   message: { error: "Demasiadas solicitudes de recuperación. Intentá en 1 hora." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const magicLinkLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 8,
+  message: { error: "Demasiadas solicitudes. Intentá en 1 hora." },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -228,6 +238,134 @@ router.post("/reset-password/:token", async (req, res) => {
   } catch (err) {
     console.error("Reset password error:", err);
     return res.status(500).json({ error: "Error al restablecer la contraseña" });
+  }
+});
+
+/* ─── MAGIC LINK — pedir el link ──────────────────────────────
+ * Passwordless: se usa sobre todo para el navegador embebido de
+ * Instagram/Facebook, donde Google OAuth no puede completarse en un
+ * toque (no hay sesión de Google compartida con Safari/Chrome). Sirve
+ * tanto para registro (mail nuevo) como para login (mail existente,
+ * cualquier provider) — el link solo prueba que la persona controla
+ * esa casilla, no depende de recordar ninguna contraseña. */
+router.post("/magic-link", magicLinkLimiter, async (req, res) => {
+  const { email } = req.body;
+  const lang = req.body?.lang === "en" ? "en" : "es";
+
+  if (!email) return res.status(400).json({ error: "El email es obligatorio" });
+
+  try {
+    let user = await User.findOne({ email: email.toLowerCase() });
+    let isNewUser = false;
+
+    if (!user) {
+      user = await User.create({
+        email: email.toLowerCase(),
+        provider: "email",
+        profileCompleted: false,
+        lang,
+      });
+      isNewUser = true;
+
+      await activateFreeTrial(user._id).catch((e) => {
+        console.error("Free trial activation failed:", e.message);
+      });
+
+      logInfo("auth", "user.register.magic_link", `Registro magic link: ${user.email}`, { userId: user._id, userEmail: user.email, ip: req.ip });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    user.magicLoginToken = tokenHash;
+    user.magicLoginExpires = Date.now() + 1000 * 60 * 30; // 30 min
+    await user.save();
+
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const loginUrl = `${frontendUrl}/magic-login/${rawToken}`;
+
+    const isEN = lang === "en";
+    const subject = isNewUser
+      ? (isEN ? "Welcome to Nui — tap to get started" : "Bienvenido a Nui — tocá para entrar")
+      : (isEN ? "Your Nui access link" : "Tu link de acceso a Nui");
+    const bodyText = isNewUser
+      ? (isEN
+          ? "Tap the button below to activate your free 7-day trial and start using Nui."
+          : "Tocá el botón de abajo para activar tu prueba gratuita de 7 días y empezar a usar Nui.")
+      : (isEN
+          ? "Tap the button below to log into your Nui account."
+          : "Tocá el botón de abajo para ingresar a tu cuenta de Nui.");
+
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: `"Nui" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f7faf9; border-radius: 16px;">
+          <div style="text-align: center; margin-bottom: 28px;">
+            <h1 style="color: #0B5E55; font-size: 22px; margin: 0;">Nui</h1>
+          </div>
+          <h2 style="color: #0F2420; font-size: 20px; margin-bottom: 12px;">${isEN ? "Your access link" : "Tu link de acceso"}</h2>
+          <p style="color: #4A6B67; line-height: 1.6; margin-bottom: 24px;">
+            ${bodyText}
+          </p>
+          <div style="text-align: center; margin-bottom: 28px;">
+            <a href="${loginUrl}"
+               style="display: inline-block; background: #0B5E55; color: #fff; text-decoration: none;
+                      padding: 14px 32px; border-radius: 999px; font-weight: 700; font-size: 15px;">
+              ${isEN ? "Enter Nui" : "Entrar a Nui"}
+            </a>
+          </div>
+          <p style="color: #8AADAA; font-size: 13px; line-height: 1.5;">
+            ${isEN
+              ? "This link is valid for <strong>30 minutes</strong> and works only once."
+              : "Este enlace es válido por <strong>30 minutos</strong> y funciona una sola vez."}
+          </p>
+          <hr style="border: none; border-top: 1px solid #e0eeec; margin: 24px 0;" />
+          <p style="color: #B2DDD9; font-size: 12px; text-align: center; margin: 0;">
+            © ${new Date().getFullYear()} Nui
+          </p>
+        </div>
+      `,
+    });
+
+    logInfo("auth", "user.magic_link.sent", `Magic link enviado: ${user.email}`, { userId: user._id, userEmail: user.email, ip: req.ip, meta: { isNewUser } });
+
+    return res.json({
+      message: "Revisá tu mail, te mandamos el link de acceso.",
+      isNewUser,
+    });
+  } catch (err) {
+    console.error("Magic link error:", err.message);
+    return res.status(500).json({ error: "Error al enviar el correo" });
+  }
+});
+
+/* ─── MAGIC LINK — consumir el link ────────────────────────── */
+router.post("/magic-login/:token", async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      magicLoginToken: tokenHash,
+      magicLoginExpires: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ error: "El enlace es inválido o ya expiró." });
+
+    user.magicLoginToken = undefined;
+    user.magicLoginExpires = undefined;
+    await user.save();
+
+    logInfo("auth", "user.login.magic_link", `Login magic link: ${user.email}`, { userId: user._id, userEmail: user.email, ip: req.ip });
+
+    const token_ = signToken(user._id);
+    return res.json({ token: token_, user: safeUser(user) });
+  } catch (err) {
+    console.error("Magic login error:", err.message);
+    return res.status(500).json({ error: "Error al iniciar sesión." });
   }
 });
 
