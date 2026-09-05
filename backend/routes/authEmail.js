@@ -9,6 +9,7 @@ import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
 import { activateFreeTrial } from "../utils/activateFreeTrial.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { sendGA4Event } from "../utils/ga4.js";
+import { nameFromEmail } from "../utils/nameFromEmail.js";
 
 const router = express.Router();
 
@@ -265,6 +266,7 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
     if (!user) {
       user = await User.create({
         email: email.toLowerCase(),
+        name: nameFromEmail(email.toLowerCase()) || undefined,
         provider: "email",
         profileCompleted: false,
         lang,
@@ -275,7 +277,7 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
         console.error("Free trial activation failed:", e.message);
       });
 
-      logInfo("auth", "user.register.magic_link", `Registro magic link: ${user.email}`, { userId: user._id, userEmail: user.email, ip: req.ip });
+      logInfo("auth", "user.register.magic_link", `Registro magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
     }
 
     const rawToken = crypto.randomBytes(32).toString("hex");
@@ -411,7 +413,7 @@ ${trialBlock}
       `,
     });
 
-    logInfo("auth", "user.magic_link.sent", `Magic link enviado: ${user.email}`, { userId: user._id, userEmail: user.email, ip: req.ip, meta: { isNewUser } });
+    logInfo("auth", "user.magic_link.sent", `Magic link enviado: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip, meta: { isNewUser } });
 
     return res.json({
       message: "Revisá tu mail, te mandamos el link de acceso.",
@@ -441,7 +443,7 @@ router.post("/magic-login/:token", async (req, res) => {
     user.magicLoginExpires = undefined;
     await user.save();
 
-    logInfo("auth", "user.login.magic_link", `Login magic link: ${user.email}`, { userId: user._id, userEmail: user.email, ip: req.ip });
+    logInfo("auth", "user.login.magic_link", `Login magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
 
     const token_ = signToken(user._id);
     return res.json({ token: token_, user: safeUser(user) });

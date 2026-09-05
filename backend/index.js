@@ -11,6 +11,7 @@ import OpenAI from "openai";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import { connectDB } from "./db.js";
+import { uploadImage } from "./utils/cloudinary.js";
 import User from "./models/User.js";
 import Analysis from "./models/Analysis.js";
 import adminRoutes from "./routes/admin.js";
@@ -156,6 +157,10 @@ const openai = new OpenAI({
 // 📦 MULTER
 // =====================
 const upload = multer({ storage: multer.memoryStorage() });
+const uploadProfilePicture = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+});
 
 // =====================
 // 🧠 OCR ENDPOINT
@@ -622,12 +627,17 @@ app.post("/api/auth/google", async (req, res) => {
 // 👤 UPDATE USER PROFILE
 // =====================
 app.put("/api/user/profile", authMiddleware, async (req, res) => {
-  const { sexo, edad, actividad, peso, altura, avatar } = req.body;
+  const { sexo, edad, actividad, peso, altura, avatar, name } = req.body;
+
+  const update = { sexo, edad, actividad, peso, altura, avatar, profileCompleted: true };
+  // El nombre es opcional acá (el form de onboarding lo manda, otros
+  // llamadores viejos no) — nunca pisarlo con un string vacío.
+  if (typeof name === "string" && name.trim()) update.name = name.trim();
 
   try {
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { sexo, edad, actividad, peso, altura, avatar, profileCompleted: true },
+      update,
       { returnDocument: "after" },
     );
 
@@ -639,6 +649,36 @@ app.put("/api/user/profile", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Update profile error:", err);
     return res.status(500).json({ error: "Error updating profile" });
+  }
+});
+
+// =====================
+// 🖼️ SUBIR FOTO DE PERFIL
+// =====================
+// Para cuentas sin foto de Google (magic link, email/contraseña) — sube a
+// Cloudinary y guarda la URL en el mismo campo `picture` que ya usa Google.
+app.post("/api/user/profile-picture", authMiddleware, (req, res, next) => {
+  uploadProfilePicture.single("photo")(req, res, (err) => {
+    if (err) {
+      const msg = err.code === "LIMIT_FILE_SIZE" ? "La imagen no puede pesar más de 5MB." : "Error al procesar la imagen.";
+      return res.status(400).json({ error: msg });
+    }
+    next();
+  });
+}, async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No se envió ninguna imagen." });
+  if (!req.file.mimetype?.startsWith("image/")) {
+    return res.status(400).json({ error: "El archivo debe ser una imagen." });
+  }
+
+  try {
+    const dataUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    const picture = await uploadImage(dataUrl, "profile-pictures", `user-${req.user._id}`);
+    const user = await User.findByIdAndUpdate(req.user._id, { picture }, { returnDocument: "after" });
+    return res.json({ user });
+  } catch (err) {
+    console.error("Profile picture upload error:", err.message);
+    return res.status(500).json({ error: "Error al subir la imagen." });
   }
 });
 

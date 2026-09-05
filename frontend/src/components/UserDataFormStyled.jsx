@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import {
   Box, Typography, Button, Stack,
-  TextField, LinearProgress, InputAdornment,
+  TextField, LinearProgress, InputAdornment, Avatar, CircularProgress,
 } from "@mui/material";
 import ArrowBackRoundedIcon      from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
 import CheckCircleRoundedIcon    from "@mui/icons-material/CheckCircleRounded";
+import AddAPhotoRoundedIcon      from "@mui/icons-material/AddAPhotoRounded";
 
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate }  from "react-router-dom";
@@ -59,8 +60,10 @@ const UserDataFormStyled = () => {
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState("");
   const [form,   setForm]   = useState({
-    sexo: "", edad: "", peso: "", altura: "", actividad: "",
+    sexo: "", edad: "", peso: "", altura: "", actividad: "", name: "",
   });
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState("");
 
   const { updateUserData, user, isUS } = useNutrition();
   const navigate = useNavigate();
@@ -87,6 +90,7 @@ const UserDataFormStyled = () => {
           peso:      d.user.peso      || "",
           altura:    d.user.altura    || "",
           actividad: d.user.actividad || "",
+          name:      d.user.name      || "",
         }));
         updateUserData(d.user);
       })
@@ -98,7 +102,7 @@ const UserDataFormStyled = () => {
   const canNext = () => {
     if (step === 0) {
       const edad = Number(form.edad);
-      return !!form.sexo && edad >= 5 && edad <= 120;
+      return !!form.name.trim() && !!form.sexo && edad >= 5 && edad <= 120;
     }
     if (step === 1) {
       const peso = Number(form.peso), alt = Number(form.altura);
@@ -112,6 +116,35 @@ const UserDataFormStyled = () => {
     setError("");
     if (step < TOTAL - 1) setStep(s => s + 1);
     else handleSubmit();
+  };
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // permite re-seleccionar el mismo archivo después
+    if (!file) return;
+
+    setPhotoError("");
+    setPhotoUploading(true);
+    try {
+      const token = localStorage.getItem("nutrismartToken");
+      const body = new FormData();
+      body.append("photo", file);
+      const res = await fetch(`${API_URL}/api/user/profile-picture`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPhotoError(data.error || (isUS ? "Error uploading photo." : "Error al subir la foto."));
+        return;
+      }
+      updateUserData(data.user);
+    } catch {
+      setPhotoError(isUS ? "Connection error." : "Error de conexión.");
+    } finally {
+      setPhotoUploading(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -215,9 +248,48 @@ const UserDataFormStyled = () => {
         {/* Body */}
         <Box sx={{ px: { xs: 3, sm: 4 }, pt: 3, pb: 4 }}>
 
-          {/* ══ PASO 0: Género + Edad ══ */}
+          {/* ══ PASO 0: Nombre + Foto + Género + Edad ══ */}
           {step === 0 && (
             <Stack spacing={3}>
+              <Box>
+                <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
+                  {isUS ? "Full name" : "Nombre completo"}
+                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  {/* Foto de perfil — solo si no vino ya de Google */}
+                  {!user?.picture && (
+                    <Box sx={{ position: "relative", flexShrink: 0 }}>
+                      <Avatar src={user?.picture} sx={{ width: 56, height: 56, bgcolor: C.brandSurface, border: `1.5px solid ${C.border}` }} />
+                      <Box
+                        component="label"
+                        sx={{
+                          position: "absolute", bottom: -4, right: -4,
+                          width: 26, height: 26, borderRadius: "50%",
+                          bgcolor: C.brand, display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: "pointer", border: "2px solid #fff",
+                          "&:hover": { bgcolor: C.brandLight },
+                        }}
+                      >
+                        {photoUploading
+                          ? <CircularProgress size={12} sx={{ color: "#fff" }} />
+                          : <AddAPhotoRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />}
+                        <input type="file" accept="image/*" hidden onChange={handlePhotoChange} disabled={photoUploading} />
+                      </Box>
+                    </Box>
+                  )}
+                  <TextField
+                    value={form.name}
+                    onChange={e => set("name", e.target.value)}
+                    placeholder={isUS ? "Your full name" : "Tu nombre y apellido"}
+                    fullWidth
+                    sx={fieldSx}
+                  />
+                </Stack>
+                {photoError && (
+                  <Typography sx={{ fontSize: 12, color: "#C62828", mt: 1 }}>{photoError}</Typography>
+                )}
+              </Box>
+
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
                   {isUS ? "Gender" : "Género"}

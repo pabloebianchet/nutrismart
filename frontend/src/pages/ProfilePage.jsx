@@ -5,19 +5,15 @@ import UserDataFormStyled from "../components/UserDataFormStyled.jsx";
 import { useNutrition } from "../context/NutritionContext";
 
 const ProfilePage = () => {
-  const { user, userData } = useNutrition();
+  const { user } = useNutrition();
   const navigate = useNavigate();
 
+  // Ojo: a propósito NO redirige afuera cuando el perfil ya está completo —
+  // esta pantalla también sirve para editar nombre/foto/datos después del
+  // onboarding inicial (ver "Mi perfil" en el menú de AppHeader).
   useEffect(() => {
-    if (!user) {
-      navigate("/", { replace: true });
-      return;
-    }
-
-    if (userData?.profileCompleted) {
-      navigate("/", { replace: true });
-    }
-  }, [navigate, user, userData?.profileCompleted]);
+    if (!user) navigate("/", { replace: true });
+  }, [navigate, user]);
 
   return (
     <Box

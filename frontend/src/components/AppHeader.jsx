@@ -14,10 +14,12 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
 import RamenDiningRoundedIcon    from "@mui/icons-material/RamenDiningRounded";
 import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 
 // Items visibles para usuarios con sesión
 const NAV = [
   { to: "/",             label: "Inicio",         labelEn: "Home",         Icon: HomeRoundedIcon         },
+  { to: "/profile",      label: "Mi perfil",       labelEn: "My profile",  Icon: PersonOutlineRoundedIcon  },
   { to: "/recipes",      label: "Recetas YA",      labelEn: "Recipes Now",  Icon: RamenDiningRoundedIcon    },
   { to: "/training",    label: "Entrenamiento",   labelEn: "Training",     Icon: FitnessCenterRoundedIcon  },
   { to: "/about",        label: "Quiénes somos",  labelEn: "About us",     Icon: InfoRoundedIcon         },
