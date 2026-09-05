@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { useNutrition } from "../context/NutritionContext";
-import { isInAppBrowser, openInSystemBrowser } from "../utils/inAppBrowser.js";
+import { isInAppBrowser, getExitHref } from "../utils/inAppBrowser.js";
 import { trackInAppBrowserDetected, trackInAppBrowserExitClick } from "../utils/analytics.js";
 
 /**
@@ -21,11 +21,10 @@ const InAppBrowserGate = ({ children }) => {
 
   if (!active) return children;
 
-  const handleExitClick = () => {
-    trackInAppBrowserExitClick();
-    openInSystemBrowser();
-  };
-
+  // Tiene que ser un <a href> real: Safari/WebKit ignora el esquema
+  // x-safari-https:// (y el WebView de Android intent://) si se asigna por
+  // JS con window.location.href — solo lo respeta si viene de un tap real
+  // sobre un anchor.
   return (
     <Box sx={{
       position: "fixed", inset: 0, zIndex: 9999,
@@ -36,14 +35,16 @@ const InAppBrowserGate = ({ children }) => {
       <Box component="img" src="/img/logo.png" alt="NUI App"
         sx={{ height: 40, mb: 4, filter: "brightness(0) invert(1)" }} />
 
-      <Typography sx={{ fontSize: 18, fontWeight: 700, color: "#fff", mb: 4, maxWidth: 320, lineHeight: 1.5 }}>
+      <Typography sx={{ fontSize: 19, fontWeight: 800, color: "#fff", mb: 4, maxWidth: 320, lineHeight: 1.5 }}>
         {isUS
-          ? "To sign up, open this in your browser."
-          : "Para registrarte necesitás abrir esto en tu navegador."}
+          ? "Sign up with your Google account in one tap"
+          : "Registrate con tu cuenta de Google en un segundo"}
       </Typography>
 
       <Button
-        onClick={handleExitClick}
+        component="a"
+        href={getExitHref()}
+        onClick={trackInAppBrowserExitClick}
         startIcon={<OpenInNewRoundedIcon />}
         sx={{
           borderRadius: 3, py: 1.8, px: 4, fontWeight: 800, fontSize: 16, textTransform: "none",
@@ -51,8 +52,14 @@ const InAppBrowserGate = ({ children }) => {
           boxShadow: "0 12px 30px rgba(0,0,0,0.2)",
         }}
       >
-        {isUS ? "Tap here →" : "Tocá aquí →"}
+        {isUS ? "Continue →" : "Continuar →"}
       </Button>
+
+      <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.55)", mt: 3 }}>
+        {isUS
+          ? 'Not working? Tap "···" above and choose "Open in Safari/Chrome".'
+          : 'Si no funciona, tocá "···" arriba y elegí "Abrir en Safari/Chrome".'}
+      </Typography>
     </Box>
   );
 };
