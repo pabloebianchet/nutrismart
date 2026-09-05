@@ -37,6 +37,7 @@ import CheckRoundedIcon               from "@mui/icons-material/CheckRounded";
 import MailOutlineRoundedIcon         from "@mui/icons-material/MailOutlineRounded";
 import DraftsOutlinedIcon             from "@mui/icons-material/DraftsOutlined";
 import AdsClickOutlinedIcon           from "@mui/icons-material/AdsClickOutlined";
+import InfoOutlinedIcon               from "@mui/icons-material/InfoOutlined";
 
 /* ─── Tokens ──────────────────────────────────────────────── */
 const C = {
@@ -96,7 +97,7 @@ const STATUS_META = {
 };
 
 /* ─── KPI Card ───────────────────────────────────────────── */
-const KpiCard = ({ label, value, sub, icon: Icon, color, bgColor, borderColor }) => {
+const KpiCard = ({ label, value, sub, icon: Icon, color, bgColor, borderColor, info }) => {
   const bg  = bgColor     ?? C.surface;
   const brd = borderColor ?? C.border;
   const col = color       ?? C.brand;
@@ -113,6 +114,11 @@ const KpiCard = ({ label, value, sub, icon: Icon, color, bgColor, borderColor })
           bgcolor: `${col}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Icon sx={{ fontSize: 19, color: col }} />
         </Box>
+        {info && (
+          <Tooltip title={info} placement="top" arrow enterTouchDelay={0} sx={{ zIndex: 1 }}>
+            <InfoOutlinedIcon sx={{ fontSize: 16, color: C.textMuted, mt: 0.5, cursor: "help" }} />
+          </Tooltip>
+        )}
       </Stack>
       <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: C.textMuted,
         textTransform: "uppercase", letterSpacing: "0.07em", mb: 0.3 }}>
@@ -1052,11 +1058,14 @@ const AdminDashboard = () => {
         subtitle="Registro/login por mail para tráfico que entra desde el navegador embebido — el 'abierto' viene de un pixel y en iPhone queda inflado por Apple Mail Privacy Protection" />
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3,1fr)" }, gap: 2, mb: 5 }}>
         <KpiCard label="Enviados esta semana" value={ml.sentWeek ?? 0} sub={`${ml.sentTotal ?? 0} en total`}
-          icon={MailOutlineRoundedIcon} color={C.brand} />
+          icon={MailOutlineRoundedIcon} color={C.brand}
+          info="Cuántas veces se mandó el mail de acceso (magic link). Se dispara cuando alguien completa el formulario de mail en el aviso de Instagram/Facebook — mide cuánta gente llega a ese primer paso, antes de siquiera abrir su casilla." />
         <KpiCard label="Abiertos esta semana" value={ml.openedWeek ?? 0} sub={`${ml.openedTotal ?? 0} en total`}
-          icon={DraftsOutlinedIcon} color="#3B9E6A" />
+          icon={DraftsOutlinedIcon} color="#3B9E6A"
+          info="Veces que se cargó una imagen invisible dentro del mail, señal de que el mail se renderizó. En iPhone este número suele estar inflado: Apple precarga esa imagen automáticamente en todos los mails, los abra la persona o no — tomalo como referencia aproximada, no como dato exacto." />
         <KpiCard label="Clickeados esta semana" value={ml.clickedWeek ?? 0} sub={`${ml.clickedTotal ?? 0} en total`}
-          icon={AdsClickOutlinedIcon} color="#7C3AED" />
+          icon={AdsClickOutlinedIcon} color="#7C3AED"
+          info="Logins completados al tocar el botón del mail. Es el número más confiable de los tres: a diferencia de 'enviados' y 'abiertos', esto significa que la persona efectivamente entró a Nui con ese link." />
       </Box>
 
       {/* ── SECCIÓN: DEMOGRAFÍA ──────────────────────── */}
