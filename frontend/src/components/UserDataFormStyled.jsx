@@ -256,27 +256,27 @@ const UserDataFormStyled = () => {
                   {isUS ? "Full name" : "Nombre completo"}
                 </Typography>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  {/* Foto de perfil — solo si no vino ya de Google */}
-                  {!user?.picture && (
-                    <Box sx={{ position: "relative", flexShrink: 0 }}>
-                      <Avatar src={user?.picture} sx={{ width: 56, height: 56, bgcolor: C.brandSurface, border: `1.5px solid ${C.border}` }} />
-                      <Box
-                        component="label"
-                        sx={{
-                          position: "absolute", bottom: -4, right: -4,
-                          width: 26, height: 26, borderRadius: "50%",
-                          bgcolor: C.brand, display: "flex", alignItems: "center", justifyContent: "center",
-                          cursor: "pointer", border: "2px solid #fff",
-                          "&:hover": { bgcolor: C.brandLight },
-                        }}
-                      >
-                        {photoUploading
-                          ? <CircularProgress size={12} sx={{ color: "#fff" }} />
-                          : <AddAPhotoRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />}
-                        <input type="file" accept="image/*" hidden onChange={handlePhotoChange} disabled={photoUploading} />
-                      </Box>
+                  {/* Foto de perfil — editable siempre, tenga o no una de
+                      Google ya cargada (pensado también para el futuro
+                      chat entre usuarios, donde va a importar más). */}
+                  <Box sx={{ position: "relative", flexShrink: 0 }}>
+                    <Avatar src={user?.picture} sx={{ width: 56, height: 56, bgcolor: C.brandSurface, border: `1.5px solid ${C.border}` }} />
+                    <Box
+                      component="label"
+                      sx={{
+                        position: "absolute", bottom: -4, right: -4,
+                        width: 26, height: 26, borderRadius: "50%",
+                        bgcolor: C.brand, display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer", border: "2px solid #fff",
+                        "&:hover": { bgcolor: C.brandLight },
+                      }}
+                    >
+                      {photoUploading
+                        ? <CircularProgress size={12} sx={{ color: "#fff" }} />
+                        : <AddAPhotoRoundedIcon sx={{ fontSize: 13, color: "#fff" }} />}
+                      <input type="file" accept="image/*" hidden onChange={handlePhotoChange} disabled={photoUploading} />
                     </Box>
-                  )}
+                  </Box>
                   <TextField
                     value={form.name}
                     onChange={e => set("name", e.target.value)}

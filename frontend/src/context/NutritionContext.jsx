@@ -258,6 +258,12 @@ export const NutritionProvider = ({ children }) => {
   const updateUserData = (data) => {
     if (data === null) { setUserData(null); return; }
     setUserData((prev) => ({ ...(prev || {}), ...data }));
+    // `user` (identidad — nombre, foto, etc., lo que lee el saludo del
+    // Dashboard) es un estado aparte de `userData` (perfil extendido).
+    // Sin este merge, guardar el nombre o la foto actualiza userData pero
+    // user.name/user.picture quedan pisados con el valor viejo para
+    // siempre, sin importar cuántas veces se edite.
+    setUser((prev) => (prev ? { ...prev, ...data } : prev));
   };
 
   const updateOcrText = (text) => setOcrText(text);
