@@ -264,18 +264,23 @@ export const NutritionProvider = ({ children }) => {
     // user.name/user.picture quedan pisados con el valor viejo para
     // siempre, sin importar cuántas veces se edite.
     //
-    // OJO: tiene que devolver la MISMA referencia si nada cambió en
-    // realidad — varios componentes (ej. la carga de perfil existente en
-    // UserDataFormStyled) llaman a updateUserData() dentro de un efecto
-    // que depende de `user`. Sin este chequeo, cada llamada crea un
-    // objeto nuevo aunque los valores sean idénticos, lo que dispara el
-    // efecto de nuevo, que vuelve a llamar a updateUserData() — loop
-    // infinito de re-fetch.
+    // Solo se sincronizan estos dos campos (identidad), no todo `data` —
+    // updateUserData() a veces recibe el User completo (ej. la carga de
+    // perfil existente en UserDataFormStyled, que corre dentro de un
+    // efecto que depende de `user`). Ese documento trae objetos anidados
+    // (notifPrefs, webauthnCredentials, etc.) que son una referencia NUEVA
+    // en cada fetch aunque el valor sea idéntico — comparar esos campos
+    // siempre da "cambió" y vuelve a abrir el loop infinito de re-fetch
+    // (cada letra tipeada en el nombre se pisaba sola). name/picture son
+    // siempre strings, así que la comparación acá sí es segura.
     setUser((prev) => {
       if (!prev) return prev;
-      const next = { ...prev, ...data };
-      const changed = Object.keys(data).some((k) => prev[k] !== next[k]);
-      return changed ? next : prev;
+      const patch = {};
+      let changed = false;
+      for (const k of ["name", "picture"]) {
+        if (k in data && data[k] !== prev[k]) { patch[k] = data[k]; changed = true; }
+      }
+      return changed ? { ...prev, ...patch } : prev;
     });
   };
 
