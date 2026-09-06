@@ -5,7 +5,6 @@ import {
   Paper,
   Stack,
   TextField,
-  MenuItem,
   Divider,
   IconButton,
   Avatar,
@@ -33,8 +32,6 @@ import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import AddRoundedIcon           from "@mui/icons-material/AddRounded";
 import FitnessCenterRoundedIcon from "@mui/icons-material/FitnessCenterRounded";
@@ -1643,7 +1640,7 @@ const ShoppingListWidget = () => {
    Dashboard principal
 ──────────────────────────────────────────── */
 const Dashboard = () => {
-  const { user, userData, updateUserData, loadingUserData, isUS } = useNutrition();
+  const { user, userData, loadingUserData, isUS } = useNutrition();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -1653,9 +1650,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [historyRefreshToken, setHistoryRefreshToken] = useState(0);
   const [displayPoints, setDisplayPoints] = useState(null);
-
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [savingProfile, setSavingProfile] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
     sexo: "Femenino",
@@ -1750,33 +1744,6 @@ const Dashboard = () => {
     const interval = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfileForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSaveProfile = async () => {
-    if (!user?._id && !user?.googleId) return;
-    setSavingProfile(true);
-    try {
-      const response = await fetch(`${API_URL}/api/user/profile`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user._id, googleId: user.googleId, ...profileForm }),
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data?.error || "Error guardando perfil");
-      updateUserData({ ...profileForm, profileCompleted: true });
-      setEditingProfile(false);
-      setHistoryRefreshToken((prev) => prev + 1);
-    } catch (err) {
-      console.error("Error guardando perfil:", err);
-    } finally {
-      setSavingProfile(false);
-    }
-  };
 
   const handleDeleteAnalysis = async (analysisId) => {
     if (!analysisId) return;
@@ -2258,28 +2225,25 @@ const Dashboard = () => {
             </Box>
           </Stack>
 
-          {!editingProfile && (
-            <Button
-              startIcon={<EditOutlinedIcon />}
-              onClick={() => setEditingProfile(true)}
-              size="small"
-              sx={{
-                textTransform: "none",
-                color: C.brand,
-                fontWeight: 600,
-                fontSize: 13,
-                borderRadius: 999,
-                px: 2,
-                "&:hover": { bgcolor: C.brandSurface },
-              }}
-            >
-              {isUS ? "Edit" : "Editar"}
-            </Button>
-          )}
+          <Button
+            startIcon={<EditOutlinedIcon />}
+            onClick={() => navigate("/profile")}
+            size="small"
+            sx={{
+              textTransform: "none",
+              color: C.brand,
+              fontWeight: 600,
+              fontSize: 13,
+              borderRadius: 999,
+              px: 2,
+              "&:hover": { bgcolor: C.brandSurface },
+            }}
+          >
+            {isUS ? "Edit" : "Editar"}
+          </Button>
         </Box>
 
         <Box sx={{ p: { xs: 3, md: 4 } }}>
-          {!editingProfile ? (
             <Box
               sx={{
                 display: "grid",
@@ -2318,121 +2282,6 @@ const Dashboard = () => {
                 value={profileForm.altura ? `${profileForm.altura} cm` : null}
               />
             </Box>
-          ) : (
-            <Box>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                  gap: 2,
-                  mb: 2,
-                }}
-              >
-                <TextField
-                  select
-                  name="sexo"
-                  label={isUS ? "Gender" : "Género"}
-                  value={profileForm.sexo}
-                  onChange={handleChange}
-                  size="small"
-                  fullWidth
-                  sx={inputSx}
-                >
-                  {["Femenino", "Masculino", "Otro"].map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {sexoLabel(opt, isUS)}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  name="edad"
-                  label={isUS ? "Age" : "Edad"}
-                  type="number"
-                  value={profileForm.edad}
-                  onChange={handleChange}
-                  size="small"
-                  fullWidth
-                  sx={inputSx}
-                />
-
-                <TextField
-                  select
-                  name="actividad"
-                  label={isUS ? "Physical activity" : "Actividad física"}
-                  value={profileForm.actividad}
-                  onChange={handleChange}
-                  size="small"
-                  fullWidth
-                  sx={inputSx}
-                >
-                  {["Nula", "Moderada", "Intensa", "Profesional"].map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {actividadLabel(opt, isUS)}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  name="peso"
-                  label={isUS ? "Weight (kg)" : "Peso (kg)"}
-                  type="number"
-                  value={profileForm.peso}
-                  onChange={handleChange}
-                  size="small"
-                  fullWidth
-                  sx={inputSx}
-                />
-
-                <TextField
-                  name="altura"
-                  label={isUS ? "Height (cm)" : "Altura (cm)"}
-                  type="number"
-                  value={profileForm.altura}
-                  onChange={handleChange}
-                  size="small"
-                  sx={{ ...inputSx, gridColumn: { xs: "auto", sm: "1 / -1" } }}
-                />
-              </Box>
-
-              <Stack direction="row" spacing={1.5}>
-                <Button
-                  variant="contained"
-                  startIcon={savingProfile ? null : <CheckRoundedIcon />}
-                  onClick={handleSaveProfile}
-                  disabled={savingProfile}
-                  sx={{
-                    borderRadius: 999,
-                    bgcolor: C.brand,
-                    textTransform: "none",
-                    fontWeight: 600,
-                    px: 3,
-                    boxShadow: "none",
-                    "&:hover": { bgcolor: C.brandLight, boxShadow: "none" },
-                  }}
-                >
-                  {isUS
-                    ? (savingProfile ? "Saving…" : "Save")
-                    : (savingProfile ? "Guardando…" : "Guardar")}
-                </Button>
-
-                <Button
-                  startIcon={<CloseRoundedIcon />}
-                  onClick={() => setEditingProfile(false)}
-                  sx={{
-                    borderRadius: 999,
-                    textTransform: "none",
-                    color: C.textSecondary,
-                    fontWeight: 600,
-                    px: 3,
-                    "&:hover": { bgcolor: C.surfaceAlt },
-                  }}
-                >
-                  {isUS ? "Cancel" : "Cancelar"}
-                </Button>
-              </Stack>
-            </Box>
-          )}
         </Box>
       </Paper>
 
@@ -2640,21 +2489,6 @@ const Dashboard = () => {
       <Box sx={{ height: 40 }} />
     </Box>
   );
-};
-
-/* ────────────────────────────────────────────
-   Helpers de estilos
-──────────────────────────────────────────── */
-const inputSx = {
-  "& .MuiOutlinedInput-root": {
-    borderRadius: 3,
-    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: C.brand },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: C.brand,
-      borderWidth: 1.5,
-    },
-  },
-  "& .MuiInputLabel-root.Mui-focused": { color: C.brand },
 };
 
 export default Dashboard;

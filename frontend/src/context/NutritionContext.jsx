@@ -263,7 +263,20 @@ export const NutritionProvider = ({ children }) => {
     // Sin este merge, guardar el nombre o la foto actualiza userData pero
     // user.name/user.picture quedan pisados con el valor viejo para
     // siempre, sin importar cuántas veces se edite.
-    setUser((prev) => (prev ? { ...prev, ...data } : prev));
+    //
+    // OJO: tiene que devolver la MISMA referencia si nada cambió en
+    // realidad — varios componentes (ej. la carga de perfil existente en
+    // UserDataFormStyled) llaman a updateUserData() dentro de un efecto
+    // que depende de `user`. Sin este chequeo, cada llamada crea un
+    // objeto nuevo aunque los valores sean idénticos, lo que dispara el
+    // efecto de nuevo, que vuelve a llamar a updateUserData() — loop
+    // infinito de re-fetch.
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...data };
+      const changed = Object.keys(data).some((k) => prev[k] !== next[k]);
+      return changed ? next : prev;
+    });
   };
 
   const updateOcrText = (text) => setOcrText(text);

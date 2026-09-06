@@ -65,8 +65,15 @@ const UserDataFormStyled = () => {
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState("");
 
-  const { updateUserData, user, isUS } = useNutrition();
+  const { updateUserData, user, userData, isUS } = useNutrition();
   const navigate = useNavigate();
+
+  // Perfil ya completado (viene de "Mi perfil" en el menú, o del botón
+  // "Editar" del dashboard) → todos los campos en una sola pantalla, sin
+  // el wizard de pasos — ya tiene los datos cargados, no es alguien
+  // registrándose por primera vez. El wizard de pasos queda solo para el
+  // onboarding real.
+  const isEditMode = userData?.profileCompleted === true;
 
   const GENEROS    = getGeneros(isUS);
   const ACTIVIDADES = getActividades(isUS);
@@ -99,22 +106,29 @@ const UserDataFormStyled = () => {
 
   const set = (field, val) => setForm(p => ({ ...p, [field]: val }));
 
+  const step0Valid = () => {
+    const edad = Number(form.edad);
+    return !!form.name.trim() && !!form.sexo && edad >= 5 && edad <= 120;
+  };
+  const step1Valid = () => {
+    const peso = Number(form.peso), alt = Number(form.altura);
+    return peso >= 20 && peso <= 350 && alt >= 80 && alt <= 260;
+  };
+  const step2Valid = () => !!form.actividad;
+
   const canNext = () => {
-    if (step === 0) {
-      const edad = Number(form.edad);
-      return !!form.name.trim() && !!form.sexo && edad >= 5 && edad <= 120;
-    }
-    if (step === 1) {
-      const peso = Number(form.peso), alt = Number(form.altura);
-      return peso >= 20 && peso <= 350 && alt >= 80 && alt <= 260;
-    }
-    if (step === 2) return !!form.actividad;
+    // Edit mode: todos los campos están en pantalla a la vez, tienen que
+    // validar todos juntos para habilitar "Guardar".
+    if (isEditMode) return step0Valid() && step1Valid() && step2Valid();
+    if (step === 0) return step0Valid();
+    if (step === 1) return step1Valid();
+    if (step === 2) return step2Valid();
     return false;
   };
 
   const handleNext = () => {
     setError("");
-    if (step < TOTAL - 1) setStep(s => s + 1);
+    if (!isEditMode && step < TOTAL - 1) setStep(s => s + 1);
     else handleSubmit();
   };
 
@@ -176,7 +190,8 @@ const UserDataFormStyled = () => {
   return (
     <Box sx={{ width: "100%", maxWidth: 520, mx: "auto" }}>
 
-      {/* ── Progreso ── */}
+      {/* ── Progreso — solo en el wizard de onboarding, no al editar ── */}
+      {!isEditMode && (
       <Box sx={{ mb: 3, px: 0.5 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
@@ -216,6 +231,7 @@ const UserDataFormStyled = () => {
           ))}
         </Stack>
       </Box>
+      )}
 
       {/* ── Card ── */}
       <Box
@@ -236,10 +252,14 @@ const UserDataFormStyled = () => {
         {/* Header */}
         <Box sx={{ px: { xs: 3, sm: 4 }, pt: 4, pb: 2.5 }}>
           <Typography sx={{ fontSize: { xs: 20, sm: 23 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 0.75 }}>
-            {step === 0 ? (isUS ? `Hi, ${firstName}! 👋` : `¡Hola, ${firstName}! 👋`) : meta.title}
+            {isEditMode
+              ? (isUS ? "Edit your profile" : "Editar tu perfil")
+              : step === 0 ? (isUS ? `Hi, ${firstName}! 👋` : `¡Hola, ${firstName}! 👋`) : meta.title}
           </Typography>
           <Typography sx={{ fontSize: 13.5, color: C.textSecondary, lineHeight: 1.65 }}>
-            {meta.sub}
+            {isEditMode
+              ? (isUS ? "Update your details whenever you want." : "Actualizá tus datos cuando quieras.")
+              : meta.sub}
           </Typography>
         </Box>
 
@@ -247,9 +267,10 @@ const UserDataFormStyled = () => {
 
         {/* Body */}
         <Box sx={{ px: { xs: 3, sm: 4 }, pt: 3, pb: 4 }}>
+        <Stack spacing={isEditMode ? 4.5 : 0}>
 
           {/* ══ PASO 0: Nombre + Foto + Género + Edad ══ */}
-          {step === 0 && (
+          {(isEditMode || step === 0) && (
             <Stack spacing={3}>
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
@@ -346,8 +367,13 @@ const UserDataFormStyled = () => {
           )}
 
           {/* ══ PASO 1: Peso + Altura ══ */}
-          {step === 1 && (
+          {(isEditMode || step === 1) && (
             <Stack spacing={3}>
+              {isEditMode && (
+                <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
+                  {isUS ? "Your measurements 📏" : "Tus medidas 📏"}
+                </Typography>
+              )}
               <Box>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", mb: 1.5 }}>
                   {isUS ? "Weight" : "Peso"}
@@ -395,8 +421,13 @@ const UserDataFormStyled = () => {
           )}
 
           {/* ══ PASO 2: Actividad ══ */}
-          {step === 2 && (
+          {(isEditMode || step === 2) && (
             <Stack spacing={1.5}>
+              {isEditMode && (
+                <Typography sx={{ fontSize: 15, fontWeight: 800, color: C.textPrimary }}>
+                  {isUS ? "How active are you? 🏃" : "¿Cuánto te movés? 🏃"}
+                </Typography>
+              )}
               {ACTIVIDADES.map(({ value, emoji, label, desc }) => {
                 const sel = form.actividad === value;
                 return (
@@ -430,13 +461,15 @@ const UserDataFormStyled = () => {
             </Stack>
           )}
 
+        </Stack>
+
           {error && (
             <Typography sx={{ color: "#E24B4A", fontSize: 13, mt: 2.5 }}>{error}</Typography>
           )}
 
           {/* ── Navegación ── */}
           <Stack direction="row" spacing={1.5} mt={4}>
-            {step > 0 && (
+            {!isEditMode && step > 0 && (
               <Button
                 onClick={() => { setError(""); setStep(s => s - 1); }}
                 startIcon={<ArrowBackRoundedIcon />}
@@ -455,7 +488,7 @@ const UserDataFormStyled = () => {
               onClick={handleNext}
               disabled={!canNext() || saving}
               fullWidth
-              endIcon={step < TOTAL - 1 ? <ArrowForwardRoundedIcon /> : null}
+              endIcon={!isEditMode && step < TOTAL - 1 ? <ArrowForwardRoundedIcon /> : null}
               sx={{
                 borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 15,
                 py: 1.3,
@@ -472,9 +505,11 @@ const UserDataFormStyled = () => {
             >
               {saving
                 ? (isUS ? "Saving…" : "Guardando…")
-                : step < TOTAL - 1
-                  ? (isUS ? "Continue" : "Continuar")
-                  : (isUS ? "Let's start!" : "¡Comencemos!")}
+                : isEditMode
+                  ? (isUS ? "Save changes" : "Guardar cambios")
+                  : step < TOTAL - 1
+                    ? (isUS ? "Continue" : "Continuar")
+                    : (isUS ? "Let's start!" : "¡Comencemos!")}
             </Button>
           </Stack>
         </Box>
