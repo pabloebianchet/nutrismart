@@ -5,7 +5,7 @@ import LandingPage       from "./pages/LandingPage.jsx";
 import UserDataPage      from "./pages/UserDataPage.jsx";
 import CapturePage       from "./pages/CapturePage.jsx";
 import ResultScreen      from "./components/ResultScreen.jsx";
-import AppHeader         from "./components/AppHeader.jsx";
+import AppHeader, { HEADER_HEIGHT_XS, HEADER_HEIGHT_MD } from "./components/AppHeader.jsx";
 
 import AboutPage         from "./pages/AboutPage.jsx";
 import HowItWorksPage    from "./pages/HowItWorksPage.jsx";
@@ -91,7 +91,7 @@ const TrialBanner = () => {
     <Box
       sx={{
         position: "fixed",
-        top: { xs: 56, md: 64 },   // debajo del AppHeader
+        top: { xs: HEADER_HEIGHT_XS, md: HEADER_HEIGHT_MD },   // debajo del AppHeader
         left: 0,
         right: 0,
         zIndex: 1200,

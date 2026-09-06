@@ -514,6 +514,14 @@ const MobileHeader = ({ user, pathname, scrolled, onLogout, isUS }) => {
 const BANNER_FREE_PATHS = ["/pricing", "/privacidad", "/terminos", "/legal", "/contact", "/forgot-password", "/reset-password"];
 const BANNER_HEIGHT = 36; // alto aprox. del banner fijo (TrialBanner / ReadOnlyBanner)
 
+// Alto real del header fijo por breakpoint — única fuente de verdad. Los
+// banners fijos (TrialBanner en App.jsx) tienen que arrancar exactamente
+// acá; antes cada uno tenía su propia constante y se desincronizaron
+// (spacer en 68/mobile vs banner en 56/mobile → el header tapaba un
+// pedazo del banner).
+export const HEADER_HEIGHT_XS = 68;
+export const HEADER_HEIGHT_MD = 64;
+
 const AppHeader = () => {
   const { user, logout, authLoading, isUS, subPlan, subStatus, isSubscriptionExpired } = useNutrition();
   const navigate = useNavigate();
@@ -552,7 +560,7 @@ const AppHeader = () => {
     <>
       <DesktopHeader user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} isUS={isUS} />
       <MobileHeader  user={user} pathname={pathname} scrolled={scrolled} onLogout={handleLogout} isUS={isUS} />
-      <Box sx={{ height: { xs: 68 + extraHeight, md: 64 + extraHeight } }} />
+      <Box sx={{ height: { xs: HEADER_HEIGHT_XS + extraHeight, md: HEADER_HEIGHT_MD + extraHeight } }} />
     </>
   );
 };

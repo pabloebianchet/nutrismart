@@ -1,5 +1,10 @@
-import dotenv from "dotenv";
-dotenv.config();
+// Tiene que ser el primer import de todos: en ESM, los imports estáticos
+// se evalúan antes que cualquier statement suelto del propio archivo — un
+// `dotenv.config()` escrito acá abajo corre DESPUÉS de que módulos como
+// utils/cloudinary.js ya se hayan evaluado y leído `process.env.*` como
+// undefined. Nunca se notó porque en Render las env vars ya están puestas
+// en el proceso antes de que Node arranque; solo rompe corriendo local.
+import "./loadEnv.js";
 import { createServer } from "http";
 import express from "express";
 import cors from "cors";
