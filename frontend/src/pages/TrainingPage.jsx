@@ -37,6 +37,7 @@ import LoopRoundedIcon           from "@mui/icons-material/LoopRounded";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
+import { cldResize }           from "../utils/cloudinaryUrl.js";
 import { API_URL }             from "../config/api";
 import PeanutMascot            from "../components/PeanutMascot.jsx";
 
@@ -1703,7 +1704,7 @@ const TrainingPage = () => {
                               )}
                               {imgData?.imageUrl && (
                                 <>
-                                  <Box component="img" src={imgData.imageUrl} alt={ex.name}
+                                  <Box component="img" src={cldResize(imgData.imageUrl, 500)} alt={ex.name}
                                     sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
                                       "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
                                       animation: "fadeIn 0.5s ease" }} />
@@ -2480,7 +2481,7 @@ const TrainingPage = () => {
                         borderBottom: idx < list.length - 1 ? "1px solid rgba(11,94,85,0.07)" : "none",
                         "&:hover": { bgcolor: "#E6F5F3" } }}>
                       {ex.imageUrl
-                        ? <Box component="img" src={ex.imageUrl} sx={{ width: 40, height: 40, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
+                        ? <Box component="img" src={cldResize(ex.imageUrl, 130)} sx={{ width: 40, height: 40, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
                         : <Box sx={{ width: 40, height: 40, borderRadius: 1.5, bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                             <FitnessCenterRoundedIcon sx={{ fontSize: 20, color: "#0B5E55" }} />
                           </Box>}
@@ -2506,7 +2507,7 @@ const TrainingPage = () => {
               {/* Ejercicio elegido */}
               <Box sx={{ mb: 2, p: 1.5, borderRadius: 2.5, bgcolor: "#E6F5F3", border: "1.5px solid #0B5E55", display: "flex", alignItems: "center", gap: 1.5 }}>
                 {selectedExercise?.imageUrl && (
-                  <Box component="img" src={selectedExercise.imageUrl} sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
+                  <Box component="img" src={cldResize(selectedExercise.imageUrl, 130)} sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: "cover", flexShrink: 0 }} />
                 )}
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#0B5E55" }} noWrap>{selectedExercise?.name}</Typography>
@@ -2587,7 +2588,7 @@ const TrainingPage = () => {
                 sx={{ p: 1.5, borderRadius: 3, border: "1.5px solid rgba(11,94,85,0.15)", cursor: "pointer", display: "flex", alignItems: "center", gap: 1.5,
                   "&:hover": { border: "1.5px solid #0B5E55", bgcolor: "#E6F5F3" }, transition: "all 0.15s" }}>
                 {ex.imageUrl
-                  ? <Box component="img" src={ex.imageUrl} sx={{ width: 56, height: 56, borderRadius: 2, objectFit: "cover", flexShrink: 0 }} />
+                  ? <Box component="img" src={cldResize(ex.imageUrl, 170)} sx={{ width: 56, height: 56, borderRadius: 2, objectFit: "cover", flexShrink: 0 }} />
                   : <Box sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <FitnessCenterRoundedIcon sx={{ fontSize: 24, color: "#0B5E55" }} />
                     </Box>
@@ -2619,7 +2620,7 @@ const TrainingPage = () => {
           {/* Imagen sin gradiente — título queda abajo */}
           {fullscreenEx?.imageUrl && (
             <Box sx={{ position: "relative", width: "100%", bgcolor: "#0D1F1D" }}>
-              <Box component="img" src={fullscreenEx.imageUrl} alt={fullscreenEx?.name}
+              <Box component="img" src={cldResize(fullscreenEx.imageUrl, 800)} alt={fullscreenEx?.name}
                 sx={{ width: "100%", height: "auto", display: "block" }} />
               {/* Botón cerrar */}
               <IconButton onClick={() => setFullscreenEx(null)} size="small"

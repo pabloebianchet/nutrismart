@@ -13,6 +13,7 @@ import {
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PeanutMascot, { getMood, MOOD_META } from "./PeanutMascot";
@@ -1626,7 +1627,7 @@ const Dashboard = () => {
       >
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
-            src={user?.picture}
+            src={cldResize(user?.picture, 150)}
             alt={user?.name}
             sx={{
               width: 52,

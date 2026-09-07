@@ -7,6 +7,7 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 import usePageMeta from "../hooks/usePageMeta";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 
 const C = {
   brand: "#0B5E55",
@@ -124,7 +125,7 @@ const NotesIndexPage = ({ lang }) => {
               >
                 <Box sx={{ width: 64, height: 64, borderRadius: 2, overflow: "hidden", flexShrink: 0, bgcolor: C.brandSurface }}>
                   {p.imageUrl ? (
-                    <Box component="img" src={p.imageUrl} alt={p.title} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <Box component="img" src={cldResize(p.imageUrl, 190)} alt={p.title} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   ) : (
                     <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <Leaf size={22} weight="fill" color={C.brand} />

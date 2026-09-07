@@ -8,6 +8,7 @@ import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 import usePageMeta from "../hooks/usePageMeta";
 import { dateFromSlug } from "../utils/blogSlug";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 
 const SIDEBAR_LIMIT = 8;
 
@@ -235,7 +236,7 @@ const NotePage = ({ lang }) => {
                 <Box sx={{ width: "100%", height: { xs: 200, sm: 320 }, overflow: "hidden" }}>
                   <Box
                     component="img"
-                    src={post.imageUrl}
+                    src={cldResize(post.imageUrl, 900)}
                     alt={post.title}
                     sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   />
@@ -399,7 +400,7 @@ const NotePage = ({ lang }) => {
                 >
                   <Box sx={{ width: 44, height: 44, borderRadius: 1.5, overflow: "hidden", flexShrink: 0, bgcolor: C.brandSurface }}>
                     {p.imageUrl ? (
-                      <Box component="img" src={p.imageUrl} alt={p.title} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      <Box component="img" src={cldResize(p.imageUrl, 130)} alt={p.title} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                     ) : (
                       <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <Leaf size={16} weight="fill" color={C.brand} />

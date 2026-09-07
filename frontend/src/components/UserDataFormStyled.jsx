@@ -19,6 +19,7 @@ import WarningAmberRoundedIcon   from "@mui/icons-material/WarningAmberRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate }  from "react-router-dom";
 import { API_URL }      from "../config/api";
+import { cldResize }    from "../utils/cloudinaryUrl.js";
 
 /* ── Paleta ─────────────────────────────────────────────────── */
 const C = {
@@ -575,7 +576,7 @@ const UserDataFormStyled = () => {
                       Google ya cargada (pensado también para el futuro
                       chat entre usuarios, donde va a importar más). */}
                   <Box sx={{ position: "relative", flexShrink: 0 }}>
-                    <Avatar src={user?.picture} sx={{ width: 56, height: 56, bgcolor: C.brandSurface, border: `1.5px solid ${C.border}` }} />
+                    <Avatar src={cldResize(user?.picture, 170)} sx={{ width: 56, height: 56, bgcolor: C.brandSurface, border: `1.5px solid ${C.border}` }} />
                     <Box
                       component="label"
                       sx={{

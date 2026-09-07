@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Avatar, Box, Drawer, IconButton, Typography } from "@mui/material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -67,7 +68,7 @@ const UserAvatar = ({ user, size = 32, sx = {} }) => {
 
   return (
     <Avatar
-      src={imgSrc || undefined}
+      src={imgSrc ? cldResize(imgSrc, size * 3) : undefined}
       alt={user?.name || ""}
       imgProps={{
         onError: () => setImgSrc(null), // si falla → iniciales

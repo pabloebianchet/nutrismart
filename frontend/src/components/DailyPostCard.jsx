@@ -8,6 +8,7 @@ import WhatsAppIcon              from "@mui/icons-material/WhatsApp";
 import ContentCopyRoundedIcon    from "@mui/icons-material/ContentCopyRounded";
 import ShareRoundedIcon          from "@mui/icons-material/ShareRounded";
 import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 import AccessTimeOutlinedIcon    from "@mui/icons-material/AccessTimeOutlined";
 import { API_URL } from "../config/api";
 import { useNutrition } from "../context/NutritionContext";
@@ -90,7 +91,7 @@ const PostModal = ({ post, open, onClose }) => {
         {/* Imagen */}
         {post.imageUrl && (
           <Box sx={{ position: "relative", width: "100%", height: { xs: 150, sm: 185 }, flexShrink: 0, overflow: "hidden" }}>
-            <Box component="img" src={post.imageUrl} alt={post.title}
+            <Box component="img" src={cldResize(post.imageUrl, 700)} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </Box>
         )}
@@ -246,7 +247,7 @@ const DailyPostCard = () => {
           minHeight: { sm: 180 },
         }}>
           {post.imageUrl ? (
-            <Box component="img" src={post.imageUrl} alt={post.title}
+            <Box component="img" src={cldResize(post.imageUrl, 550)} alt={post.title}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block",
                 "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
                 animation: "fadeIn 0.6s ease" }} />

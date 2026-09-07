@@ -6,6 +6,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 import usePageMeta from "../hooks/usePageMeta";
 import { trackCTAClick } from "../utils/analytics.js";
 import {
@@ -3252,7 +3253,7 @@ const LandingPostsSection = () => {
                 {featured.imageUrl ? (
                   <Box
                     component="img"
-                    src={featured.imageUrl}
+                    src={cldResize(featured.imageUrl, 650)}
                     alt={featured.title}
                     sx={{
                       width: "100%",
@@ -3494,7 +3495,7 @@ const LandingPostsSection = () => {
                       {p.imageUrl ? (
                         <Box
                           component="img"
-                          src={p.imageUrl}
+                          src={cldResize(p.imageUrl, 150)}
                           alt={p.title}
                           sx={{
                             width: "100%",

@@ -5,6 +5,7 @@ import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { Leaf } from "@phosphor-icons/react";
 import { API_URL } from "../config/api";
 import { useNutrition } from "../context/NutritionContext";
+import { cldResize } from "../utils/cloudinaryUrl.js";
 
 const RANK = {
   1: { color: "#F5B800", bg: "linear-gradient(135deg,#FFFBEA,#FFF3C0)", border: "rgba(245,184,0,0.40)", text: "#8A6800" },
@@ -48,7 +49,7 @@ const RankRow = ({ entry, blurred, isUS }) => {
 
       {/* Avatar */}
       <Avatar
-        src={entry.picture ?? undefined}
+        src={cldResize(entry.picture, 150) ?? undefined}
         sx={{
           width: 36, height: 36,
           bgcolor: rs?.color ?? "#0B5E55",
@@ -126,7 +127,7 @@ const Podium = ({ top3, isUS }) => {
                 </Box>
               )}
               <Avatar
-                src={entry.picture ?? undefined}
+                src={cldResize(entry.picture, 150) ?? undefined}
                 sx={{
                   width: isFirst ? 52 : 42,
                   height: isFirst ? 52 : 42,
