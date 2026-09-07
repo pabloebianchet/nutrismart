@@ -136,6 +136,7 @@ router.post("/login", authLimiter, async (req, res) => {
     }
 
     logInfo("auth", "user.login.email", `Login email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+    User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => {});
     const token = signToken(user._id);
     return res.json({ token, user: safeUser(user) });
   } catch (err) {
@@ -453,6 +454,7 @@ router.post("/magic-login/:token", async (req, res) => {
 
     user.magicLoginToken = undefined;
     user.magicLoginExpires = undefined;
+    user.lastActiveAt = new Date();
     await user.save();
 
     logInfo("auth", "user.login.magic_link", `Login magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });

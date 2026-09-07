@@ -37,12 +37,25 @@ const userSchema = new mongoose.Schema(
     energyGoal:       { type: String, enum: ["bajar_peso", "mantener", "ganar_musculo"], default: null },
 
     notifPrefs: {
-      paused:   { type: Boolean, default: false },
-      welcome:  { type: Boolean, default: true },
-      analysis: { type: Boolean, default: true },
-      training: { type: Boolean, default: true },
-      renewal:  { type: Boolean, default: true },
+      paused:    { type: Boolean, default: false },
+      welcome:   { type: Boolean, default: true },
+      analysis:  { type: Boolean, default: true },
+      training:  { type: Boolean, default: true },
+      renewal:   { type: Boolean, default: true },
+      // Recordatorios automáticos por inactividad / no entrenar / no
+      // registrar comidas — un solo toggle para los tres (ver
+      // utils/checkReminders.js).
+      reminders: { type: Boolean, default: true },
     },
+
+    // Última vez que inició sesión (Google/magic link/email) — insumo del
+    // job de recordatorio por inactividad. Se actualiza solo en login, no
+    // en cada request, para no pagar un write extra por request.
+    lastActiveAt: { type: Date, default: Date.now },
+    // Cooldown compartido entre los 3 tipos de recordatorio — como mucho
+    // un mail de recordatorio por usuario cada RUN del job, para no mandar
+    // dos el mismo día si aplica más de un caso a la vez.
+    lastReminderSentAt: { type: Date, default: null },
 
     // Face ID / huella (WebAuthn)
     webauthnCredentials: [

@@ -27,6 +27,10 @@ import geoRouter from "./routes/geo.js";
 import { getLang } from "./utils/lang.js";
 import { authMiddleware } from "./middleware/auth.js";
 import Subscription from "./models/Subscription.js";
+import TrainingPlan from "./models/TrainingPlan.js";
+import DailyLog from "./models/DailyLog.js";
+import SavedRecipe from "./models/SavedRecipe.js";
+import ShoppingList from "./models/ShoppingList.js";
 import { sendWelcomeEmail } from "./utils/sendWelcomeEmail.js";
 import { sendContactEmail } from "./utils/sendContactEmail.js";
 import { sendNotificationEmail } from "./utils/sendNotificationEmail.js";
@@ -44,11 +48,13 @@ import { initSocket } from "./socket.js";
 import { activateFreeTrial } from "./utils/activateFreeTrial.js";
 import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
 import { startRetryMissingPostImagesJob } from "./utils/retryMissingPostImages.js";
+import { startRemindersJob } from "./utils/checkReminders.js";
 import { logInfo, logWarn, logError } from "./utils/logger.js";
 
 connectDB();
 startTrialExpiryJob();
 startRetryMissingPostImagesJob();
+startRemindersJob();
 
 function cleanText(text) {
   if (!text) return "";
@@ -619,6 +625,7 @@ app.post("/api/auth/google", async (req, res) => {
     }
 
     logInfo("auth", "user.login.google", `Login Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+    User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => {});
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     return res.json({ user, token, isNewUser });
   } catch (err) {
@@ -735,13 +742,14 @@ app.get("/api/user/notif-prefs", authMiddleware, async (req, res) => {
 });
 
 app.put("/api/user/notif-prefs", authMiddleware, async (req, res) => {
-  const { paused, welcome, analysis, training, renewal } = req.body;
+  const { paused, welcome, analysis, training, renewal, reminders } = req.body;
   const update = {};
-  if (typeof paused   === "boolean") update["notifPrefs.paused"]   = paused;
-  if (typeof welcome  === "boolean") update["notifPrefs.welcome"]  = welcome;
-  if (typeof analysis === "boolean") update["notifPrefs.analysis"] = analysis;
-  if (typeof training === "boolean") update["notifPrefs.training"] = training;
-  if (typeof renewal  === "boolean") update["notifPrefs.renewal"]  = renewal;
+  if (typeof paused    === "boolean") update["notifPrefs.paused"]    = paused;
+  if (typeof welcome   === "boolean") update["notifPrefs.welcome"]   = welcome;
+  if (typeof analysis  === "boolean") update["notifPrefs.analysis"]  = analysis;
+  if (typeof training  === "boolean") update["notifPrefs.training"]  = training;
+  if (typeof renewal   === "boolean") update["notifPrefs.renewal"]   = renewal;
+  if (typeof reminders === "boolean") update["notifPrefs.reminders"] = reminders;
 
   try {
     const user = await User.findByIdAndUpdate(
@@ -754,6 +762,38 @@ app.put("/api/user/notif-prefs", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Put notif-prefs error:", err);
     return res.status(500).json({ error: "Error al actualizar preferencias." });
+  }
+});
+
+// =====================
+// 🗑️ ELIMINAR CUENTA (por el propio usuario)
+// =====================
+// Distinta de DELETE /api/admin/users/:id (routes/admin.js) — esa la usa un
+// admin sobre cualquier cuenta; esta la dispara el propio usuario con su
+// token, sobre sí mismo. La confirmación ("¿estás seguro?") vive en el
+// frontend, acá no se vuelve a pedir contraseña — mismo criterio que ya usa
+// el borrado de admin en este código.
+app.delete("/api/user/account", authMiddleware, async (req, res) => {
+  const userId = req.user._id;
+  try {
+    await Promise.all([
+      Analysis.deleteMany({ user: userId }),
+      Subscription.deleteMany({ user: userId }),
+      TrainingPlan.deleteMany({ user: userId }),
+      DailyLog.deleteMany({ user: userId }),
+      SavedRecipe.deleteMany({ user: userId }),
+      ShoppingList.deleteMany({ user: userId }),
+    ]);
+    const deleted = await User.findByIdAndDelete(userId);
+    if (!deleted) return res.status(404).json({ error: "Usuario no encontrado." });
+
+    logInfo("auth", "user.self_deleted", `Cuenta autoeliminada: ${deleted.email}`, {
+      userId, userName: deleted.name, userEmail: deleted.email, ip: req.ip,
+    });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Self-delete account error:", err.message);
+    return res.status(500).json({ error: "No se pudo eliminar la cuenta." });
   }
 });
 

@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import {
-  Box, Typography, Button, Stack,
+  Box, Typography, Button, Stack, Paper, Alert,
   TextField, LinearProgress, InputAdornment, Avatar, CircularProgress,
 } from "@mui/material";
 import ArrowBackRoundedIcon      from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon   from "@mui/icons-material/ArrowForwardRounded";
 import CheckCircleRoundedIcon    from "@mui/icons-material/CheckCircleRounded";
 import AddAPhotoRoundedIcon      from "@mui/icons-material/AddAPhotoRounded";
+import NotificationsRoundedIcon  from "@mui/icons-material/NotificationsRounded";
+import PauseRoundedIcon          from "@mui/icons-material/PauseRounded";
+import SearchRoundedIcon         from "@mui/icons-material/SearchRounded";
+import FitnessCenterRoundedIcon  from "@mui/icons-material/FitnessCenterRounded";
+import RefreshRoundedIcon        from "@mui/icons-material/RefreshRounded";
+import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
+import DeleteOutlineRoundedIcon  from "@mui/icons-material/DeleteOutlineRounded";
+import WarningAmberRoundedIcon   from "@mui/icons-material/WarningAmberRounded";
 
 import { useNutrition } from "../context/NutritionContext";
 import { useNavigate }  from "react-router-dom";
@@ -22,6 +30,292 @@ const C = {
   textSecondary:"#4A6B67",
   textMuted:    "#8AADAA",
   border:       "rgba(11,94,85,0.14)",
+  surface:      "#fff",
+};
+
+/* ────────────────────────────────────────────
+   Panel de preferencias de notificaciones —
+   antes vivía en el Dashboard, ahora en el perfil.
+──────────────────────────────────────────── */
+const NotifPrefsPanel = () => {
+  const { isUS } = useNutrition();
+  const token = typeof window !== "undefined" ? localStorage.getItem("nutrismartToken") : null;
+
+  const [prefs, setPrefs] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!token || !open) return;
+    fetch(`${API_URL}/api/user/notif-prefs`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((d) => d.notifPrefs && setPrefs(d.notifPrefs))
+      .catch(() => {});
+  }, [token, open]);
+
+  const toggle = async (key) => {
+    if (!prefs || saving) return;
+    const next = { ...prefs, [key]: !prefs[key] };
+    setPrefs(next);
+    setSaving(true);
+    try {
+      const r = await fetch(`${API_URL}/api/user/notif-prefs`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: next[key] }),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        if (d.notifPrefs) setPrefs(d.notifPrefs);
+      }
+    } catch { }
+    setSaving(false);
+  };
+
+  const Row = ({ label, Icon, fieldKey }) => {
+    const active    = prefs ? !!prefs[fieldKey] : true;
+    const isPaused  = !!prefs?.paused;
+    const trackColor = active
+      ? (isPaused ? C.brandMuted : C.brand)
+      : C.border;
+    return (
+      <Stack direction="row" alignItems="center" justifyContent="space-between"
+        sx={{ py: 1.2, borderBottom: `1px solid ${C.border}`, "&:last-child": { borderBottom: "none" } }}>
+        <Stack direction="row" alignItems="center" spacing={1.2} flex={1} minWidth={0}>
+          <Icon sx={{ fontSize: 18, flexShrink: 0, color: C.textSecondary }} />
+          <Box minWidth={0}>
+            <Typography sx={{ fontSize: 13, color: C.textPrimary, fontWeight: 500 }}>
+              {label}
+            </Typography>
+            {active && isPaused && (
+              <Typography sx={{ fontSize: 10.5, color: C.textMuted, lineHeight: 1.3 }}>
+                {isUS ? "Saved · inactive due to global pause" : "Guardado · inactivo por pausa global"}
+              </Typography>
+            )}
+          </Box>
+        </Stack>
+        <Box
+          onClick={() => toggle(fieldKey)}
+          sx={{
+            width: 44, height: 24, borderRadius: 12, flexShrink: 0, ml: 1.5,
+            bgcolor: trackColor,
+            cursor: "pointer",
+            position: "relative",
+            transition: "background 0.22s",
+            opacity: saving ? 0.6 : 1,
+            "&:active": { transform: "scale(0.95)" },
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              top: 3, left: active ? 23 : 3,
+              width: 18, height: 18, borderRadius: "50%",
+              background: "#fff",
+              transition: "left 0.22s",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+            },
+          }}
+        />
+      </Stack>
+    );
+  };
+
+  return (
+    <Paper elevation={0} sx={{ mb: 3, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+      <Stack
+        direction="row" alignItems="center" justifyContent="space-between"
+        onClick={() => setOpen((v) => !v)}
+        sx={{
+          px: 3, py: 2, cursor: "pointer",
+          bgcolor: open ? C.brandSurface : C.surface,
+          transition: "background 0.2s",
+          "&:hover": { bgcolor: C.brandSurface },
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <NotificationsRoundedIcon sx={{ fontSize: 18, color: C.textPrimary }} />
+          <Box>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: C.textPrimary }}>
+              {isUS ? "Email notifications" : "Notificaciones por email"}
+            </Typography>
+            {prefs && (
+              <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 0.2 }}>
+                {isUS ? (prefs.paused ? "Paused" : "Active") : (prefs.paused ? "Pausadas" : "Activas")}
+              </Typography>
+            )}
+          </Box>
+        </Stack>
+        <Typography sx={{ fontSize: 13, color: C.textMuted, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+          ▾
+        </Typography>
+      </Stack>
+
+      {open && (
+        <Box sx={{ px: 3, pb: 2.5, pt: 1 }}>
+          {!prefs ? (
+            <Typography sx={{ fontSize: 13, color: C.textMuted, py: 1.5 }}>{isUS ? "Loading preferences…" : "Cargando preferencias…"}</Typography>
+          ) : (
+            <>
+              <Stack direction="row" alignItems="center" justifyContent="space-between"
+                sx={{ py: 1.5, mb: 1, borderBottom: `2px solid ${C.border}` }}>
+                <Stack direction="row" alignItems="center" spacing={1.2}>
+                  <PauseRoundedIcon sx={{ fontSize: 18, color: C.textPrimary }} />
+                  <Box>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: C.textPrimary }}>
+                      {isUS ? "Pause all emails" : "Pausar todos los emails"}
+                    </Typography>
+                    <Typography sx={{ fontSize: 11, color: C.textMuted }}>
+                      {isUS ? "No notifications will arrive while this is on" : "Ninguna notificación llegará mientras esté activado"}
+                    </Typography>
+                  </Box>
+                </Stack>
+                <Box
+                  onClick={() => toggle("paused")}
+                  sx={{
+                    width: 44, height: 24, borderRadius: 12,
+                    bgcolor: prefs.paused ? "#E24B4A" : C.border,
+                    cursor: "pointer", position: "relative", transition: "background 0.22s",
+                    opacity: saving ? 0.6 : 1,
+                    "&::after": {
+                      content: '""', position: "absolute", top: 3, left: prefs.paused ? 23 : 3,
+                      width: 18, height: 18, borderRadius: "50%", background: "#fff",
+                      transition: "left 0.22s", boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+                    },
+                  }}
+                />
+              </Stack>
+
+              {prefs.paused && (
+                <Box sx={{
+                  display: "flex", alignItems: "flex-start", gap: 1,
+                  bgcolor: "rgba(226,75,74,0.06)", border: "1px solid rgba(226,75,74,0.18)",
+                  borderRadius: 2.5, px: 1.8, py: 1.2, mb: 1.5,
+                }}>
+                  <PauseRoundedIcon sx={{ fontSize: 15, flexShrink: 0, mt: 0.1, color: "#C0392B" }} />
+                  <Typography sx={{ fontSize: 11.5, color: "#C0392B", lineHeight: 1.5 }}>
+                    {isUS
+                      ? "Emails are paused globally. You can still set your preferences; they'll activate once you turn the pause off."
+                      : "Emails pausados globalmente. Podés configurar tus preferencias; se activarán cuando desactives la pausa."}
+                  </Typography>
+                </Box>
+              )}
+
+              <Row label={isUS ? "Result of each analysis" : "Resultado de cada análisis"} Icon={SearchRoundedIcon} fieldKey="analysis" />
+              <Row label={isUS ? "Training session" : "Sesión de entrenamiento"}    Icon={FitnessCenterRoundedIcon} fieldKey="training" />
+              <Row label={isUS ? "Plan renewal" : "Renovación de plan"}         Icon={RefreshRoundedIcon} fieldKey="renewal"  />
+              <Row label={isUS ? "Reminders (inactivity, training, meals)" : "Recordatorios (inactividad, entreno, comidas)"} Icon={NotificationsActiveRoundedIcon} fieldKey="reminders" />
+
+              <Typography sx={{ fontSize: 11, color: C.textMuted, mt: 1.5, lineHeight: 1.6 }}>
+                {isUS
+                  ? "Emails are sent only if the matching notification is on and the global pause is off."
+                  : "Los emails se envían solo si la notificación correspondiente está activa y la pausa global está desactivada."}
+              </Typography>
+            </>
+          )}
+        </Box>
+      )}
+    </Paper>
+  );
+};
+
+/* ────────────────────────────────────────────
+   Eliminar cuenta — acción destructiva, confirmación
+   en dos pasos antes de llamar al backend.
+──────────────────────────────────────────── */
+const DeleteAccountSection = () => {
+  const { isUS, logout } = useNutrition();
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setError("");
+    try {
+      const token = localStorage.getItem("nutrismartToken");
+      const res = await fetch(`${API_URL}/api/user/account`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || (isUS ? "Couldn't delete the account." : "No se pudo eliminar la cuenta."));
+        setDeleting(false);
+        return;
+      }
+      logout();
+      navigate("/");
+    } catch {
+      setError(isUS ? "Connection error." : "Error de conexión.");
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <Paper elevation={0} sx={{ borderRadius: 4, border: "1px solid rgba(226,75,74,0.25)", overflow: "hidden" }}>
+      <Box sx={{ px: 3, py: 2.5 }}>
+        <Stack direction="row" alignItems="center" spacing={1.2} mb={0.5}>
+          <DeleteOutlineRoundedIcon sx={{ fontSize: 18, color: "#C0392B" }} />
+          <Typography sx={{ fontSize: 14, fontWeight: 700, color: "#C0392B" }}>
+            {isUS ? "Delete account" : "Eliminar cuenta"}
+          </Typography>
+        </Stack>
+        <Typography sx={{ fontSize: 12, color: C.textMuted, mb: 2, lineHeight: 1.6 }}>
+          {isUS
+            ? "Permanently deletes your account and all your data (analyses, training plans, food logs, recipes). This can't be undone."
+            : "Elimina tu cuenta y todos tus datos (análisis, planes de entrenamiento, registros de comida, recetas) para siempre. No se puede deshacer."}
+        </Typography>
+
+        {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2, fontSize: 12.5 }}>{error}</Alert>}
+
+        {!confirming ? (
+          <Button
+            onClick={() => setConfirming(true)}
+            startIcon={<DeleteOutlineRoundedIcon sx={{ fontSize: 17 }} />}
+            sx={{
+              borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13.5,
+              color: "#C0392B", border: "1.5px solid rgba(192,57,43,0.35)", px: 2.5, py: 1,
+              "&:hover": { bgcolor: "rgba(226,75,74,0.06)", borderColor: "#C0392B" },
+            }}
+          >
+            {isUS ? "Delete my account" : "Eliminar mi cuenta"}
+          </Button>
+        ) : (
+          <Box sx={{ bgcolor: "rgba(226,75,74,0.06)", border: "1px solid rgba(226,75,74,0.2)", borderRadius: 3, p: 2 }}>
+            <Stack direction="row" alignItems="flex-start" spacing={1} mb={1.5}>
+              <WarningAmberRoundedIcon sx={{ fontSize: 18, color: "#C0392B", flexShrink: 0, mt: 0.1 }} />
+              <Typography sx={{ fontSize: 12.5, color: "#C0392B", fontWeight: 600, lineHeight: 1.5 }}>
+                {isUS ? "Are you sure? This is permanent." : "¿Estás seguro? Esto es definitivo."}
+              </Typography>
+            </Stack>
+            <Stack direction="row" spacing={1.5}>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                sx={{
+                  borderRadius: 2.5, textTransform: "none", fontWeight: 700, fontSize: 13,
+                  bgcolor: "#C0392B", color: "#fff", px: 2.5, py: 1,
+                  "&:hover": { bgcolor: "#a93226" },
+                  "&.Mui-disabled": { bgcolor: "rgba(192,57,43,0.4)", color: "#fff" },
+                }}
+              >
+                {deleting ? (isUS ? "Deleting…" : "Eliminando…") : (isUS ? "Yes, delete permanently" : "Sí, eliminar definitivamente")}
+              </Button>
+              <Button
+                onClick={() => setConfirming(false)}
+                disabled={deleting}
+                sx={{ borderRadius: 2.5, textTransform: "none", fontWeight: 600, fontSize: 13, color: C.textSecondary, px: 2.5, py: 1 }}
+              >
+                {isUS ? "Cancel" : "Cancelar"}
+              </Button>
+            </Stack>
+          </Box>
+        )}
+      </Box>
+    </Paper>
+  );
 };
 
 const getGeneros = (isUS) => [
@@ -514,6 +808,13 @@ const UserDataFormStyled = () => {
           </Stack>
         </Box>
       </Box>
+
+      {isEditMode && (
+        <Stack spacing={2.5} sx={{ mt: 3 }}>
+          <NotifPrefsPanel />
+          <DeleteAccountSection />
+        </Stack>
+      )}
     </Box>
   );
 };

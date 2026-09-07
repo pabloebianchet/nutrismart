@@ -671,6 +671,125 @@ const buildRenewalHtml = ({ firstName, planName, endDate, appUrl, year, lang = "
 </html>`;
 };
 
+/* ── Emails: recordatorios automáticos (inactividad / entreno / comida) ─────
+ * Los tres comparten estructura y, a diferencia del resto de los mails de
+ * este archivo, el footer lleva un link REAL a /profile (no solo texto) —
+ * quien no los quiera más los apaga ahí mismo, en el toggle único
+ * "Recordatorios" (notifPrefs.reminders). Ver utils/checkReminders.js. */
+const buildReminderHtml = ({ firstName, kind, appUrl, year, lang = "es" }) => {
+  const isEN = lang === "en";
+  const profileUrl = `${appUrl}/profile`;
+
+  const KIND_COPY = {
+    inactivity: {
+      emoji: "👋",
+      es: {
+        headline: `Te extrañamos, ${firstName}`,
+        body: "Hace unos días que no te vemos por Nui. Tu cuenta y tus datos siguen ahí, esperándote.",
+        cta: "Volver a Nui",
+      },
+      en: {
+        headline: `We miss you, ${firstName}`,
+        body: "It's been a few days since we last saw you in Nui. Your account and your data are still here, waiting for you.",
+        cta: "Back to Nui",
+      },
+    },
+    training: {
+      emoji: "🏋️",
+      es: {
+        headline: `¿Entrenamos, ${firstName}?`,
+        body: "Hace unos días que no registrás una sesión. Un poco de constancia hoy vale más que un entrenamiento perfecto algún día.",
+        cta: "Ver mi plan",
+      },
+      en: {
+        headline: `Time to train, ${firstName}?`,
+        body: "It's been a few days since your last logged session. A bit of consistency today beats a perfect workout someday.",
+        cta: "View my plan",
+      },
+    },
+    food: {
+      emoji: "🍽️",
+      es: {
+        headline: `¿Qué comiste hoy, ${firstName}?`,
+        body: "Hace unos días que no registrás una comida. Registrar aunque sea una por día te ayuda a mantener el hábito.",
+        cta: "Registrar comida",
+      },
+      en: {
+        headline: `What did you eat today, ${firstName}?`,
+        body: "It's been a few days since your last logged meal. Logging even just one a day helps keep the habit going.",
+        cta: "Log a meal",
+      },
+    },
+  };
+
+  const k = KIND_COPY[kind] || KIND_COPY.inactivity;
+  const c = isEN ? k.en : k.es;
+
+  const t = isEN
+    ? {
+        htmlLang: "en", title: `${c.headline} — Nui`,
+        footer: `You're getting this because reminder emails are on in your Nui profile.<br/><a href="${profileUrl}" style="color:#0B5E55;">Manage or turn off reminders</a><br/>© ${year} Nui`,
+      }
+    : {
+        htmlLang: "es", title: `${c.headline} — Nui`,
+        footer: `Te llegó esto porque tenés los mails de recordatorio activados en tu perfil de Nui.<br/><a href="${profileUrl}" style="color:#0B5E55;">Administrar o desactivar recordatorios</a><br/>© ${year} Nui`,
+      };
+
+  return `
+<!DOCTYPE html>
+<html lang="${t.htmlLang}">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>${t.title}</title>
+</head>
+<body style="margin:0;padding:0;background:#f0faf8;font-family:'Segoe UI',Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0faf8;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:#0B5E55;border-radius:16px 16px 0 0;padding:26px 36px;text-align:center;">
+            <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">Nui</div>
+          </td>
+        </tr>
+
+        <!-- HERO -->
+        <tr>
+          <td style="background:#ffffff;padding:40px 36px 32px;text-align:center;">
+            <div style="font-size:46px;">${k.emoji}</div>
+            <div style="font-size:20px;font-weight:800;color:#0F2420;margin-top:12px;">${c.headline}</div>
+            <div style="font-size:14px;color:#4A6B67;margin-top:10px;line-height:1.65;max-width:380px;margin-left:auto;margin-right:auto;">
+              ${c.body}
+            </div>
+
+            <div style="margin-top:28px;">
+              <a href="${appUrl}" style="display:inline-block;background:#0B5E55;color:#ffffff;text-decoration:none;padding:13px 34px;border-radius:999px;font-weight:700;font-size:14px;">
+                ${c.cta}
+              </a>
+            </div>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="padding:18px 36px;text-align:center;">
+            <div style="font-size:11px;color:#8AADAA;line-height:1.7;">
+              ${t.footer}
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+
+</body>
+</html>`;
+};
+
 /* ── Email interno: nuevo suscriptor (va al admin) ──────────────────────── */
 
 const buildAdminNewSubHtml = ({ userName, userEmail, plan, amount, currency, startDate, endDate, isRenewal, isCancellation, year }) => {
@@ -952,6 +1071,14 @@ export const sendNotificationEmail = async (type, opts) => {
       console.error(`❌ Error enviando admin email:`, err.message);
     }
     return;
+  } else if (type === "reminder") {
+    const KIND_SUBJECT = {
+      inactivity: isEN ? `We miss you, ${firstName} 👋 — Nui` : `Te extrañamos, ${firstName} 👋 — Nui`,
+      training:   isEN ? `Time to train, ${firstName}? 🏋️ — Nui` : `¿Entrenamos, ${firstName}? 🏋️ — Nui`,
+      food:       isEN ? `What did you eat today? 🍽️ — Nui` : `¿Qué comiste hoy? 🍽️ — Nui`,
+    };
+    subject = KIND_SUBJECT[opts.kind] || KIND_SUBJECT.inactivity;
+    html    = buildReminderHtml({ firstName, ...opts, appUrl, year });
   } else if (type === "price-change") {
     const planLabel = opts.plan === "gold" ? "Gold" : "Silver";
     subject = isEN
