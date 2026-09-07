@@ -10,6 +10,7 @@ import { activateFreeTrial } from "../utils/activateFreeTrial.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { sendGA4Event } from "../utils/ga4.js";
 import { nameFromEmail } from "../utils/nameFromEmail.js";
+import { suggestEmailCorrection } from "../utils/emailTypoCheck.js";
 
 const router = express.Router();
 
@@ -258,6 +259,17 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
   const lang = req.body?.lang === "en" ? "en" : "es";
 
   if (!email) return res.status(400).json({ error: "El email es obligatorio" });
+
+  // Frenar typos de dominio (gmail.como, gmial.com, etc.) ANTES de crear
+  // la cuenta — si no, queda un registro con trial activado a una
+  // dirección que no existe y esa persona nunca va a poder entrar.
+  const suggestion = suggestEmailCorrection(email);
+  if (suggestion) {
+    return res.status(400).json({
+      error: `Revisá tu mail — ¿quisiste decir ${suggestion}?`,
+      suggestion,
+    });
+  }
 
   try {
     let user = await User.findOne({ email: email.toLowerCase() });
