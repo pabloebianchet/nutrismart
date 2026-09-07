@@ -58,11 +58,12 @@ const InAppBrowserGate = ({ children }) => {
     e.preventDefault();
     setError("");
     setStatus("loading");
+    const cleanEmail = email.trim();
     try {
       const res = await fetch(`${API_URL}/api/auth/magic-link`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, lang: isUS ? "en" : "es" }),
+        body: JSON.stringify({ email: cleanEmail, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -72,6 +73,7 @@ const InAppBrowserGate = ({ children }) => {
       }
       trackInAppBrowserMagicLinkSubmit();
       if (data.isNewUser) trackSignUp("email_magic_link");
+      setEmail(cleanEmail);
       setStatus("sent");
     } catch {
       setError(isUS ? "Connection error. Try again." : "Error de conexión. Intentá de nuevo.");
@@ -163,6 +165,9 @@ const InAppBrowserGate = ({ children }) => {
                   required
                   fullWidth
                   size="small"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   sx={{ ...fieldSx, mb: 2 }}
                 />
                 <Button

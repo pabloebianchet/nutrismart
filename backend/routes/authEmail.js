@@ -18,6 +18,13 @@ const router = express.Router();
 const signToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
+// Nunca pasar a minúsculas sin recortar espacios primero — un espacio de
+// más (típico del teclado del celular, autocompletado) hace que la
+// búsqueda no coincida con lo guardado y una cuenta YA registrada
+// parezca nueva. Encontrado en vivo: alguien ya registrado por magic
+// link volvió a recibir el mail de "bienvenido" como si fuera la primera vez.
+const normEmail = (email) => String(email || "").trim().toLowerCase();
+
 const safeUser = (user) => {
   const obj = user.toObject();
   delete obj.password;
@@ -76,7 +83,7 @@ router.post("/register", authLimiter, async (req, res) => {
     return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
 
   try {
-    const exists = await User.findOne({ email: email.toLowerCase() });
+    const exists = await User.findOne({ email: normEmail(email) });
     if (exists)
       return res.status(409).json({ error: "Ya existe una cuenta con ese email" });
 
@@ -84,7 +91,7 @@ router.post("/register", authLimiter, async (req, res) => {
 
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: normEmail(email),
       password: hashed,
       provider: "email",
       profileCompleted: false,
@@ -121,7 +128,7 @@ router.post("/login", authLimiter, async (req, res) => {
     return res.status(400).json({ error: "Email y contraseña son obligatorios" });
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normEmail(email) });
 
     // provider "email" no alcanza para saber si tiene contraseña real —
     // las cuentas creadas por magic link también quedan con provider
@@ -152,7 +159,7 @@ router.post("/forgot-password", forgotLimiter, async (req, res) => {
     return res.status(400).json({ error: "El email es obligatorio" });
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normEmail(email) });
 
     if (!user) {
       return res.status(404).json({
@@ -273,13 +280,13 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
   }
 
   try {
-    let user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: normEmail(email) });
     let isNewUser = false;
 
     if (!user) {
       user = await User.create({
-        email: email.toLowerCase(),
-        name: nameFromEmail(email.toLowerCase()) || undefined,
+        email: normEmail(email),
+        name: nameFromEmail(normEmail(email)) || undefined,
         provider: "email",
         profileCompleted: false,
         lang,
