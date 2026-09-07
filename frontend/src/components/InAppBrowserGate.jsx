@@ -47,6 +47,7 @@ const InAppBrowserGate = ({ children }) => {
   const [email, setEmail]     = useState("");
   const [status, setStatus]   = useState("idle"); // idle | loading | sent
   const [error, setError]     = useState("");
+  const [isNewUser, setIsNewUser] = useState(true);
 
   useEffect(() => {
     if (active) trackInAppBrowserDetected();
@@ -74,6 +75,7 @@ const InAppBrowserGate = ({ children }) => {
       trackInAppBrowserMagicLinkSubmit();
       if (data.isNewUser) trackSignUp("email_magic_link");
       setEmail(cleanEmail);
+      setIsNewUser(!!data.isNewUser);
       setStatus("sent");
     } catch {
       setError(isUS ? "Connection error. Try again." : "Error de conexión. Intentá de nuevo.");
@@ -123,12 +125,18 @@ const InAppBrowserGate = ({ children }) => {
                 <MarkEmailReadRoundedIcon sx={{ fontSize: 32, color: C.brand }} />
               </Box>
               <Typography sx={{ fontSize: 19, fontWeight: 800, color: C.textPrimary, mb: 1 }}>
-                {isUS ? "Check your email" : "Revisá tu mail"}
+                {isNewUser
+                  ? (isUS ? "Check your email" : "Revisá tu mail")
+                  : (isUS ? "Welcome back! 👋" : "¡Hola de nuevo! 👋")}
               </Typography>
               <Typography sx={{ fontSize: 14, color: C.textSecondary, lineHeight: 1.65 }}>
-                {isUS
-                  ? <>We sent a link to <b>{email}</b> — tap it to enter Nui.</>
-                  : <>Te mandamos un link a <b>{email}</b> — tocalo para entrar a Nui.</>}
+                {isNewUser
+                  ? (isUS
+                      ? <>We sent a link to <b>{email}</b> — tap it to enter Nui.</>
+                      : <>Te mandamos un link a <b>{email}</b> — tocalo para entrar a Nui.</>)
+                  : (isUS
+                      ? <>Thanks for being part of Nui — we sent your access link to <b>{email}</b>.</>
+                      : <>Gracias por ser parte de Nui — te mandamos tu link de acceso a <b>{email}</b>.</>)}
               </Typography>
             </>
           ) : (
