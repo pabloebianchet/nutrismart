@@ -38,6 +38,8 @@ const DURACIONES_OK = new Set(["1 día", "15 días", "1 mes", "3 meses", "6 mese
 const FRECUENCIAS_OK = new Set([1, 2, 3, 4, 5, 6]);
 const SEXOS_OK      = new Set(["Femenino", "Masculino", "Otro"]);
 const ACTIVIDAD_OK  = new Set(["Nula", "Moderada", "Intensa", "Profesional"]);
+const ESTILOS_OK    = new Set(["auto", "ppl", "bro", "cbum", "ironman", "ronnie"]);
+const FOCOS_OK       = new Set(["completo", "superior", "inferior"]);
 
 /* ── Sanitización de strings libres ─────────────────────────────────────── */
 // Elimina caracteres de control y limita longitud.
@@ -63,7 +65,7 @@ const EQUIP_EN = {
 
 /* ── Generar plan ─────────────────────────────────────────────────────────── */
 router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, async (req, res) => {
-  const { tipo, lugar, duracion, frecuencia, userData, prevPlan } = req.body;
+  const { tipo, lugar, duracion, frecuencia, userData, prevPlan, estilo, foco } = req.body;
   const isEN = getLang(req) === "en";
 
   // ── Whitelist: todos los valores enumerables deben estar en la lista ──────
@@ -77,6 +79,10 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
   const lugarEfectivo = lugar || "Gym";
   if (!LUGARES_OK.has(lugarEfectivo))
     return res.status(400).json({ error: isEN ? "Invalid location." : "Lugar no válido." });
+  // Campos opcionales — si vienen inválidos o ausentes (apps viejas que
+  // todavía no mandan estos campos), caen al comportamiento default.
+  const estiloEfectivo = ESTILOS_OK.has(estilo) ? estilo : "auto";
+  const focoEfectivo   = FOCOS_OK.has(foco)     ? foco   : "completo";
 
   // ── userData: solo campos numéricos y enumerables ─────────────────────────
   const safeUserCtx = userData ? (() => {
@@ -126,6 +132,48 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
     return pool[Math.floor(Math.random() * pool.length)];
   };
 
+  // Estilos de rutina elegibles por el usuario (además de "auto", que sigue
+  // usando el pool aleatorio de arriba). Nombres inspirados en escuelas de
+  // entrenamiento conocidas, no rutinas literales de ningún atleta puntual.
+  const HYPERTROPHY_STYLES = {
+    ES: {
+      ppl: "Push/Pull/Legs: empuje (pecho, hombro, tríceps) / tirón (espalda, bíceps) / pierna completa, repitiendo el ciclo según la frecuencia semanal.",
+      bro: "Un músculo protagonista por día (pecho, espalda, pierna, hombro, brazos): alta especialización, varios ejercicios y series por grupo.",
+      cbum: "Estilo Classic Physique de alto volumen: split de 5-6 días con doble estímulo de pierna en la semana (cuádriceps un día, isquios/glúteos otro), énfasis en simetría y conexión mente-músculo, reps moderado-altas (8-15).",
+      ironman: "Estilo fuerza clásica: basado en los 3 grandes básicos (press de banca, sentadilla, peso muerto) con progresión de cargas pesadas, bajo volumen accesorio, foco en fuerza bruta y densidad muscular, series de 3-6 reps en los básicos.",
+      ronnie: "Estilo alto volumen e intensidad de la vieja escuela: cargas pesadas + muchas series por grupo muscular, pocos ejercicios pero volumen total alto, split de 5-6 días por grupo muscular, intensidad máxima en cada serie.",
+    },
+    EN: {
+      ppl: "Push/Pull/Legs: push (chest, shoulders, triceps) / pull (back, biceps) / full legs, repeating the cycle according to weekly frequency.",
+      bro: "One main muscle group per day (chest, back, legs, shoulders, arms): high specialization, several exercises and sets per group.",
+      cbum: "High-volume Classic Physique style: 5-6 day split with double leg stimulus during the week (quads one day, hamstrings/glutes another), emphasis on symmetry and mind-muscle connection, moderate-high reps (8-15).",
+      ironman: "Classic strength style: built around the 3 big compound lifts (bench press, squat, deadlift) with heavy load progression, low accessory volume, focus on raw strength and muscle density, 3-6 rep sets on the compounds.",
+      ronnie: "Old-school high volume & intensity style: heavy loads + many sets per muscle group, few exercises but high total volume, 5-6 day body-part split, maximum intensity on every set.",
+    },
+  };
+  const getHypertrophySplitText = (frecNum, isEN, estiloEfectivo) => {
+    if (estiloEfectivo !== "auto") {
+      const table = isEN ? HYPERTROPHY_STYLES.EN : HYPERTROPHY_STYLES.ES;
+      return table[estiloEfectivo] || pickHypertrophySplit(frecNum, isEN);
+    }
+    return pickHypertrophySplit(frecNum, isEN);
+  };
+
+  // Foco corporal — aplica a TODOS los tipos de plan, no solo Hipertrofia.
+  const FOCO_TEXT = {
+    ES: {
+      superior: "FOCO CORPORAL OBLIGATORIO: Tren superior. TODOS los días de esta semana deben trabajar exclusivamente tren superior (pecho, espalda, hombros, brazos, core). NO incluyas ningún ejercicio de pierna (sentadilla, peso muerto, zancadas, extensión de cuádriceps, curl femoral, gemelos, etc.).",
+      inferior: "FOCO CORPORAL OBLIGATORIO: Tren inferior. TODOS los días de esta semana deben trabajar exclusivamente tren inferior (cuádriceps, isquiotibiales, glúteos, gemelos) y core. NO incluyas ejercicios de tren superior (pecho, espalda, hombros, brazos).",
+    },
+    EN: {
+      superior: "MANDATORY BODY FOCUS: Upper body. ALL days this week must work exclusively upper body (chest, back, shoulders, arms, core). Do NOT include any leg exercise (squat, deadlift, lunges, leg extension, leg curl, calves, etc.).",
+      inferior: "MANDATORY BODY FOCUS: Lower body. ALL days this week must work exclusively lower body (quads, hamstrings, glutes, calves) and core. Do NOT include upper body exercises (chest, back, shoulders, arms).",
+    },
+  };
+  const focoRules = FOCOS_OK.has(focoEfectivo) && focoEfectivo !== "completo"
+    ? (isEN ? FOCO_TEXT.EN : FOCO_TEXT.ES)[focoEfectivo]
+    : "";
+
   // Reglas específicas por combinación tipo + lugar
   const getTipoRules = (tipo, lugar) => {
     if (tipo === "Calistenia") {
@@ -135,11 +183,11 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
         return `CALISTENIA EN CASA: SOLO peso corporal. Ejercicios: flexiones (variantes), sentadillas, zancadas, plancha, fondos en silla, elevación de piernas, glute bridge, pike push-up, hollow body.`;
     }
     if (tipo === "Hipertrofia") {
-      const split = pickHypertrophySplit(frecNum, false);
+      const split = getHypertrophySplitText(frecNum, false, estiloEfectivo);
       if (lugar === "Gym")
-        return `HIPERTROFIA EN GYM: Barras olímpicas, mancuernas, máquinas. Compuestos: press de banca, sentadilla, peso muerto, remo, press militar. Aislamiento: curl, tríceps, laterales, jalón. Series 3-5 × 6-12. Distribución de días OBLIGATORIA: ${split}. Usá exactamente esa distribución para nombrar y organizar los días, no uses otra.`;
+        return `HIPERTROFIA EN GYM: Barras olímpicas, mancuernas, máquinas. Compuestos: press de banca, sentadilla, peso muerto, remo, press militar. Aislamiento: curl, tríceps, laterales, jalón. Series 3-5 × 6-12. Distribución de días / estilo de rutina OBLIGATORIO: ${split} Seguí esas pautas para nombrar y organizar los días, no uses otra distribución.`;
       if (lugar === "Casa")
-        return `HIPERTROFIA EN CASA: Mancuernas opcionales. Con ellas: curl, press en suelo, remo inclinado, press hombros, goblet, hip thrust. Sin ellas: flexiones variantes, sentadilla una pierna, fondos en silla, remo con mochila. Distribución de días OBLIGATORIA: ${split}. Usá exactamente esa distribución para nombrar y organizar los días, no uses otra.`;
+        return `HIPERTROFIA EN CASA: Mancuernas opcionales. Con ellas: curl, press en suelo, remo inclinado, press hombros, goblet, hip thrust. Sin ellas: flexiones variantes, sentadilla una pierna, fondos en silla, remo con mochila. Distribución de días / estilo de rutina OBLIGATORIO: ${split} Seguí esas pautas para nombrar y organizar los días, no uses otra distribución.`;
     }
     if (tipo === "Fit") {
       if (lugar === "Gym")
@@ -158,11 +206,11 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
         return `CALISTHENICS AT HOME: Bodyweight ONLY. Exercises: push-ups (variations), squats, lunges, plank, chair dips, leg raises, glute bridge, pike push-up, hollow body.`;
     }
     if (tipo === "Hipertrofia") {
-      const split = pickHypertrophySplit(frecNum, true);
+      const split = getHypertrophySplitText(frecNum, true, estiloEfectivo);
       if (lugar === "Gym")
-        return `HYPERTROPHY AT THE GYM: Olympic barbells, dumbbells, machines. Compounds: bench press, squat, deadlift, row, military press. Isolation: curls, triceps, lateral raises, lat pulldown. 3-5 sets × 6-12 reps. MANDATORY day split: ${split}. Use exactly that split to name and organize the days, do not use another one.`;
+        return `HYPERTROPHY AT THE GYM: Olympic barbells, dumbbells, machines. Compounds: bench press, squat, deadlift, row, military press. Isolation: curls, triceps, lateral raises, lat pulldown. 3-5 sets × 6-12 reps. MANDATORY day split / routine style: ${split} Follow those guidelines to name and organize the days, do not use another split.`;
       if (lugar === "Casa")
-        return `HYPERTROPHY AT HOME: Optional dumbbells. With them: curls, floor press, bent-over row, shoulder press, goblet squat, hip thrust. Without them: push-up variations, single-leg squat, chair dips, backpack row. MANDATORY day split: ${split}. Use exactly that split to name and organize the days, do not use another one.`;
+        return `HYPERTROPHY AT HOME: Optional dumbbells. With them: curls, floor press, bent-over row, shoulder press, goblet squat, hip thrust. Without them: push-up variations, single-leg squat, chair dips, backpack row. MANDATORY day split / routine style: ${split} Follow those guidelines to name and organize the days, do not use another split.`;
     }
     if (tipo === "Fit") {
       if (lugar === "Gym")
@@ -204,6 +252,7 @@ Type: ${tipo}. Location: ${lugarEfectivo}. Duration: ${duracion}. Frequency: ${f
 ${variationSeed}
 ${exerciseList}
 ${tipoRules}
+${focoRules}
 
 Smart muscle group distribution for ${frecNum} days (push/pull/legs, full body, etc.). weekStructure must have EXACTLY ${frecNum} entr${frecNum > 1 ? "ies" : "y"}. Max 6 exercises per session with sets, reps and rest.
 
@@ -237,6 +286,7 @@ Tipo: ${tipo}. Lugar: ${lugarEfectivo}. Duración: ${duracion}. Frecuencia: ${fr
 ${variationSeed}
 ${exerciseList}
 ${tipoRules}
+${focoRules}
 
 Distribución inteligente de grupos musculares para ${frecNum} días (push/pull/legs, full body, etc.). weekStructure debe tener EXACTAMENTE ${frecNum} entrada${frecNum > 1 ? "s" : ""}. Máximo 6 ejercicios por sesión con series, reps y descanso.
 
@@ -277,7 +327,7 @@ Respondé ÚNICAMENTE con este JSON sin texto extra:
       max_tokens: 2000,
     });
     const data = parseJSON(completion.choices[0].message.content);
-    logInfo("training", "plan.generated", `Plan generado: ${req.user.email}`, { userId: req.user._id, userName: req.user.name, userEmail: req.user.email, meta: { tipo, duracion } });
+    logInfo("training", "plan.generated", `Plan generado: ${req.user.email}`, { userId: req.user._id, userName: req.user.name, userEmail: req.user.email, meta: { tipo, duracion, estilo: estiloEfectivo, foco: focoEfectivo } });
     return res.json(data);
   } catch (err) {
     console.error("Training generate error:", err.message);

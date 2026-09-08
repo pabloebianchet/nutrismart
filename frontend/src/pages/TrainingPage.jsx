@@ -34,6 +34,10 @@ import TrendingUpRoundedIcon     from "@mui/icons-material/TrendingUpRounded";
 import RocketLaunchRoundedIcon   from "@mui/icons-material/RocketLaunchRounded";
 import EditNoteRoundedIcon       from "@mui/icons-material/EditNoteRounded";
 import LoopRoundedIcon           from "@mui/icons-material/LoopRounded";
+import AccessibilityNewRoundedIcon from "@mui/icons-material/AccessibilityNewRounded";
+import ArrowUpwardRoundedIcon      from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon    from "@mui/icons-material/ArrowDownwardRounded";
+import ShuffleRoundedIcon          from "@mui/icons-material/ShuffleRounded";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNutrition }        from "../context/NutritionContext";
@@ -61,6 +65,28 @@ const DURACIONES = [
   { id: "3 meses", days: 90  },
   { id: "6 meses", days: 180 },
 ];
+
+// Foco corporal — aplica a los 3 tipos de plan, no solo Hipertrofia.
+const getFocos = (isUS) => [
+  { id: "completo",  Icon: AccessibilityNewRoundedIcon, label: isUS ? "Full body"   : "Completo",       desc: isUS ? "Work the whole body across the week" : "Trabajá todo el cuerpo durante la semana" },
+  { id: "superior",  Icon: ArrowUpwardRoundedIcon,       label: isUS ? "Upper body"  : "Tren superior",  desc: isUS ? "Chest, back, shoulders, arms only"   : "Solo pecho, espalda, hombros y brazos" },
+  { id: "inferior",  Icon: ArrowDownwardRoundedIcon,     label: isUS ? "Lower body"  : "Tren inferior",  desc: isUS ? "Legs and glutes only"                : "Solo piernas y glúteos" },
+];
+
+// Estilos de rutina — solo tienen sentido para Hipertrofia. "auto" mantiene
+// el comportamiento anterior (el backend elige una distribución al azar
+// según la frecuencia, con variedad real entre generaciones).
+const getEstilos = (isUS) => [
+  { id: "auto",    Icon: ShuffleRoundedIcon, label: isUS ? "Automatic (recommended)" : "Automático (recomendado)", desc: isUS ? "A different valid split each time" : "Una distribución válida distinta cada vez" },
+  { id: "ppl",     label: "Push/Pull/Legs",  desc: isUS ? "Push, pull and legs days" : "Días de empuje, tirón y pierna" },
+  { id: "bro",     label: isUS ? "One muscle per day" : "Un músculo por día", desc: isUS ? "Chest, back, legs, shoulders, arms" : "Pecho, espalda, pierna, hombro, brazos" },
+  { id: "cbum",    label: "C-Bum",           desc: isUS ? "Classic Physique style, high volume" : "Estilo Classic Physique, alto volumen" },
+  { id: "ironman", label: "Iron Man",        desc: isUS ? "Classic strength: bench, squat, deadlift" : "Fuerza clásica: banca, sentadilla, muerto" },
+  { id: "ronnie",  label: "Ronnie",          desc: isUS ? "Old-school, heavy and high volume" : "Vieja escuela, pesado y alto volumen" },
+];
+
+const focoLabel = (id, isUS) => getFocos(isUS).find(f => f.id === id)?.label || id;
+const estiloLabel = (id, isUS) => getEstilos(isUS).find(e => e.id === id)?.label || id;
 
 const tipoLabel = (id, isUS) => {
   if (!isUS) return id;
@@ -257,6 +283,8 @@ const TrainingPage = () => {
   const [lugar,       setLugar]       = useState(null);
   const [duracion,    setDuracion]    = useState(null);
   const [frecuencia,  setFrecuencia]  = useState(null);
+  const [estilo,      setEstilo]      = useState("auto");
+  const [foco,        setFoco]        = useState("completo");
 
   // ── plan data (del slot activo) — hidratado desde DB en el useEffect
   const [plan,       setPlan]       = useState(null);
@@ -410,7 +438,8 @@ const TrainingPage = () => {
     setTotalDays(data?.totalDays || 0);
     setPhase(getPhaseForData(data));
     setActiveDay(null); setTipsData(null); setActiveTab("semana");
-    setTipo(null); setLugar(null); setDuracion(null); setFrecuencia(null); setConfigStep(1);
+    setTipo(null); setLugar(null); setDuracion(null); setFrecuencia(null);
+    setEstilo("auto"); setFoco("completo"); setConfigStep(1);
     setError(""); setExpandedSess(null);
   };
 
@@ -436,12 +465,12 @@ const TrainingPage = () => {
       const res  = await fetch(`${API_URL}/api/training/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ tipo, lugar: skipLugar ? "Casa" : lugar, duracion, frecuencia: freq, userData, lang: isUS ? "en" : "es" }),
+        body: JSON.stringify({ tipo, lugar: skipLugar ? "Casa" : lugar, duracion, frecuencia: freq, estilo, foco, userData, lang: isUS ? "en" : "es" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al generar el plan");
 
-      const cfg    = { tipo, lugar: skipLugar ? "Casa" : lugar, duracion, frecuencia: freq };
+      const cfg    = { tipo, lugar: skipLugar ? "Casa" : lugar, duracion, frecuencia: freq, estilo, foco };
       const durObj = DURACIONES.find(d => d.id === duracion);
       const start  = new Date().toISOString();
       const days   = durObj?.days || 30;
@@ -462,7 +491,7 @@ const TrainingPage = () => {
     } catch (err) {
       setError(err.message);
       setPhase("config");
-      setConfigStep(3);
+      setConfigStep(4);
     } finally {
       setLoading(false);
     }
@@ -866,9 +895,12 @@ const TrainingPage = () => {
 
     if (keepConfig && prevCfg) {
       // Continuar con progresividad: regenerar mismo tipo de plan
+      const prevEstilo = prevCfg.estilo || "auto";
+      const prevFoco   = prevCfg.foco   || "completo";
       setTipo(prevCfg.tipo); setLugar(prevCfg.lugar);
       setDuracion(prevCfg.duracion); setFrecuencia(prevCfg.frecuencia);
-      setConfigStep(3);
+      setEstilo(prevEstilo); setFoco(prevFoco);
+      setConfigStep(4);
       setTimeout(async () => {
         const isQuick  = prevCfg.duracion === "1 día";
         const planType = isQuick ? "quick" : "main";
@@ -877,13 +909,14 @@ const TrainingPage = () => {
           const res = await fetch(`${API_URL}/api/training/generate`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ tipo: prevCfg.tipo, lugar: prevCfg.lugar, duracion: prevCfg.duracion, frecuencia: prevCfg.frecuencia, userData, prevPlan, lang: isUS ? "en" : "es" }),
+            body: JSON.stringify({ tipo: prevCfg.tipo, lugar: prevCfg.lugar, duracion: prevCfg.duracion, frecuencia: prevCfg.frecuencia, estilo: prevEstilo, foco: prevFoco, userData, prevPlan, lang: isUS ? "en" : "es" }),
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
           const start = new Date().toISOString();
           const days  = DURACIONES.find(d => d.id === prevCfg.duracion)?.days || 30;
-          const _newPlanData = { config: prevCfg, plan: data, startDate: start, totalDays: days, sessions: [] };
+          const newCfg = { ...prevCfg, estilo: prevEstilo, foco: prevFoco };
+          const _newPlanData = { config: newCfg, plan: data, startDate: start, totalDays: days, sessions: [] };
           await fetch(`${API_URL}/api/training/plan/${planType}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -891,16 +924,17 @@ const TrainingPage = () => {
           });
           setPlanCache(prev => ({ ...prev, [planType]: _newPlanData }));
           setActivePlanType(planType);
-          setPlan(data); setConfig(prevCfg); setStartDate(start); setTotalDays(days); setSessions([]);
+          setPlan(data); setConfig(newCfg); setStartDate(start); setTotalDays(days); setSessions([]);
           if (planType === "main") setHasMainPlan(true);
           else                     setHasQuickPlan(true);
           setPhase("plan");
         } catch {
-          setPhase("config"); setConfigStep(3);
+          setPhase("config"); setConfigStep(4);
         }
       }, 100);
     } else {
       setTipo(null); setLugar(null); setDuracion(null); setFrecuencia(null);
+      setEstilo("auto"); setFoco("completo");
       setConfigStep(1);
       setPhase("config");
     }
@@ -918,6 +952,7 @@ const TrainingPage = () => {
       setActivePlanType(otherType);
       setPlan(null); setConfig(null); setSessions([]); setStartDate(null); setTotalDays(0);
       setTipo(null); setLugar(null); setDuracion(null); setFrecuencia(null);
+      setEstilo("auto"); setFoco("completo");
       setConfigStep(1); setError(""); setTipsData(null); setActiveDay(null);
       setPhase("config");
     }
@@ -926,10 +961,12 @@ const TrainingPage = () => {
   const nextConfigStep = () => {
     if (configStep === 1) setConfigStep(skipLugar ? 3 : 2);
     else if (configStep === 2) setConfigStep(3);
+    else if (configStep === 3) setConfigStep(4);
   };
   const prevConfigStep = () => {
     if (configStep === 2) setConfigStep(1);
     else if (configStep === 3) setConfigStep(skipLugar ? 1 : 2);
+    else if (configStep === 4) setConfigStep(3);
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1290,30 +1327,103 @@ const TrainingPage = () => {
                     )}
                   </AnimatePresence>
 
-                  {error && <Typography sx={{ fontSize: 13.5, color: "#E24B4A", mb: 2, textAlign: "center" }}>{error}</Typography>}
-
                   <AnimatePresence>
                     {duracion && (frecuencia || duracion === "1 día") && (
                       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-                        <Button fullWidth variant="contained" onClick={handleGenerate}
-                          disabled={isSubscriptionExpired}
-                          startIcon={isSubscriptionExpired ? <LockRoundedIcon /> : (activeTipo?.Icon ? <activeTipo.Icon /> : null)}
+                        <Button fullWidth variant="contained" onClick={nextConfigStep}
                           sx={{
-                            py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', fontSize: 16,
-                            background: isSubscriptionExpired
-                              ? "rgba(0,0,0,0.12)"
-                              : `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
-                            boxShadow: isSubscriptionExpired ? "none" : `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
-                            "&:hover": { transform: isSubscriptionExpired ? "none" : "translateY(-2px)" },
-                            transition: "all 0.25s ease",
+                            py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: 15,
+                            background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
                           }}>
-                          {isUS
-                            ? (isSubscriptionExpired ? "Renew subscription to generate" : "Generate my plan with AI")
-                            : (isSubscriptionExpired ? "Renovar suscripción para generar" : "Generar mi plan con IA")}
+                          {isUS ? "Continue →" : "Continuar →"}
                         </Button>
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </>
+              )}
+
+              {/* ── Step 4: Foco corporal + Estilo de rutina (solo Hipertrofia) ── */}
+              {configStep === 4 && (
+                <>
+                  <Button onClick={prevConfigStep} startIcon={<ArrowBackRoundedIcon />} size="small"
+                    sx={{ mb: 2.5, textTransform: "none", color: "#4A6B67", fontWeight: 600, borderRadius: 999, "&:hover": { bgcolor: "rgba(11,94,85,0.06)" } }}>
+                    {isUS ? "Back" : "Volver"}
+                  </Button>
+
+                  <StepDot n={skipLugar ? "4" : "5"} label={isUS ? "What's your body focus?" : "¿Qué foco corporal querés?"} />
+                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 1.5, mb: 4 }}>
+                    {getFocos(isUS).map((f) => {
+                      const active = foco === f.id;
+                      return (
+                        <Box key={f.id} onClick={() => setFoco(f.id)} sx={{
+                          p: 1.8, borderRadius: 3, cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: 1.3,
+                          border: `2px solid ${active ? (activeTipo?.color || "#0B5E55") : "rgba(11,94,85,0.12)"}`,
+                          bgcolor: active ? (activeTipo?.bg || "#E6F5F3") : "#fff",
+                          transition: "all 0.18s ease",
+                          "&:hover": { borderColor: activeTipo?.color || "#0B5E55" },
+                        }}>
+                          <f.Icon sx={{ fontSize: 22, color: active ? (activeTipo?.color || "#0B5E55") : "#8AADAA", flexShrink: 0 }} />
+                          <Box>
+                            <Typography sx={{ fontSize: 13.5, fontWeight: active ? 800 : 700, color: active ? (activeTipo?.color || "#0B5E55") : "#0F2420" }}>
+                              {f.label}
+                            </Typography>
+                            <Typography sx={{ fontSize: 11, color: "#8AADAA", lineHeight: 1.3 }}>{f.desc}</Typography>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+
+                  {tipo === "Hipertrofia" && (
+                    <>
+                      <StepDot n={skipLugar ? "5" : "6"} label={isUS ? "Routine style" : "Estilo de rutina"} />
+                      <Stack spacing={1.2} mb={4}>
+                        {getEstilos(isUS).map((e) => {
+                          const active = estilo === e.id;
+                          return (
+                            <Box key={e.id} onClick={() => setEstilo(e.id)} sx={{
+                              p: 1.6, borderRadius: 3, cursor: "pointer",
+                              display: "flex", alignItems: "center", gap: 1.5,
+                              border: `2px solid ${active ? (activeTipo?.color || "#0B5E55") : "rgba(11,94,85,0.12)"}`,
+                              bgcolor: active ? (activeTipo?.bg || "#E6F5F3") : "#fff",
+                              transition: "all 0.18s ease",
+                              "&:hover": { borderColor: activeTipo?.color || "#0B5E55" },
+                            }}>
+                              {e.Icon && <e.Icon sx={{ fontSize: 18, color: active ? (activeTipo?.color || "#0B5E55") : "#8AADAA", flexShrink: 0 }} />}
+                              <Box flex={1}>
+                                <Typography sx={{ fontSize: 13.5, fontWeight: active ? 800 : 700, color: active ? (activeTipo?.color || "#0B5E55") : "#0F2420" }}>
+                                  {e.label}
+                                </Typography>
+                                <Typography sx={{ fontSize: 11, color: "#8AADAA", lineHeight: 1.3 }}>{e.desc}</Typography>
+                              </Box>
+                              {active && <CheckRoundedIcon sx={{ color: activeTipo?.color || "#0B5E55", fontSize: 18, flexShrink: 0 }} />}
+                            </Box>
+                          );
+                        })}
+                      </Stack>
+                    </>
+                  )}
+
+                  {error && <Typography sx={{ fontSize: 13.5, color: "#E24B4A", mb: 2, textAlign: "center" }}>{error}</Typography>}
+
+                  <Button fullWidth variant="contained" onClick={handleGenerate}
+                    disabled={isSubscriptionExpired}
+                    startIcon={isSubscriptionExpired ? <LockRoundedIcon /> : (activeTipo?.Icon ? <activeTipo.Icon /> : null)}
+                    sx={{
+                      py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', fontSize: 16,
+                      background: isSubscriptionExpired
+                        ? "rgba(0,0,0,0.12)"
+                        : `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
+                      boxShadow: isSubscriptionExpired ? "none" : `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
+                      "&:hover": { transform: isSubscriptionExpired ? "none" : "translateY(-2px)" },
+                      transition: "all 0.25s ease",
+                    }}>
+                    {isUS
+                      ? (isSubscriptionExpired ? "Renew subscription to generate" : "Generate my plan with AI")
+                      : (isSubscriptionExpired ? "Renovar suscripción para generar" : "Generar mi plan con IA")}
+                  </Button>
                 </>
               )}
             </motion.div>
