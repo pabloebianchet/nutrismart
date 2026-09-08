@@ -97,6 +97,35 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
       ? `Previously completed plan: "${sanitize(prevPlan.planTitle, 80)}". Design the new plan with progression and higher load/volume than the previous one.`
       : `Plan anterior completado: "${sanitize(prevPlan.planTitle, 80)}". Diseñá el nuevo plan con progresividad y mayor carga/volumen que el anterior.`
     : "";
+  // Distribución de días para Hipertrofia: se elige acá (con Math.random), NO
+  // se deja a criterio del modelo — así garantizamos variedad real entre
+  // generaciones en vez de depender de que el LLM se anime a desviarse de una
+  // instrucción fija (con temperature 0.9 igual convergía casi siempre en
+  // Push/Pull/Legs por estar la única opción mencionada explícitamente).
+  const HYPERTROPHY_SPLITS = {
+    ES: {
+      1: ["Full Body"],
+      2: ["Full Body (x2)", "Torso/Pierna"],
+      3: ["Push/Pull/Legs", "Full Body (x3)", "Torso/Pierna/Full Body"],
+      4: ["Torso/Pierna (x2)", "Push/Pull (x2)", "Pecho-Tríceps / Espalda-Bíceps / Pierna / Hombros-Core"],
+      5: ["Pecho / Espalda / Pierna / Hombros / Brazos", "Push/Pull/Legs/Push/Pull", "Torso/Pierna/Torso/Pierna/Full Body"],
+      6: ["Push/Pull/Legs (x2)", "Pecho / Espalda / Pierna / Hombros / Brazos / Full Body"],
+    },
+    EN: {
+      1: ["Full Body"],
+      2: ["Full Body (x2)", "Upper/Lower"],
+      3: ["Push/Pull/Legs", "Full Body (x3)", "Upper/Lower/Full Body"],
+      4: ["Upper/Lower (x2)", "Push/Pull (x2)", "Chest-Triceps / Back-Biceps / Legs / Shoulders-Core"],
+      5: ["Chest / Back / Legs / Shoulders / Arms", "Push/Pull/Legs/Push/Pull", "Upper/Lower/Upper/Lower/Full Body"],
+      6: ["Push/Pull/Legs (x2)", "Chest / Back / Legs / Shoulders / Arms / Full Body"],
+    },
+  };
+  const pickHypertrophySplit = (frecNum, isEN) => {
+    const table = isEN ? HYPERTROPHY_SPLITS.EN : HYPERTROPHY_SPLITS.ES;
+    const pool = table[frecNum] || table[3];
+    return pool[Math.floor(Math.random() * pool.length)];
+  };
+
   // Reglas específicas por combinación tipo + lugar
   const getTipoRules = (tipo, lugar) => {
     if (tipo === "Calistenia") {
@@ -106,10 +135,11 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
         return `CALISTENIA EN CASA: SOLO peso corporal. Ejercicios: flexiones (variantes), sentadillas, zancadas, plancha, fondos en silla, elevación de piernas, glute bridge, pike push-up, hollow body.`;
     }
     if (tipo === "Hipertrofia") {
+      const split = pickHypertrophySplit(frecNum, false);
       if (lugar === "Gym")
-        return `HIPERTROFIA EN GYM: Barras olímpicas, mancuernas, máquinas. Compuestos: press de banca, sentadilla, peso muerto, remo, press militar. Aislamiento: curl, tríceps, laterales, jalón. Series 3-5 × 6-12. Distribución Push/Pull/Legs.`;
+        return `HIPERTROFIA EN GYM: Barras olímpicas, mancuernas, máquinas. Compuestos: press de banca, sentadilla, peso muerto, remo, press militar. Aislamiento: curl, tríceps, laterales, jalón. Series 3-5 × 6-12. Distribución de días OBLIGATORIA: ${split}. Usá exactamente esa distribución para nombrar y organizar los días, no uses otra.`;
       if (lugar === "Casa")
-        return `HIPERTROFIA EN CASA: Mancuernas opcionales. Con ellas: curl, press en suelo, remo inclinado, press hombros, goblet, hip thrust. Sin ellas: flexiones variantes, sentadilla una pierna, fondos en silla, remo con mochila.`;
+        return `HIPERTROFIA EN CASA: Mancuernas opcionales. Con ellas: curl, press en suelo, remo inclinado, press hombros, goblet, hip thrust. Sin ellas: flexiones variantes, sentadilla una pierna, fondos en silla, remo con mochila. Distribución de días OBLIGATORIA: ${split}. Usá exactamente esa distribución para nombrar y organizar los días, no uses otra.`;
     }
     if (tipo === "Fit") {
       if (lugar === "Gym")
@@ -128,10 +158,11 @@ router.post("/generate", authMiddleware, requireActiveSub, trainingLimiter, asyn
         return `CALISTHENICS AT HOME: Bodyweight ONLY. Exercises: push-ups (variations), squats, lunges, plank, chair dips, leg raises, glute bridge, pike push-up, hollow body.`;
     }
     if (tipo === "Hipertrofia") {
+      const split = pickHypertrophySplit(frecNum, true);
       if (lugar === "Gym")
-        return `HYPERTROPHY AT THE GYM: Olympic barbells, dumbbells, machines. Compounds: bench press, squat, deadlift, row, military press. Isolation: curls, triceps, lateral raises, lat pulldown. 3-5 sets × 6-12 reps. Push/Pull/Legs split.`;
+        return `HYPERTROPHY AT THE GYM: Olympic barbells, dumbbells, machines. Compounds: bench press, squat, deadlift, row, military press. Isolation: curls, triceps, lateral raises, lat pulldown. 3-5 sets × 6-12 reps. MANDATORY day split: ${split}. Use exactly that split to name and organize the days, do not use another one.`;
       if (lugar === "Casa")
-        return `HYPERTROPHY AT HOME: Optional dumbbells. With them: curls, floor press, bent-over row, shoulder press, goblet squat, hip thrust. Without them: push-up variations, single-leg squat, chair dips, backpack row.`;
+        return `HYPERTROPHY AT HOME: Optional dumbbells. With them: curls, floor press, bent-over row, shoulder press, goblet squat, hip thrust. Without them: push-up variations, single-leg squat, chair dips, backpack row. MANDATORY day split: ${split}. Use exactly that split to name and organize the days, do not use another one.`;
     }
     if (tipo === "Fit") {
       if (lugar === "Gym")
