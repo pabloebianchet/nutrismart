@@ -37,6 +37,7 @@ import ShoppingListDrawer, { ShoppingFab } from "../components/ShoppingListDrawe
 import { parseIngredient, mergeIngredients, loadList, saveList, fetchListFromServer, syncListToServer } from "../utils/shoppingList";
 import useRealtimeSync           from "../hooks/useRealtimeSync";
 import { getSocket, getSocketId } from "../config/socket";
+import { cldResize } from "../utils/cloudinaryUrl";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -110,26 +111,67 @@ const StepLabel = ({ n, label }) => (
   </Stack>
 );
 
-const RecipeLoader = ({ message }) => (
-  <Box sx={{ textAlign: "center", py: 8 }}>
-    <SoupKitchenRoundedIcon sx={{
-      fontSize: 56, mb: 3, color: "#0B5E55",
-      "@keyframes cookSpin": { "0%,100%": { transform: "rotate(-10deg)" }, "50%": { transform: "rotate(10deg)" } },
-      animation: "cookSpin 1.2s ease-in-out infinite",
-      display: "inline-block",
-    }} />
-    <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
-    <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
-      {[0, 1, 2].map((i) => (
-        <Box key={i} sx={{
-          width: 7, height: 7, borderRadius: "50%", bgcolor: "#0B5E55",
-          "@keyframes bounce": { "0%,80%,100%": { transform: "scale(0.8)", opacity: 0.4 }, "40%": { transform: "scale(1.2)", opacity: 1 } },
-          animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
-        }} />
-      ))}
-    </Stack>
-  </Box>
-);
+// Muestrario fijo de platos generados una sola vez y subidos a Cloudinary
+// (las recetas reales se generan on-demand y se guardan en base64 en la
+// base, no sirven como fuente estable para este carrusel) — solo para el
+// loader, no depende de la receta que se está generando.
+const LOADER_RECIPES = [
+  { es: "Bowl de proteína con pollo y vegetales", en: "Protein bowl with chicken and veggies", img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870313/recipes-loader/bowl_proteina.png" },
+  { es: "Tostadas de palta",                      en: "Avocado toast",                          img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870343/recipes-loader/tostadas_palta.png" },
+  { es: "Batido verde detox",                     en: "Green detox smoothie",                   img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870373/recipes-loader/batido_verde.png" },
+  { es: "Ensalada mediterránea",                  en: "Mediterranean salad",                    img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870400/recipes-loader/ensalada_mediterranea.png" },
+  { es: "Salmón grillado con vegetales",          en: "Grilled salmon with vegetables",          img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870425/recipes-loader/salmon_grillado.png" },
+  { es: "Wrap integral saludable",                en: "Healthy whole wheat wrap",                img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870454/recipes-loader/wrap_integral.png" },
+];
+
+const recipeCardVariants = {
+  enter:  { opacity: 0, y: 28, scale: 0.94 },
+  center: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+  exit:   { opacity: 0, y: -28, scale: 0.94, transition: { duration: 0.35, ease: "easeIn" } },
+};
+
+const RecipeLoader = ({ message, isUS }) => {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIdx((p) => (p + 1) % LOADER_RECIPES.length), 1900);
+    return () => clearInterval(id);
+  }, []);
+  const current = LOADER_RECIPES[idx];
+  return (
+    <Box sx={{ textAlign: "center", py: { xs: 4, sm: 5 } }}>
+      <Box sx={{ position: "relative", width: 190, height: 190, mx: "auto", mb: 3 }}>
+        <AnimatePresence mode="wait">
+          <motion.div key={idx} variants={recipeCardVariants} initial="enter" animate="center" exit="exit"
+            style={{ position: "absolute", inset: 0 }}>
+            <Box sx={{ width: "100%", height: "100%", borderRadius: 4, overflow: "hidden",
+              boxShadow: "0 16px 40px rgba(11,94,85,0.22)", border: "1px solid rgba(11,94,85,0.10)",
+              position: "relative", bgcolor: "#E6F5F3" }}>
+              <Box component="img" src={cldResize(current.img, 400)}
+                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0,
+                background: "linear-gradient(to top, rgba(11,94,85,0.88) 0%, transparent 100%)",
+                px: 1.5, py: 1.2, textAlign: "left" }}>
+                <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: "#fff", lineHeight: 1.3 }}>
+                  {isUS ? current.en : current.es}
+                </Typography>
+              </Box>
+            </Box>
+          </motion.div>
+        </AnimatePresence>
+      </Box>
+      <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
+      <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
+        {[0, 1, 2].map((i) => (
+          <Box key={i} sx={{
+            width: 7, height: 7, borderRadius: "50%", bgcolor: "#0B5E55",
+            "@keyframes bounce": { "0%,80%,100%": { transform: "scale(0.8)", opacity: 0.4 }, "40%": { transform: "scale(1.2)", opacity: 1 } },
+            animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
+          }} />
+        ))}
+      </Stack>
+    </Box>
+  );
+};
 
 const ShareIcons = ({ recipe, onCopy, onInstagram, isUS }) => (
   <Stack direction="row" spacing={0.5}>
@@ -726,7 +768,7 @@ const RecipesPage = () => {
             {step === "loading" && (
               <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
                 <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                  <RecipeLoader message={isUS ? "Preparing your recipes…" : "Preparando tus recetas…"} />
+                  <RecipeLoader isUS={isUS} message={isUS ? "Preparing your recipes…" : "Preparando tus recetas…"} />
                 </Paper>
               </motion.div>
             )}
@@ -807,7 +849,7 @@ const RecipesPage = () => {
             {step === "loading-detail" && (
               <motion.div key="loading-detail" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
                 <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                  <RecipeLoader message={isUS ? `Preparing "${selected?.name}"…` : `Preparando "${selected?.name}"…`} />
+                  <RecipeLoader isUS={isUS} message={isUS ? `Preparing "${selected?.name}"…` : `Preparando "${selected?.name}"…`} />
                 </Paper>
               </motion.div>
             )}
