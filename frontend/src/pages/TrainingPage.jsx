@@ -121,25 +121,82 @@ const StepDot = ({ n, label }) => (
   </Stack>
 );
 
-const PlanLoader = ({ message }) => (
-  <Box sx={{ textAlign: "center", py: 8 }}>
-    <FitnessCenterRoundedIcon sx={{
-      fontSize: 60, mb: 3, display: "inline-block", color: "#0B5E55",
-      "@keyframes lift": { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-10px)" } },
-      animation: "lift 1.4s ease-in-out infinite",
-    }} />
-    <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
-    <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
-      {[0, 1, 2].map((i) => (
-        <Box key={i} sx={{
-          width: 7, height: 7, borderRadius: "50%", bgcolor: "#0B5E55",
-          "@keyframes bounce": { "0%,80%,100%": { transform: "scale(0.8)", opacity: 0.4 }, "40%": { transform: "scale(1.2)", opacity: 1 } },
-          animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
-        }} />
-      ))}
-    </Stack>
-  </Box>
-);
+// Muestrario fijo de ejercicios ya cargados en el catálogo (con imagen ES/EN
+// real) — solo para el carrusel del loader, no depende del plan que se está
+// generando. Variedad a propósito: empuje, tracción, pierna, core, skill.
+const LOADER_EXERCISES = [
+  { es: "Flexiones de brazos",  en: "Push-ups",              img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780778283/exercises/exercises/flexiones_de_brazos.png",           imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788357062/exercises_en/exercises_en/pushups.png" },
+  { es: "Dominadas pronas",     en: "Pull-ups",               img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780788406/exercises/exercises/dominadas_pronas.png",              imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788359663/exercises_en/exercises_en/pullups_overhand_grip.png" },
+  { es: "Sentadilla libre",     en: "Bodyweight squat",       img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780782864/exercises/exercises/sentadilla_libre.png",              imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788360052/exercises_en/exercises_en/bodyweight_squat.png" },
+  { es: "Fondos en paralelas",  en: "Parallel bar dips",      img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780782518/exercises/exercises/fondos_en_paralelas.png",           imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788359832/exercises_en/exercises_en/dips_on_parallel_bars.png" },
+  { es: "Plancha frontal",      en: "Plank",                  img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780776984/exercises/exercises/plancha_frontal.png",               imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788356165/exercises_en/exercises_en/plank.png" },
+  { es: "Press banca con barra",en: "Barbell bench press",    img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780775820/exercises/exercises/press_banca_con_barra.png",         imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788354160/exercises_en/exercises_en/barbell_bench_press.png" },
+  { es: "Front lever",          en: "Front lever",            img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788866715/exercises/exercises/front_lever_palanca_frontal.png",   imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788867218/exercises_en/exercises_en/front_lever.png" },
+  { es: "Handstand libre",      en: "Freestanding handstand", img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788866782/exercises/exercises/handstand_libre_pino_sin_apoyo.png",imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788867325/exercises_en/exercises_en/freestanding_handstand.png" },
+];
+
+const cardVariants = {
+  enter:  { opacity: 0, y: 28, scale: 0.94 },
+  center: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+  exit:   { opacity: 0, y: -28, scale: 0.94, transition: { duration: 0.35, ease: "easeIn" } },
+};
+
+const PlanLoader = ({ message, isUS }) => {
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setIdx((p) => (p + 1) % LOADER_EXERCISES.length), 1900);
+    return () => clearInterval(id);
+  }, []);
+
+  const current = LOADER_EXERCISES[idx];
+
+  return (
+    <Box sx={{ textAlign: "center", py: { xs: 4, sm: 5 } }}>
+      <Box sx={{ position: "relative", width: 190, height: 190, mx: "auto", mb: 3 }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={idx}
+            variants={cardVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            style={{ position: "absolute", inset: 0 }}
+          >
+            <Box sx={{
+              width: "100%", height: "100%", borderRadius: 4, overflow: "hidden",
+              boxShadow: "0 16px 40px rgba(11,94,85,0.22)", border: "1px solid rgba(11,94,85,0.10)",
+              position: "relative", bgcolor: "#E6F5F3",
+            }}>
+              <Box component="img" src={cldResize(isUS ? current.imgEn : current.img, 400)}
+                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <Box sx={{
+                position: "absolute", bottom: 0, left: 0, right: 0,
+                background: "linear-gradient(to top, rgba(11,94,85,0.88) 0%, transparent 100%)",
+                px: 1.5, py: 1.2, textAlign: "left",
+              }}>
+                <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: "#fff", lineHeight: 1.3 }}>
+                  {isUS ? current.en : current.es}
+                </Typography>
+              </Box>
+            </Box>
+          </motion.div>
+        </AnimatePresence>
+      </Box>
+
+      <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
+      <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
+        {[0, 1, 2].map((i) => (
+          <Box key={i} sx={{
+            width: 7, height: 7, borderRadius: "50%", bgcolor: "#0B5E55",
+            "@keyframes bounce": { "0%,80%,100%": { transform: "scale(0.8)", opacity: 0.4 }, "40%": { transform: "scale(1.2)", opacity: 1 } },
+            animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
+          }} />
+        ))}
+      </Stack>
+    </Box>
+  );
+};
 
 const ProgBar = ({ value, color }) => (
   <Box sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(11,94,85,0.12)", overflow: "hidden" }}>
@@ -1266,9 +1323,12 @@ const TrainingPage = () => {
           {(phase === "loading" || phase === "db-loading") && (
             <motion.div key="loading" variants={fadeUp} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }}>
               <Paper elevation={0} sx={{ borderRadius: 5, border: "1px solid rgba(11,94,85,0.10)", p: 4 }}>
-                <PlanLoader message={phase === "db-loading"
-                  ? (isUS ? "Loading your plan…" : "Cargando tu plan…")
-                  : (isUS ? "Creating your personalized plan…" : "Creando tu plan personalizado…")} />
+                <PlanLoader
+                  isUS={isUS}
+                  message={phase === "db-loading"
+                    ? (isUS ? "Loading your plan…" : "Cargando tu plan…")
+                    : (isUS ? "Creating your personalized plan…" : "Creando tu plan personalizado…")}
+                />
               </Paper>
             </motion.div>
           )}
