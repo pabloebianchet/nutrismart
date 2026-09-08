@@ -74,15 +74,12 @@ const ProfileGate = () => {
 const BANNER_HIDDEN_PATHS = ["/pricing", "/privacidad", "/terminos", "/legal", "/contact", "/forgot-password", "/reset-password"];
 
 const TrialBanner = () => {
-  const { user, subPlan, subStatus, trialDaysLeft } = useNutrition();
+  const { user, subPlan, subStatus, trialDaysLeft, isUS } = useNutrition();
   const navigate  = useNavigate();
   const location  = useLocation();
 
   if (!user) return null;
   if (subPlan !== "free" || subStatus !== "active") return null;
-  // "/en" usa match exacto/con barra — un simple startsWith("/en") también
-  // taparía "/energy" por accidente.
-  if (location.pathname === "/en" || location.pathname.startsWith("/en/")) return null;
   if (BANNER_HIDDEN_PATHS.some((p) => location.pathname.startsWith(p))) return null;
 
   const urgente = trialDaysLeft <= 2;
@@ -105,9 +102,13 @@ const TrialBanner = () => {
       }}
     >
       <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: "#fff", fontWeight: 600, lineHeight: 1.4, textAlign: "center" }}>
-        {urgente
-          ? `⏰ Tu prueba gratuita vence ${trialDaysLeft === 0 ? "hoy" : `en ${trialDaysLeft} día${trialDaysLeft !== 1 ? "s" : ""}`} —`
-          : `🎉 Prueba gratuita activa — ${trialDaysLeft} día${trialDaysLeft !== 1 ? "s" : ""} restante${trialDaysLeft !== 1 ? "s" : ""} —`
+        {isUS
+          ? (urgente
+              ? `⏰ Your free trial ends ${trialDaysLeft === 0 ? "today" : `in ${trialDaysLeft} day${trialDaysLeft !== 1 ? "s" : ""}`} —`
+              : `🎉 Free trial active — ${trialDaysLeft} day${trialDaysLeft !== 1 ? "s" : ""} left —`)
+          : (urgente
+              ? `⏰ Tu prueba gratuita vence ${trialDaysLeft === 0 ? "hoy" : `en ${trialDaysLeft} día${trialDaysLeft !== 1 ? "s" : ""}`} —`
+              : `🎉 Prueba gratuita activa — ${trialDaysLeft} día${trialDaysLeft !== 1 ? "s" : ""} restante${trialDaysLeft !== 1 ? "s" : ""} —`)
         }
         {" "}
         <Box
@@ -115,7 +116,7 @@ const TrialBanner = () => {
           onClick={() => navigate("/pricing")}
           sx={{ fontWeight: 800, cursor: "pointer", textDecoration: "underline", whiteSpace: "nowrap" }}
         >
-          Ver planes
+          {isUS ? "View plans" : "Ver planes"}
         </Box>
       </Typography>
     </Box>

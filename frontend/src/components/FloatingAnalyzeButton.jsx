@@ -9,7 +9,7 @@ const HIDDEN_PATHS = ["/capture", "/result", "/admin", "/recipes", "/training"];
 const FloatingAnalyzeButton = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
-  const { user }  = useNutrition();
+  const { user, isUS }  = useNutrition();
   const [hovered, setHovered] = useState(false);
 
   if (!user?._id && !user?.googleId) return null;
@@ -115,7 +115,7 @@ const FloatingAnalyzeButton = () => {
             lineHeight: 1,
           }}
         >
-          Analizar producto
+          {isUS ? "Analyze product" : "Analizar producto"}
         </Typography>
       </Box>
     </Box>

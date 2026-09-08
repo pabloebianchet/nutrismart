@@ -72,7 +72,7 @@ const Overlay = ({ children }) => (
 );
 
 /* ─── TRIAL EXPIRADO ─────────────────────────────────────────────────────── */
-const TrialExpiredOverlay = () => {
+const TrialExpiredOverlay = ({ isUS }) => {
   const navigate = useNavigate();
   return (
     <Overlay>
@@ -101,7 +101,7 @@ const TrialExpiredOverlay = () => {
           mb: 1,
         }}
       >
-        Tu prueba gratuita venció
+        {isUS ? "Your free trial has ended" : "Tu prueba gratuita venció"}
       </Typography>
       <Typography
         sx={{
@@ -113,8 +113,9 @@ const TrialExpiredOverlay = () => {
           mx: "auto",
         }}
       >
-        Elegí un plan para seguir disfrutando de los 3 módulos: análisis de
-        alimentos, recetas y entrenamiento personalizado.
+        {isUS
+          ? "Choose a plan to keep enjoying all 3 modules: food analysis, recipes, and personalized training."
+          : "Elegí un plan para seguir disfrutando de los 3 módulos: análisis de alimentos, recetas y entrenamiento personalizado."}
       </Typography>
 
       <Stack spacing={1.5} mb={3}>
@@ -134,7 +135,7 @@ const TrialExpiredOverlay = () => {
             "&:hover": { bgcolor: "#b8841f" },
           }}
         >
-          Ver Plan Gold — $5.990/mes
+          {isUS ? "View Gold Plan — US$12.99/mo" : "Ver Plan Gold — $5.990/mes"}
         </Button>
         <Button
           fullWidth
@@ -152,19 +153,19 @@ const TrialExpiredOverlay = () => {
             "&:hover": { bgcolor: "rgba(113,135,156,0.06)" },
           }}
         >
-          Ver Plan Silver — $2.990/mes
+          {isUS ? "View Silver Plan — US$6.99/mo" : "Ver Plan Silver — $2.990/mes"}
         </Button>
       </Stack>
 
       <Typography sx={{ fontSize: 12, color: "#8AADAA", lineHeight: 1.6 }}>
-        a través de Mercado Pago · Cancelá cuando quieras
+        {isUS ? "Secure payment via Stripe · Cancel anytime" : "a través de Mercado Pago · Cancelá cuando quieras"}
       </Typography>
     </Overlay>
   );
 };
 
 /* ─── SUSCRIPCIÓN PAGA VENCIDA — overlay inicial ────────────────────────── */
-const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
+const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly, isUS }) => {
   const navigate = useNavigate();
   const planLabel = PLAN_LABEL[subPlan] || "Premium";
 
@@ -197,7 +198,7 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
           mb: 1,
         }}
       >
-        Tu suscripción {planLabel} venció
+        {isUS ? `Your ${planLabel} subscription has ended` : `Tu suscripción ${planLabel} venció`}
       </Typography>
 
       {/* Data safety message */}
@@ -216,7 +217,7 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
       >
         <SaveAltRoundedIcon sx={{ fontSize: 16, color: "#059669" }} />
         <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#065F46" }}>
-          Tus datos están guardados y seguros
+          {isUS ? "Your data is safe and saved" : "Tus datos están guardados y seguros"}
         </Typography>
       </Box>
 
@@ -230,9 +231,9 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
           mx: "auto",
         }}
       >
-        Tu historial de análisis, plan de entrenamiento y puntos saludables
-        están intactos. Renovar tu suscripción para seguir creando nuevos
-        análisis.
+        {isUS
+          ? "Your analysis history, training plan, and healthy points are all intact. Renew your subscription to keep creating new analyses."
+          : "Tu historial de análisis, plan de entrenamiento y puntos saludables están intactos. Renová tu suscripción para seguir creando nuevos análisis."}
       </Typography>
 
       <Stack spacing={1.5} mb={2}>
@@ -251,7 +252,7 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
             "&:hover": { bgcolor: "#0f7a6e" },
           }}
         >
-          Renovar ahora →
+          {isUS ? "Renew now →" : "Renovar ahora →"}
         </Button>
 
         <Button
@@ -268,19 +269,19 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly }) => {
             "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
           }}
         >
-          Ver mis datos (solo lectura)
+          {isUS ? "View my data (read-only)" : "Ver mis datos (solo lectura)"}
         </Button>
       </Stack>
 
       <Typography sx={{ fontSize: 12, color: "#8AADAA", lineHeight: 1.6 }}>
-        Pago seguro a través de Mercado Pago. Cancelá cuando quieras.
+        {isUS ? "Secure payment via Stripe. Cancel anytime." : "Pago seguro a través de Mercado Pago. Cancelá cuando quieras."}
       </Typography>
     </Overlay>
   );
 };
 
 /* ─── MODO LECTURA — banner sticky ──────────────────────────────────────── */
-const ReadOnlyBanner = ({ onClose }) => {
+const ReadOnlyBanner = ({ onClose, isUS }) => {
   const navigate = useNavigate();
   return (
     <Box
@@ -308,7 +309,7 @@ const ReadOnlyBanner = ({ onClose }) => {
           textAlign: "center",
         }}
       >
-        🔒 Modo lectura — tus datos están guardados —{" "}
+        {isUS ? "🔒 Read-only mode — your data is saved —" : "🔒 Modo lectura — tus datos están guardados —"}{" "}
         <Box
           component="span"
           onClick={() => navigate("/pricing")}
@@ -319,7 +320,7 @@ const ReadOnlyBanner = ({ onClose }) => {
             whiteSpace: "nowrap",
           }}
         >
-          Renovar ahora
+          {isUS ? "Renew now" : "Renovar ahora"}
         </Box>
       </Typography>
       <IconButton
@@ -339,7 +340,7 @@ const ReadOnlyBanner = ({ onClose }) => {
 
 /* ─── COMPONENTE PRINCIPAL ───────────────────────────────────────────────── */
 const TrialGate = () => {
-  const { user, isTrialExpired, isSubscriptionExpired, subPlan } =
+  const { user, isTrialExpired, isSubscriptionExpired, subPlan, isUS } =
     useNutrition();
   const location = useLocation();
 
@@ -354,7 +355,7 @@ const TrialGate = () => {
   // ── 1. Trial gratuito vencido: bloqueo total ────────────────────────────
   if (isTrialExpired) {
     if (isFreePath) return null;
-    return <TrialExpiredOverlay />;
+    return <TrialExpiredOverlay isUS={isUS} />;
   }
 
   // ── 2. Suscripción paga vencida: acceso read-only opcional ─────────────
@@ -364,6 +365,7 @@ const TrialGate = () => {
     if (readOnly) {
       return (
         <ReadOnlyBanner
+          isUS={isUS}
           onClose={() => {
             sessionStorage.removeItem("nui-readonly");
             setReadOnly(false);
@@ -375,6 +377,7 @@ const TrialGate = () => {
     return (
       <SubscriptionExpiredOverlay
         subPlan={subPlan}
+        isUS={isUS}
         onReadOnly={() => {
           sessionStorage.setItem("nui-readonly", "1");
           setReadOnly(true);
