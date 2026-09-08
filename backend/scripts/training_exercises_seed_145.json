@@ -2759,7 +2759,8 @@
       "CASA",
       "FIT",
       "RUNNING",
-      "HIPERTROFIA"
+      "HIPERTROFIA",
+      "CALISTENIA"
     ],
     "compatible_places": [
       "CASA"
@@ -4593,7 +4594,8 @@
     "compatible_goals": [
       "FIT",
       "RUNNING",
-      "HIPERTROFIA"
+      "HIPERTROFIA",
+      "CALISTENIA"
     ],
     "compatible_places": [
       "AIRE_LIBRE"
@@ -5299,6 +5301,281 @@
     ],
     "contraindications": "Adaptar o evitar ante dolor agudo, lesión reciente o indicación médica contraria.",
     "image_prompt": "Ilustración fitness realista de una persona realizando Circuito funcional de plaza, técnica correcta, fondo limpio, vista didáctica.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_DIAMANTE",
+    "name": "Flexiones diamante",
+    "description": "Variante de flexión con las manos juntas formando un diamante bajo el pecho — desplaza mucho más trabajo al tríceps que la flexión estándar.",
+    "category": "FUERZA",
+    "primary_muscle_group": "TRICEPS",
+    "secondary_muscle_groups": [
+      "PECHO",
+      "HOMBROS"
+    ],
+    "movement_pattern": "PUSH",
+    "equipment": [],
+    "compatible_goals": [
+      "CALISTENIA",
+      "HIPERTROFIA",
+      "FIT"
+    ],
+    "compatible_places": [
+      "CASA",
+      "GYM",
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "INTERMEDIO",
+    "instructions": "Apoyar las manos juntas bajo el centro del pecho, pulgares e índices formando un diamante. Bajar controlado manteniendo los codos cerca del cuerpo hasta rozar el pecho con las manos, y empujar de vuelta sin bloquear los codos de golpe.",
+    "technical_cues": [
+      "manos formando un diamante justo bajo el esternón",
+      "codos pegados al torso, no hacia afuera",
+      "cuerpo en línea recta de cabeza a talones todo el recorrido"
+    ],
+    "common_mistakes": [
+      "abrir los codos como en una flexión normal (pierde el foco en tríceps)",
+      "no bajar el rango completo",
+      "dejar caer la cadera o levantar la cola"
+    ],
+    "contraindications": "Evitar o adaptar con dolor agudo de muñeca, codo o hombro. Requiere buena movilidad de muñeca.",
+    "image_prompt": "Realistic fitness illustration of a person doing diamond push-ups, hands together forming a diamond shape under the chest, correct form, clean background, instructional view.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FLEXIONES_ARCHER",
+    "name": "Flexiones archer (arquero)",
+    "description": "Progresión hacia la flexión a un brazo: los brazos se abren mucho más de lo normal y el peso se desplaza hacia un lado mientras el otro brazo queda casi extendido, como tensando un arco.",
+    "category": "FUERZA",
+    "primary_muscle_group": "PECHO",
+    "secondary_muscle_groups": [
+      "TRICEPS",
+      "HOMBROS"
+    ],
+    "movement_pattern": "PUSH",
+    "equipment": [],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA",
+      "GYM",
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Con las manos muy separadas (más del ancho de hombros), bajar el pecho hacia una mano manteniendo el otro brazo casi recto al costado. Empujar de vuelta al centro y alternar de lado en cada repetición.",
+    "technical_cues": [
+      "el brazo que queda extendido apenas se dobla, guía el movimiento",
+      "cadera y hombros cuadrados, sin rotar el torso",
+      "bajar hasta que el hombro del lado activo quede a la altura de la mano"
+    ],
+    "common_mistakes": [
+      "rotar el torso en vez de desplazar el peso en línea recta",
+      "doblar de más el brazo extendido (se convierte en una flexión asimétrica normal)",
+      "intentarlo sin dominar antes la flexión estándar con buen volumen"
+    ],
+    "contraindications": "No recomendado sin buena base de fuerza en flexiones estándar y fondos. Evitar con molestias de hombro.",
+    "image_prompt": "Realistic fitness illustration of a person doing archer push-ups, arms wide apart, weight shifted to one side with the other arm extended, correct form, clean background, instructional view.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "PINO_CON_FLEXION",
+    "name": "Pino con flexión (handstand push-up)",
+    "description": "Flexión de brazos en posición de pino, apoyado contra la pared — el ejercicio de empuje más exigente en calistenia para hombros y tríceps.",
+    "category": "FUERZA",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [
+      "TRICEPS",
+      "CORE"
+    ],
+    "movement_pattern": "PUSH",
+    "equipment": [
+      "PARED"
+    ],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA",
+      "GYM"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "En pino contra la pared (de frente o de espaldas), bajar la cabeza hacia el piso doblando los codos hasta rozar apenas el suelo, y empujar de vuelta a la extensión completa sin perder el equilibrio ni arquear en exceso la espalda baja.",
+    "technical_cues": [
+      "core activado todo el recorrido para no arquear la lumbar",
+      "bajar solo el rango que se pueda controlar, sin dejarse caer",
+      "mirada fija en un punto para mantener el equilibrio"
+    ],
+    "common_mistakes": [
+      "intentarlo sin dominar antes el pino libre y el pike push-up",
+      "arquear demasiado la espalda baja en vez de flexionar los hombros",
+      "bajar sin control (riesgo real de golpe de cabeza)"
+    ],
+    "contraindications": "Requiere buen pino asistido y movilidad de hombro previa. No intentar sin supervisión ni progresión gradual — riesgo de lesión de cuello/hombro si se fuerza antes de tiempo.",
+    "image_prompt": "Realistic fitness illustration of a person performing a handstand push-up against a wall, correct form, clean gym background, instructional view.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "FRONT_LEVER",
+    "name": "Front lever (palanca frontal)",
+    "description": "Movimiento skill isométrico colgado de una barra: el cuerpo se mantiene horizontal y paralelo al piso, sostenido solo por la fuerza de espalda y core. Uno de los objetivos más buscados en calistenia avanzada.",
+    "category": "SKILL",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [
+      "CORE",
+      "HOMBROS",
+      "BICEPS"
+    ],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "GYM",
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Colgado de la barra con agarre prono, tirar de los hombros hacia abajo y elevar el cuerpo hasta quedar horizontal, cadera y piernas alineadas con el torso. Mantener la posición respirando controlado. Progresar primero con rodillas flexionadas (tuck) o una pierna extendida antes de intentarlo completo.",
+    "technical_cues": [
+      "hombros activos hacia abajo (depresión escapular), nunca colgado pasivo",
+      "cuerpo en línea recta, cadera sin caer",
+      "empezar la progresión en tuck y avanzar de a poco a straddle o pierna extendida"
+    ],
+    "common_mistakes": [
+      "intentar la versión completa sin pasar por las progresiones (tuck, one-leg, straddle)",
+      "dejar caer la cadera por falta de activación de core",
+      "aguantar la respiración en vez de mantenerla controlada"
+    ],
+    "contraindications": "Requiere una base sólida de dominadas estrictas y fuerza de core avanzada. No apto para principiantes ni con molestias de hombro o codo.",
+    "image_prompt": "Realistic fitness illustration of an athlete performing a front lever on a pull-up bar, body horizontal and parallel to the ground, correct form, clean background, instructional view.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "BACK_LEVER",
+    "name": "Back lever (palanca dorsal)",
+    "description": "Variante del front lever con el cuerpo horizontal pero boca abajo, colgado de la barra — trabaja espalda, hombros y core desde un ángulo distinto y suele ser el paso previo antes de encarar el front lever.",
+    "category": "SKILL",
+    "primary_muscle_group": "ESPALDA",
+    "secondary_muscle_groups": [
+      "HOMBROS",
+      "CORE"
+    ],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "BARRA"
+    ],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "GYM",
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Desde un agarre en la barra, rotar el cuerpo hacia atrás (skin the cat) hasta quedar boca abajo y horizontal, brazos extendidos. Mantener el cuerpo en línea recta el tiempo posible. Progresar primero en tuck antes de extender piernas y cadera del todo.",
+    "technical_cues": [
+      "brazos completamente extendidos, no flexionar los codos para compensar",
+      "cuerpo en línea recta, sin doblar por la cadera",
+      "entrar y salir de la posición con control, sin soltarse de golpe"
+    ],
+    "common_mistakes": [
+      "flexionar los codos para aguantar más tiempo (invalida el ejercicio)",
+      "saltar directo a la versión completa sin pasar por tuck",
+      "rotar hacia la posición sin control, con riesgo de lesión de hombro"
+    ],
+    "contraindications": "Requiere movilidad de hombro en rotación externa e interna, y experiencia previa colgando de barra. Evitar con antecedentes de inestabilidad de hombro.",
+    "image_prompt": "Realistic fitness illustration of an athlete performing a back lever on a pull-up bar, body horizontal facing down, arms extended, correct form, clean background, instructional view.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "HANDSTAND_LIBRE",
+    "name": "Handstand libre (pino sin apoyo)",
+    "description": "Pino de manos sostenido en equilibrio, sin apoyarse contra la pared — la base técnica de todos los movimientos invertidos en calistenia.",
+    "category": "SKILL",
+    "primary_muscle_group": "HOMBROS",
+    "secondary_muscle_groups": [
+      "CORE",
+      "ANTEBRAZOS"
+    ],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "CASA",
+      "GYM",
+      "AIRE_LIBRE"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Desde una posición de sentadilla profunda o zancada, apoyar las manos en el piso a ancho de hombros y llevar las piernas arriba hasta quedar invertido, cuerpo en línea recta, manteniendo el equilibrio con pequeños ajustes de dedos y muñeca. Practicar primero contra la pared antes de soltar el apoyo.",
+    "technical_cues": [
+      "manos activas empujando el piso, dedos abiertos para equilibrio fino",
+      "core y glúteos activados, cuerpo en una sola línea",
+      "mirada entre las manos, no hacia adelante"
+    ],
+    "common_mistakes": [
+      "arquear la espalda baja en 'banana' en vez de mantener el cuerpo alineado",
+      "intentar soltar la pared antes de tener control del pino asistido",
+      "empujar con los hombros encogidos en vez de extendidos hacia arriba"
+    ],
+    "contraindications": "Evitar con hipertensión no controlada, mareos o lesión reciente de muñeca/hombro. Practicar siempre con progresión y superficie segura.",
+    "image_prompt": "Realistic fitness illustration of an athlete performing a freestanding handstand, balanced without wall support, correct form, clean background, instructional view.",
+    "image_url": null,
+    "video_url": null,
+    "active": true
+  },
+  {
+    "code": "L_SIT_COMPLETO",
+    "name": "L-sit completo",
+    "description": "Posición isométrica en paralelas o en el piso con ambas piernas completamente extendidas al frente formando una L — muy exigente para core y flexores de cadera.",
+    "category": "CORE",
+    "primary_muscle_group": "ABDOMINALES",
+    "secondary_muscle_groups": [
+      "CADERA",
+      "HOMBROS",
+      "TRICEPS"
+    ],
+    "movement_pattern": "ISOMETRICO",
+    "equipment": [
+      "PARALELAS"
+    ],
+    "compatible_goals": [
+      "CALISTENIA"
+    ],
+    "compatible_places": [
+      "GYM",
+      "AIRE_LIBRE",
+      "CASA"
+    ],
+    "difficulty": "AVANZADO",
+    "instructions": "Apoyado en paralelas o en el piso con las manos, elevar el cuerpo y extender ambas piernas al frente, paralelas al suelo, formando una L con el torso. Mantener la posición con hombros activos hacia abajo y core firme. Progresar desde tuck (rodillas al pecho) antes de extender ambas piernas.",
+    "technical_cues": [
+      "hombros activos hacia abajo, lejos de las orejas",
+      "piernas juntas y extendidas, punta de pie activa",
+      "empezar en tuck o con una sola pierna extendida antes de la versión completa"
+    ],
+    "common_mistakes": [
+      "redondear la espalda para compensar la falta de fuerza de core",
+      "flexionar las rodillas en vez de mantenerlas extendidas",
+      "encoger los hombros en vez de empujar hacia abajo"
+    ],
+    "contraindications": "Requiere buena movilidad de isquiotibiales y flexores de cadera. Evitar con dolor lumbar agudo.",
+    "image_prompt": "Realistic fitness illustration of an athlete performing a full L-sit on parallel bars, legs fully extended forward parallel to the ground, correct form, clean background, instructional view.",
     "image_url": null,
     "video_url": null,
     "active": true
