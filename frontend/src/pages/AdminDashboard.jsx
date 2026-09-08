@@ -124,7 +124,7 @@ const KpiCard = ({ label, value, sub, icon: Icon, color, bgColor, borderColor, i
         textTransform: "uppercase", letterSpacing: "0.07em", mb: 0.3 }}>
         {label}
       </Typography>
-      <Typography sx={{ fontSize: 32, fontWeight: 900, color: col, lineHeight: 1 }}>
+      <Typography sx={{ fontSize: 32, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: col, lineHeight: 1 }}>
         {value ?? "—"}
       </Typography>
       {sub && (
@@ -164,7 +164,7 @@ const PlanCard = ({ icon: Icon, name, color, bgColor, active, rows }) => (
         <Typography sx={{ fontSize: 11, color: C.textMuted }}>activos ahora</Typography>
       </Box>
       <Box sx={{ ml: "auto !important" }}>
-        <Typography sx={{ fontSize: 36, fontWeight: 900, color, lineHeight: 1 }}>{active}</Typography>
+        <Typography sx={{ fontSize: 36, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color, lineHeight: 1 }}>{active}</Typography>
       </Box>
     </Stack>
     <Box sx={{ px: 3, py: 2 }}>
@@ -331,7 +331,7 @@ const UserDetailDrawer = ({ user, onClose, onDelete, deleting, onAssigned, token
                   <plan.Icon sx={{ fontSize: 18, color: plan.color }} />
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: 16, fontWeight: 900, color: C.text }}>Plan {plan.label}</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text }}>Plan {plan.label}</Typography>
                   <Typography sx={{ fontSize: 11.5, color: C.textSec }}>
                     {sub.amount > 0 ? fmtMoney(sub.amount, sub.currency) + "/mes" : "Prueba gratuita"}
                   </Typography>
@@ -872,7 +872,7 @@ const AdminDashboard = () => {
               textTransform: "uppercase", letterSpacing: "0.07em", mb: 0.2 }}>
               NUI App
             </Typography>
-            <Typography sx={{ fontSize: 22, fontWeight: 900, color: C.text, lineHeight: 1.2 }}>
+            <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, lineHeight: 1.2 }}>
               Administración
             </Typography>
           </Box>
@@ -1079,7 +1079,7 @@ const AdminDashboard = () => {
             <BarChartRoundedIcon sx={{ fontSize: 18, color: C.brand }} />
             <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>Edad</Typography>
             <Box sx={{ ml: "auto !important" }}>
-              <Typography sx={{ fontSize: 28, fontWeight: 900, color: C.brand, lineHeight: 1 }}>
+              <Typography sx={{ fontSize: 28, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.brand, lineHeight: 1 }}>
                 {d.edadAvg ?? "—"}
               </Typography>
               <Typography sx={{ fontSize: 10, color: C.textMuted, textAlign: "right" }}>promedio</Typography>

@@ -267,7 +267,7 @@ const AboutPage = () => {
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#B71C1C", textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
               {isUS ? "The problem" : "El problema"}
             </Typography>
-            <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
+            <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
               {isUS ? "Ultra-processed foods disguise themselves as normal food" : "Los ultraprocesados se disfrazan de alimentos normales"}
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: C.textSecondary, lineHeight: 1.8 }}>
@@ -282,7 +282,7 @@ const AboutPage = () => {
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: C.brand, textTransform: "uppercase", letterSpacing: "0.1em", mb: 1.5 }}>
               {isUS ? "The solution" : "La solución"}
             </Typography>
-            <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
+            <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, letterSpacing: "-0.5px", mb: 2, lineHeight: 1.3 }}>
               {isUS ? "Clear information right when you need it" : "Información clara en el momento que la necesitás"}
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: C.textSecondary, lineHeight: 1.8 }}>
@@ -328,7 +328,7 @@ const AboutPage = () => {
                 }}>
                   <m.Icon sx={{ fontSize: { xs: 32, sm: 44 }, color: m.color }} />
                   <Box sx={{ textAlign: { xs: "left", sm: "center" } }}>
-                    <Typography sx={{ fontSize: 13, fontWeight: 900, color: m.color, letterSpacing: "-0.2px", lineHeight: 1.2 }}>{m.title}</Typography>
+                    <Typography sx={{ fontSize: 13, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: m.color, letterSpacing: "-0.2px", lineHeight: 1.2 }}>{m.title}</Typography>
                     <Typography sx={{ fontSize: 11, color: m.color, opacity: 0.7, fontWeight: 600 }}>{m.subtitle}</Typography>
                   </Box>
                 </Box>

@@ -313,7 +313,7 @@ const UserDataPage = () => {
             </Box>
           </Box>
 
-          <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#fff", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
             {isUS ? "Sign in faster" : "Ingresá más rápido"}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 3, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>

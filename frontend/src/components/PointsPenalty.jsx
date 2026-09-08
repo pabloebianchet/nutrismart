@@ -169,7 +169,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
           <Typography
             sx={{
               fontSize: 22,
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: "#E24B4A",
               letterSpacing: "-0.5px",
               textShadow: "0 2px 8px rgba(226,75,74,0.40)",
@@ -184,7 +184,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
           <Typography
             sx={{
               fontSize: 19,
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: "#0F2420",
               letterSpacing: "-0.4px",
               lineHeight: 1.2,
@@ -236,7 +236,7 @@ const PointsPenalty = ({ points, totalPoints, onDone }) => {
             <Typography
               sx={{
                 fontSize: 26,
-                fontWeight: 900,
+                fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                 color: "#fff",
                 lineHeight: 1.1,
                 letterSpacing: "-1px",

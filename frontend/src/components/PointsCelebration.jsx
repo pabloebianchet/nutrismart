@@ -151,7 +151,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
           <Typography
             sx={{
               fontSize: 20,
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: "#0F2420",
               letterSpacing: "-0.4px",
               lineHeight: 1.2,
@@ -189,7 +189,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
           <Typography
             sx={{
               fontSize: 72,
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: "#2ECC71",
               lineHeight: 1,
               letterSpacing: "-3px",
@@ -222,7 +222,7 @@ const PointsCelebration = ({ points, totalPoints, onDone }) => {
               color: "rgba(255,255,255,0.85)",
             }}
           >
-            Total: <span style={{ color: "#fff", fontWeight: 900 }}>{displayCount} pts</span>
+            Total: <span style={{ color: "#fff", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif' }}>{displayCount} pts</span>
           </Typography>
         </Box>
       </Box>

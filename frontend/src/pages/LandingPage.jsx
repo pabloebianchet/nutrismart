@@ -317,7 +317,7 @@ const HeroSection = ({ onCTA }) => {
             component="h1"
             sx={{
               fontSize: { xs: 40, sm: 54, md: 62, lg: 68 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: C.ink,
               lineHeight: 1.05,
               letterSpacing: { xs: "-1.5px", md: "-2.5px" },
@@ -573,7 +573,7 @@ const WhyMattersSection = ({ onCTA }) => {
             component="h2"
             sx={{
               fontSize: { xs: 30, sm: 46 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: C.ink,
               letterSpacing: { xs: "-1px", sm: "-2px" },
               lineHeight: 1.1,
@@ -640,7 +640,7 @@ const WhyMattersSection = ({ onCTA }) => {
               <Typography
                 sx={{
                   fontSize: 60,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   color: f.color,
                   lineHeight: 1,
                   mb: 1.5,
@@ -1019,7 +1019,7 @@ const ModulesSection = () => {
           <Typography
             sx={{
               fontSize: { xs: 30, sm: 46 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: C.ink,
               letterSpacing: { xs: "-1px", sm: "-2px" },
               lineHeight: 1.1,
@@ -1194,7 +1194,7 @@ const ModulesSection = () => {
                 <Typography
                   sx={{
                     fontSize: 19,
-                    fontWeight: 900,
+                    fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                     color: C.ink,
                     mb: 1,
                     letterSpacing: "-0.4px",
@@ -1432,7 +1432,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => {
             component="h2"
             sx={{
               fontSize: { xs: 30, sm: 46 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: C.ink,
               letterSpacing: { xs: "-1px", sm: "-2px" },
               lineHeight: 1.1,
@@ -1628,7 +1628,7 @@ const ShoppingListFeatureSection = ({ onCTA }) => {
                   <Typography
                     sx={{
                       fontSize: 16,
-                      fontWeight: 900,
+                      fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                       color: "#fff",
                       letterSpacing: "-0.3px",
                     }}
@@ -2054,7 +2054,7 @@ const CostComparisonSection = ({ onCTA }) => {
             component="h2"
             sx={{
               fontSize: { xs: 30, sm: 46 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: "#fff",
               letterSpacing: { xs: "-1px", sm: "-2px" },
               lineHeight: 1.1,
@@ -2127,7 +2127,7 @@ const CostComparisonSection = ({ onCTA }) => {
               <Typography
                 sx={{
                   fontSize: 54,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   color: "#fff",
                   lineHeight: 1,
                   mb: 0.3,
@@ -2346,7 +2346,7 @@ const HowItWorksSection = () => {
           <Typography
             sx={{
               fontSize: { xs: 30, sm: 46 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: C.ink,
               letterSpacing: { xs: "-1px", sm: "-2px" },
               lineHeight: 1.1,
@@ -2400,7 +2400,7 @@ const HowItWorksSection = () => {
               <Typography
                 sx={{
                   fontSize: 80,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   lineHeight: 1,
                   color:
                     i === 1 ? "rgba(255,255,255,0.08)" : "rgba(11,94,85,0.07)",
@@ -2446,7 +2446,7 @@ const HowItWorksSection = () => {
               <Typography
                 sx={{
                   fontSize: 19,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   color: i === 1 ? "#fff" : C.ink,
                   mb: 1.5,
                   letterSpacing: "-0.5px",
@@ -2671,7 +2671,7 @@ const PricingCard = ({ p, onCTA, isActive }) => {
           <Typography
             sx={{
               fontSize: 18,
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: p.color,
               lineHeight: 1.1,
             }}
@@ -2690,7 +2690,7 @@ const PricingCard = ({ p, onCTA, isActive }) => {
               component="span"
               sx={{
                 fontSize: 36,
-                fontWeight: 900,
+                fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                 color: C.ink,
                 letterSpacing: "-1.5px",
               }}
@@ -2705,7 +2705,7 @@ const PricingCard = ({ p, onCTA, isActive }) => {
             </Typography>
           </>
         ) : (
-          <Typography sx={{ fontSize: 30, fontWeight: 900, color: C.brand }}>
+          <Typography sx={{ fontSize: 30, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.brand }}>
             {isUS ? "Free" : "Gratis"}
           </Typography>
         )}
@@ -2853,7 +2853,7 @@ const PricingSection = ({ onCTA }) => {
           <Typography
             sx={{
               fontSize: { xs: 30, sm: 46 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: C.ink,
               letterSpacing: { xs: "-1px", sm: "-2px" },
               lineHeight: 1.1,
@@ -3039,7 +3039,7 @@ const FinalCTA = ({ onCTA }) => {
         <Typography
           sx={{
             fontSize: { xs: 34, sm: 54 },
-            fontWeight: 900,
+            fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
             color: "#fff",
             letterSpacing: { xs: "-1.5px", sm: "-2.5px" },
             lineHeight: 1.08,
@@ -3175,7 +3175,7 @@ const LandingPostsSection = () => {
           <Typography
             sx={{
               fontSize: { xs: 24, sm: 32 },
-              fontWeight: 900,
+              fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               color: "#0F2420",
               letterSpacing: "-0.8px",
               lineHeight: 1.2,
@@ -3348,7 +3348,7 @@ const LandingPostsSection = () => {
                   <Typography
                     sx={{
                       fontSize: { xs: 18, sm: 21 },
-                      fontWeight: 900,
+                      fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                       color: "#0F2420",
                       letterSpacing: "-0.4px",
                       lineHeight: 1.3,

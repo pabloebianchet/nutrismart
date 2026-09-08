@@ -233,7 +233,7 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
             <Typography sx={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", letterSpacing: "0.07em" }}>
               {isUS ? "Confirm plan" : "Confirmar plan"}
             </Typography>
-            <Typography sx={{ fontSize: 20, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.4px" }}>
+            <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, letterSpacing: "-0.4px" }}>
               {isUS ? `${plan.name} Plan` : `Plan ${plan.name}`}
             </Typography>
           </Box>
@@ -243,7 +243,7 @@ const CheckoutModal = ({ plan, planPrices, isUS, onClose, onPay }) => {
                 {fmt(basePrice)}
               </Typography>
             )}
-            <Typography sx={{ fontSize: 26, fontWeight: 900, color: plan.color, lineHeight: 1.1 }}>
+            <Typography sx={{ fontSize: 26, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: plan.color, lineHeight: 1.1 }}>
               {fmt(finalPrice)}
             </Typography>
             <Typography sx={{ fontSize: 11, color: C.textMuted }}>{isUS ? "per month" : "por mes"}</Typography>
@@ -533,7 +533,7 @@ const PricingPage = () => {
                   <Box mb={3}>
                     {price ? (
                       <>
-                        <Typography sx={{ fontSize: 38, fontWeight: 900, color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>
+                        <Typography sx={{ fontSize: 38, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>
                           {isUS ? formatUSD(price) : formatARS(price)}
                         </Typography>
                         <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>
@@ -542,7 +542,7 @@ const PricingPage = () => {
                       </>
                     ) : (
                       <>
-                        <Typography sx={{ fontSize: 38, fontWeight: 900, color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>{plan.priceLabel}</Typography>
+                        <Typography sx={{ fontSize: 38, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: plan.color, lineHeight: 1, letterSpacing: "-1.5px" }}>{plan.priceLabel}</Typography>
                         <Typography sx={{ fontSize: 12.5, color: C.textMuted, mt: 0.3 }}>{plan.label}</Typography>
                       </>
                     )}

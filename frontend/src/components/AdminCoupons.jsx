@@ -103,7 +103,7 @@ const CouponRow = ({ coupon, onToggle, onDelete }) => {
 
         {/* Usos */}
         <Stack alignItems="center" sx={{ minWidth: 50 }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 900, color: C.brand, lineHeight: 1 }}>{totalUses}</Typography>
+          <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.brand, lineHeight: 1 }}>{totalUses}</Typography>
           <Typography sx={{ fontSize: 10, color: C.textMuted }}>usos</Typography>
         </Stack>
 

@@ -244,7 +244,7 @@ const ImageCaptureStep = () => {
             🥜
           </Box>
           <Box sx={{ textAlign: "center" }}>
-            <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.8px", lineHeight: 1.1 }}>
+            <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, letterSpacing: "-0.8px", lineHeight: 1.1 }}>
               {isUS ? "Analyze your product" : "Analizá tu producto"}
             </Typography>
             <Typography sx={{ fontSize: 14.5, color: C.textSecondary, mt: 0.8 }}>

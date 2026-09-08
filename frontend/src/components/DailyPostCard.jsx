@@ -112,7 +112,7 @@ const PostModal = ({ post, open, onClose }) => {
           </Stack>
 
           {/* Título */}
-          <Typography sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 900, color: C.text,
+          <Typography sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text,
             letterSpacing: "-0.5px", lineHeight: 1.25, mb: 1 }}>
             {post.title}
           </Typography>
@@ -280,7 +280,7 @@ const DailyPostCard = () => {
               </Stack>
             </Stack>
 
-            <Typography sx={{ fontSize: 16.5, fontWeight: 900, color: C.text, letterSpacing: "-0.3px",
+            <Typography sx={{ fontSize: 16.5, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, letterSpacing: "-0.3px",
               lineHeight: 1.3, mb: 1 }}>
               {post.title}
             </Typography>

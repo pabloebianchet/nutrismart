@@ -49,7 +49,7 @@ export default function LegalPageEN() {
           >
             ← Back to Nui
           </Typography>
-          <Typography component="h1" sx={{ fontSize: 28, fontWeight: 900, color: C.text, letterSpacing: "-0.8px", mb: 1 }}>
+          <Typography component="h1" sx={{ fontSize: 28, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, letterSpacing: "-0.8px", mb: 1 }}>
             Legal Notice & Cookie Policy
           </Typography>
           <Typography sx={{ fontSize: 13, color: C.faint }}>Last updated: {updated}</Typography>
@@ -68,7 +68,7 @@ export default function LegalPageEN() {
 
         <Paper elevation={0} sx={{ borderRadius: 4, border: `1px solid ${C.border}`, p: { xs: 3, md: 5 }, mb: 4 }}>
 
-          <Typography sx={{ fontSize: 20, fontWeight: 900, color: C.text, mb: 3, letterSpacing: "-0.4px" }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, mb: 3, letterSpacing: "-0.4px" }}>
             Legal Notice
           </Typography>
 
@@ -136,7 +136,7 @@ export default function LegalPageEN() {
 
         <Paper elevation={0} sx={{ borderRadius: 4, border: `1px solid ${C.border}`, p: { xs: 3, md: 5 } }}>
 
-          <Typography sx={{ fontSize: 20, fontWeight: 900, color: C.text, mb: 3, letterSpacing: "-0.4px" }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, mb: 3, letterSpacing: "-0.4px" }}>
             Cookie Policy
           </Typography>
 

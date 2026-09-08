@@ -175,7 +175,7 @@ const NotePage = ({ lang }) => {
   if (notFound) {
     return (
       <Box sx={{ background: C.surfaceAlt, minHeight: "100vh", py: 10, textAlign: "center" }}>
-        <Typography component="h1" sx={{ fontSize: 24, fontWeight: 900, color: C.textPrimary, mb: 2 }}>
+        <Typography component="h1" sx={{ fontSize: 24, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, mb: 2 }}>
           {t.notFoundTitle}
         </Typography>
         <Typography sx={{ fontSize: 14, color: C.textSecondary, mb: 3 }}>
@@ -259,7 +259,7 @@ const NotePage = ({ lang }) => {
                   component="h1"
                   sx={{
                     fontSize: { xs: 26, sm: 34 },
-                    fontWeight: 900,
+                    fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                     color: C.textPrimary,
                     letterSpacing: "-0.6px",
                     lineHeight: 1.2,

@@ -41,7 +41,7 @@ const RankRow = ({ entry, blurred, isUS }) => {
       <Box sx={{ width: 34, textAlign: "center", flexShrink: 0 }}>
         {rs
           ? <EmojiEventsRoundedIcon sx={{ fontSize: 22, color: rs.color }} />
-          : <Typography sx={{ fontSize: 13, fontWeight: 900, color: entry.isCurrentUser ? "#0B5E55" : "#8AADAA" }}>
+          : <Typography sx={{ fontSize: 13, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: entry.isCurrentUser ? "#0B5E55" : "#8AADAA" }}>
               #{entry.rank}
             </Typography>
         }
@@ -75,7 +75,7 @@ const RankRow = ({ entry, blurred, isUS }) => {
 
       {/* Puntos */}
       <Stack direction="row" alignItems="baseline" spacing={0.4} sx={{ flexShrink: 0 }}>
-        <Typography sx={{ fontSize: 15, fontWeight: 900, color: rs?.text ?? (entry.isCurrentUser ? "#0B5E55" : "#0F2420") }}>
+        <Typography sx={{ fontSize: 15, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: rs?.text ?? (entry.isCurrentUser ? "#0B5E55" : "#0F2420") }}>
           {entry.healthyPoints}
         </Typography>
         <Typography sx={{ fontSize: 10.5, color: "#8AADAA", fontWeight: 600 }}>pts</Typography>
@@ -143,7 +143,7 @@ const Podium = ({ top3, isUS }) => {
               <Typography sx={{ fontSize: isFirst ? 13 : 12, fontWeight: 800, color: rs.text, maxWidth: 70, textAlign: "center", lineHeight: 1.2 }}>
                 {firstName(entry.name, isUS)}
               </Typography>
-              <Typography sx={{ fontSize: 12, fontWeight: 900, color: rs.text }}>{entry.healthyPoints} pts</Typography>
+              <Typography sx={{ fontSize: 12, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: rs.text }}>{entry.healthyPoints} pts</Typography>
             </Box>
 
             {/* Bloque del podio */}

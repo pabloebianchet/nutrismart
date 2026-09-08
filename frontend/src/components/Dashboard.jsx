@@ -322,7 +322,7 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
                       alignItems: "center", justifyContent: "center",
                     }}
                   >
-                    <Typography sx={{ fontSize: 14, fontWeight: 900, color: sc, lineHeight: 1 }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: sc, lineHeight: 1 }}>
                       {score}
                     </Typography>
                     <Typography sx={{ fontSize: 8.5, color: sc, fontWeight: 600, lineHeight: 1 }}>
@@ -654,7 +654,7 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
       </Box>
 
       {/* Título */}
-      <Typography sx={{ fontSize: 14.5, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.3px", lineHeight: 1.25 }}>
+      <Typography sx={{ fontSize: 14.5, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.3px", lineHeight: 1.25 }}>
         {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
       </Typography>
 
@@ -769,7 +769,7 @@ const EntrenamientoWidget = () => {
             <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
               <FitnessCenterRoundedIcon sx={{ fontSize: 30, color: "#fff" }} />
               <Box>
-                <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1 }}>
+                <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.7px", lineHeight: 1 }}>
                   {isUS ? "Training" : "Entrenamiento"}
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.55)", mt: 0.2 }}>
@@ -894,7 +894,7 @@ const EntrenamientoWidget = () => {
               </Typography>
             </Box>
 
-            <Typography sx={{ fontSize: { xs: 17, sm: 19 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", mb: 0.8, lineHeight: 1.25 }}>
+            <Typography sx={{ fontSize: { xs: 17, sm: 19 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.5px", mb: 0.8, lineHeight: 1.25 }}>
               {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
             </Typography>
 
@@ -1012,7 +1012,7 @@ const RecetasYABanner = () => {
           {/* Title */}
           <Stack direction="row" spacing={1.2} alignItems="center" mb={1}>
             <RestaurantRoundedIcon sx={{ fontSize: 32, color: "#fff" }} />
-            <Typography sx={{ fontSize: { xs: 24, md: 28 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.8px", lineHeight: 1 }}>
+            <Typography sx={{ fontSize: { xs: 24, md: 28 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.8px", lineHeight: 1 }}>
               {isUS ? "Instant Recipes" : "Recetas YA"}
             </Typography>
           </Stack>
@@ -1225,7 +1225,7 @@ const ShoppingListWidget = () => {
               </Typography>
             </Box>
 
-            <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#fff", letterSpacing: "-0.7px", lineHeight: 1.1, mb: 0.6 }}>
+            <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.7px", lineHeight: 1.1, mb: 0.6 }}>
               {isUS ? "My list" : "Mi lista"}
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55, mb: 2.5 }}>
@@ -1657,6 +1657,7 @@ const Dashboard = () => {
                 fontWeight: 800,
                 color: C.textPrimary,
                 lineHeight: 1.2,
+                fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
               }}
             >
               {firstName || (isUS ? "User" : "Usuario")}
@@ -1759,7 +1760,7 @@ const Dashboard = () => {
                 <Typography sx={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.09em", mb: 0.3 }}>
                   {isUS ? "Healthy points" : "Puntos saludables"}
                 </Typography>
-                <Typography sx={{ fontSize: 44, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
+                <Typography sx={{ fontSize: 44, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
                   {pts}
                 </Typography>
 
@@ -1848,7 +1849,7 @@ const Dashboard = () => {
             <Typography
               sx={{
                 fontSize: 32,
-                fontWeight: 900,
+                fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                 color: C.brand,
                 lineHeight: 1,
               }}
@@ -1891,7 +1892,7 @@ const Dashboard = () => {
             <Typography
               sx={{
                 fontSize: 32,
-                fontWeight: 900,
+                fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                 color: C.textPrimary,
                 lineHeight: 1,
               }}
@@ -1931,7 +1932,7 @@ const Dashboard = () => {
             <Typography
               sx={{
                 fontSize: 32,
-                fontWeight: 900,
+                fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                 color: C.success,
                 lineHeight: 1,
               }}
@@ -2004,7 +2005,7 @@ const Dashboard = () => {
             </Box>
             <Box>
               <Typography
-                sx={{ fontSize: 15, fontWeight: 700, color: C.textPrimary }}
+                sx={{ fontSize: 15, fontWeight: 700, color: C.textPrimary, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif' }}
               >
                 {isUS ? "Personal profile" : "Perfil personal"}
               </Typography>

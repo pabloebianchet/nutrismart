@@ -71,7 +71,7 @@ export default function AppFooter() {
         justifyContent="space-between"
         sx={{ display: { xs: "none", sm: "flex" } }}
       >
-        <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
+        <Typography sx={{ fontSize: 15, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.5px" }}>
           Nui
           <Typography component="span" sx={{ fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.45)", ml: 1 }}>
             {isUS ? "Your health, with AI" : "Tu salud, con IA"}
@@ -100,7 +100,7 @@ export default function AppFooter() {
         spacing={1.5}
         sx={{ display: { xs: "flex", sm: "none" } }}
       >
-        <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
+        <Typography sx={{ fontSize: 15, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.5px" }}>
           Nui
           <Typography component="span" sx={{ fontSize: 11, fontWeight: 400, color: "rgba(255,255,255,0.45)", ml: 1 }}>
             {isUS ? "Your health, with AI" : "Tu salud, con IA"}

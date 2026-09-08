@@ -152,7 +152,7 @@ const InAppBrowserGate = ({ children }) => {
                 </Typography>
               </Box>
 
-              <Typography sx={{ fontSize: 21, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.4px", mb: 1, lineHeight: 1.3 }}>
+              <Typography sx={{ fontSize: 21, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, letterSpacing: "-0.4px", mb: 1, lineHeight: 1.3 }}>
                 {isUS ? "Sign up with your email" : "Registrate con tu mail"}
               </Typography>
               <Typography sx={{ fontSize: 13.5, color: C.textSecondary, mb: 3.5, lineHeight: 1.6 }}>

@@ -12,3 +12,11 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Baloo 2 para títulos en toda la app (reemplazo gratuito de BN Hightide).
+   La mayoría de los títulos ya llevan la fontFamily inline en su propio sx
+   (ver componentes con fontWeight: 900); esta regla es red de seguridad
+   para headings semánticos (h1/h2/h3) que no pasen por ese patrón. */
+h1, h2, h3 {
+  font-family: "Baloo 2", "Nunito", system-ui, sans-serif;
+}

@@ -39,7 +39,7 @@ export default function PrivacyPageEN() {
           >
             ← Back to Nui
           </Typography>
-          <Typography component="h1" sx={{ fontSize: 28, fontWeight: 900, color: C.text, letterSpacing: "-0.8px", mb: 1 }}>
+          <Typography component="h1" sx={{ fontSize: 28, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, letterSpacing: "-0.8px", mb: 1 }}>
             Privacy Policy
           </Typography>
           <Typography sx={{ fontSize: 13, color: C.faint }}>Last updated: {updated}</Typography>

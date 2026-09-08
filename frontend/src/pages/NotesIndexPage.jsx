@@ -98,7 +98,7 @@ const NotesIndexPage = ({ lang }) => {
           <ArrowBackRoundedIcon sx={{ fontSize: 16 }} /> {t.backHome}
         </Typography>
 
-        <Typography component="h1" sx={{ fontSize: { xs: 26, sm: 32 }, fontWeight: 900, color: C.textPrimary, mb: 1, letterSpacing: "-0.6px" }}>
+        <Typography component="h1" sx={{ fontSize: { xs: 26, sm: 32 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, mb: 1, letterSpacing: "-0.6px" }}>
           {t.heading}
         </Typography>
         <Typography sx={{ fontSize: 15, color: C.textSecondary, mb: 4, lineHeight: 1.6 }}>

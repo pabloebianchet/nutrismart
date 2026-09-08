@@ -132,7 +132,7 @@ const EnergyWidget = () => {
                   {isUS ? "Energy balance" : "Balance energético"}
                 </Typography>
               </Stack>
-              <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#fff", letterSpacing: "-0.4px", lineHeight: 1.1 }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.4px", lineHeight: 1.1 }}>
                 {dailyGoal
                   ? (isUS ? `Goal: ${dailyGoal.toLocaleString(locale)} kcal` : `Objetivo: ${dailyGoal.toLocaleString(locale)} kcal`)
                   : (isUS ? "Set your goal" : "Configurá tu objetivo")}
@@ -173,7 +173,7 @@ const EnergyWidget = () => {
                   textTransform: "uppercase", letterSpacing: "0.05em", mb: 0.3 }}>
                   {isUS ? "Daily goal" : "Objetivo diario"}
                 </Typography>
-                <Typography sx={{ fontSize: 22, fontWeight: 900, color: C.brand, lineHeight: 1 }}>
+                <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.brand, lineHeight: 1 }}>
                   {dailyGoal?.toLocaleString(locale) || "—"}
                   <Typography component="span" sx={{ fontSize: 11, color: C.textMuted }}> kcal</Typography>
                 </Typography>
@@ -183,7 +183,7 @@ const EnergyWidget = () => {
                   textTransform: "uppercase", letterSpacing: "0.05em", mb: 0.3 }}>
                   {isUS ? "Remaining" : "Restantes"}
                 </Typography>
-                <Typography sx={{ fontSize: 22, fontWeight: 900, color: restColor, lineHeight: 1 }}>
+                <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: restColor, lineHeight: 1 }}>
                   {restantes !== null ? Math.abs(restantes).toLocaleString(locale) : "—"}
                   <Typography component="span" sx={{ fontSize: 11, color: C.textMuted }}> kcal</Typography>
                 </Typography>

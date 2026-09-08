@@ -470,7 +470,7 @@ const HowItWorksPage = () => {
                     component="h3"
                     sx={{
                       fontSize: 16,
-                      fontWeight: 900,
+                      fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                       color: n.color,
                       mb: 0.8,
                       letterSpacing: "-0.3px",
@@ -631,7 +631,7 @@ const HowItWorksPage = () => {
                     <Typography
                       sx={{
                         fontSize: 36,
-                        fontWeight: 900,
+                        fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                         lineHeight: 1,
                         color: `${color}22`,
                         letterSpacing: "-2px",
@@ -1005,7 +1005,7 @@ const HowItWorksPage = () => {
                       component="h3"
                       sx={{
                         fontSize: 16,
-                        fontWeight: 900,
+                        fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                         color: m.color,
                         letterSpacing: "-0.3px",
                         lineHeight: 1.2,

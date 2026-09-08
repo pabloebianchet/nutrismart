@@ -279,7 +279,7 @@ const ResultScreen = () => {
           <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
               <Box>
-                <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.7px", lineHeight: 1.1 }}>
+                <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.7px", lineHeight: 1.1 }}>
                   {isUS ? "Analysis results" : "Resultado del análisis"}
                 </Typography>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mt: 0.4 }}>
@@ -400,7 +400,7 @@ const ResultScreen = () => {
                       <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: "#8AADAA", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                         {isUS ? "Overall score" : "Puntaje global"}
                       </Typography>
-                      <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px" }}>
+                      <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.5px" }}>
                         {score} <Typography component="span" sx={{ fontSize: 12, fontWeight: 600, color: "#8AADAA" }}>/ 100</Typography>
                       </Typography>
                     </Box>

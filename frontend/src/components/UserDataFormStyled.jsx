@@ -546,7 +546,7 @@ const UserDataFormStyled = () => {
       >
         {/* Header */}
         <Box sx={{ px: { xs: 3, sm: 4 }, pt: 4, pb: 2.5 }}>
-          <Typography sx={{ fontSize: { xs: 20, sm: 23 }, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.5px", mb: 0.75 }}>
+          <Typography sx={{ fontSize: { xs: 20, sm: 23 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, letterSpacing: "-0.5px", mb: 0.75 }}>
             {isEditMode
               ? (isUS ? "Edit your profile" : "Editar tu perfil")
               : step === 0 ? (isUS ? `Hi, ${firstName}! 👋` : `¡Hola, ${firstName}! 👋`) : meta.title}

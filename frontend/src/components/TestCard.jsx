@@ -91,7 +91,7 @@ const GaugeCard = ({ imc, altura, isUS }) => {
         <Typography
           sx={{
             fontSize: 58,
-            fontWeight: 900,
+            fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
             lineHeight: 1,
             color: range.text,
             letterSpacing: "-2px",

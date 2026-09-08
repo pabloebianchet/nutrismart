@@ -235,7 +235,7 @@ const ShoppingListDrawer = ({ open, onClose, items, setItems, token }) => {
           <Box>
             <Stack direction="row" spacing={1} alignItems="center" mb={0.3}>
               <ShoppingCartRoundedIcon sx={{ fontSize: 21 }} />
-              <Typography sx={{ fontSize: 19, fontWeight: 900, letterSpacing: "-0.4px" }}>
+              <Typography sx={{ fontSize: 19, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', letterSpacing: "-0.4px" }}>
                 {isUS ? "My shopping list" : "Mi lista de compras"}
               </Typography>
             </Stack>

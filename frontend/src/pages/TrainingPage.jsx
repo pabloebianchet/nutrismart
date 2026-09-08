@@ -951,7 +951,7 @@ const TrainingPage = () => {
             <Box>
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <FitnessCenterRoundedIcon sx={{ fontSize: 28, color: "#0B5E55" }} />
-                <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
+                <Typography sx={{ fontSize: { xs: 22, sm: 26 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
                   {isUS ? "Training" : "Entrenamiento"}
                 </Typography>
               </Stack>
@@ -1262,7 +1262,7 @@ const TrainingPage = () => {
                                 transition: "all 0.18s ease",
                                 "&:hover": { borderColor: activeTipo?.color || "#0B5E55" },
                               }}>
-                                <Typography sx={{ fontSize: 20, fontWeight: 900, color: active ? (activeTipo?.color || "#0B5E55") : "#4A6B67", lineHeight: 1 }}>{f}</Typography>
+                                <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: active ? (activeTipo?.color || "#0B5E55") : "#4A6B67", lineHeight: 1 }}>{f}</Typography>
                                 <Typography sx={{ fontSize: 9.5, color: active ? (activeTipo?.color || "#0B5E55") : "#8AADAA", fontWeight: 600 }}>{isUS ? "days" : "días"}</Typography>
                               </Box>
                             );
@@ -1299,7 +1299,7 @@ const TrainingPage = () => {
                           disabled={isSubscriptionExpired}
                           startIcon={isSubscriptionExpired ? <LockRoundedIcon /> : (activeTipo?.Icon ? <activeTipo.Icon /> : null)}
                           sx={{
-                            py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
+                            py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', fontSize: 16,
                             background: isSubscriptionExpired
                               ? "rgba(0,0,0,0.12)"
                               : `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}CC 100%)`,
@@ -1346,7 +1346,7 @@ const TrainingPage = () => {
                 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                     <Box flex={1} minWidth={0}>
-                      <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+                      <Typography sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
                         {plan.planTitle}
                       </Typography>
                       <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap>
@@ -1359,7 +1359,7 @@ const TrainingPage = () => {
                     </Box>
                     {totalDays > 1 && (
                       <Box sx={{ textAlign: "right", flexShrink: 0, ml: 1.5 }}>
-                        <Typography sx={{ fontSize: 22, fontWeight: 900, color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>
+                        <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>
                           {Math.min(elapsed, totalDays)}
                         </Typography>
                         <Typography sx={{ fontSize: 10.5, color: "#8AADAA", fontWeight: 600 }}>{isUS ? `of ${totalDays}d` : `de ${totalDays}d`}</Typography>
@@ -1517,7 +1517,7 @@ const TrainingPage = () => {
                         ].map((stat) => (
                           <Paper key={stat.label} elevation={0} sx={{ flex: 1, p: 1.8, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", textAlign: "center" }}>
                             <stat.Icon sx={{ fontSize: 20, mb: 0.3, color: activeTipo?.color || "#0B5E55" }} />
-                            <Typography sx={{ fontSize: 20, fontWeight: 900, color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>{stat.value}</Typography>
+                            <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>{stat.value}</Typography>
                             <Typography sx={{ fontSize: 10.5, color: "#8AADAA", fontWeight: 600 }}>{stat.label}</Typography>
                           </Paper>
                         ))}
@@ -1705,7 +1705,7 @@ const TrainingPage = () => {
                 {isUS ? "Back to plan" : "Volver al plan"}
               </Button>
 
-              <Typography sx={{ fontSize: 20, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.5px", mb: 0.4 }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.5px", mb: 0.4 }}>
                 {plan.weekStructure[activeDay]?.name}
               </Typography>
               <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3 }}>
@@ -1772,7 +1772,7 @@ const TrainingPage = () => {
                                     background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)" }} />
                                   <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2, pb: 1.5,
                                     display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 1 }}>
-                                    <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px",
+                                    <Typography sx={{ fontSize: 15, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", letterSpacing: "-0.3px",
                                       textShadow: "0 1px 4px rgba(0,0,0,0.4)", lineHeight: 1.2, flex: 1 }}>
                                       {ex.name}
                                     </Typography>
@@ -1941,7 +1941,7 @@ const TrainingPage = () => {
                   }}
                   startIcon={<FitnessCenterRoundedIcon />}
                   sx={{
-                    py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
+                    py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', fontSize: 16,
                     background: `linear-gradient(135deg, ${activeTipo?.color || "#0B5E55"} 0%, ${activeTipo?.color || "#0B5E55"}BB 100%)`,
                     boxShadow: `0 8px 28px ${activeTipo?.border || "rgba(11,94,85,0.30)"}`,
                     "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
@@ -1982,7 +1982,7 @@ const TrainingPage = () => {
                   "@keyframes trophy": { "0%,100%": { transform: "scale(1) rotate(-5deg)" }, "50%": { transform: "scale(1.12) rotate(5deg)" } },
                   animation: "trophy 2.2s ease-in-out infinite",
                 }} />
-                <Typography sx={{ fontSize: 26, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.7px", mb: 0.5 }}>
+                <Typography sx={{ fontSize: 26, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.7px", mb: 0.5 }}>
                   {isUS ? "Plan completed!" : "¡Plan completado!"}
                 </Typography>
                 <Typography sx={{ fontSize: 14, color: "#4A6B67" }}>{plan?.planTitle} · {duracionLabel(config?.duracion, isUS)}</Typography>
@@ -1996,7 +1996,7 @@ const TrainingPage = () => {
                 ].map((stat) => (
                   <Paper key={stat.label} elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid rgba(11,94,85,0.10)", textAlign: "center" }}>
                     <stat.Icon sx={{ fontSize: 24, mb: 0.5, color: activeTipo?.color || "#0B5E55" }} />
-                    <Typography sx={{ fontSize: 22, fontWeight: 900, color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>{stat.value}</Typography>
+                    <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: activeTipo?.color || "#0B5E55", lineHeight: 1 }}>{stat.value}</Typography>
                     <Typography sx={{ fontSize: 11, color: "#8AADAA", fontWeight: 600 }}>{stat.label}</Typography>
                   </Paper>
                 ))}
@@ -2036,7 +2036,7 @@ const TrainingPage = () => {
 
               <Stack spacing={1.5}>
                 <Button fullWidth variant="contained" onClick={() => resetPlan(false)} startIcon={<RocketLaunchRoundedIcon />} sx={{
-                  py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 16,
+                  py: 1.8, borderRadius: 3, textTransform: "none", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', fontSize: 16,
                   background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
                   boxShadow: "0 8px 28px rgba(11,94,85,0.30)",
                   "&:hover": { transform: "translateY(-2px)" }, transition: "all 0.25s ease",
@@ -2084,7 +2084,7 @@ const TrainingPage = () => {
                   <DeleteOutlineRoundedIcon sx={{ color: "#E24B4A", fontSize: 22 }} />
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: 17, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.3px" }}>
+                  <Typography sx={{ fontSize: 17, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.3px" }}>
                     {isUS ? "Delete this plan?" : "¿Borrar este plan?"}
                   </Typography>
                   <Typography sx={{ fontSize: 12.5, color: "#8AADAA" }}>
@@ -2150,7 +2150,7 @@ const TrainingPage = () => {
                 <Box sx={{ width: 56, height: 56, borderRadius: "50%", bgcolor: "rgba(226,75,74,0.12)", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 1.5 }}>
                   <WarningAmberRoundedIcon sx={{ color: "#E24B4A", fontSize: 28 }} />
                 </Box>
-                <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+                <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
                   {isUS ? "Confirm deletion?" : "¿Confirmás el borrado?"}
                 </Typography>
                 <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.65 }}>
@@ -2194,7 +2194,7 @@ const TrainingPage = () => {
         PaperProps={{ sx: { borderRadius: 5, mx: 2, maxWidth: 400, width: "100%" } }}
       >
         <DialogContent sx={{ p: 3 }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
             {isUS ? "What would you like to do?" : "¿Qué querés hacer?"}
           </Typography>
           <Typography sx={{ fontSize: 13.5, color: "#4A6B67", mb: 3, lineHeight: 1.6 }}>
@@ -2310,7 +2310,7 @@ const TrainingPage = () => {
                 return <SessionIcon sx={{ fontSize: 24, color: activeTipo?.color || "#0B5E55" }} />;
               })()}
             </Box>
-            <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.4px", mb: 0.5 }}>
               {isUS ? "Log this session?" : "¿Registrar esta sesión?"}
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.65 }}>
@@ -2403,7 +2403,7 @@ const TrainingPage = () => {
                       {sessionSuccess.dayName}
                     </Typography>
                   </Stack>
-                  <Typography sx={{ fontSize: 18, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.4px" }}>
+                  <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.4px" }}>
                     {isUS ? "Session completed!" : "¡Sesión completada!"}
                   </Typography>
                 </Box>
@@ -2420,7 +2420,7 @@ const TrainingPage = () => {
                     animation: "ptsIn 0.5s 0.18s cubic-bezier(0.34,1.56,0.64,1) both",
                     mb: 0.5,
                   }}>
-                    <Typography sx={{ fontSize: 76, fontWeight: 900, color: sessionSuccess.tipoColor, lineHeight: 1, letterSpacing: "-4px" }}>
+                    <Typography sx={{ fontSize: 76, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: sessionSuccess.tipoColor, lineHeight: 1, letterSpacing: "-4px" }}>
                       +{sessionSuccess.earned}
                     </Typography>
                     <Typography sx={{ fontSize: 15, fontWeight: 800, color: sessionSuccess.tipoColor, mt: -0.5, letterSpacing: "-0.2px" }}>
@@ -2437,7 +2437,7 @@ const TrainingPage = () => {
                     display: "inline-flex", alignItems: "center", gap: 1,
                   }}>
                     <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: "#4A6B67" }}>{isUS ? "Total:" : "Total:"}</Typography>
-                    <Typography sx={{ fontSize: 16, fontWeight: 900, color: sessionSuccess.tipoColor }}>
+                    <Typography sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: sessionSuccess.tipoColor }}>
                       {sessionSuccess.total} pts
                     </Typography>
                   </Box>
@@ -2458,7 +2458,7 @@ const TrainingPage = () => {
         <DialogContent sx={{ p: 3 }}>
           <Box sx={{ textAlign: "center", mb: 2 }}>
             <DeleteOutlineRoundedIcon sx={{ fontSize: 28, mb: 1, color: "#E24B4A" }} />
-            <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1 }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", mb: 1 }}>
               {isUS ? "Delete this exercise?" : "¿Eliminar este ejercicio?"}
             </Typography>
             <Typography sx={{ fontSize: 13.5, color: "#4A6B67", lineHeight: 1.6, mb: 1.5 }}>
@@ -2502,7 +2502,7 @@ const TrainingPage = () => {
           {/* ── PASO 1: BROWSE ── */}
           {addStep === "browse" && (
             <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <Typography sx={{ fontSize: 16, fontWeight: 900, color: "#0F2420", mb: 1.5 }}>
+              <Typography sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", mb: 1.5 }}>
                 {isUS
                   ? (addManualOpen?.index !== null ? "Replace exercise" : "Add exercise")
                   : (addManualOpen?.index !== null ? "Reemplazar ejercicio" : "Agregar ejercicio")}
@@ -2621,7 +2621,7 @@ const TrainingPage = () => {
         <DialogContent sx={{ p: 3 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Box>
-              <Typography sx={{ fontSize: 15, fontWeight: 900, color: "#0F2420" }}>{isUS ? "Choose a replacement" : "Elegí un reemplazo"}</Typography>
+              <Typography sx={{ fontSize: 15, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420" }}>{isUS ? "Choose a replacement" : "Elegí un reemplazo"}</Typography>
               <Typography sx={{ fontSize: 11, color: "#8AADAA" }}>{isUS ? `for "${similarOpen?.exerciseName}"` : `para "${similarOpen?.exerciseName}"`}</Typography>
             </Box>
             <IconButton size="small" onClick={() => { setSimilarOpen(null); setSimilarOptions([]); }}>
@@ -2697,7 +2697,7 @@ const TrainingPage = () => {
             <Box sx={{ px: 3, pt: 2.5, pb: 3.5 }}>
 
               {/* Nombre */}
-              <Typography sx={{ fontSize: { xs: 20, sm: 22 }, fontWeight: 900, color: "#fff",
+              <Typography sx={{ fontSize: { xs: 20, sm: 22 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff",
                 letterSpacing: "-0.5px", lineHeight: 1.2, mb: 2 }}>
                 {fullscreenEx.name}
               </Typography>

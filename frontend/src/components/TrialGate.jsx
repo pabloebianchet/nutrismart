@@ -95,7 +95,7 @@ const TrialExpiredOverlay = ({ isUS }) => {
       <Typography
         sx={{
           fontSize: { xs: 20, sm: 24 },
-          fontWeight: 900,
+          fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
           color: "#0F2420",
           letterSpacing: "-0.5px",
           mb: 1,
@@ -192,7 +192,7 @@ const SubscriptionExpiredOverlay = ({ subPlan, onReadOnly, isUS }) => {
       <Typography
         sx={{
           fontSize: { xs: 20, sm: 24 },
-          fontWeight: 900,
+          fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
           color: "#0F2420",
           letterSpacing: "-0.5px",
           mb: 1,

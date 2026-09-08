@@ -164,7 +164,7 @@ const GoalSelector = ({ onSelect, saving, isUS }) => (
       <Box sx={{ textAlign: "center", mb: 5 }}>
         <TrackChangesRoundedIcon sx={{ fontSize: 32, mb: 1, color: C.brand }} />
         <Typography
-          sx={{ fontSize: 22, fontWeight: 900, color: C.text, mb: 1 }}
+          sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, mb: 1 }}
         >
           {isUS ? "What's your nutrition goal?" : "¿Cuál es tu objetivo nutricional?"}
         </Typography>
@@ -746,7 +746,7 @@ const EnergyPage = () => {
               <Typography
                 sx={{
                   fontSize: 22,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   lineHeight: 1,
                   color: dayEval.goalMet ? C.green : C.danger,
                 }}
@@ -781,7 +781,7 @@ const EnergyPage = () => {
               <Typography
                 sx={{
                   fontSize: 22,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   color: C.text,
                   letterSpacing: "-0.5px",
                 }}
@@ -868,7 +868,7 @@ const EnergyPage = () => {
                 <Typography
                   sx={{
                     fontSize: 28,
-                    fontWeight: 900,
+                    fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                     color: C.brand,
                     lineHeight: 1.1,
                   }}
@@ -928,7 +928,7 @@ const EnergyPage = () => {
               <Typography
                 sx={{
                   fontSize: 24,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   color: C.gold,
                   lineHeight: 1,
                 }}
@@ -968,7 +968,7 @@ const EnergyPage = () => {
               <Typography
                 sx={{
                   fontSize: 24,
-                  fontWeight: 900,
+                  fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                   color: C.brand,
                   lineHeight: 1,
                 }}
@@ -1019,7 +1019,7 @@ const EnergyPage = () => {
                 <Typography
                   sx={{
                     fontSize: 32,
-                    fontWeight: 900,
+                    fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
                     lineHeight: 1,
                     color:
                       restantes !== null && restantes < -150
@@ -1156,7 +1156,7 @@ const EnergyPage = () => {
                 {label}
               </Typography>
               <Typography
-                sx={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}
+                sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color, lineHeight: 1 }}
               >
                 {unit === "L" ? val.toFixed(1) : Math.round(val)}
               </Typography>
@@ -1387,7 +1387,7 @@ const EnergyPage = () => {
                         },
                       ].map(({ label, val, color }) => (
                         <Box key={label}>
-                          <Typography sx={{ fontSize: 18, fontWeight: 900, color }}>
+                          <Typography sx={{ fontSize: 18, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color }}>
                             {Math.round(val || 0)}
                           </Typography>
                           <Typography sx={{ fontSize: 11, color: C.textMuted }}>
@@ -1399,14 +1399,14 @@ const EnergyPage = () => {
                   )}
                   {p.tipo === "actividad" && (
                     <Typography
-                      sx={{ fontSize: 16, fontWeight: 900, color: C.brand, display: "flex", alignItems: "center", gap: 0.6 }}
+                      sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.brand, display: "flex", alignItems: "center", gap: 0.6 }}
                     >
                       <LocalFireDepartmentRoundedIcon sx={{ fontSize: 19 }} /> {Math.round(p.totales?.kcal || 0)} {isUS ? "kcal burned" : "kcal quemadas"}
                     </Typography>
                   )}
                   {p.tipo === "agua" && (
                     <Typography
-                      sx={{ fontSize: 16, fontWeight: 900, color: C.blue, display: "flex", alignItems: "center", gap: 0.6 }}
+                      sx={{ fontSize: 16, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.blue, display: "flex", alignItems: "center", gap: 0.6 }}
                     >
                       <OpacityRoundedIcon sx={{ fontSize: 19 }} /> {((p.agua_ml || 0) / 1000).toFixed(2)} {isUS ? "liters" : "litros"}
                     </Typography>
@@ -1652,7 +1652,7 @@ const EnergyPage = () => {
           <Box sx={{ mt: 4 }}>
             <Divider sx={{ mb: 3, borderColor: C.border }} />
             <Typography
-              sx={{ fontSize: 15, fontWeight: 900, color: C.text, mb: 0.5 }}
+              sx={{ fontSize: 15, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.text, mb: 0.5 }}
             >
               {isUS ? "Monthly history" : "Historial del mes"}
             </Typography>

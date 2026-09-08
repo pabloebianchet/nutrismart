@@ -301,7 +301,7 @@ const SavedCard = ({ recipe, expanded, onToggle, onDelete, onCopy, onInstagram, 
                       border: `1.5px solid ${mod?.color || "#0B5E55"}`,
                       display: "flex", alignItems: "center", justifyContent: "center",
                     }}>
-                      <Typography sx={{ fontSize: 10, fontWeight: 900, color: mod?.color || "#0B5E55" }}>{i + 1}</Typography>
+                      <Typography sx={{ fontSize: 10, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: mod?.color || "#0B5E55" }}>{i + 1}</Typography>
                     </Box>
                     <Typography sx={{ fontSize: 13.5, color: "#3D5A57", lineHeight: 1.6, pt: 0.1 }}>{s}</Typography>
                   </Stack>
@@ -611,7 +611,7 @@ const RecipesPage = () => {
             <Box>
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <RestaurantRoundedIcon sx={{ fontSize: 28, color: "#0B5E55" }} />
-                <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
+                <Typography sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.8px", lineHeight: 1 }}>
                   {isUS ? "Instant Recipes" : "Recetas YA"}
                 </Typography>
               </Stack>
@@ -880,7 +880,7 @@ const RecipesPage = () => {
                       borderBottom: "1px solid rgba(11,94,85,0.08)",
                     }}>
                       <Typography sx={{ fontSize: 44, lineHeight: 1, mb: 1 }}>{detail.emoji}</Typography>
-                      <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#0F2420", letterSpacing: "-0.6px", lineHeight: 1.2, mb: 1.5 }}>
+                      <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.6px", lineHeight: 1.2, mb: 1.5 }}>
                         {detail.name}
                       </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -1038,7 +1038,7 @@ const RecipesPage = () => {
                         onClick={() => setShowSteps(true)}
                         endIcon={<RocketLaunchRoundedIcon />}
                         sx={{
-                          py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontSize: 17,
+                          py: 1.9, borderRadius: 3, textTransform: "none", fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', fontSize: 17,
                           letterSpacing: "-0.2px",
                           background: activeMod
                             ? `linear-gradient(135deg, ${activeMod.color} 0%, ${activeMod.color}BB 100%)`
@@ -1074,7 +1074,7 @@ const RecipesPage = () => {
                                       : "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
                                     display: "flex", alignItems: "center", justifyContent: "center",
                                   }}>
-                                    <Typography sx={{ fontSize: 12, fontWeight: 900, color: "#fff" }}>{i + 1}</Typography>
+                                    <Typography sx={{ fontSize: 12, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff" }}>{i + 1}</Typography>
                                   </Box>
                                   <Typography sx={{ fontSize: 14.5, color: "#3D5A57", lineHeight: 1.7, pt: 0.2 }}>
                                     {s}

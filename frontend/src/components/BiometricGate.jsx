@@ -79,7 +79,7 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
       </Box>
 
       {/* Saludo */}
-      <Typography sx={{ fontSize: 22, fontWeight: 900, color: "#fff", mb: 0.5, textAlign: "center" }}>
+      <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", mb: 0.5, textAlign: "center" }}>
         {isUS ? "Welcome back" : "Bienvenido de nuevo"}{userName ? `, ${userName.split(" ")[0]}` : ""}
       </Typography>
       <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.5)", mb: 5, textAlign: "center" }}>
