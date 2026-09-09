@@ -8,3 +8,60 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.11.0
+      # Los siguientes se cargan a mano en el dashboard de Render
+      # (Environment) y NUNCA desde este archivo — sync: false le dice a
+      # Render "esta clave existe pero no la generes ni la toques vos".
+      # Sin esto, una sincronización de Blueprint puede llegar a borrar
+      # cualquier variable cargada a mano que no esté listada acá: pasó
+      # en vivo con CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET, que
+      # desaparecieron sin aviso y rompieron la subida de imágenes.
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CREDENTIALS_BASE64
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: CONTACT_RECIPIENT
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: MP_ACCESS_TOKEN
+        sync: false
+      - key: MP_PUBLIC_KEY
+        sync: false
+      - key: MP_WEBHOOK_URL
+        sync: false
+      - key: MP_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: GA_MEASUREMENT_ID
+        sync: false
+      - key: GA_API_SECRET
+        sync: false
