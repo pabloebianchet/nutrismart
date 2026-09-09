@@ -86,6 +86,28 @@ app.use(helmet({
   crossOriginOpenerPolicy: false, // Google Sign-In popup necesita postMessage
 }));
 
+// CORS tiene que ir ANTES que cualquier rate limiter (o cualquier otra cosa
+// que pueda cortar la respuesta con un error). Si no, cuando el limiter
+// devuelve 429 esa respuesta sale SIN los headers de Access-Control-Allow-*,
+// y el navegador —al ser nuiapp.com pidiéndole a nutrismart-backend.onrender.com,
+// origen distinto— lo trata como fallo de CORS: fetch() tira "Failed to
+// fetch" en vez de dejar pasar el JSON con el mensaje real ("Demasiadas
+// solicitudes, intentá en 15 minutos"). Encontrado en vivo: un usuario no
+// podía subir su foto de perfil y en consola solo veía "Failed to fetch",
+// sin ninguna pista de que en realidad era el rate limit.
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://nuiapp.com",
+      "https://www.nuiapp.com",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }),
+);
+
 // El sitemap tiene que ser SIEMPRE fetcheable por crawlers sin límite —
 // va ANTES del rate limiter global a propósito. Google Search Console
 // mostraba "No se ha podido obtener" en sitemap-static/notes-es/notes-en
@@ -118,19 +140,6 @@ const analyzeLimiter = rateLimit({
   message: { error: "Límite de análisis por minuto alcanzado." },
 });
 app.use("/api/analyze", analyzeLimiter);
-
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://nuiapp.com",
-      "https://www.nuiapp.com",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }),
-);
 
 // Webhook de Stripe: necesita el body crudo (sin parsear) para validar la
 // firma con stripe.webhooks.constructEvent — tiene que montarse ANTES del
