@@ -123,9 +123,15 @@ app.use(sitemapRouter);
 // el webhook nunca actualizó Mongo, y todo lo que vio después (plan viejo,
 // cancelación equivocada) fue consecuencia directa de esto.
 const WEBHOOK_PATHS = new Set(["/api/payments/stripe/webhook", "/api/payments/webhook"]);
+// 200 req/15min por IP resultó insuficiente para uso real: una SPA carga
+// varios endpoints por vista (dashboard, plan, perfil, admin si aplica), y
+// en Argentina buena parte del tráfico mobile comparte IP por el NAT de
+// operador (CGNAT) — varios usuarios distintos consumen el mismo balde sin
+// culpa. Encontrado en vivo: un usuario no podía ni hacer login, bloqueado
+// por este límite en una sesión normal de la app.
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
-  max: 200,
+  max: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Demasiadas solicitudes. Intentá en 15 minutos." },
