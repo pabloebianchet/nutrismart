@@ -88,16 +88,20 @@ const PostModal = ({ post, open, onClose }) => {
           </IconButton>
         </Stack>
 
-        {/* Imagen */}
-        {post.imageUrl && (
-          <Box sx={{ position: "relative", width: "100%", height: { xs: 150, sm: 185 }, flexShrink: 0, overflow: "hidden" }}>
-            <Box component="img" src={cldResize(post.imageUrl, 700)} alt={post.title}
-              sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-          </Box>
-        )}
+        {/* Contenido scrolleable — la imagen va DENTRO para que scrollee junto
+            con el texto (antes quedaba fija arriba, como header, y solo el
+            texto se movía). Solo el header de arriba queda fijo. */}
+        <Box sx={{ flex: 1, overflowY: "auto" }}>
 
-        {/* Contenido scrolleable */}
-        <Box sx={{ flex: 1, overflowY: "auto", px: 3, pt: 2.5, pb: 3 }}>
+          {/* Imagen */}
+          {post.imageUrl && (
+            <Box sx={{ position: "relative", width: "100%", height: { xs: 150, sm: 185 }, overflow: "hidden" }}>
+              <Box component="img" src={cldResize(post.imageUrl, 700)} alt={post.title}
+                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </Box>
+          )}
+
+          <Box sx={{ px: 3, pt: 2.5, pb: 3 }}>
 
           {/* Meta — ya está en el header, acá solo fecha */}
           <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5} flexWrap="wrap" useFlexGap>
@@ -167,6 +171,7 @@ const PostModal = ({ post, open, onClose }) => {
               </IconButton>
             </Tooltip>
           </Stack>
+          </Box>
         </Box>
       </DialogContent>
     </Dialog>
