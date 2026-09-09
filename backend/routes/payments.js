@@ -10,6 +10,13 @@ import { sendPaymentEmail } from "../utils/sendPaymentEmail.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 import { logInfo, logError } from "../utils/logger.js";
 
+// MP manda periódicamente notificaciones de prueba con external_reference
+// literal "TEST_USER_ID" (sin el "|plan" real) para verificar que el
+// webhook responda — sin este chequeo, Mongoose tira un CastError al
+// tratar de usarlo como ObjectId, el webhook devuelve 500, y MP lo
+// reintenta indefinidamente, generando el mismo error en el log cada vez.
+const isValidUserId = (id) => /^[a-f\d]{24}$/i.test(id || "");
+
 /* ─── Validación de firma de webhook MP ─────────────────────────────────── */
 const verifyMPSignature = (req) => {
   const secret = process.env.MP_WEBHOOK_SECRET;
@@ -256,7 +263,7 @@ router.post("/webhook", async (req, res) => {
         const preapproval = await paRes.json();
 
         const [userId, plan] = (preapproval.external_reference || "").split("|");
-        if (!userId) return res.sendStatus(200);
+        if (!isValidUserId(userId)) return res.sendStatus(200);
 
         const PLANS_WH1 = await getPlans();
         const planInfo  = PLANS_WH1[plan];
@@ -372,7 +379,7 @@ router.post("/webhook", async (req, res) => {
       const preapproval = await paRes.json();
 
       const [userId] = (preapproval.external_reference || "").split("|");
-      if (!userId) return res.sendStatus(200);
+      if (!isValidUserId(userId)) return res.sendStatus(200);
 
       if (preapproval.status === "cancelled") {
         await Subscription.findOneAndUpdate(
@@ -409,7 +416,7 @@ router.post("/webhook", async (req, res) => {
       // usuario se queda con acceso pago aunque el dinero haya vuelto.
       if (isSubscriptionPayment && ["refunded", "charged_back", "cancelled"].includes(mp.status)) {
         const [userId, plan] = (mp.external_reference || "").split("|");
-        if (userId) {
+        if (isValidUserId(userId)) {
           await Subscription.findOneAndUpdate(
             { user: userId },
             { $set: { status: "cancelled", autoRenew: false } }
@@ -438,7 +445,7 @@ router.post("/webhook", async (req, res) => {
 
       if (mp.status === "approved") {
         const [userId, plan] = (mp.external_reference || "").split("|");
-        if (!userId) return res.sendStatus(200);
+        if (!isValidUserId(userId)) return res.sendStatus(200);
 
         const PLANS_WH2 = await getPlans();
         const planInfo  = PLANS_WH2[plan];
