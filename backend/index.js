@@ -708,6 +708,13 @@ app.post("/api/user/profile-picture", authMiddleware, (req, res, next) => {
     return res.json({ user });
   } catch (err) {
     console.error("Profile picture upload error:", err.message);
+    // Log persistente — el console.error se pierde sin acceso al dashboard
+    // de Render en vivo. Guarda mimetype/tamaño real para poder diagnosticar
+    // sin tener que reproducir el error a ciegas.
+    logError("system", "profile_picture.upload_failed", err.message, {
+      userId: req.user._id, userEmail: req.user.email,
+      meta: { mimetype: req.file?.mimetype, sizeBytes: req.file?.size, errorName: err.name },
+    });
     return res.status(500).json({ error: "Error al subir la imagen." });
   }
 });
