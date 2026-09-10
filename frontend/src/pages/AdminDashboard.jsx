@@ -8,9 +8,16 @@ import {
   Drawer, Divider, Tooltip, CircularProgress, Alert,
 } from "@mui/material";
 import { DataGrid }    from "@mui/x-data-grid";
+import { Line }        from "react-chartjs-2";
+import {
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
+  Tooltip as ChartTooltip, Legend as ChartLegend, Filler,
+} from "chart.js";
 import { useNavigate } from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import { API_URL }      from "../config/api";
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTooltip, ChartLegend, Filler);
 
 import DeleteOutlineRoundedIcon       from "@mui/icons-material/DeleteOutlineRounded";
 import SearchRoundedIcon              from "@mui/icons-material/SearchRounded";
@@ -38,6 +45,12 @@ import MailOutlineRoundedIcon         from "@mui/icons-material/MailOutlineRound
 import DraftsOutlinedIcon             from "@mui/icons-material/DraftsOutlined";
 import AdsClickOutlinedIcon           from "@mui/icons-material/AdsClickOutlined";
 import InfoOutlinedIcon               from "@mui/icons-material/InfoOutlined";
+import VisibilityOutlinedIcon         from "@mui/icons-material/VisibilityOutlined";
+import TimerOutlinedIcon              from "@mui/icons-material/TimerOutlined";
+import TrendingUpRoundedIcon          from "@mui/icons-material/TrendingUpRounded";
+import LanguageRoundedIcon            from "@mui/icons-material/LanguageRounded";
+import WhatshotRoundedIcon            from "@mui/icons-material/WhatshotRounded";
+import GroupsOutlinedIcon             from "@mui/icons-material/GroupsOutlined";
 
 /* ─── Tokens ──────────────────────────────────────────────── */
 const C = {
@@ -78,6 +91,13 @@ const fmtMoney = (n, currency) =>
 
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+
+const fmtDuration = (sec) => {
+  if (!sec && sec !== 0) return "—";
+  const m = Math.floor(sec / 60);
+  const s = Math.round(sec % 60);
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+};
 
 const fmtDatetime = (d) =>
   d ? new Date(d).toLocaleString("es-AR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
@@ -687,6 +707,8 @@ const AdminDashboard = () => {
   const [search,       setSearch]       = useState("");
   const [deletingId,   setDeletingId]   = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [analytics,        setAnalytics]        = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   const token = localStorage.getItem("nutrismartToken");
 
@@ -714,6 +736,19 @@ const AdminDashboard = () => {
     fetchAdminData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  // Tráfico (GA4) es más lento (llamada externa) — se carga recién al
+  // abrir la pestaña, no en el mount inicial junto con stats/users.
+  useEffect(() => {
+    if (activeTab !== "analytics" || analytics || analyticsLoading) return;
+    setAnalyticsLoading(true);
+    fetch(`${API_URL}/api/admin/analytics`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then(setAnalytics)
+      .catch((err) => console.error("Admin analytics error:", err))
+      .finally(() => setAnalyticsLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Eliminar usuario?")) return;
@@ -898,9 +933,10 @@ const AdminDashboard = () => {
       {/* Tab switcher */}
       <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5, display: "inline-flex", mb: 4 }}>
         {[
-          { id: "stats",   label: "📊 Estadísticas" },
-          { id: "coupons", label: "🎟️ Cupones" },
-          { id: "logs",    label: "📋 Logs" },
+          { id: "stats",     label: "📊 Estadísticas" },
+          { id: "analytics", label: "📈 Tráfico" },
+          { id: "coupons",   label: "🎟️ Cupones" },
+          { id: "logs",      label: "📋 Logs" },
         ].map((tab) => (
           <Box key={tab.id} onClick={() => setActiveTab(tab.id)} sx={{
             px: 2.5, py: 0.9, borderRadius: 999, cursor: "pointer",
@@ -919,13 +955,107 @@ const AdminDashboard = () => {
       {activeTab === "logs"    && <AdminLogs />}
       {activeTab === "coupons" && <AdminCoupons token={token} />}
 
+      {activeTab === "analytics" && (
+        analyticsLoading ? (
+          <Stack alignItems="center" py={8}><CircularProgress sx={{ color: C.brand }} /></Stack>
+        ) : !analytics?.ga4Configured ? (
+          <Alert severity="info" sx={{ borderRadius: 3 }}>
+            Google Analytics todavía no está conectado (faltan las variables GA4_CREDENTIALS_BASE64 / GA4_PROPERTY_ID).
+          </Alert>
+        ) : (<>
+          <SectionHeader title="Tráfico" subtitle="Datos reales de Google Analytics desde el 1/9/2026" />
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(3,1fr)", lg: "repeat(5,1fr)" },
+            gap: 2, mb: 4 }}>
+            <KpiCard label="Visitas totales"      value={analytics.summary?.views}    icon={VisibilityOutlinedIcon} color={C.brand} bgColor={C.brandSurface} borderColor={C.brandMuted} />
+            <KpiCard label="Sesiones"              value={analytics.summary?.sessions} icon={TrendingUpRoundedIcon}  color="#3B9E6A" />
+            <KpiCard label="Usuarios (GA4)"        value={analytics.summary?.users}    icon={GroupsOutlinedIcon}     color={C.brand} />
+            <KpiCard label="Usuarios nuevos"       value={analytics.summary?.newUsers} icon={PersonAddAltOutlinedIcon} color="#3B9E6A" />
+            <KpiCard label="Permanencia promedio"  value={fmtDuration(analytics.summary?.avgDurationSec)} icon={TimerOutlinedIcon}
+              color={C.gold} bgColor={C.goldSurf} borderColor="rgba(201,149,42,0.25)" sub="por sesión" />
+          </Box>
+
+          {/* Gráfico diario */}
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 4, border: `1px solid ${C.border}`,
+            boxShadow: shadow.md, mb: 4 }}>
+            <Box sx={{ height: 280 }}>
+              <Line
+                data={{
+                  labels: (analytics.traffic || []).map((d) => new Date(d.date).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })),
+                  datasets: [
+                    {
+                      label: "Sesiones",
+                      data: (analytics.traffic || []).map((d) => d.sessions),
+                      borderColor: C.brand, backgroundColor: `${C.brand}20`,
+                      tension: 0.35, fill: true, pointRadius: 2,
+                    },
+                    {
+                      label: "Usuarios",
+                      data: (analytics.traffic || []).map((d) => d.users),
+                      borderColor: C.gold, backgroundColor: `${C.gold}15`,
+                      tension: 0.35, fill: true, pointRadius: 2,
+                    },
+                    {
+                      label: "Vistas de página",
+                      data: (analytics.traffic || []).map((d) => d.views),
+                      borderColor: C.silver, backgroundColor: `${C.silver}10`,
+                      tension: 0.35, fill: false, pointRadius: 2, borderDash: [4, 3],
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true, maintainAspectRatio: false,
+                  interaction: { mode: "index", intersect: false },
+                  plugins: { legend: { position: "top", labels: { boxWidth: 10, font: { size: 11.5 } } } },
+                  scales: {
+                    y: { beginAtZero: true, ticks: { font: { size: 11 } } },
+                    x: { ticks: { font: { size: 11 } } },
+                  },
+                }}
+              />
+            </Box>
+          </Paper>
+
+          {/* Páginas más visitadas + Funcionalidades más usadas */}
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3, mb: 4 }}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md }}>
+              <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                <LanguageRoundedIcon sx={{ fontSize: 18, color: C.brand }} />
+                <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>Páginas más visitadas</Typography>
+              </Stack>
+              {(analytics.topPages || []).map((p) => (
+                <BarRow key={p.path} label={p.path} value={p.views}
+                  total={analytics.topPages[0]?.views || 1} color={C.brand} />
+              ))}
+              {(!analytics.topPages || analytics.topPages.length === 0) && (
+                <Typography sx={{ fontSize: 12.5, color: C.textMuted }}>Sin datos todavía.</Typography>
+              )}
+            </Paper>
+
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.md }}>
+              <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                <WhatshotRoundedIcon sx={{ fontSize: 18, color: C.gold }} />
+                <Typography sx={{ fontSize: 14, fontWeight: 800, color: C.text }}>Funcionalidades más usadas</Typography>
+              </Stack>
+              {(analytics.featureUsage || []).map((f) => (
+                <BarRow key={f.label} label={f.label} value={f.count}
+                  total={analytics.featureUsage[0]?.count || 1} color={C.gold} />
+              ))}
+              <Typography sx={{ fontSize: 10.5, color: C.textMuted, mt: 1.5 }}>
+                Basado en eventos ya registrados (análisis, recetas, planes y sesiones de entrenamiento) desde el 1/9.
+              </Typography>
+            </Paper>
+          </Box>
+        </>)
+      )}
+
       {activeTab === "stats" && (<>
 
       {/* ── SECCIÓN: KPIs GENERALES ───────────────────── */}
       <SectionHeader title="Resumen general" subtitle="Usuarios y actividad de la plataforma" />
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(3,1fr)", lg: "repeat(6,1fr)" },
         gap: 2, mb: 5 }}>
-        <KpiCard label="Usuarios totales"  value={stats?.totalUsers}    icon={PeopleAltOutlinedIcon}      color={C.brand} bgColor={C.brandSurface} borderColor={C.brandMuted} />
+        <KpiCard label="Usuarios reales"  value={stats?.totalUsers}    icon={PeopleAltOutlinedIcon}      color={C.brand} bgColor={C.brandSurface} borderColor={C.brandMuted}
+          info="Excluye las ~1200 cuentas @nuiseed.io generadas para poblar el ranking — no son usuarios reales." />
         <KpiCard label="Nuevos hoy"        value={stats?.newUsersToday} icon={PersonAddAltOutlinedIcon}   color="#3B9E6A" />
         <KpiCard label="Nuevos esta semana" value={stats?.newUsersWeek} icon={PersonAddAltOutlinedIcon}   color="#3B9E6A" />
         <KpiCard label="Análisis hoy"      value={stats?.analysesToday} icon={AnalyticsOutlinedIcon}      color={C.brand} />
@@ -1135,7 +1265,7 @@ const AdminDashboard = () => {
       {/* ── SECCIÓN: TABLA USUARIOS ───────────────────── */}
       <SectionHeader
         title="Usuarios registrados"
-        subtitle={`${filteredUsers.length} usuario${filteredUsers.length !== 1 ? "s" : ""} · click en una fila para ver detalle y pagos`}
+        subtitle={`${filteredUsers.length} usuario${filteredUsers.length !== 1 ? "s" : ""} real${filteredUsers.length !== 1 ? "es" : ""} (sin cuentas @nuiseed.io) · click en una fila para ver detalle y pagos`}
       />
       <Paper elevation={0} sx={{ borderRadius: 5, border: `1px solid ${C.border}`,
         boxShadow: shadow.md, overflow: "hidden", bgcolor: C.surface }}>

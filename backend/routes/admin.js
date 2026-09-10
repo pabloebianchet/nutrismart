@@ -9,11 +9,18 @@ import { authMiddleware } from "../middleware/auth.js";
 import { isAdmin }        from "../middleware/isAdmin.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
+import { getDailyTraffic, getSummary, getTopPages } from "../utils/ga4Analytics.js";
 
 const router = express.Router();
 
 /* ─── helpers ─────────────────────────────────────────────── */
 const n = (arr) => arr?.[0]?.n ?? 0;
+
+// Los 1200 usuarios generados por scripts/seedLeaderboard.js para poblar el
+// ranking usan @nuiseed.io — sin este filtro, todas las métricas de admin
+// (total de usuarios, altas por período, tabla de usuarios) quedan infladas
+// con cuentas ficticias que nunca fueron una persona real.
+const REAL_USER_FILTER = { email: { $not: /@nuiseed\.io$/i } };
 
 /* =====================================================
    📊 GET ADMIN STATS
@@ -28,10 +35,10 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
 
     /* ── Usuarios ───────────────────────────────────── */
     const [totalUsers, newUsersToday, newUsersWeek, newUsersMonth] = await Promise.all([
-      User.countDocuments(),
-      User.countDocuments({ createdAt: { $gte: todayStart } }),
-      User.countDocuments({ createdAt: { $gte: weekStart  } }),
-      User.countDocuments({ createdAt: { $gte: monthStart } }),
+      User.countDocuments(REAL_USER_FILTER),
+      User.countDocuments({ ...REAL_USER_FILTER, createdAt: { $gte: todayStart } }),
+      User.countDocuments({ ...REAL_USER_FILTER, createdAt: { $gte: weekStart  } }),
+      User.countDocuments({ ...REAL_USER_FILTER, createdAt: { $gte: monthStart } }),
     ]);
 
     /* ── Análisis ───────────────────────────────────── */
@@ -115,7 +122,7 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
 
     /* ── Demografía (usuarios con perfil completo) ──── */
     const [demo] = await User.aggregate([
-      { $match: { profileCompleted: true } },
+      { $match: { profileCompleted: true, ...REAL_USER_FILTER } },
       {
         $facet: {
           profileCount: [{ $count: "n" }],
@@ -200,11 +207,66 @@ router.get("/stats", authMiddleware, isAdmin, async (req, res) => {
 });
 
 /* =====================================================
+   📈 GET TRÁFICO (GA4) + USO DE FEATURES (Log)
+   ===================================================== */
+// Ranking de qué funcionalidad se usa más — a partir de eventos que ya se
+// loguean en cada endpoint (no requiere tracking nuevo). Cada entrada suma
+// el volumen de su `action` dentro de su `category` en el período pedido.
+const FEATURE_ACTIONS = [
+  { category: "analysis", action: "analysis.created", label: "Análisis de alimentos" },
+  { category: "training", action: "plan.generated",   label: "Planes de entrenamiento generados" },
+  { category: "training", action: "session.saved",    label: "Sesiones de entrenamiento registradas" },
+  { category: "recipe",   action: "recipe.generated",  label: "Recetas generadas" },
+];
+
+router.get("/analytics", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const startDate = typeof req.query.startDate === "string" ? req.query.startDate : "2026-09-01";
+    const endDate    = typeof req.query.endDate   === "string" ? req.query.endDate   : "today";
+
+    // GA4 es opcional — si no está configurado (GA4_CREDENTIALS_BASE64 /
+    // GA4_PROPERTY_ID), los helpers devuelven vacío/null en vez de tirar.
+    const [traffic, summary, topPages] = await Promise.all([
+      getDailyTraffic(startDate, endDate),
+      getSummary(startDate, endDate),
+      getTopPages(startDate, endDate),
+    ]);
+
+    // Rango de fechas real para la query a Log — "today" de GA4 no sirve acá.
+    const logStart = new Date(`${startDate}T00:00:00.000Z`);
+    const logEnd   = endDate === "today" ? new Date() : new Date(`${endDate}T23:59:59.999Z`);
+
+    const counts = await Promise.all(
+      FEATURE_ACTIONS.map(({ category, action }) =>
+        Log.countDocuments({ category, action, createdAt: { $gte: logStart, $lte: logEnd } })
+      )
+    );
+    const featureUsage = FEATURE_ACTIONS
+      .map(({ label }, i) => ({ label, count: counts[i] }))
+      .sort((a, b) => b.count - a.count);
+
+    return res.json({
+      ga4Configured: !!summary,
+      traffic,
+      summary,
+      topPages,
+      featureUsage,
+    });
+  } catch (err) {
+    console.error("Admin analytics error:", err);
+    return res.status(500).json({ error: "Error fetching analytics" });
+  }
+});
+
+/* =====================================================
    👥 GET ALL USERS (+ subscription data)
    ===================================================== */
 router.get("/users", authMiddleware, isAdmin, async (req, res) => {
   try {
-    const users = await User.find()
+    // ?includeTest=1 para ver también las cuentas @nuiseed.io del seed del
+    // leaderboard (uso excepcional — por default quedan afuera).
+    const filter = req.query.includeTest === "1" ? {} : REAL_USER_FILTER;
+    const users = await User.find(filter)
       .select("_id name email edad altura peso sexo actividad createdAt profileCompleted")
       .sort({ createdAt: -1 })
       .lean();
