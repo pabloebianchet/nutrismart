@@ -65,3 +65,7 @@ services:
         sync: false
       - key: GA_API_SECRET
         sync: false
+      - key: GA4_CREDENTIALS_BASE64
+        sync: false
+      - key: GA4_PROPERTY_ID
+        sync: false
