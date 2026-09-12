@@ -20,7 +20,29 @@ const n = (arr) => arr?.[0]?.n ?? 0;
 // ranking usan @nuiseed.io — sin este filtro, todas las métricas de admin
 // (total de usuarios, altas por período, tabla de usuarios) quedan infladas
 // con cuentas ficticias que nunca fueron una persona real.
-const REAL_USER_FILTER = { email: { $not: /@nuiseed\.io$/i } };
+//
+// Además: cuentas personales/de prueba del propio equipo (usadas para
+// testear login con Google, magic link, etc. durante el desarrollo) — no
+// son usuarios reales de la app y no deben contarse como altas.
+const EXCLUDED_TEST_EMAILS = [
+  "abogadobianchet@gmail.com",
+  "yagoconsultas@gmail.com",
+  "racconitweb@gmail.com",
+  "raccoonitweb@gmail.com",
+  "damianmleguiza@gmail.com",
+  "shopkompralo@gmail.com",
+  "horaciogreenberg@gmail.com",
+  "tiendalukhome@gmail.com",
+  "pabloebianchet@gmail.com",
+  "enriqueantoniobianchet@gmail.com",
+  "espadaespadagoya@gmail.com",
+  "jessicaruize97@gmail.com",
+  "jessicaruizz1997@gmail.com",
+];
+
+const REAL_USER_FILTER = {
+  email: { $not: /@nuiseed\.io$/i, $nin: EXCLUDED_TEST_EMAILS },
+};
 
 /* =====================================================
    📊 GET ADMIN STATS
