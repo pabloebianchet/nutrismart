@@ -37,7 +37,6 @@ import ShoppingListDrawer, { ShoppingFab } from "../components/ShoppingListDrawe
 import { parseIngredient, mergeIngredients, loadList, saveList, fetchListFromServer, syncListToServer } from "../utils/shoppingList";
 import useRealtimeSync           from "../hooks/useRealtimeSync";
 import { getSocket, getSocketId } from "../config/socket";
-import { cldResize } from "../utils/cloudinaryUrl";
 
 // ─── config ─────────────────────────────────────────────────────────────────
 
@@ -111,97 +110,75 @@ const StepLabel = ({ n, label }) => (
   </Stack>
 );
 
-// Muestrario fijo de platos generados una sola vez y subidos a Cloudinary
-// (las recetas reales se generan on-demand y se guardan en base64 en la
-// base, no sirven como fuente estable para este carrusel) — solo para el
-// loader, no depende de la receta que se está generando.
-const LOADER_RECIPES = [
-  { es: "Bowl de proteína con pollo y vegetales", en: "Protein bowl with chicken and veggies", img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870313/recipes-loader/bowl_proteina.png" },
-  { es: "Tostadas de palta",                      en: "Avocado toast",                          img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870343/recipes-loader/tostadas_palta.png" },
-  { es: "Batido verde detox",                     en: "Green detox smoothie",                   img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870373/recipes-loader/batido_verde.png" },
-  { es: "Ensalada mediterránea",                  en: "Mediterranean salad",                    img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870400/recipes-loader/ensalada_mediterranea.png" },
-  { es: "Salmón grillado con vegetales",          en: "Grilled salmon with vegetables",          img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870425/recipes-loader/salmon_grillado.png" },
-  { es: "Wrap integral saludable",                en: "Healthy whole wheat wrap",                img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788870454/recipes-loader/wrap_integral.png" },
-];
-
-const recipeCardVariants = {
-  enter:  { opacity: 0, y: 28, scale: 0.94 },
-  center: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-  exit:   { opacity: 0, y: -28, scale: 0.94, transition: { duration: 0.35, ease: "easeIn" } },
+// Shimmer — barrido de brillo horizontal sobre los placeholders, estilo
+// skeleton loader (LinkedIn/Notion). Reemplaza el carrusel de fotos: al
+// usuario no le convencía ninguna variante con imágenes.
+const shimmerSx = {
+  backgroundImage: "linear-gradient(90deg, #DCEEEC 25%, #F2FAF9 37%, #DCEEEC 63%)",
+  backgroundSize: "400% 100%",
+  animation: "shimmerMove 1.6s ease-in-out infinite",
+  "@keyframes shimmerMove": {
+    "0%":   { backgroundPosition: "100% 50%" },
+    "100%": { backgroundPosition: "0% 50%" },
+  },
 };
 
-const RecipeLoader = ({ message, isUS }) => {
-  const [idx, setIdx] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setIdx((p) => (p + 1) % LOADER_RECIPES.length), 2200);
-    return () => clearInterval(id);
-  }, []);
-  const current = LOADER_RECIPES[idx];
-  const next    = LOADER_RECIPES[(idx + 1) % LOADER_RECIPES.length];
-  return (
-    <Box sx={{ textAlign: "center", py: { xs: 3, sm: 4 }, position: "relative" }}>
-      {/* Blob decorativo detrás de la card — sin esto el fondo queda plano */}
-      <Box sx={{
-        position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
-        width: 360, height: 360, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(11,94,85,0.14) 0%, transparent 70%)",
-        pointerEvents: "none", zIndex: 0,
-      }} />
+// Mensajes de "etapa" que van rotando debajo del título principal — dan
+// sensación de progreso real sin necesidad de un porcentaje inventado.
+const RECIPE_STAGES = {
+  es: ["Pensando ideas…", "Calculando macros…", "Eligiendo ingredientes…", "Armando la receta…"],
+  en: ["Coming up with ideas…", "Calculating macros…", "Picking ingredients…", "Putting the recipe together…"],
+};
 
-      <Box sx={{ position: "relative", width: { xs: 230, sm: 270 }, height: { xs: 290, sm: 340 }, mx: "auto", mb: 3.5, zIndex: 1 }}>
-        {/* Card siguiente, asomando atrás — da profundidad de "mazo de cartas" */}
-        <Box sx={{
-          position: "absolute", inset: 0, borderRadius: 5, overflow: "hidden",
-          transform: "scale(0.90) translateY(16px)",
-          boxShadow: "0 10px 28px rgba(11,94,85,0.14)",
-          opacity: 0.55,
-        }}>
-          <Box component="img" src={cldResize(next.img, 500)}
-            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        </Box>
-
-        <AnimatePresence mode="wait">
-          <motion.div key={idx} variants={recipeCardVariants} initial="enter" animate="center" exit="exit"
-            style={{ position: "absolute", inset: 0 }}>
-            <Box sx={{
-              width: "100%", height: "100%", borderRadius: 5, overflow: "hidden",
-              boxShadow: "0 26px 60px rgba(11,94,85,0.32), 0 6px 16px rgba(11,94,85,0.16)",
-              border: "3px solid #fff", position: "relative", bgcolor: "#E6F5F3",
-            }}>
-              <Box component="img" src={cldResize(current.img, 650)}
-                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              {/* Realce sutil arriba, para que la card no se vea plana */}
-              <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%",
-                background: "linear-gradient(to bottom, rgba(255,255,255,0.14), transparent)", pointerEvents: "none" }} />
-              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, top: "48%",
-                background: "linear-gradient(to top, rgba(5,48,43,0.94) 0%, rgba(5,48,43,0.45) 55%, transparent 100%)" }} />
-              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2.4, py: 2.2, textAlign: "left" }}>
-                <Typography sx={{
-                  fontSize: { xs: 17, sm: 19 }, fontWeight: 900,
-                  fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
-                  color: "#fff", lineHeight: 1.2, letterSpacing: "-0.3px",
-                  textShadow: "0 2px 10px rgba(0,0,0,0.28)",
-                }}>
-                  {isUS ? current.en : current.es}
-                </Typography>
-              </Box>
-            </Box>
-          </motion.div>
-        </AnimatePresence>
-      </Box>
-
-      <Typography sx={{ fontSize: 15.5, fontWeight: 700, color: "#0F2420", mb: 1.2, position: "relative", zIndex: 1 }}>
-        {message}
-      </Typography>
-      <Stack direction="row" spacing={0.8} justifyContent="center" position="relative" zIndex={1}>
-        {LOADER_RECIPES.map((_, i) => (
-          <Box key={i} sx={{
-            width: i === idx ? 20 : 6, height: 6, borderRadius: 999,
-            bgcolor: i === idx ? "#0B5E55" : "rgba(11,94,85,0.20)",
-            transition: "all 0.45s cubic-bezier(0.22,1,0.36,1)",
-          }} />
+// Una "fila" de skeleton que imita la forma de una card de receta: foto,
+// título, tags y un par de líneas de ingredientes.
+const SkeletonRecipeCard = () => (
+  <Box sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", overflow: "hidden", bgcolor: "#fff" }}>
+    <Box sx={{ height: 96, ...shimmerSx }} />
+    <Box sx={{ p: 2.2 }}>
+      <Box sx={{ height: 13, width: "62%", borderRadius: 999, mb: 1, ...shimmerSx }} />
+      <Stack direction="row" spacing={0.8} mb={1.5}>
+        <Box sx={{ height: 18, width: 64, borderRadius: 999, ...shimmerSx }} />
+        <Box sx={{ height: 18, width: 48, borderRadius: 999, ...shimmerSx }} />
+      </Stack>
+      <Stack spacing={1}>
+        {[0, 1].map((i) => (
+          <Box key={i} sx={{ height: 9, width: `${60 - i * 15}%`, borderRadius: 999, ...shimmerSx }} />
         ))}
       </Stack>
+    </Box>
+  </Box>
+);
+
+const RecipeLoader = ({ message, isUS }) => {
+  const stages = isUS ? RECIPE_STAGES.en : RECIPE_STAGES.es;
+  const [stageIdx, setStageIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setStageIdx((p) => (p + 1) % stages.length), 1800);
+    return () => clearInterval(id);
+  }, [stages.length]);
+
+  return (
+    <Box sx={{ py: { xs: 3, sm: 4 } }}>
+      <Stack alignItems="center" spacing={0.6} mb={3.5}>
+        <Typography sx={{ fontSize: 15.5, fontWeight: 800, color: "#0F2420", textAlign: "center" }}>
+          {message}
+        </Typography>
+        <AnimatePresence mode="wait">
+          <motion.div key={stageIdx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}>
+            <Typography sx={{ fontSize: 13, color: "#4A6B67", fontWeight: 600, textAlign: "center" }}>
+              {stages[stageIdx]}
+            </Typography>
+          </motion.div>
+        </AnimatePresence>
+      </Stack>
+
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+        <SkeletonRecipeCard />
+        <SkeletonRecipeCard />
+      </Box>
     </Box>
   );
 };

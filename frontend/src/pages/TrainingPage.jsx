@@ -147,100 +147,76 @@ const StepDot = ({ n, label }) => (
   </Stack>
 );
 
-// Muestrario fijo de ejercicios ya cargados en el catálogo (con imagen ES/EN
-// real) — solo para el carrusel del loader, no depende del plan que se está
-// generando. Variedad a propósito: empuje, tracción, pierna, core, skill.
-const LOADER_EXERCISES = [
-  { es: "Flexiones de brazos",  en: "Push-ups",              img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780778283/exercises/exercises/flexiones_de_brazos.png",           imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788357062/exercises_en/exercises_en/pushups.png" },
-  { es: "Dominadas pronas",     en: "Pull-ups",               img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780788406/exercises/exercises/dominadas_pronas.png",              imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788359663/exercises_en/exercises_en/pullups_overhand_grip.png" },
-  { es: "Sentadilla libre",     en: "Bodyweight squat",       img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780782864/exercises/exercises/sentadilla_libre.png",              imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788360052/exercises_en/exercises_en/bodyweight_squat.png" },
-  { es: "Fondos en paralelas",  en: "Parallel bar dips",      img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780782518/exercises/exercises/fondos_en_paralelas.png",           imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788359832/exercises_en/exercises_en/dips_on_parallel_bars.png" },
-  { es: "Plancha frontal",      en: "Plank",                  img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780776984/exercises/exercises/plancha_frontal.png",               imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788356165/exercises_en/exercises_en/plank.png" },
-  { es: "Press banca con barra",en: "Barbell bench press",    img: "https://res.cloudinary.com/dtougldc7/image/upload/v1780775820/exercises/exercises/press_banca_con_barra.png",         imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788354160/exercises_en/exercises_en/barbell_bench_press.png" },
-  { es: "Front lever",          en: "Front lever",            img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788866715/exercises/exercises/front_lever_palanca_frontal.png",   imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788867218/exercises_en/exercises_en/front_lever.png" },
-  { es: "Handstand libre",      en: "Freestanding handstand", img: "https://res.cloudinary.com/dtougldc7/image/upload/v1788866782/exercises/exercises/handstand_libre_pino_sin_apoyo.png",imgEn: "https://res.cloudinary.com/dtougldc7/image/upload/v1788867325/exercises_en/exercises_en/freestanding_handstand.png" },
-];
-
-const cardVariants = {
-  enter:  { opacity: 0, y: 28, scale: 0.94 },
-  center: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-  exit:   { opacity: 0, y: -28, scale: 0.94, transition: { duration: 0.35, ease: "easeIn" } },
+// Shimmer — barrido de brillo horizontal sobre los placeholders, estilo
+// skeleton loader (LinkedIn/Notion). Reemplaza el carrusel de fotos: al
+// usuario no le convencía ninguna variante con imágenes.
+const shimmerSx = {
+  backgroundImage: "linear-gradient(90deg, #DCEEEC 25%, #F2FAF9 37%, #DCEEEC 63%)",
+  backgroundSize: "400% 100%",
+  animation: "shimmerMove 1.6s ease-in-out infinite",
+  "@keyframes shimmerMove": {
+    "0%":   { backgroundPosition: "100% 50%" },
+    "100%": { backgroundPosition: "0% 50%" },
+  },
 };
 
+// Mensajes de "etapa" que van rotando debajo del título principal — dan
+// sensación de progreso real sin necesidad de un porcentaje inventado.
+const PLAN_STAGES = {
+  es: ["Analizando tu perfil…", "Eligiendo los ejercicios…", "Armando la semana…", "Ajustando series y descansos…"],
+  en: ["Analyzing your profile…", "Picking the exercises…", "Building the week…", "Fine-tuning sets and rest…"],
+};
+
+// Una "fila" de skeleton que imita la forma de un día de plan: header con
+// ícono + título, y unas líneas más abajo simulando ejercicios.
+const SkeletonDayCard = () => (
+  <Box sx={{ borderRadius: 4, border: "1px solid rgba(11,94,85,0.10)", p: 2.2, bgcolor: "#fff" }}>
+    <Stack direction="row" spacing={1.5} alignItems="center" mb={1.8}>
+      <Box sx={{ width: 38, height: 38, borderRadius: 2.5, flexShrink: 0, ...shimmerSx }} />
+      <Box sx={{ flex: 1 }}>
+        <Box sx={{ height: 12, width: "55%", borderRadius: 999, mb: 0.8, ...shimmerSx }} />
+        <Box sx={{ height: 9, width: "35%", borderRadius: 999, ...shimmerSx }} />
+      </Box>
+    </Stack>
+    <Stack spacing={1.1}>
+      {[0, 1, 2].map((i) => (
+        <Stack key={i} direction="row" spacing={1.2} alignItems="center">
+          <Box sx={{ width: 22, height: 22, borderRadius: 1.5, flexShrink: 0, ...shimmerSx }} />
+          <Box sx={{ height: 9, width: `${68 - i * 12}%`, borderRadius: 999, ...shimmerSx }} />
+        </Stack>
+      ))}
+    </Stack>
+  </Box>
+);
+
 const PlanLoader = ({ message, isUS }) => {
-  const [idx, setIdx] = useState(0);
+  const stages = isUS ? PLAN_STAGES.en : PLAN_STAGES.es;
+  const [stageIdx, setStageIdx] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setIdx((p) => (p + 1) % LOADER_EXERCISES.length), 2200);
+    const id = setInterval(() => setStageIdx((p) => (p + 1) % stages.length), 1800);
     return () => clearInterval(id);
-  }, []);
-
-  const current = LOADER_EXERCISES[idx];
-  const next    = LOADER_EXERCISES[(idx + 1) % LOADER_EXERCISES.length];
+  }, [stages.length]);
 
   return (
-    <Box sx={{ textAlign: "center", py: { xs: 3, sm: 4 }, position: "relative" }}>
-      {/* Blob decorativo detrás de la card — sin esto el fondo queda plano */}
-      <Box sx={{
-        position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
-        width: 360, height: 360, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(11,94,85,0.14) 0%, transparent 70%)",
-        pointerEvents: "none", zIndex: 0,
-      }} />
-
-      <Box sx={{ position: "relative", width: { xs: 230, sm: 270 }, height: { xs: 290, sm: 340 }, mx: "auto", mb: 3.5, zIndex: 1 }}>
-        {/* Card siguiente, asomando atrás — da profundidad de "mazo de cartas" */}
-        <Box sx={{
-          position: "absolute", inset: 0, borderRadius: 5, overflow: "hidden",
-          transform: "scale(0.90) translateY(16px)",
-          boxShadow: "0 10px 28px rgba(11,94,85,0.14)",
-          opacity: 0.55,
-        }}>
-          <Box component="img" src={cldResize(isUS ? next.imgEn : next.img, 500)}
-            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        </Box>
-
+    <Box sx={{ py: { xs: 3, sm: 4 } }}>
+      <Stack alignItems="center" spacing={0.6} mb={3.5}>
+        <Typography sx={{ fontSize: 15.5, fontWeight: 800, color: "#0F2420", textAlign: "center" }}>
+          {message}
+        </Typography>
         <AnimatePresence mode="wait">
-          <motion.div key={idx} variants={cardVariants} initial="enter" animate="center" exit="exit"
-            style={{ position: "absolute", inset: 0 }}>
-            <Box sx={{
-              width: "100%", height: "100%", borderRadius: 5, overflow: "hidden",
-              boxShadow: "0 26px 60px rgba(11,94,85,0.32), 0 6px 16px rgba(11,94,85,0.16)",
-              border: "3px solid #fff", position: "relative", bgcolor: "#E6F5F3",
-            }}>
-              <Box component="img" src={cldResize(isUS ? current.imgEn : current.img, 650)}
-                sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              {/* Realce sutil arriba, para que la card no se vea plana */}
-              <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%",
-                background: "linear-gradient(to bottom, rgba(255,255,255,0.14), transparent)", pointerEvents: "none" }} />
-              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, top: "48%",
-                background: "linear-gradient(to top, rgba(5,48,43,0.94) 0%, rgba(5,48,43,0.45) 55%, transparent 100%)" }} />
-              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2.4, py: 2.2, textAlign: "left" }}>
-                <Typography sx={{
-                  fontSize: { xs: 17, sm: 19 }, fontWeight: 900,
-                  fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
-                  color: "#fff", lineHeight: 1.2, letterSpacing: "-0.3px",
-                  textShadow: "0 2px 10px rgba(0,0,0,0.28)",
-                }}>
-                  {isUS ? current.en : current.es}
-                </Typography>
-              </Box>
-            </Box>
+          <motion.div key={stageIdx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}>
+            <Typography sx={{ fontSize: 13, color: "#4A6B67", fontWeight: 600, textAlign: "center" }}>
+              {stages[stageIdx]}
+            </Typography>
           </motion.div>
         </AnimatePresence>
-      </Box>
+      </Stack>
 
-      <Typography sx={{ fontSize: 15.5, fontWeight: 700, color: "#0F2420", mb: 1.2, position: "relative", zIndex: 1 }}>
-        {message}
-      </Typography>
-      <Stack direction="row" spacing={0.8} justifyContent="center" position="relative" zIndex={1}>
-        {LOADER_EXERCISES.map((_, i) => (
-          <Box key={i} sx={{
-            width: i === idx ? 20 : 6, height: 6, borderRadius: 999,
-            bgcolor: i === idx ? "#0B5E55" : "rgba(11,94,85,0.20)",
-            transition: "all 0.45s cubic-bezier(0.22,1,0.36,1)",
-          }} />
-        ))}
+      <Stack spacing={2}>
+        <SkeletonDayCard />
+        <SkeletonDayCard />
       </Stack>
     </Box>
   );
