@@ -57,6 +57,16 @@ export const registerBiometric = async (lang = "es") => {
       attResp = await startRegistration({ optionsJSON: options });
     } catch (e) {
       if (e.name === "NotAllowedError") return { ok: false, error: "cancelled" };
+      // El dispositivo ya tiene una credencial registrada para esta cuenta
+      // (el navegador la reconoce vía excludeCredentials) — no es un error
+      // real, es que el flag local se perdió (datos del sitio borrados, otro
+      // navegador/perfil, etc) mientras el server seguía con la credencial
+      // vieja. Sincronizamos el flag en vez de mostrar el error crudo del
+      // navegador ("The authenticator was previously registered").
+      if (e.name === "InvalidStateError") {
+        localStorage.setItem(REGISTERED_FLAG, "1");
+        return { ok: true, alreadyRegistered: true };
+      }
       throw e;
     }
 
