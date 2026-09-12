@@ -59,7 +59,7 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
   return (
     <Box sx={{
       minHeight: "100dvh",
-      bgcolor: "#0B1F1C",
+      background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -70,8 +70,8 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
       {/* Logo / ícono */}
       <Box sx={{
         width: 80, height: 80, borderRadius: "50%",
-        bgcolor: "rgba(11,94,85,0.25)",
-        border: "2px solid rgba(11,94,85,0.5)",
+        bgcolor: "#E6F5F3",
+        border: "1.5px solid rgba(11,94,85,0.20)",
         display: "flex", alignItems: "center", justifyContent: "center",
         mb: 3,
       }}>
@@ -79,10 +79,10 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
       </Box>
 
       {/* Saludo */}
-      <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", mb: 0.5, textAlign: "center" }}>
+      <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", mb: 0.5, textAlign: "center" }}>
         {isUS ? "Welcome back" : "Bienvenido de nuevo"}{userName ? `, ${userName.split(" ")[0]}` : ""}
       </Typography>
-      <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.5)", mb: 5, textAlign: "center" }}>
+      <Typography sx={{ fontSize: 14, color: "#4A6B67", mb: 5, textAlign: "center" }}>
         {isUS ? "Verify your identity to continue" : "Verificá tu identidad para continuar"}
       </Typography>
 
@@ -93,12 +93,13 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
         sx={{
           width: 120, height: 120,
           borderRadius: "50%",
-          bgcolor: success ? "rgba(46,204,113,0.18)" : loading ? "rgba(11,94,85,0.3)" : "rgba(11,94,85,0.2)",
-          border: `2px solid ${success ? "#2ECC71" : loading ? "rgba(11,94,85,0.4)" : "#0B5E55"}`,
+          bgcolor: success ? "rgba(46,204,113,0.12)" : loading ? "rgba(11,94,85,0.10)" : "#E6F5F3",
+          border: `2px solid ${success ? "#2ECC71" : loading ? "rgba(11,94,85,0.25)" : "#0B5E55"}`,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           gap: 0.5,
           transition: "all 0.2s",
-          "&:hover": { bgcolor: "rgba(11,94,85,0.35)", transform: "scale(1.05)" },
+          boxShadow: "0 8px 24px rgba(11,94,85,0.12)",
+          "&:hover": { bgcolor: "rgba(11,94,85,0.14)", transform: "scale(1.05)" },
           "&:active": { transform: "scale(0.97)" },
           mb: 3,
         }}
@@ -125,8 +126,8 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
       {/* Fallback */}
       <Button
         onClick={handleFallback}
-        sx={{ textTransform: "none", color: "rgba(255,255,255,0.4)", fontSize: 13,
-          "&:hover": { color: "rgba(255,255,255,0.7)" } }}
+        sx={{ textTransform: "none", color: "#8AADAA", fontSize: 13,
+          "&:hover": { color: "#4A6B67", bgcolor: "transparent" } }}
       >
         {isUS ? "Use another account" : "Usar otra cuenta"}
       </Button>

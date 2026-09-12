@@ -256,76 +256,48 @@ const UserDataPage = () => {
     return (
       <Box sx={{
         minHeight: "100dvh",
-        background: "linear-gradient(150deg, #071e1b 0%, #0B5E55 60%, #0d5449 100%)",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        position: "relative", overflow: "hidden", px: 3,
+        background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)",
+        display: "flex", alignItems: "center", justifyContent: "center", px: 3, py: 4,
         "@keyframes pulseRing": {
-          "0%":   { transform: "scale(1)",   opacity: 0.55 },
+          "0%":   { transform: "scale(1)",   opacity: 0.5 },
           "70%":  { transform: "scale(1.55)", opacity: 0 },
           "100%": { transform: "scale(1.55)", opacity: 0 },
         },
-        "@keyframes floatIn": {
-          from: { opacity: 0, transform: "translateY(14px)" },
-          to:   { opacity: 1, transform: "translateY(0)" },
-        },
-        "@keyframes blobDrift1": {
-          "0%,100%": { transform: "translate(0,0) scale(1)" },
-          "50%":     { transform: "translate(-40px,25px) scale(1.08)" },
-        },
-        "@keyframes blobDrift2": {
-          "0%,100%": { transform: "translate(0,0) scale(1)" },
-          "50%":     { transform: "translate(30px,-35px) scale(0.94)" },
-        },
       }}>
-        {/* Orbs decorativos */}
-        <Box sx={{ position: "absolute", top: "-18%", left: "-12%", width: 420, height: 420, borderRadius: "50%",
-          background: "radial-gradient(circle at 35% 40%, rgba(20,200,170,0.16) 0%, transparent 65%)",
-          filter: "blur(32px)", animation: "blobDrift1 9s ease-in-out infinite", pointerEvents: "none" }} />
-        <Box sx={{ position: "absolute", bottom: "-20%", right: "-14%", width: 480, height: 480, borderRadius: "50%",
-          background: "radial-gradient(circle at 60% 55%, rgba(11,160,135,0.18) 0%, transparent 65%)",
-          filter: "blur(40px)", animation: "blobDrift2 11s ease-in-out infinite", pointerEvents: "none" }} />
-
-        <Box sx={{
-          position: "relative", zIndex: 1, width: "100%", maxWidth: 380,
-          bgcolor: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          backdropFilter: "blur(20px)",
-          borderRadius: 5,
+        <Paper elevation={0} sx={{
+          width: "100%", maxWidth: 380, borderRadius: 5,
+          border: "1px solid rgba(11,94,85,0.10)",
+          boxShadow: "0 12px 32px rgba(11,94,85,0.11), 0 4px 8px rgba(11,94,85,0.06)",
           px: { xs: 3, sm: 4.5 }, py: { xs: 4.5, sm: 5.5 },
           display: "flex", flexDirection: "column", alignItems: "center",
-          animation: "floatIn 0.5s ease both",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
         }}>
           {/* Icono con anillo pulsante */}
-          <Box sx={{ position: "relative", width: 88, height: 88, mb: 3.5,
+          <Box sx={{ position: "relative", width: 84, height: 84, mb: 3,
             display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Box sx={{ position: "absolute", inset: 0, borderRadius: "50%",
-              border: "2px solid #2ECC71", animation: "pulseRing 2.4s ease-out infinite" }} />
-            <Box sx={{ position: "absolute", inset: 0, borderRadius: "50%",
-              border: "2px solid #2ECC71", animation: "pulseRing 2.4s ease-out 0.6s infinite" }} />
+              border: "2px solid rgba(11,94,85,0.35)", animation: "pulseRing 2.4s ease-out infinite" }} />
             <Box sx={{
-              width: 72, height: 72, borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(46,204,113,0.22), rgba(11,94,85,0.35))",
-              border: "1.5px solid rgba(46,204,113,0.5)",
+              width: 68, height: 68, borderRadius: "50%",
+              bgcolor: "#E6F5F3", border: "1.5px solid rgba(11,94,85,0.20)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <FingerprintRoundedIcon sx={{ fontSize: 38, color: "#4ADE9A" }} />
+              <FingerprintRoundedIcon sx={{ fontSize: 36, color: "#0B5E55" }} />
             </Box>
           </Box>
 
-          <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#fff", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
+          <Typography sx={{ fontSize: 22, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", mb: 1, textAlign: "center", letterSpacing: "-0.01em" }}>
             {isUS ? "Sign in faster" : "Ingresá más rápido"}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.55)", mb: 3, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>
+          <Typography sx={{ fontSize: 14, color: "#4A6B67", mb: 3, textAlign: "center", lineHeight: 1.65, maxWidth: 300 }}>
             {isUS ? "Activate Face ID or fingerprint to log into Nui without typing your password every time." : "Activá Face ID o huella para entrar a Nui sin escribir tu contraseña cada vez."}
           </Typography>
 
           {/* Aviso: el sistema muestra su propio cartel ("llave de acceso") */}
           <Box sx={{ display: "flex", gap: 1.25, alignItems: "flex-start",
-            bgcolor: "rgba(74,222,154,0.08)", border: "1px solid rgba(74,222,154,0.18)",
+            bgcolor: "#E6F5F3", border: "1px solid rgba(11,94,85,0.15)",
             borderRadius: 3, px: 2, py: 1.4, mb: 3.5 }}>
-            <InfoRoundedIcon sx={{ fontSize: 18, color: "#4ADE9A", mt: "1px", flexShrink: 0 }} />
-            <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.55 }}>
+            <InfoRoundedIcon sx={{ fontSize: 18, color: "#0B5E55", mt: "1px", flexShrink: 0 }} />
+            <Typography sx={{ fontSize: 12.5, color: "#4A6B67", lineHeight: 1.55 }}>
               {isUS
                 ? <>Your phone may show its own prompt to <b>"add a passkey"</b> — it's the same step, just confirm and scan your fingerprint or face.</>
                 : <>Tu celular puede mostrar un cartel para <b>"agregar llave de acceso"</b> — es el mismo paso, solo confirmá y escaneá tu huella o cara.</>}
@@ -345,13 +317,13 @@ const UserDataPage = () => {
                 ]
             ).map(({ Icon, text }, i) => (
               <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1.5,
-                bgcolor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                bgcolor: "#F7F9F8", border: "1px solid rgba(11,94,85,0.08)",
                 borderRadius: 3, px: 2, py: 1.4 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-                  bgcolor: "rgba(46,204,113,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon sx={{ fontSize: 17, color: "#4ADE9A" }} />
+                  bgcolor: "#E6F5F3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon sx={{ fontSize: 17, color: "#0B5E55" }} />
                 </Box>
-                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 500, lineHeight: 1.4 }}>
+                <Typography sx={{ fontSize: 13, color: "#4A6B67", fontWeight: 500, lineHeight: 1.4 }}>
                   {text}
                 </Typography>
               </Box>
@@ -362,27 +334,27 @@ const UserDataPage = () => {
             startIcon={!biometricLoading && <FingerprintRoundedIcon sx={{ fontSize: 20 }} />}
             sx={{
               borderRadius: 3, py: 1.6, fontWeight: 800, fontSize: 15, textTransform: "none",
-              color: "#06231F",
-              background: "linear-gradient(135deg, #4ADE9A 0%, #2ECC71 100%)",
-              "&:hover": { background: "linear-gradient(135deg, #5CEAA8 0%, #36DB80 100%)" },
-              "&.Mui-disabled": { color: "rgba(6,35,31,0.5)", background: "rgba(74,222,154,0.4)" },
-              mb: 1.5, boxShadow: "0 8px 24px rgba(46,204,113,0.25)",
+              color: "#fff",
+              background: "linear-gradient(135deg, #0B5E55 0%, #0f7a6e 100%)",
+              "&:hover": { background: "linear-gradient(135deg, #0d6c61 0%, #128a7c 100%)" },
+              "&.Mui-disabled": { color: "rgba(255,255,255,0.6)", background: "rgba(11,94,85,0.4)" },
+              mb: 1.5, boxShadow: "0 8px 24px rgba(11,94,85,0.25)",
             }}>
             {biometricLoading ? (isUS ? "Activating..." : "Activando...") : (isUS ? "Activate Face ID / fingerprint" : "Activar Face ID / huella")}
           </Button>
 
           {biometricError && (
-            <Typography sx={{ fontSize: 12.5, color: "#FF8A80", mb: 1.5, textAlign: "center" }}>
+            <Typography sx={{ fontSize: 12.5, color: "#E24B4A", mb: 1.5, textAlign: "center" }}>
               {biometricError}
             </Typography>
           )}
 
           <Button onClick={handleSkipBiometric} fullWidth
             sx={{ borderRadius: 3, py: 1.2, fontWeight: 600, fontSize: 14, textTransform: "none",
-              color: "rgba(255,255,255,0.45)", "&:hover": { color: "rgba(255,255,255,0.7)", bgcolor: "transparent" } }}>
+              color: "#8AADAA", "&:hover": { color: "#4A6B67", bgcolor: "transparent" } }}>
             {isUS ? "Not now" : "Ahora no"}
           </Button>
-        </Box>
+        </Paper>
       </Box>
     );
   }
