@@ -58,7 +58,13 @@ const BiometricGate = ({ onUnlock, onFallback, userName }) => {
 
   return (
     <Box sx={{
-      minHeight: "100dvh",
+      // position:fixed + inset:0 en vez de minHeight:100dvh — en mobile el
+      // 100dvh a veces no llega a cubrir el todo el viewport visual (barra
+      // de navegación del navegador, safe-area del home indicator) y se ve
+      // un resto del fondo gris de <body> asomando abajo. fixed+inset
+      // cubre exacto, mismo patrón que los demás overlays full-screen de
+      // la app (ver InAppBrowserGate.jsx).
+      position: "fixed", inset: 0, zIndex: 2000, overflowY: "auto",
       background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)",
       display: "flex",
       flexDirection: "column",

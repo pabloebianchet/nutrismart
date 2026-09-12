@@ -9,6 +9,7 @@ import WaterDropRoundedIcon           from "@mui/icons-material/WaterDropRounded
 import { useNavigate }  from "react-router-dom";
 import { useNutrition } from "../context/NutritionContext";
 import { API_URL }      from "../config/api";
+import RpmGauge          from "./RpmGauge.jsx";
 
 const C = {
   brand: "#0B5E55", brandLight: "#0f7a6e", brandSurface: "#E6F5F3",
@@ -26,9 +27,6 @@ const ACTIVITY_FACTOR = {
 };
 
 const GOAL_ADJ = { bajar_peso: -500, mantener: 0, ganar_musculo: 300 };
-
-// Barritas del tacómetro de calorías consumidas vs objetivo diario.
-const ENERGY_RPM_SEGMENTS = Array.from({ length: 16 });
 
 const calcBMR = (ud) => {
   if (!ud?.peso || !ud?.altura || !ud?.edad) return null;
@@ -193,24 +191,9 @@ const EnergyWidget = () => {
               </Box>
             </Stack>
 
-            {/* Tacómetro — mismas barritas verde→rojo que la card de
-                entrenamiento del dashboard, en versión compacta. */}
-            <Stack direction="row" spacing={0.35} alignItems="flex-end" sx={{ height: 18, mb: 1.5 }}>
-              {ENERGY_RPM_SEGMENTS.map((_, i) => {
-                const lit = i < Math.round((pct / 100) * ENERGY_RPM_SEGMENTS.length);
-                const h = 8 + (10 * i) / (ENERGY_RPM_SEGMENTS.length - 1);
-                const hue = 142 - (142 * i) / (ENERGY_RPM_SEGMENTS.length - 1);
-                const color = `hsl(${hue}, 82%, 45%)`;
-                return (
-                  <Box key={i} sx={{
-                    flex: 1, height: h, borderRadius: "2px 2px 1px 1px",
-                    bgcolor: lit ? color : "rgba(0,0,0,0.06)",
-                    boxShadow: lit ? `0 0 5px 0 ${color}99` : "none",
-                    transition: "background-color 0.5s ease, box-shadow 0.5s ease",
-                  }} />
-                );
-              })}
-            </Stack>
+            <Box mb={1.5}>
+              <RpmGauge pct={pct} segments={16} height={18} minHeight={8} spacing={0.35} />
+            </Box>
 
             {/* Fila de datos */}
             <Stack direction="row" justifyContent="space-between">

@@ -255,7 +255,11 @@ const UserDataPage = () => {
   if (showBiometricAsk) {
     return (
       <Box sx={{
-        minHeight: "100dvh",
+        // position:fixed + inset:0 en vez de minHeight:100dvh — en mobile el
+        // 100dvh a veces no cubre todo el viewport visual y queda un resto
+        // del fondo gris de <body> asomando abajo. Mismo fix que en
+        // BiometricGate.jsx.
+        position: "fixed", inset: 0, zIndex: 2000, overflowY: "auto",
         background: "linear-gradient(160deg, #edf8f5 0%, #fff 55%, #f4f9f7 100%)",
         display: "flex", alignItems: "center", justifyContent: "center", px: 3, py: 4,
         "@keyframes pulseRing": {

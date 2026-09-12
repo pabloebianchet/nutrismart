@@ -14,6 +14,7 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { useNutrition } from "../context/NutritionContext";
 import { cldResize } from "../utils/cloudinaryUrl.js";
+import RpmGauge from "./RpmGauge.jsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PeanutMascot, { getMood, MOOD_META } from "./PeanutMascot";
@@ -480,26 +481,31 @@ const HistoryList = ({ history, onDelete, formatDateTime }) => {
 const CrossModuleNudge = ({ historyCount, loading }) => {
   const { isUS } = useNutrition();
   const navigate = useNavigate();
-  const [totalSessions, setTotalSessions] = useState(null); // null = todavía cargando
+  const [hasPlan,       setHasPlan]       = useState(null); // null = todavía cargando
+  const [totalSessions, setTotalSessions] = useState(0);
   const token = localStorage.getItem("nutrismartToken");
 
   useEffect(() => {
-    if (!token) { setTotalSessions(0); return; }
+    if (!token) { setHasPlan(false); return; }
     fetch(`${API_URL}/api/training/plans`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.ok ? r.json() : { main: null, quick: null })
       .then(data => {
-        const total = (data.main?.sessions?.length || 0) + (data.quick?.sessions?.length || 0);
-        setTotalSessions(total);
+        setHasPlan(!!(data.main?.plan || data.quick?.plan));
+        setTotalSessions((data.main?.sessions?.length || 0) + (data.quick?.sessions?.length || 0));
       })
-      .catch(() => setTotalSessions(0));
+      .catch(() => setHasPlan(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading || totalSessions === null) return null;
+  if (loading || hasPlan === null) return null;
 
-  // Analiza comida pero nunca entrenó → sugerir entrenamiento
-  if (historyCount > 2 && totalSessions === 0) {
+  // Analiza comida pero nunca creó un plan de entrenamiento → sugerir
+  // entrenamiento. Antes chequeaba solo "0 sesiones registradas", lo que
+  // mostraba esta card incluso con un plan activo recién creado (0 de N
+  // días, todavía sin sesiones logueadas) — sugería "empezar a entrenar"
+  // a alguien que ya lo estaba haciendo.
+  if (historyCount > 2 && !hasPlan && totalSessions === 0) {
     return (
       <Paper elevation={0} sx={{
         mb: 4, borderRadius: 4,
@@ -613,9 +619,6 @@ const TIPO_META = {
   "Fit":               { color: "#6A1B9A", bg: "#F3E5F5", Icon: AutoAwesomeRoundedIcon },
 };
 
-// Barritas del tacómetro de progreso del plan (ver PlanCard más abajo)
-const RPM_SEGMENTS = Array.from({ length: 18 });
-
 /* ── Sub-card de un plan individual ── */
 const PlanCard = ({ data, planType = "main", navigate }) => {
   const { isUS } = useNutrition();
@@ -694,13 +697,7 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
               {pct}%
             </Typography>
           </Stack>
-          <Box sx={{ height: 5, borderRadius: 3, bgcolor: `${meta.color}14`, overflow: "hidden" }}>
-            <Box sx={{
-              height: "100%", width: `${pct}%`, borderRadius: 3,
-              background: `linear-gradient(90deg, ${meta.color} 0%, ${meta.color}BB 100%)`,
-              transition: "width 1s ease",
-            }} />
-          </Box>
+          <RpmGauge pct={pct} segments={14} height={18} minHeight={8} spacing={0.35} />
         </Box>
       )}
 
@@ -722,6 +719,106 @@ const PlanCard = ({ data, planType = "main", navigate }) => {
         {isUS ? "Continue →" : "Continuar →"}
       </Button>
     </Box>
+  );
+};
+
+/* ── Card completa de UN solo plan activo — componente propio (no inline
+   en EntrenamientoWidget) porque hay `return` condicionales más arriba. ── */
+const ActiveTrainingCard = ({ activeData, isUS, navigate }) => {
+  const cfg      = activeData.config || {};
+  const plan     = activeData.plan   || {};
+  const elapsed  = Math.floor((Date.now() - new Date(activeData.startDate)) / 86400000);
+  const total    = activeData.totalDays || 1;
+  const pct      = Math.min(100, Math.round((elapsed / total) * 100));
+  const week     = Math.max(1, Math.ceil((elapsed + 1) / 7));
+  const sessCount = activeData.sessions?.length || 0;
+  const meta     = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", Icon: FitnessCenterRoundedIcon };
+
+  return (
+    <Paper elevation={0} sx={{
+      mb: 4, borderRadius: 5, overflow: "hidden",
+      border: `1.5px solid ${meta.color}30`,
+      boxShadow: `0 8px 32px ${meta.color}18`,
+    }}>
+      <Box sx={{
+        px: { xs: 3, md: 4 }, py: { xs: 2.8, md: 3.5 },
+        background: `linear-gradient(135deg, ${meta.color}12 0%, #fff 60%)`,
+      }}>
+        {/* Info — el CTA siempre va debajo (full width), nunca al costado:
+            con el tacómetro el bloque de progreso creció en alto y al lado
+            del botón se pisaban en pantallas angostas. */}
+        <Box>
+          <Box sx={{
+            display: "inline-flex", alignItems: "center", gap: 0.8,
+            px: 1.5, py: 0.45, borderRadius: 999,
+            bgcolor: `${meta.color}14`, border: `1px solid ${meta.color}30`, mb: 1.2,
+          }}>
+            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
+            <FitnessCenterRoundedIcon sx={{ fontSize: 13, color: meta.color }} />
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+              {isUS ? "Active training" : "Entrenamiento activo"}
+            </Typography>
+          </Box>
+
+          <Typography sx={{ fontSize: { xs: 17, sm: 19 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.5px", mb: 0.8, lineHeight: 1.25 }}>
+            {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
+          </Typography>
+
+          <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap mb={total > 1 ? 2.2 : 0}>
+            <Chip label={cfg.tipo} size="small"
+              sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: meta.bg, color: meta.color, border: `1px solid ${meta.color}25` }} />
+            {cfg.lugar && (
+              <Chip label={cfg.lugar} size="small"
+                sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+            )}
+            {total > 1 && (
+              <Chip label={isUS ? `Week ${week}` : `Semana ${week}`} size="small"
+                sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
+            )}
+            {sessCount > 0 && (
+              <Chip label={isUS
+                ? `${sessCount} session${sessCount > 1 ? "s" : ""} logged`
+                : `${sessCount} sesión${sessCount > 1 ? "es" : ""} registrada${sessCount > 1 ? "s" : ""}`} size="small"
+                sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
+            )}
+          </Stack>
+
+          {total > 1 && (
+            <Box mb={2.6}>
+              <Stack direction="row" justifyContent="space-between" mb={0.9}>
+                <Typography sx={{ fontSize: 11.5, color: "#4A6B67", fontWeight: 600 }}>
+                  {isUS
+                    ? `${Math.min(elapsed, total)} of ${total} days`
+                    : `${Math.min(elapsed, total)} de ${total} días`}
+                </Typography>
+                <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: meta.color }}>
+                  {isUS ? `${pct}% complete` : `${pct}% completado`}
+                </Typography>
+              </Stack>
+
+              <RpmGauge pct={pct} segments={18} height={26} minHeight={11} spacing={0.5} />
+            </Box>
+          )}
+
+          {/* ── CTA ── */}
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => navigate("/training")}
+            sx={{
+              background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}CC 100%)`,
+              borderRadius: 999, py: 1.5,
+              textTransform: "none", fontWeight: 800, fontSize: { xs: 14, sm: 15 },
+              boxShadow: `0 6px 20px ${meta.color}40`,
+              "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 28px ${meta.color}55` },
+              transition: "all 0.22s ease",
+            }}
+          >
+            {isUS ? "Continue training →" : "Continuar entrenamiento →"}
+          </Button>
+        </Box>
+      </Box>
+    </Paper>
   );
 };
 
@@ -858,118 +955,7 @@ const EntrenamientoWidget = () => {
 
   /* ── UN solo plan activo: card completa ── */
   const activeData = hasMain ? mainData : quickData;
-  const cfg      = activeData.config || {};
-  const plan     = activeData.plan   || {};
-  const elapsed  = Math.floor((Date.now() - new Date(activeData.startDate)) / 86400000);
-  const total    = activeData.totalDays || 1;
-  const pct      = Math.min(100, Math.round((elapsed / total) * 100));
-  const week     = Math.max(1, Math.ceil((elapsed + 1) / 7));
-  const sessCount = activeData.sessions?.length || 0;
-  const meta     = TIPO_META[cfg.tipo] || { color: "#0B5E55", bg: "#E6F5F3", Icon: FitnessCenterRoundedIcon };
-
-  return (
-    <Paper elevation={0} sx={{
-      mb: 4, borderRadius: 5, overflow: "hidden",
-      border: `1.5px solid ${meta.color}30`,
-      boxShadow: `0 8px 32px ${meta.color}18`,
-    }}>
-      <Box sx={{
-        px: { xs: 3, md: 4 }, py: { xs: 2.8, md: 3.5 },
-        background: `linear-gradient(135deg, ${meta.color}12 0%, #fff 60%)`,
-      }}>
-        {/* Info — el CTA siempre va debajo (full width), nunca al costado:
-            con el tacómetro el bloque de progreso creció en alto y al lado
-            del botón se pisaban en pantallas angostas. */}
-        <Box>
-          <Box sx={{
-            display: "inline-flex", alignItems: "center", gap: 0.8,
-            px: 1.5, py: 0.45, borderRadius: 999,
-            bgcolor: `${meta.color}14`, border: `1px solid ${meta.color}30`, mb: 1.2,
-          }}>
-            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: meta.color, flexShrink: 0 }} />
-            <FitnessCenterRoundedIcon sx={{ fontSize: 13, color: meta.color }} />
-            <Typography sx={{ fontSize: 11, fontWeight: 800, color: meta.color, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-              {isUS ? "Active training" : "Entrenamiento activo"}
-            </Typography>
-          </Box>
-
-          <Typography sx={{ fontSize: { xs: 17, sm: 19 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: "#0F2420", letterSpacing: "-0.5px", mb: 0.8, lineHeight: 1.25 }}>
-            {plan.planTitle || `${cfg.tipo} — ${cfg.duracion}`}
-          </Typography>
-
-          <Stack direction="row" spacing={0.7} flexWrap="wrap" useFlexGap mb={total > 1 ? 2.2 : 0}>
-            <Chip label={cfg.tipo} size="small"
-              sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: meta.bg, color: meta.color, border: `1px solid ${meta.color}25` }} />
-            {cfg.lugar && (
-              <Chip label={cfg.lugar} size="small"
-                sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
-            )}
-            {total > 1 && (
-              <Chip label={isUS ? `Week ${week}` : `Semana ${week}`} size="small"
-                sx={{ height: 20, fontSize: 11, fontWeight: 600, bgcolor: "rgba(11,94,85,0.07)", color: "#4A6B67" }} />
-            )}
-            {sessCount > 0 && (
-              <Chip label={isUS
-                ? `${sessCount} session${sessCount > 1 ? "s" : ""} logged`
-                : `${sessCount} sesión${sessCount > 1 ? "es" : ""} registrada${sessCount > 1 ? "s" : ""}`} size="small"
-                sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${meta.color}12`, color: meta.color }} />
-            )}
-          </Stack>
-
-          {total > 1 && (
-            <Box mb={2.6}>
-              <Stack direction="row" justifyContent="space-between" mb={0.9}>
-                <Typography sx={{ fontSize: 11.5, color: "#4A6B67", fontWeight: 600 }}>
-                  {isUS
-                    ? `${Math.min(elapsed, total)} of ${total} days`
-                    : `${Math.min(elapsed, total)} de ${total} días`}
-                </Typography>
-                <Typography sx={{ fontSize: 11.5, fontWeight: 800, color: meta.color }}>
-                  {isUS ? `${pct}% complete` : `${pct}% completado`}
-                </Typography>
-              </Stack>
-
-              {/* Tacómetro — barritas que se encienden de verde a rojo, como
-                  el contador de revoluciones de un F1. */}
-              <Stack direction="row" spacing={{ xs: 0.4, sm: 0.5 }} alignItems="flex-end" sx={{ height: 26 }}>
-                {RPM_SEGMENTS.map((_, i) => {
-                  const lit = i < Math.round((pct / 100) * RPM_SEGMENTS.length);
-                  const h = 11 + (15 * i) / (RPM_SEGMENTS.length - 1);
-                  const hue = 142 - (142 * i) / (RPM_SEGMENTS.length - 1); // 142=verde, 0=rojo
-                  const color = `hsl(${hue}, 82%, 45%)`;
-                  return (
-                    <Box key={i} sx={{
-                      flex: 1, height: h, borderRadius: "2px 2px 1px 1px",
-                      bgcolor: lit ? color : "rgba(15,36,32,0.08)",
-                      boxShadow: lit ? `0 0 7px 0 ${color}99` : "none",
-                      transition: "background-color 0.5s ease, box-shadow 0.5s ease",
-                    }} />
-                  );
-                })}
-              </Stack>
-            </Box>
-          )}
-
-          {/* ── CTA ── */}
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={() => navigate("/training")}
-            sx={{
-              background: `linear-gradient(135deg, ${meta.color} 0%, ${meta.color}CC 100%)`,
-              borderRadius: 999, py: 1.5,
-              textTransform: "none", fontWeight: 800, fontSize: { xs: 14, sm: 15 },
-              boxShadow: `0 6px 20px ${meta.color}40`,
-              "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 28px ${meta.color}55` },
-              transition: "all 0.22s ease",
-            }}
-          >
-            {isUS ? "Continue training →" : "Continuar entrenamiento →"}
-          </Button>
-        </Box>
-      </Box>
-    </Paper>
-  );
+  return <ActiveTrainingCard activeData={activeData} isUS={isUS} navigate={navigate} />;
 };
 
 /* ────────────────────────────────────────────
