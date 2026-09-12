@@ -171,37 +171,57 @@ const PlanLoader = ({ message, isUS }) => {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setIdx((p) => (p + 1) % LOADER_EXERCISES.length), 1900);
+    const id = setInterval(() => setIdx((p) => (p + 1) % LOADER_EXERCISES.length), 2200);
     return () => clearInterval(id);
   }, []);
 
   const current = LOADER_EXERCISES[idx];
+  const next    = LOADER_EXERCISES[(idx + 1) % LOADER_EXERCISES.length];
 
   return (
-    <Box sx={{ textAlign: "center", py: { xs: 4, sm: 5 } }}>
-      <Box sx={{ position: "relative", width: 190, height: 190, mx: "auto", mb: 3 }}>
+    <Box sx={{ textAlign: "center", py: { xs: 3, sm: 4 }, position: "relative" }}>
+      {/* Blob decorativo detrás de la card — sin esto el fondo queda plano */}
+      <Box sx={{
+        position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
+        width: 360, height: 360, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(11,94,85,0.14) 0%, transparent 70%)",
+        pointerEvents: "none", zIndex: 0,
+      }} />
+
+      <Box sx={{ position: "relative", width: { xs: 230, sm: 270 }, height: { xs: 290, sm: 340 }, mx: "auto", mb: 3.5, zIndex: 1 }}>
+        {/* Card siguiente, asomando atrás — da profundidad de "mazo de cartas" */}
+        <Box sx={{
+          position: "absolute", inset: 0, borderRadius: 5, overflow: "hidden",
+          transform: "scale(0.90) translateY(16px)",
+          boxShadow: "0 10px 28px rgba(11,94,85,0.14)",
+          opacity: 0.55,
+        }}>
+          <Box component="img" src={cldResize(isUS ? next.imgEn : next.img, 500)}
+            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </Box>
+
         <AnimatePresence mode="wait">
-          <motion.div
-            key={idx}
-            variants={cardVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            style={{ position: "absolute", inset: 0 }}
-          >
+          <motion.div key={idx} variants={cardVariants} initial="enter" animate="center" exit="exit"
+            style={{ position: "absolute", inset: 0 }}>
             <Box sx={{
-              width: "100%", height: "100%", borderRadius: 4, overflow: "hidden",
-              boxShadow: "0 16px 40px rgba(11,94,85,0.22)", border: "1px solid rgba(11,94,85,0.10)",
-              position: "relative", bgcolor: "#E6F5F3",
+              width: "100%", height: "100%", borderRadius: 5, overflow: "hidden",
+              boxShadow: "0 26px 60px rgba(11,94,85,0.32), 0 6px 16px rgba(11,94,85,0.16)",
+              border: "3px solid #fff", position: "relative", bgcolor: "#E6F5F3",
             }}>
-              <Box component="img" src={cldResize(isUS ? current.imgEn : current.img, 400)}
+              <Box component="img" src={cldResize(isUS ? current.imgEn : current.img, 650)}
                 sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              <Box sx={{
-                position: "absolute", bottom: 0, left: 0, right: 0,
-                background: "linear-gradient(to top, rgba(11,94,85,0.88) 0%, transparent 100%)",
-                px: 1.5, py: 1.2, textAlign: "left",
-              }}>
-                <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: "#fff", lineHeight: 1.3 }}>
+              {/* Realce sutil arriba, para que la card no se vea plana */}
+              <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: "35%",
+                background: "linear-gradient(to bottom, rgba(255,255,255,0.14), transparent)", pointerEvents: "none" }} />
+              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, top: "48%",
+                background: "linear-gradient(to top, rgba(5,48,43,0.94) 0%, rgba(5,48,43,0.45) 55%, transparent 100%)" }} />
+              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, px: 2.4, py: 2.2, textAlign: "left" }}>
+                <Typography sx={{
+                  fontSize: { xs: 17, sm: 19 }, fontWeight: 900,
+                  fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif',
+                  color: "#fff", lineHeight: 1.2, letterSpacing: "-0.3px",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.28)",
+                }}>
                   {isUS ? current.en : current.es}
                 </Typography>
               </Box>
@@ -210,13 +230,15 @@ const PlanLoader = ({ message, isUS }) => {
         </AnimatePresence>
       </Box>
 
-      <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#0F2420", mb: 0.5 }}>{message}</Typography>
-      <Stack direction="row" spacing={0.6} justifyContent="center" mt={1.5}>
-        {[0, 1, 2].map((i) => (
+      <Typography sx={{ fontSize: 15.5, fontWeight: 700, color: "#0F2420", mb: 1.2, position: "relative", zIndex: 1 }}>
+        {message}
+      </Typography>
+      <Stack direction="row" spacing={0.8} justifyContent="center" position="relative" zIndex={1}>
+        {LOADER_EXERCISES.map((_, i) => (
           <Box key={i} sx={{
-            width: 7, height: 7, borderRadius: "50%", bgcolor: "#0B5E55",
-            "@keyframes bounce": { "0%,80%,100%": { transform: "scale(0.8)", opacity: 0.4 }, "40%": { transform: "scale(1.2)", opacity: 1 } },
-            animation: `bounce 1.2s ${i * 0.2}s ease-in-out infinite`,
+            width: i === idx ? 20 : 6, height: 6, borderRadius: 999,
+            bgcolor: i === idx ? "#0B5E55" : "rgba(11,94,85,0.20)",
+            transition: "all 0.45s cubic-bezier(0.22,1,0.36,1)",
           }} />
         ))}
       </Stack>
