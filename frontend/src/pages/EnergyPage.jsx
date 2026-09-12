@@ -137,6 +137,9 @@ const fmt = (n, isUS) =>
 const pctVal = (v, max) =>
   Math.min(100, Math.round(((v || 0) / Math.max(max || 1, 1)) * 100));
 
+// Barritas del tacómetro de calorías consumidas vs objetivo diario.
+const ENERGY_RPM_SEGMENTS = Array.from({ length: 20 });
+
 const TypeIcon = ({ tipo }) => {
   if (tipo === "comida") return <RestaurantRoundedIcon sx={{ fontSize: 16 }} />;
   if (tipo === "actividad")
@@ -1050,21 +1053,26 @@ const EnergyPage = () => {
               </Box>
             </Stack>
             {dailyGoal && (
-              <Box sx={{ mt: 1.5 }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={pctVal(consumed, dailyGoal + burnedExtra)}
-                  sx={{
-                    height: 8,
-                    borderRadius: 999,
-                    bgcolor: "rgba(0,0,0,0.06)",
-                    "& .MuiLinearProgress-bar": {
-                      bgcolor:
-                        consumed > dailyGoal + burnedExtra ? C.danger : C.green,
-                      borderRadius: 999,
-                    },
-                  }}
-                />
+              <Box sx={{ mt: 1.8 }}>
+                {/* Tacómetro — barritas verde→rojo, mismo estilo que la
+                    card de entrenamiento activo del dashboard. */}
+                <Stack direction="row" spacing={0.45} alignItems="flex-end" sx={{ height: 24 }}>
+                  {ENERGY_RPM_SEGMENTS.map((_, i) => {
+                    const pct = pctVal(consumed, dailyGoal + burnedExtra);
+                    const lit = i < Math.round((pct / 100) * ENERGY_RPM_SEGMENTS.length);
+                    const h = 10 + (14 * i) / (ENERGY_RPM_SEGMENTS.length - 1);
+                    const hue = 142 - (142 * i) / (ENERGY_RPM_SEGMENTS.length - 1);
+                    const color = `hsl(${hue}, 82%, 45%)`;
+                    return (
+                      <Box key={i} sx={{
+                        flex: 1, height: h, borderRadius: "2px 2px 1px 1px",
+                        bgcolor: lit ? color : "rgba(0,0,0,0.06)",
+                        boxShadow: lit ? `0 0 6px 0 ${color}99` : "none",
+                        transition: "background-color 0.5s ease, box-shadow 0.5s ease",
+                      }} />
+                    );
+                  })}
+                </Stack>
               </Box>
             )}
           </Paper>

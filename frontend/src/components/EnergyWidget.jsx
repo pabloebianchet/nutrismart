@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Box, Typography, Stack, Paper, LinearProgress, Button, Chip } from "@mui/material";
+import { Box, Typography, Stack, Paper, Button, Chip } from "@mui/material";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import ArrowForwardRoundedIcon        from "@mui/icons-material/ArrowForwardRounded";
 import MicRoundedIcon                 from "@mui/icons-material/MicRounded";
@@ -26,6 +26,9 @@ const ACTIVITY_FACTOR = {
 };
 
 const GOAL_ADJ = { bajar_peso: -500, mantener: 0, ganar_musculo: 300 };
+
+// Barritas del tacómetro de calorías consumidas vs objetivo diario.
+const ENERGY_RPM_SEGMENTS = Array.from({ length: 16 });
 
 const calcBMR = (ud) => {
   if (!ud?.peso || !ud?.altura || !ud?.edad) return null;
@@ -190,13 +193,24 @@ const EnergyWidget = () => {
               </Box>
             </Stack>
 
-            {/* Barra */}
-            <LinearProgress variant="determinate" value={pct}
-              sx={{ height: 6, borderRadius: 999, mb: 1.5,
-                bgcolor: "rgba(0,0,0,0.06)",
-                "& .MuiLinearProgress-bar": {
-                  bgcolor: consumed > (dailyGoal || 0) + burnedExtra ? C.danger : C.gold,
-                  borderRadius: 999 } }} />
+            {/* Tacómetro — mismas barritas verde→rojo que la card de
+                entrenamiento del dashboard, en versión compacta. */}
+            <Stack direction="row" spacing={0.35} alignItems="flex-end" sx={{ height: 18, mb: 1.5 }}>
+              {ENERGY_RPM_SEGMENTS.map((_, i) => {
+                const lit = i < Math.round((pct / 100) * ENERGY_RPM_SEGMENTS.length);
+                const h = 8 + (10 * i) / (ENERGY_RPM_SEGMENTS.length - 1);
+                const hue = 142 - (142 * i) / (ENERGY_RPM_SEGMENTS.length - 1);
+                const color = `hsl(${hue}, 82%, 45%)`;
+                return (
+                  <Box key={i} sx={{
+                    flex: 1, height: h, borderRadius: "2px 2px 1px 1px",
+                    bgcolor: lit ? color : "rgba(0,0,0,0.06)",
+                    boxShadow: lit ? `0 0 5px 0 ${color}99` : "none",
+                    transition: "background-color 0.5s ease, box-shadow 0.5s ease",
+                  }} />
+                );
+              })}
+            </Stack>
 
             {/* Fila de datos */}
             <Stack direction="row" justifyContent="space-between">
