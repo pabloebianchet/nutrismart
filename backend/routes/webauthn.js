@@ -8,6 +8,7 @@ import {
 import { isoBase64URL, isoUint8Array } from "@simplewebauthn/server/helpers";
 import { authMiddleware } from "../middleware/auth.js";
 import { getLang } from "../utils/lang.js";
+import { logInfo, logWarn, logError } from "../utils/logger.js";
 
 const router = express.Router();
 
@@ -60,6 +61,9 @@ router.get("/register-options", authMiddleware, async (req, res) => {
     res.json(options);
   } catch (err) {
     console.error("webauthn register-options error:", err);
+    logError("auth", "biometric.register_options_error", err.message, {
+      userId: req.user?._id, userEmail: req.user?.email, meta: { errorName: err.name },
+    });
     res.status(500).json({ error: msg(req, "Error al generar opciones de registro", "Error generating registration options") });
   }
 });
@@ -80,8 +84,13 @@ router.post("/register-verify", authMiddleware, async (req, res) => {
       expectedRPID: getRpID(req),
     });
 
-    if (!verification.verified || !verification.registrationInfo)
+    if (!verification.verified || !verification.registrationInfo) {
+      logWarn("auth", "biometric.register_failed", `Registro biométrico no verificado — ${user.email}`, {
+        userId: user._id, userEmail: user.email,
+        meta: { origin: req.headers.origin, rpID: getRpID(req) },
+      });
       return res.status(400).json({ error: msg(req, "No se pudo verificar la credencial", "Couldn't verify the credential") });
+    }
 
     const { credential } = verification.registrationInfo;
 
@@ -94,9 +103,17 @@ router.post("/register-verify", authMiddleware, async (req, res) => {
     user.currentChallenge = undefined;
     await user.save();
 
+    logInfo("auth", "biometric.registered", `Face ID / huella registrada — ${user.email}`, {
+      userId: user._id, userEmail: user.email,
+      meta: { transports: response.response?.transports || [] },
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error("webauthn register-verify error:", err);
+    logError("auth", "biometric.register_error", err.message, {
+      userId: req.user?._id, userEmail: req.user?.email,
+      meta: { errorName: err.name, origin: req.headers.origin, rpID: getRpID(req) },
+    });
     res.status(500).json({ error: msg(req, "Error al verificar el registro", "Error verifying the registration") });
   }
 });
@@ -124,6 +141,9 @@ router.get("/auth-options", authMiddleware, async (req, res) => {
     res.json(options);
   } catch (err) {
     console.error("webauthn auth-options error:", err);
+    logError("auth", "biometric.auth_options_error", err.message, {
+      userId: req.user?._id, userEmail: req.user?.email, meta: { errorName: err.name },
+    });
     res.status(500).json({ error: msg(req, "Error al generar opciones de verificación", "Error generating verification options") });
   }
 });
@@ -138,8 +158,13 @@ router.post("/auth-verify", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: msg(req, "No hay una verificación pendiente", "No pending verification") });
 
     const cred = user.webauthnCredentials.find((c) => c.credentialID === response.id);
-    if (!cred)
+    if (!cred) {
+      logWarn("auth", "biometric.credential_not_found", `Credencial de Face ID no encontrada — ${user.email}`, {
+        userId: user._id, userEmail: user.email,
+        meta: { responseId: response.id, storedIds: user.webauthnCredentials.map(c => c.credentialID) },
+      });
       return res.status(400).json({ error: msg(req, "Credencial no encontrada", "Credential not found") });
+    }
 
     const verification = await verifyAuthenticationResponse({
       response,
@@ -154,8 +179,13 @@ router.post("/auth-verify", authMiddleware, async (req, res) => {
       },
     });
 
-    if (!verification.verified)
+    if (!verification.verified) {
+      logWarn("auth", "biometric.auth_failed", `Verificación de Face ID fallida — ${user.email}`, {
+        userId: user._id, userEmail: user.email,
+        meta: { origin: req.headers.origin, rpID: getRpID(req) },
+      });
       return res.status(400).json({ error: msg(req, "Verificación fallida", "Verification failed") });
+    }
 
     cred.counter = verification.authenticationInfo.newCounter;
     user.currentChallenge = undefined;
@@ -164,6 +194,10 @@ router.post("/auth-verify", authMiddleware, async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error("webauthn auth-verify error:", err);
+    logError("auth", "biometric.auth_error", err.message, {
+      userId: req.user?._id, userEmail: req.user?.email,
+      meta: { errorName: err.name, origin: req.headers.origin, rpID: getRpID(req) },
+    });
     res.status(500).json({ error: msg(req, "Error al verificar la identidad", "Error verifying your identity") });
   }
 });
