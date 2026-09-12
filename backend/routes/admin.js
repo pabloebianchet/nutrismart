@@ -41,6 +41,14 @@ const EXCLUDED_TEST_EMAILS = [
   "sentenciasjnt51@gmail.com",
 ];
 
+// Para la TABLA de usuarios (se siguen viendo y administrando ahí — asignar
+// plan, borrar, etc.) solo se ocultan los bots del seed. Las cuentas de
+// prueba de la empresa quedan visibles y manejables como cualquier otra.
+const NOT_SEED_FILTER = { email: { $not: /@nuiseed\.io$/i } };
+
+// Para ESTADÍSTICAS (contadores, altas por período, demografía) además se
+// excluyen las cuentas de prueba de la empresa — no son usuarios reales
+// de la app y no deben inflar las métricas de negocio.
 const REAL_USER_FILTER = {
   email: { $not: /@nuiseed\.io$/i, $nin: EXCLUDED_TEST_EMAILS },
 };
@@ -286,9 +294,11 @@ router.get("/analytics", authMiddleware, isAdmin, async (req, res) => {
    ===================================================== */
 router.get("/users", authMiddleware, isAdmin, async (req, res) => {
   try {
-    // ?includeTest=1 para ver también las cuentas @nuiseed.io del seed del
-    // leaderboard (uso excepcional — por default quedan afuera).
-    const filter = req.query.includeTest === "1" ? {} : REAL_USER_FILTER;
+    // La tabla NO usa REAL_USER_FILTER: las cuentas de prueba de la empresa
+    // se excluyen de las estadísticas pero se siguen viendo y administrando
+    // acá (asignar plan, borrar, etc). Solo se ocultan por default los
+    // ~1200 bots del seed del leaderboard — ?includeTest=1 para verlos.
+    const filter = req.query.includeTest === "1" ? {} : NOT_SEED_FILTER;
     const users = await User.find(filter)
       .select("_id name email edad altura peso sexo actividad createdAt profileCompleted")
       .sort({ createdAt: -1 })
