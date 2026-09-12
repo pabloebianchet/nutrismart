@@ -38,6 +38,7 @@ const EXCLUDED_TEST_EMAILS = [
   "espadaespadagoya@gmail.com",
   "jessicaruize97@gmail.com",
   "jessicaruizz1997@gmail.com",
+  "sentenciasjnt51@gmail.com",
 ];
 
 const REAL_USER_FILTER = {
