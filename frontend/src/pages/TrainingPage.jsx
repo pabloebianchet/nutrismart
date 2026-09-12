@@ -222,11 +222,33 @@ const PlanLoader = ({ message, isUS }) => {
   );
 };
 
-const ProgBar = ({ value, color }) => (
-  <Box sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(11,94,85,0.12)", overflow: "hidden" }}>
-    <Box sx={{ height: "100%", width: `${Math.min(100, Math.max(0, value))}%`, borderRadius: 3, bgcolor: color || "#0B5E55", transition: "width 1s ease" }} />
-  </Box>
-);
+// Tacómetro — mismas barritas verde→rojo que la card de entrenamiento
+// activo del dashboard y las barras de balance energético. El color de
+// tipo (activeTipo?.color) ya no se usa acá a propósito: el gauge es
+// siempre verde→rojo para que se vea igual en toda la app.
+const RPM_HEADER_SEGMENTS = Array.from({ length: 18 });
+
+const ProgBar = ({ value }) => {
+  const pct = Math.min(100, Math.max(0, value));
+  return (
+    <Stack direction="row" spacing={0.4} alignItems="flex-end" sx={{ height: 22 }}>
+      {RPM_HEADER_SEGMENTS.map((_, i) => {
+        const lit = i < Math.round((pct / 100) * RPM_HEADER_SEGMENTS.length);
+        const h = 9 + (13 * i) / (RPM_HEADER_SEGMENTS.length - 1);
+        const hue = 142 - (142 * i) / (RPM_HEADER_SEGMENTS.length - 1);
+        const color = `hsl(${hue}, 82%, 45%)`;
+        return (
+          <Box key={i} sx={{
+            flex: 1, height: h, borderRadius: "2px 2px 1px 1px",
+            bgcolor: lit ? color : "rgba(11,94,85,0.10)",
+            boxShadow: lit ? `0 0 6px 0 ${color}99` : "none",
+            transition: "background-color 0.5s ease, box-shadow 0.5s ease",
+          }} />
+        );
+      })}
+    </Stack>
+  );
+};
 
 const WeightChart = ({ weights }) => {
   if (weights.length < 2) return null;
