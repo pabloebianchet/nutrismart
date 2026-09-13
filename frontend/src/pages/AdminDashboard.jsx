@@ -930,31 +930,39 @@ const AdminDashboard = () => {
         </Stack>
       </Stack>
 
-      {/* Tab switcher — en mobile no entran los 4 tabs en el ancho de
-          pantalla; scrollea horizontal en vez de desbordar el layout. */}
-      <Box sx={{ overflowX: { xs: "auto", sm: "visible" }, mb: 4, mx: { xs: -2, sm: 0 }, px: { xs: 2, sm: 0 },
-        "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}>
-        <Stack direction="row" spacing={0} sx={{ bgcolor: "rgba(11,94,85,0.06)", borderRadius: 999, p: 0.5,
-          display: "inline-flex", width: "max-content" }}>
-          {[
-            { id: "stats",     label: "📊 Estadísticas" },
-            { id: "analytics", label: "📈 Tráfico" },
-            { id: "coupons",   label: "🎟️ Cupones" },
-            { id: "logs",      label: "📋 Logs" },
-          ].map((tab) => (
-            <Box key={tab.id} onClick={() => setActiveTab(tab.id)} sx={{
-              px: { xs: 1.8, sm: 2.5 }, py: 0.9, borderRadius: 999, cursor: "pointer", flexShrink: 0,
-              bgcolor: activeTab === tab.id ? "#fff" : "transparent",
-              boxShadow: activeTab === tab.id ? "0 2px 8px rgba(11,94,85,0.12)" : "none",
-              transition: "all 0.2s ease",
-            }}>
-              <Typography sx={{ fontSize: { xs: 12.5, sm: 13.5 }, fontWeight: activeTab === tab.id ? 800 : 600,
-                color: activeTab === tab.id ? "#0B5E55" : "#4A6B67", whiteSpace: "nowrap" }}>
-                {tab.label}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
+      {/* Tab switcher — en mobile, grilla 2x2 (dos arriba, dos abajo) en vez
+          de scroll horizontal; en desktop, la fila de pills de siempre. */}
+      <Box sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(4, auto)" },
+        gap: { xs: 1, sm: 0 },
+        bgcolor: { xs: "transparent", sm: "rgba(11,94,85,0.06)" },
+        borderRadius: { xs: 0, sm: 999 },
+        p: { xs: 0, sm: 0.5 },
+        width: { xs: "100%", sm: "max-content" },
+        mb: 4,
+      }}>
+        {[
+          { id: "stats",     label: "📊 Estadísticas" },
+          { id: "analytics", label: "📈 Tráfico" },
+          { id: "coupons",   label: "🎟️ Cupones" },
+          { id: "logs",      label: "📋 Logs" },
+        ].map((tab) => (
+          <Box key={tab.id} onClick={() => setActiveTab(tab.id)} sx={{
+            px: { xs: 1.5, sm: 2.5 }, py: { xs: 1.1, sm: 0.9 },
+            borderRadius: { xs: 3, sm: 999 },
+            textAlign: "center", cursor: "pointer",
+            bgcolor: activeTab === tab.id ? "#fff" : { xs: "rgba(11,94,85,0.06)", sm: "transparent" },
+            border: { xs: "1px solid rgba(11,94,85,0.10)", sm: "none" },
+            boxShadow: activeTab === tab.id ? "0 2px 8px rgba(11,94,85,0.12)" : "none",
+            transition: "all 0.2s ease",
+          }}>
+            <Typography sx={{ fontSize: { xs: 12.5, sm: 13.5 }, fontWeight: activeTab === tab.id ? 800 : 600,
+              color: activeTab === tab.id ? "#0B5E55" : "#4A6B67", whiteSpace: "nowrap" }}>
+              {tab.label}
+            </Typography>
+          </Box>
+        ))}
       </Box>
 
       {activeTab === "logs"    && <AdminLogs />}
