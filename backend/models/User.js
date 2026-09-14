@@ -8,6 +8,13 @@ const userSchema = new mongoose.Schema(
     picture:   { type: String },
     provider:  { type: String, enum: ["google", "email"], default: "google" },
 
+    // Se registró desde una IP marcada como interna (ver ExcludedIp) — no
+    // se borra ni se oculta de la tabla de admin (sigue siendo una cuenta
+    // administrable normal), pero se excluye de las estadísticas de
+    // negocio (altas, demografía, uso de features) para no inflarlas con
+    // testing propio del equipo, sin importar qué cuenta de Google se use.
+    isTestAccount: { type: Boolean, default: false },
+
     // Idioma preferido para mails y contenido de IA — el frontend calcula
     // isUS (geo + ?region= + cuenta Stripe) y lo manda al registrarse; no
     // hay forma de derivarlo de forma confiable desde el backend en

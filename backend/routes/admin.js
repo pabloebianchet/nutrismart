@@ -10,6 +10,8 @@ import { isAdmin }        from "../middleware/isAdmin.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
 import { sendNotificationEmail } from "../utils/sendNotificationEmail.js";
 import { getDailyTraffic, getSummary, getTopPages } from "../utils/ga4Analytics.js";
+import ExcludedIp from "../models/ExcludedIp.js";
+import { getClientIp } from "../utils/clientIp.js";
 
 const router = express.Router();
 
@@ -47,10 +49,12 @@ const EXCLUDED_TEST_EMAILS = [
 const NOT_SEED_FILTER = { email: { $not: /@nuiseed\.io$/i } };
 
 // Para ESTADÍSTICAS (contadores, altas por período, demografía) además se
-// excluyen las cuentas de prueba de la empresa — no son usuarios reales
-// de la app y no deben inflar las métricas de negocio.
+// excluyen las cuentas de prueba de la empresa (por mail, lista fija de
+// abajo, y por isTestAccount — cuentas nuevas creadas desde una IP
+// marcada como interna en ExcludedIp, sin importar qué mail se use).
 const REAL_USER_FILTER = {
   email: { $not: /@nuiseed\.io$/i, $nin: EXCLUDED_TEST_EMAILS },
+  isTestAccount: { $ne: true },
 };
 
 /* =====================================================
@@ -267,9 +271,19 @@ router.get("/analytics", authMiddleware, isAdmin, async (req, res) => {
     const logStart = new Date(`${startDate}T00:00:00.000Z`);
     const logEnd   = endDate === "today" ? new Date() : new Date(`${endDate}T23:59:59.999Z`);
 
+    // Actividad de cuentas de prueba (mail fijo o isTestAccount) tampoco
+    // debe contarse en "qué se usa más" — mismo criterio que REAL_USER_FILTER.
+    const testUsers = await User.find({
+      $or: [{ email: { $in: EXCLUDED_TEST_EMAILS } }, { isTestAccount: true }],
+    }).select("email").lean();
+    const testEmails = testUsers.map((u) => u.email);
+
     const counts = await Promise.all(
       FEATURE_ACTIONS.map(({ category, action }) =>
-        Log.countDocuments({ category, action, createdAt: { $gte: logStart, $lte: logEnd } })
+        Log.countDocuments({
+          category, action, createdAt: { $gte: logStart, $lte: logEnd },
+          userEmail: { $nin: testEmails },
+        })
       )
     );
     const featureUsage = FEATURE_ACTIONS
@@ -286,6 +300,57 @@ router.get("/analytics", authMiddleware, isAdmin, async (req, res) => {
   } catch (err) {
     console.error("Admin analytics error:", err);
     return res.status(500).json({ error: "Error fetching analytics" });
+  }
+});
+
+/* =====================================================
+   🚫 IPs EXCLUIDAS DE LAS ESTADÍSTICAS (tráfico interno)
+   ===================================================== */
+// IP real de quien hace la request — para que el admin vea su propia IP
+// actual y la agregue con un click (ver comentario en utils/clientIp.js
+// sobre por qué no alcanza con req.ip estando detrás de Cloudflare).
+router.get("/my-ip", authMiddleware, isAdmin, (req, res) => {
+  res.json({ ip: getClientIp(req) });
+});
+
+router.get("/excluded-ips", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const ips = await ExcludedIp.find().sort({ createdAt: -1 }).lean();
+    res.json({ ips });
+  } catch (err) {
+    console.error("Admin excluded-ips list error:", err);
+    res.status(500).json({ error: "Error al listar las IPs excluidas" });
+  }
+});
+
+router.post("/excluded-ips", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { ip, label } = req.body;
+    if (!ip || typeof ip !== "string" || !ip.trim())
+      return res.status(400).json({ error: "Falta la IP" });
+
+    const doc = await ExcludedIp.findOneAndUpdate(
+      { ip: ip.trim() },
+      { $setOnInsert: { ip: ip.trim(), label: (label || "").trim() } },
+      { upsert: true, new: true }
+    );
+    logInfo("admin", "excluded_ip.added", `IP excluida de estadísticas: ${doc.ip}`, {
+      userId: req.user._id, userEmail: req.user.email, meta: { ip: doc.ip, label: doc.label },
+    });
+    res.json({ ok: true, ip: doc });
+  } catch (err) {
+    console.error("Admin excluded-ips create error:", err);
+    res.status(500).json({ error: "Error al agregar la IP" });
+  }
+});
+
+router.delete("/excluded-ips/:id", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    await ExcludedIp.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Admin excluded-ips delete error:", err);
+    res.status(500).json({ error: "Error al borrar la IP" });
   }
 });
 

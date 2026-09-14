@@ -33,6 +33,7 @@ import RocketLaunchRoundedIcon        from "@mui/icons-material/RocketLaunchRoun
 import AttachMoneyRoundedIcon         from "@mui/icons-material/AttachMoneyRounded";
 import BarChartRoundedIcon            from "@mui/icons-material/BarChartRounded";
 import CloseRoundedIcon               from "@mui/icons-material/CloseRounded";
+import VisibilityOffOutlinedIcon      from "@mui/icons-material/VisibilityOffOutlined";
 import CalendarTodayOutlinedIcon      from "@mui/icons-material/CalendarTodayOutlined";
 import CheckCircleOutlinedIcon        from "@mui/icons-material/CheckCircleOutlined";
 import CancelOutlinedIcon             from "@mui/icons-material/CancelOutlined";
@@ -216,6 +217,114 @@ const BarRow = ({ label, value, total, color }) => {
           bgcolor: `${color}15`,
           "& .MuiLinearProgress-bar": { bgcolor: color, borderRadius: 999 } }} />
     </Box>
+  );
+};
+
+/* ─── Tráfico interno — IPs excluidas de las estadísticas ──── */
+const ExcludedIpsPanel = ({ token }) => {
+  const [myIp,    setMyIp]    = useState(null);
+  const [ips,     setIps]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [adding,  setAdding]  = useState(false);
+  const [label,   setLabel]   = useState("");
+
+  const fetchAll = async () => {
+    try {
+      const [myIpRes, listRes] = await Promise.all([
+        fetch(`${API_URL}/api/admin/my-ip`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/api/admin/excluded-ips`, { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      setMyIp((await myIpRes.json()).ip);
+      setIps((await listRes.json()).ips || []);
+    } catch (err) {
+      console.error("Excluded IPs fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchAll(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isMyIpExcluded = ips.some((i) => i.ip === myIp);
+
+  const handleAddMyIp = async () => {
+    setAdding(true);
+    try {
+      await fetch(`${API_URL}/api/admin/excluded-ips`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ip: myIp, label: label.trim() || "Mi PC" }),
+      });
+      setLabel("");
+      await fetchAll();
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    await fetch(`${API_URL}/api/admin/excluded-ips/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    fetchAll();
+  };
+
+  if (loading) return null;
+
+  return (
+    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 4, border: `1px solid ${C.border}`, boxShadow: shadow.sm, mb: 4 }}>
+      <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
+        <VisibilityOffOutlinedIcon sx={{ fontSize: 17, color: C.textMuted }} />
+        <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>
+          Tráfico interno (excluido de estadísticas)
+        </Typography>
+      </Stack>
+      <Typography sx={{ fontSize: 11.5, color: C.textMuted, mb: 1.8, lineHeight: 1.5 }}>
+        Las cuentas nuevas creadas desde estas IPs no cuentan como altas ni actividad real,
+        sin importar con qué mail se registren. La cuenta sigue viéndose y administrándose normal en la tabla de usuarios.
+      </Typography>
+
+      <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap" useFlexGap mb={ips.length ? 2 : 0}>
+        <Typography sx={{ fontSize: 12.5, color: C.textSec }}>
+          Tu IP actual: <strong style={{ color: C.text }}>{myIp || "—"}</strong>
+        </Typography>
+        {isMyIpExcluded ? (
+          <Chip label="Ya excluida" size="small"
+            sx={{ height: 20, fontSize: 10.5, fontWeight: 700, bgcolor: "rgba(46,204,113,0.12)", color: "#2ECC71" }} />
+        ) : (
+          <>
+            <TextField size="small" placeholder="Etiqueta (opcional)" value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              sx={{ width: 160, "& .MuiOutlinedInput-root": { borderRadius: 999, fontSize: 12.5, bgcolor: C.surface } }} />
+            <Button size="small" onClick={handleAddMyIp} disabled={adding || !myIp}
+              sx={{ textTransform: "none", fontWeight: 700, fontSize: 12, borderRadius: 999,
+                border: `1px solid ${C.brandMuted}`, color: C.brand, px: 1.6, py: 0.4,
+                "&:hover": { bgcolor: C.brandSurface } }}>
+              {adding ? "Agregando…" : "+ Excluir esta IP"}
+            </Button>
+          </>
+        )}
+      </Stack>
+
+      {ips.length > 0 && (
+        <Stack spacing={0.8}>
+          {ips.map((item) => (
+            <Stack key={item._id} direction="row" justifyContent="space-between" alignItems="center"
+              sx={{ px: 1.5, py: 0.8, borderRadius: 2.5, bgcolor: C.surfaceAlt }}>
+              <Box>
+                <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>{item.ip}</Typography>
+                {item.label && <Typography sx={{ fontSize: 11, color: C.textMuted }}>{item.label}</Typography>}
+              </Box>
+              <IconButton size="small" onClick={() => handleDelete(item._id)}
+                sx={{ color: C.textMuted, "&:hover": { color: C.danger } }}>
+                <CloseRoundedIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Stack>
+          ))}
+        </Stack>
+      )}
+    </Paper>
   );
 };
 
@@ -1062,6 +1171,8 @@ const AdminDashboard = () => {
       )}
 
       {activeTab === "stats" && (<>
+
+      <ExcludedIpsPanel token={token} />
 
       {/* ── SECCIÓN: KPIs GENERALES ───────────────────── */}
       <SectionHeader title="Resumen general" subtitle="Usuarios y actividad de la plataforma" />

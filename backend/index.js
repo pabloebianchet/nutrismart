@@ -50,6 +50,8 @@ import { startTrialExpiryJob } from "./utils/checkTrialExpiry.js";
 import { startRetryMissingPostImagesJob } from "./utils/retryMissingPostImages.js";
 import { startRemindersJob } from "./utils/checkReminders.js";
 import { logInfo, logWarn, logError } from "./utils/logger.js";
+import { getClientIp } from "./utils/clientIp.js";
+import { isExcludedIp } from "./utils/excludedIp.js";
 
 connectDB();
 startTrialExpiryJob();
@@ -603,7 +605,7 @@ app.post("/api/auth/google", async (req, res) => {
           // link también quedan con provider "email" pero sin password, y
           // deben poder engancharse a Google sin fricción (más abajo).
           logWarn("auth", "user.login.google.blocked", `Login Google bloqueado (cuenta con contraseña): ${email}`, {
-            userId: existingByEmail._id, userName: existingByEmail.name, userEmail: email, ip: req.ip,
+            userId: existingByEmail._id, userName: existingByEmail.name, userEmail: email, ip: getClientIp(req),
           });
           return res.status(409).json({
             error: "Este email ya tiene una cuenta con contraseña. Ingresá con email y contraseña.",
@@ -626,6 +628,7 @@ app.post("/api/auth/google", async (req, res) => {
           picture,
           provider: "google",
           lang,
+          isTestAccount: await isExcludedIp(getClientIp(req)),
         });
         isNewUser = true;
         // Activar período de prueba gratuito (7 días)
@@ -635,11 +638,11 @@ app.post("/api/auth/google", async (req, res) => {
         });
         const trialEnd = trial?.endDate || null;
         sendWelcomeEmail({ name, email, trialEnd, lang }).catch((e) => console.error("Welcome email failed:", e.message));
-        logInfo("auth", "user.register.google", `Registro Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+        logInfo("auth", "user.register.google", `Registro Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req) });
       }
     }
 
-    logInfo("auth", "user.login.google", `Login Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+    logInfo("auth", "user.login.google", `Login Google: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req) });
     User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => {});
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     return res.json({ user, token, isNewUser });
@@ -810,7 +813,7 @@ app.delete("/api/user/account", authMiddleware, async (req, res) => {
     if (!deleted) return res.status(404).json({ error: "Usuario no encontrado." });
 
     logInfo("auth", "user.self_deleted", `Cuenta autoeliminada: ${deleted.email}`, {
-      userId, userName: deleted.name, userEmail: deleted.email, ip: req.ip,
+      userId, userName: deleted.name, userEmail: deleted.email, ip: getClientIp(req),
     });
     return res.json({ ok: true });
   } catch (err) {

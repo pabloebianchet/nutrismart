@@ -8,6 +8,8 @@ import User from "../models/User.js";
 import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
 import { activateFreeTrial } from "../utils/activateFreeTrial.js";
 import { logInfo, logWarn, logError } from "../utils/logger.js";
+import { getClientIp } from "../utils/clientIp.js";
+import { isExcludedIp } from "../utils/excludedIp.js";
 import { sendGA4Event } from "../utils/ga4.js";
 import { nameFromEmail } from "../utils/nameFromEmail.js";
 import { suggestEmailCorrection } from "../utils/emailTypoCheck.js";
@@ -96,6 +98,7 @@ router.post("/register", authLimiter, async (req, res) => {
       provider: "email",
       profileCompleted: false,
       lang,
+      isTestAccount: await isExcludedIp(getClientIp(req)),
     });
 
     // Activar período de prueba gratuito (7 días)
@@ -111,7 +114,7 @@ router.post("/register", authLimiter, async (req, res) => {
       console.error("Welcome email failed:", e.message)
     );
 
-    logInfo("auth", "user.register.email", `Registro email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+    logInfo("auth", "user.register.email", `Registro email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req) });
 
     return res.status(201).json({ token, user: safeUser(user) });
   } catch (err) {
@@ -138,11 +141,11 @@ router.post("/login", authLimiter, async (req, res) => {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      logWarn("auth", "user.login.failed", `Login fallido: ${req.body.email}`, { userEmail: req.body.email, ip: req.ip, meta: { reason: "invalid_password" } });
+      logWarn("auth", "user.login.failed", `Login fallido: ${req.body.email}`, { userEmail: req.body.email, ip: getClientIp(req), meta: { reason: "invalid_password" } });
       return res.status(401).json({ error: "Email o contraseña incorrectos" });
     }
 
-    logInfo("auth", "user.login.email", `Login email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+    logInfo("auth", "user.login.email", `Login email: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req) });
     User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => {});
     const token = signToken(user._id);
     return res.json({ token, user: safeUser(user) });
@@ -290,6 +293,7 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
         provider: "email",
         profileCompleted: false,
         lang,
+        isTestAccount: await isExcludedIp(getClientIp(req)),
       });
       isNewUser = true;
 
@@ -297,7 +301,7 @@ router.post("/magic-link", magicLinkLimiter, async (req, res) => {
         console.error("Free trial activation failed:", e.message);
       });
 
-      logInfo("auth", "user.register.magic_link", `Registro magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+      logInfo("auth", "user.register.magic_link", `Registro magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req) });
     }
 
     const rawToken = crypto.randomBytes(32).toString("hex");
@@ -433,7 +437,7 @@ ${trialBlock}
       `,
     });
 
-    logInfo("auth", "user.magic_link.sent", `Magic link enviado: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip, meta: { isNewUser } });
+    logInfo("auth", "user.magic_link.sent", `Magic link enviado: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req), meta: { isNewUser } });
 
     return res.json({
       message: "Revisá tu mail, te mandamos el link de acceso.",
@@ -464,7 +468,7 @@ router.post("/magic-login/:token", async (req, res) => {
     user.lastActiveAt = new Date();
     await user.save();
 
-    logInfo("auth", "user.login.magic_link", `Login magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: req.ip });
+    logInfo("auth", "user.login.magic_link", `Login magic link: ${user.email}`, { userId: user._id, userName: user.name, userEmail: user.email, ip: getClientIp(req) });
 
     const token_ = signToken(user._id);
     return res.json({ token: token_, user: safeUser(user) });
@@ -496,7 +500,7 @@ router.get("/magic-link/pixel/:token", (req, res) => {
 
   try {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    logInfo("auth", "user.magic_link.opened", "Mail de magic link abierto", { ip: req.ip, meta: { tokenHash } });
+    logInfo("auth", "user.magic_link.opened", "Mail de magic link abierto", { ip: getClientIp(req), meta: { tokenHash } });
     sendGA4Event("magic_link_email_opened", { clientId: tokenHash });
   } catch (err) {
     console.error("Magic link pixel error:", err.message);
