@@ -124,6 +124,9 @@ const NotePage = ({ lang }) => {
   const date = dateFromSlug(slug);
   const [post, setPost] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  // noindex solo ante un 404 confirmado: un fallo de red / cold start del
+  // backend NO debe marcar la nota como noindex (Googlebot renderiza el JS).
+  const [missing, setMissing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [allPosts, setAllPosts] = useState([]);
 
@@ -137,18 +140,26 @@ const NotePage = ({ lang }) => {
   useEffect(() => {
     setPost(null);
     setNotFound(false);
-    if (!date) { setNotFound(true); return; }
+    setMissing(false);
+    if (!date) { setNotFound(true); setMissing(true); return; }
 
     let cancelled = false;
     fetch(`${API_URL}/api/posts/${lang}/${date}`)
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((res) => {
+        if (res.status === 404) {
+          if (!cancelled) { setNotFound(true); setMissing(true); }
+          return null;
+        }
+        return res.ok ? res.json() : Promise.reject();
+      })
       .then((data) => {
-        if (cancelled) return;
+        if (cancelled || !data) return;
         if (data.post) {
           setPost(data.post);
           injectArticleSchema(data.post, `https://nuiapp.com${t.basePath}/${data.post.slug}`, t);
         } else {
           setNotFound(true);
+          setMissing(true);
         }
       })
       .catch(() => { if (!cancelled) setNotFound(true); });
@@ -159,9 +170,9 @@ const NotePage = ({ lang }) => {
   usePageMeta({
     title:       post ? `${post.title} — Nui App` : notFound ? t.notFoundPageTitle : t.loadingTitle,
     description: post?.excerpt,
-    canonical:   post ? `${t.basePath}/${post.slug}` : undefined,
+    canonical:   post ? `${t.basePath}/${post.slug}` : slug ? `${t.basePath}/${slug}` : undefined,
     image:       post?.imageUrl,
-    robots:      post ? (post.indexStatus === "index" ? "index, follow" : "noindex, follow") : "noindex, follow",
+    robots:      post ? (post.indexStatus === "index" ? "index, follow" : "noindex, follow") : missing ? "noindex, follow" : "index, follow",
     // Sin alternates: contenido independiente entre idiomas, no hreflang.
   });
 
