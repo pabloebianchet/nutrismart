@@ -9,8 +9,15 @@ const Link = ({ to, children }) => {
   const navigate = useNavigate();
   return (
     <Typography
-      onClick={() => navigate(to)}
+      component="a"
+      href={to}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        navigate(to);
+      }}
       sx={{
+        textDecoration: "none",
         fontSize: 12,
         color: "rgba(255,255,255,0.5)",
         cursor: "pointer",
@@ -79,6 +86,8 @@ export default function AppFooter() {
         </Typography>
 
         <Stack direction="row" spacing={2} alignItems="center">
+          <Link to={isUS ? "/en/notes" : "/es-ar/notas"}>{isUS ? "Notes" : "Notas"}</Link>
+          <Dot />
           <Link to={isUS ? "/en/privacy" : "/privacidad"}>{isUS ? "Privacy" : "Privacidad"}</Link>
           <Dot />
           <Link to={isUS ? "/en/terms" : "/terminos"}>{isUS ? "Terms" : "Términos"}</Link>
@@ -107,8 +116,10 @@ export default function AppFooter() {
           </Typography>
         </Typography>
 
-        {/* Fila 1: Privacidad · Términos */}
+        {/* Fila 1: Notas · Privacidad · Términos */}
         <Stack direction="row" spacing={1.5} alignItems="center">
+          <Link to={isUS ? "/en/notes" : "/es-ar/notas"}>{isUS ? "Notes" : "Notas"}</Link>
+          <Dot />
           <Link to={isUS ? "/en/privacy" : "/privacidad"}>{isUS ? "Privacy" : "Privacidad"}</Link>
           <Dot />
           <Link to={isUS ? "/en/terms" : "/terminos"}>{isUS ? "Terms" : "Términos"}</Link>

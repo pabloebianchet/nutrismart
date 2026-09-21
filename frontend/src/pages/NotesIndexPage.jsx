@@ -33,6 +33,7 @@ const COPY = {
     next:        "Siguiente",
     pageOf:      (p, total) => `Página ${p} de ${total}`,
     empty:       "Todavía no hay notas publicadas.",
+    allHeading:  "Todas las notas",
   },
   en: {
     basePath:    "/en/notes",
@@ -46,6 +47,7 @@ const COPY = {
     next:        "Next",
     pageOf:      (p, total) => `Page ${p} of ${total}`,
     empty:       "No notes published yet.",
+    allHeading:  "All notes",
   },
 };
 
@@ -63,6 +65,16 @@ const NotesIndexPage = ({ lang }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [allPosts, setAllPosts] = useState([]);
+
+  // Listado completo con <Link> reales: la paginación de arriba es por
+  // botones (no rastreable), esto le da a Google un camino a cada nota.
+  useEffect(() => {
+    fetch(`${API_URL}/api/posts/${lang}/all`)
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => setAllPosts([...(data.posts || [])].sort((a, b) => (a.date < b.date ? 1 : -1))))
+      .catch(() => {});
+  }, [lang]);
 
   useEffect(() => {
     setLoading(true);
@@ -178,6 +190,27 @@ const NotesIndexPage = ({ lang }) => {
               {t.next}
             </Button>
           </Stack>
+        )}
+
+        {allPosts.length > 0 && (
+          <Box component="nav" aria-label={t.allHeading} sx={{ mt: 6 }}>
+            <Typography component="h2" sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, mb: 1.5 }}>
+              {t.allHeading}
+            </Typography>
+            <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, display: "grid", gap: 0.5 }}>
+              {allPosts.map((p) => (
+                <Box component="li" key={p.date}>
+                  <Typography
+                    component={Link}
+                    to={`${t.basePath}/${p.slug}`}
+                    sx={{ fontSize: 14, color: C.brand, textDecoration: "none", lineHeight: 1.5, "&:hover": { textDecoration: "underline" } }}
+                  >
+                    {p.title}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         )}
       </Box>
     </Box>

@@ -320,6 +320,12 @@ async function main() {
       const h1Found = await page.waitForSelector("h1", { timeout: 15000 }).then(() => true).catch(() => false);
       log(h1Found ? "<h1> encontrado" : "⚠ <h1> NO encontrado tras 15s");
 
+      // Índices de notas: esperar el listado completo de <Link>s (fetch /all)
+      // para que queden horneados en el HTML que ve Google.
+      if (NOTE_INDEX_ROUTES.includes(route)) {
+        await page.waitForSelector('nav[aria-label="Todas las notas"] a, nav[aria-label="All notes"] a', { timeout: 15000 }).catch(() => log("⚠ listado completo de notas no apareció tras 15s"));
+      }
+
       // Margen adicional acotado para secciones async lentas (ej. el blog
       // de la home) — nunca bloquea la captura si no llegan a tiempo,
       // solo les da una oportunidad razonable antes de tomar el snapshot.
