@@ -3647,12 +3647,14 @@ const LandingFooter = () => {
                   ["Terms", "/en/terms"],
                   ["Contact", "/en/contact"],
                   ["Pricing", "/en/pricing"],
+                  ["Notes", "/en/notes"],
                 ]
               : [
                   ["Privacidad", "/privacidad"],
                   ["Términos", "/terminos"],
                   ["Contacto", "/contact"],
                   ["Precios", "/pricing"],
+                  ["Notas", "/es-ar/notas"],
                 ]
             ).map(([label, path]) => (
               <Box
