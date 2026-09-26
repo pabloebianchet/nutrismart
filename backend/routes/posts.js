@@ -201,7 +201,16 @@ router.get("/:lang/today", validLang, authMiddleware, async (req, res) => {
     const { lang } = req.params;
     const date     = todayDate();
     let   post     = await DailyPost.findOne({ lang, date });
-    if (!post) post = await generateDailyPost(getOpenAI(), lang, date);
+    if (!post) {
+      try {
+        post = await generateDailyPost(getOpenAI(), lang, date);
+      } catch (err) {
+        console.error(`generateDailyPost falló (${lang}/${date}):`, err.message);
+        logWarn("seo", "note.generation_failed", `Falló la generación del post del día: ${lang}/${date}`, {
+          meta: { lang, date, error: err.message },
+        });
+      }
+    }
     return res.json({ post });
   } catch (err) {
     console.error("DailyPost error:", err.message);
@@ -249,7 +258,19 @@ router.get("/:lang/landing", validLang, async (req, res) => {
     let featured = null;
     if (page === 1) {
       featured = await DailyPost.findOne({ lang, date: today });
-      if (!featured) featured = await generateDailyPost(getOpenAI(), lang, today);
+      if (!featured) {
+        // Si falla la generación del post del día (ej. sin crédito de
+        // OpenAI), no tiene que tumbar el archivo/historial completo —
+        // el usuario sigue viendo las notas ya publicadas.
+        try {
+          featured = await generateDailyPost(getOpenAI(), lang, today);
+        } catch (err) {
+          console.error(`generateDailyPost falló (${lang}/${today}):`, err.message);
+          logWarn("seo", "note.generation_failed", `Falló la generación del post del día: ${lang}/${today}`, {
+            meta: { lang, date: today, error: err.message },
+          });
+        }
+      }
     }
 
     const totalArchive = await DailyPost.countDocuments({ lang, date: { $ne: today } });
