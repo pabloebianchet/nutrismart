@@ -100,9 +100,18 @@ const LandingNav = ({ scrolled }) => {
         alignItems: "center",
         justifyContent: "space-between",
         background: scrolled ? "rgba(255,255,255,0.75)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
+        // backdropFilter SIEMPRE presente (nunca "none"): togglear la
+        // propiedad on/off fuerza a Safari/iOS a recrear la capa de
+        // composición de este elemento fixed en cada scroll, lo que causa
+        // un glitch visual conocido de WebKit — el frame anterior queda
+        // "fantasma" superpuesto un instante (se ve como dos navs
+        // pisándose). Blur constante + solo el background cambia = sin
+        // recreación de capa, sin glitch.
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        transform: "translateZ(0)",
         borderBottom: scrolled ? "1px solid rgba(10,26,24,0.06)" : "none",
-        transition: "all 0.3s ease",
+        transition: "background 0.3s ease, padding 0.3s ease, border-color 0.3s ease",
       }}
     >
       <Box
