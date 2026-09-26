@@ -95,23 +95,30 @@ const LandingNav = ({ scrolled }) => {
         right: 0,
         zIndex: 1900,
         px: { xs: 2.5, sm: 5, md: 8 },
-        py: scrolled ? 1.2 : 1.8,
+        // py SIEMPRE fijo — ver nota de abajo: en un elemento fixed con
+        // backdrop-filter, cualquier cambio de tamaño/geometría (padding,
+        // border-width) en scroll es lo que dispara el glitch de Safari,
+        // no solo el toggle del blur en sí.
+        py: 1.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         background: scrolled ? "rgba(255,255,255,0.75)" : "transparent",
-        // backdropFilter SIEMPRE presente (nunca "none"): togglear la
-        // propiedad on/off fuerza a Safari/iOS a recrear la capa de
-        // composición de este elemento fixed en cada scroll, lo que causa
-        // un glitch visual conocido de WebKit — el frame anterior queda
-        // "fantasma" superpuesto un instante (se ve como dos navs
-        // pisándose). Blur constante + solo el background cambia = sin
-        // recreación de capa, sin glitch.
+        // backdropFilter SIEMPRE presente (nunca "none") y el nav NUNCA
+        // cambia de tamaño (py/border-width fijos, solo colores animan):
+        // en Safari/iOS, un elemento fixed con backdrop-filter que además
+        // cambia de geometría en cada frame de scroll (padding achicándose,
+        // borde apareciendo de la nada) hace que WebKit recalcule mal la
+        // capa compuesta y deje "pegado" un frame anterior más grande —
+        // eso es la mancha/rastro que se ve detrás de los botones. Con
+        // tamaño 100% constante y solo transiciones de color, no hay nada
+        // que fuerce ese recálculo.
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         transform: "translateZ(0)",
-        borderBottom: scrolled ? "1px solid rgba(10,26,24,0.06)" : "none",
-        transition: "background 0.3s ease, padding 0.3s ease, border-color 0.3s ease",
+        borderBottom: "1px solid",
+        borderColor: scrolled ? "rgba(10,26,24,0.06)" : "transparent",
+        transition: "background 0.3s ease, border-color 0.3s ease",
       }}
     >
       <Box
