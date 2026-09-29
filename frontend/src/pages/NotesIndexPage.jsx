@@ -33,7 +33,7 @@ const COPY = {
     next:        "Siguiente",
     pageOf:      (p, total) => `Página ${p} de ${total}`,
     empty:       "Todavía no hay notas publicadas.",
-    allHeading:  "Todas las notas",
+    allHeading:  "Historial completo",
   },
   en: {
     basePath:    "/en/notes",
@@ -47,7 +47,7 @@ const COPY = {
     next:        "Next",
     pageOf:      (p, total) => `Page ${p} of ${total}`,
     empty:       "No notes published yet.",
-    allHeading:  "All notes",
+    allHeading:  "Full history",
   },
 };
 
@@ -97,7 +97,7 @@ const NotesIndexPage = ({ lang }) => {
 
   return (
     <Box sx={{ background: C.surfaceAlt, minHeight: "100vh", py: { xs: 4, sm: 6 } }}>
-      <Box sx={{ maxWidth: 900, mx: "auto", px: { xs: 2.5, sm: 3 } }}>
+      <Box sx={{ maxWidth: 1080, mx: "auto", px: { xs: 2.5, sm: 3 } }}>
         <Typography
           component={Link}
           to="/"
@@ -109,6 +109,9 @@ const NotesIndexPage = ({ lang }) => {
         >
           <ArrowBackRoundedIcon sx={{ fontSize: 16 }} /> {t.backHome}
         </Typography>
+
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 1fr) 320px" }, gap: { xs: 5, md: 5 }, alignItems: "start" }}>
+        <Box sx={{ minWidth: 0 }}>
 
         <Typography component="h1" sx={{ fontSize: { xs: 26, sm: 32 }, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, mb: 1, letterSpacing: "-0.6px" }}>
           {t.heading}
@@ -192,26 +195,60 @@ const NotesIndexPage = ({ lang }) => {
           </Stack>
         )}
 
+        </Box>
+
+        {/* Historial completo — cards chicas (thumbnail + título), como en
+         * la página de cada nota. Con scroll propio: le da a Google un
+         * link real a cada nota (el contenido en overflow:auto sigue
+         * siendo rastreable, a diferencia de display:none) sin convertir
+         * la página en un dump gigante de texto plano. */}
         {allPosts.length > 0 && (
-          <Box component="nav" aria-label={t.allHeading} sx={{ mt: 6 }}>
-            <Typography component="h2" sx={{ fontSize: 20, fontWeight: 900, fontFamily: '"Baloo 2", "Nunito", system-ui, sans-serif', color: C.textPrimary, mb: 1.5 }}>
+          <Box component="nav" aria-label={t.allHeading} sx={{ minWidth: 0, position: { md: "sticky" }, top: { md: 24 } }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 800, color: C.textPrimary, mb: 2, letterSpacing: "-0.2px" }}>
               {t.allHeading}
             </Typography>
-            <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, display: "grid", gap: 0.5 }}>
-              {allPosts.map((p) => (
-                <Box component="li" key={p.date}>
-                  <Typography
-                    component={Link}
-                    to={`${t.basePath}/${p.slug}`}
-                    sx={{ fontSize: 14, color: C.brand, textDecoration: "none", lineHeight: 1.5, "&:hover": { textDecoration: "underline" } }}
-                  >
-                    {p.title}
-                  </Typography>
+            <Stack
+              spacing={0}
+              sx={{
+                bgcolor: C.surface, borderRadius: 4, border: `1px solid ${C.border}`, overflow: "hidden",
+                p: 1, maxHeight: { xs: 480, md: 640 }, overflowY: "auto",
+              }}
+            >
+              {allPosts.map((p, i) => (
+                <Box
+                  key={p.date}
+                  component={Link}
+                  to={`${t.basePath}/${p.slug}`}
+                  sx={{
+                    display: "flex", alignItems: "center", gap: 1.5, p: 1.2, borderRadius: 2,
+                    textDecoration: "none", color: "inherit",
+                    borderBottom: i < allPosts.length - 1 ? `1px solid ${C.border}` : "none",
+                    "&:hover": { bgcolor: C.brandSurface },
+                  }}
+                >
+                  <Box sx={{ width: 44, height: 44, borderRadius: 1.5, overflow: "hidden", flexShrink: 0, bgcolor: C.brandSurface }}>
+                    {p.imageUrl ? (
+                      <Box component="img" src={cldResize(p.imageUrl, 130)} alt={p.title} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    ) : (
+                      <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Leaf size={16} weight="fill" color={C.brand} />
+                      </Box>
+                    )}
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontSize: 12.5, fontWeight: 600, color: C.textPrimary, lineHeight: 1.3, mb: 0.2, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      {p.title}
+                    </Typography>
+                    <Typography sx={{ fontSize: 10.5, color: C.textMuted }}>
+                      {fmtDate(p.publishedAt, t.dateLocale)}
+                    </Typography>
+                  </Box>
                 </Box>
               ))}
-            </Box>
+            </Stack>
           </Box>
         )}
+        </Box>
       </Box>
     </Box>
   );
