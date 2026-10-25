@@ -40,7 +40,15 @@ export const cosineSimilarity = (a, b) => {
 
 export const MIN_BODY_LENGTH = 600;
 export const SIMILARITY_THRESHOLD = 0.90;
-export const CANNIBALIZATION_WINDOW_DAYS = 60;
+// El banco de temas ronda ~90 entradas por idioma; a 1 post/día eso es
+// ~3 meses de rotación. La ventana de canibalización tiene que ser más
+// larga que eso para que nunca se repita un keyword a mitad de ciclo —
+// si no, Google termina viendo el mismo tema reescrito cada 40-60 días
+// y lo trata como contenido duplicado (pasó: 85 de 127 notas resultaron
+// ser reescrituras de 33 keywords repetidos, y la mayoría quedó sin
+// indexar). 270 días da margen incluso si el banco crece más lento de
+// lo esperado.
+export const CANNIBALIZATION_WINDOW_DAYS = 270;
 export const DUPLICATE_CHECK_WINDOW_DAYS = 30;
 
 export const cutoffDate = (daysAgo) => {
